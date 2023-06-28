@@ -33,9 +33,11 @@ alias reload="source $HOME/.zshrc"
 alias rhmhd='lsof +D '/Volumes/RH Media HD/''
 alias template="cd $(dirname $(kpsewhich template.sty))"
 alias ucb="cd $HOME/Library/CloudStorage/Dropbox/UCBerkeley"
-alias updbib="sudo mv $HOME/Documents/LaTeX/Library.bib /usr/local/texlive/texmf-local/bibtex/bib"
 alias vtc="cd $HOME/.config/nvim/pack/plugins/start/vimtex/autoload/vimtex/complete"
 alias zshrc="nvim $HOME/.zshrc"
+function cs {
+     cd $* && ls
+}
 function ffr {
      sudo find / ${*:?Expression required.} -print 2>/dev/null > rm_files.txt
 }
