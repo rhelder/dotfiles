@@ -1,0 +1,571 @@
+%%Author: Russell Wright Helder
+\NeedsTeXFormat{LaTeX2e}[2022/11/01]
+\ProvidesExplPackage{rhelder}{2023/06/28}{1.0}{Russ Helder's style file}
+
+\RequirePackage[letterpaper,margin=1.5in]{geometry}
+\RequirePackage{polyglossia}
+\RequirePackage[autostyle,latin=britishquotes,english=british]{csquotes}
+\RequirePackage[indentfirst=false,rightmargin=0in]{quoting}
+\RequirePackage{microtype}
+\RequirePackage[chicago]{xellipsis}
+\RequirePackage{enumitem}
+\RequirePackage{pifont}
+\RequirePackage{array}
+\RequirePackage{ragged2e}
+\RequirePackage{etoolbox}
+\AtEndOfPackage{\RequirePackage{hyperref}}
+
+
+\newbool{biblatex}
+\newbool{nomencl}
+\newbool{doublespaced}
+\newbool{authorruss}
+\newbool{anonymous}
+\newbool{default}
+\newbool{misguided}
+
+\DeclareOption{biblatex}{\booltrue{biblatex}}
+\DeclareOption{nomencl}{\booltrue{nomencl}}
+\DeclareOption{doublespaced}{\booltrue{doublespaced}}
+\DeclareOption{authorruss}{\booltrue{authorruss}}
+\DeclareOption{anonymous}{\boolfalse{authorruss}\booltrue{anonymous}}
+\DeclareOption{default}{\booltrue{default}}
+\DeclareOption{custom}{\boolfalse{default}}
+\DeclareOption{misguided}{\booltrue{misguided}}
+
+\DeclareOption*{\PackageWarning{template}{Unknown ‘\CurrentOption’}}
+
+\ExecuteOptions{default,authorruss}
+
+\ProcessOptions\relax
+
+\ifbool{biblatex}{%
+	\RequirePackage[%
+	authordate,
+	dashed=false,
+	citereset=section,
+	pagetracker=false,
+	ibidtracker=constrict,
+	cmslos=false,
+	autolang=hyphen,
+	backend=biber,
+	]{biblatex-chicago}%
+	\DeclareLanguageMapping{latin}{cms-american}%
+	\DeclareBibstringSet{all}{%
+		bibliography,
+		references,˙
+		shorthands,
+		editor,
+		editors,
+		compiler,
+		compilers,
+		redactor,
+		redactors,
+		reviser,
+		revisers,
+		founder,
+		founders,
+		continuator,
+		continuators,
+		collaborator,
+		collaborators,
+		translator,
+		translators,
+		commentator,
+		commentators,
+		annotator,
+		annotators,
+		commentary,
+		annotations,
+		introduction,
+		foreword,
+		afterword,
+		editortr,
+		editorstr,
+		editorco,
+		editorsco,
+		editoran,
+		editorsan,
+		editorin,
+		editorsin,
+		editorfo,
+		editorsfo,
+		editoraf,
+		editorsaf,
+		editortrco,
+		editorstrco,
+		editortran,
+		editorstran,
+		editortrin,
+		editorstrin,
+		editortrfo,
+		editorstrfo,
+		editortraf,
+		editorstraf,
+		editorcoin,
+		editorscoin,
+		editorcofo,
+		editorscofo,
+		editorcoaf,
+		editorscoaf,
+		editoranin,
+		editorsanin,
+		editoranfo,
+		editorsanfo,
+		editoranaf,
+		editorsanaf,
+		editortrcoin,
+		editorstrcoin,
+		editortrcofo,
+		editorstrcofo,
+		editortrcoaf,
+		editorstrcoaf,
+		editortranin,
+		editorstranin,
+		editortranfo,
+		editorstranfo,
+		editortranaf,
+		editorstranaf,
+		translatorco,
+		translatorsco,
+		translatoran,
+		translatorsan,
+		translatorin,
+		translatorsin,
+		translatorfo,
+		translatorsfo,
+		translatoraf,
+		translatorsaf,
+		translatorcoin,
+		translatorscoin,
+		translatorcofo,
+		translatorscofo,
+		translatorcoaf,
+		translatorscoaf,
+		translatoranin,
+		translatorsanin,
+		translatoranfo,
+		translatorsanfo,
+		translatoranaf,
+		translatorsanaf,
+		byauthor,
+		byeditor,
+		bycompiler,
+		byredactor,
+		byreviser,
+		byreviewer,
+		byfounder,
+		bycontinuator,
+		bycollaborator,
+		bytranslator,
+		bycommentator,
+		byannotator,
+		withcommentator,
+		withannotator,
+		withintroduction,
+		withforeword,
+		withafterword,
+		organizer,
+		organizers,
+		byorganizer,
+		byeditortr,
+		byeditorco,
+		byeditoran,
+		byeditorin,
+		byeditorfo,
+		byeditoraf,
+		byeditortrco,
+		byeditortran,
+		byeditortrin,
+		byeditortrfo,
+		byeditortraf,
+		byeditorcoin,
+		byeditorcofo,
+		byeditorcoaf,
+		byeditoranin,
+		byeditoranfo,
+		byeditoranaf,
+		byeditortrcoin,
+		byeditortrcofo,
+		byeditortrcoaf,
+		byeditortranin,
+		byeditortranfo,
+		byeditortranaf,
+		bytranslatorco,
+		bytranslatoran,
+		bytranslatorin,
+		bytranslatorfo,
+		bytranslatoraf,
+		bytranslatorcoin,
+		bytranslatorcofo,
+		bytranslatorcoaf,
+		bytranslatoranin,
+		bytranslatoranfo,
+		bytranslatoranaf,
+		and,
+		andothers,
+		andmore,
+		volume,
+		volumes,
+		involumes,
+		part,
+		jourvol,
+		jourser,
+		newseries,
+		oldseries,
+		edition,
+		reprint,
+		reprintof,
+		reprintas,
+		reprintfrom,
+		reviewof,
+		translationof,
+		translationas,
+		translationfrom,
+		origpubas,
+		origpubin,
+		astitle,
+		bypublisher,
+		nodate,
+		page,
+		pages,
+		column,
+		columns,
+		line,
+		lines,
+		verse,
+		verses,
+		section,
+		sections,
+		paragraph,
+		paragraphs,
+		pagetotal,
+		pagetotals,
+		columntotal,
+		columntotals,
+		linetotal,
+		linetotals,
+		versetotal,
+		versetotals,
+		sectiontotal,
+		sectiontotals,
+		paragraphtotal,
+		paragraphtotals,
+		in,
+		inseries,
+		ofseries,
+		book,
+		issue,
+		number,
+		chapter,
+		bathesis,
+		mathesis,
+		phdthesis,
+		candthesis,
+		resreport,
+		techreport,
+		software,
+		datacd,
+		audiocd,
+		version,
+		url,
+		urlfrom,
+		urlseen,
+		file,
+		inpreparation,
+		submitted,
+		inpress,
+		prepublished,
+		forthcoming,
+		library,
+		abstract,
+		annotation,
+		citedas,
+		seenote,
+		quotedin,
+		opcit,
+		loccit,
+		ibidem,
+		idem,
+		idemsf,
+		idemsm,
+		idemsn,
+		idempf,
+		idempm,
+		idempn,
+		idempp,
+		confer,
+		sequens,
+		sequentes,
+		passim,
+		see,
+		seealso,
+		backrefpage,
+		backrefpages,
+		thiscite,
+		january,
+		february,
+		march,
+		april,
+		may,
+		june,
+		july,
+		august,
+		september,
+		october,
+		november,
+		december,
+		langamerican,
+		langbasque,
+		langbrazilian,
+		langbulgarian,
+		langcatalan,
+		langcroatian,
+		langczech,
+		langdanish,
+		langdutch,
+		langenglish,
+		langestonian,
+		langfinnish,
+		langfrench,
+		langgalician,
+		langgerman,
+		langgreek,
+		langhungarian,
+		langitalian,
+		langjapanese,
+		langlatin,
+		langlatvian,
+		langlithuanian,
+		langmarathi,
+		langnorwegian,
+		langpolish,
+		langportuguese,
+		langserbian,
+		langromanian,
+		langrussian,
+		langslovak,
+		langslovene,
+		langspanish,
+		langswedish,
+		langturkish,
+		langukrainian,
+		fromamerican,
+		frombasque,
+		frombrazilian,
+		frombulgarian,
+		fromcatalan,
+		fromcroatian,
+		fromczech,
+		fromdanish,
+		fromdutch,
+		fromenglish,
+		fromestonian,
+		fromfinnish,
+		fromfrench,
+		fromgalician,
+		fromgerman,
+		fromgreek,
+		fromhungarian,
+		fromitalian,
+		fromjapanese,
+		fromlatin,
+		fromlithuanian,
+		fromlatvian,
+		frommarathi,
+		fromnorwegian,
+		frompolish,
+		fromportuguese,
+		fromromanian,
+		fromrussian,
+		fromserbian,
+		fromslovak,
+		fromslovene,
+		fromspanish,
+		fromswedish,
+		fromturkish,
+		fromukrainian,
+		countryde,
+		countryep,
+		countryeu,
+		countryfr,
+		countryuk,
+		countryus,
+		patent,
+		patentde,
+		patenteu,
+		patentfr,
+		patentuk,
+		patentus,
+		patreq,
+		patreqde,
+		patreqeu,
+		patreqfr,
+		patrequk,
+		patrequs,
+		commonera,
+		beforecommonera,
+		annodomini,
+		beforechrist,
+		circa,
+		spring,
+		summer,
+		autumn,
+		winter,
+		springN,
+		summerN,
+		autumnN,
+		winterN,
+		springS,
+		summerS,
+		autumnS,
+		winterS,
+		Q1,
+		Q2,
+		Q3,
+		Q4,
+		QD1,
+		QD2,
+		QD3,
+		S1,
+		S2,
+		am,
+		pm,
+		}%
+	\DeclareBibstringSetFormat{all}{\textmainlang{#1}}%
+	\DeclareListFormat{location}{%
+		\usebibmacro{list:delim}{#1}%
+		\textmainlang{#1}\isdot
+		\usebibmacro{list:andothers}%
+		}%
+	}{}
+
+\ifbool{nomencl}{%
+	\RequirePackage{nomencl}%
+	\makenomenclature
+	\renewcommand{\nomname}{Abbreviations}%
+	\ifbool{biblatex}{%
+		\setlength{\nomitemsep}{\bibitemsep}%
+		\addtolength{\nomitemsep}{-\parsep}%				
+		}{%
+		\addtolength{\nomitemsep}{-\parsep}%
+		}%
+	}{}
+
+\ifbool{doublespaced}{%
+	\RequirePackage{setspace}%
+	\doublespacing
+	\geometry{hmargin=1in}%
+	\quotingsetup{font={small,singlespace}}%
+	\ifbool{biblatex}{%
+		\ifbool{nomencl}{%
+			\setlength{\bibitemsep}{0pt}%
+			\addtolength{\nomitemsep}{-\parsep}%
+			}{%
+			\setlength{\bibitemsep}{0pt}%			
+			}%
+		}{}%
+	}{}
+
+\ifbool{authorruss}{
+	\AtEndOfPackage{
+		\hypersetup{
+			pdfauthor={Russell\ Wright\ Helder},
+			}
+		}
+	}{}
+
+\ifbool{anonymous}{
+	\def\@maketitle{
+		\newpage
+		\null
+		\vskip 2em
+		\begin{center}
+			\let \footnote \thanks
+			{\LARGE \@title \par}
+			\vskip 1.5em
+%			{\large
+%				\lineskip 0.5em
+%				\begin{tabular}[t]{c}
+%					\@author
+%				\end{tabular}\par}
+%			\vskip 1em
+			{\large \@date}
+		\end{center}
+		\par
+		\vskip 1.5em
+		}
+	}{}
+
+\ifbool{default}{
+	\AtEndOfPackage{
+		\setdefaultlanguage[variant=american]{english}
+		\setotherlanguage[variant=ancient]{greek}
+		\setotherlanguage{latin}
+		}
+	}{}
+
+\ifbool{misguided}{
+	\DeclareAutoPunct{.,}
+	\renewcommand{\mktextquote}[6]{#1#2#4#5#3#6}
+	}{
+	\DeclareQuoteStyle[american]{english}
+	{\textquoteleft}{\textquoteright}
+	{\textquotedblleft}{\textquotedblright}
+	\ifbool{biblatex}{\DefineBibliographyExtras{american}{\stdpunctuation}}{}
+	}
+
+\setmainfont{Brill}
+
+\clubpenalty=10000
+\widowpenalty=10000
+
+\renewcommand*{\quotingfont}{\small\setlength{\itemsep}{0pt}}
+\SetBlockEnvironment{quoting}
+\renewenvironment{quotation}{\begin{quoting}}{\end{quoting}}
+
+\DeclareQuoteStyle[ancient]{greek}
+{\textquotedblleft}{\textquotedblright}
+{\textquoteleft}{\textquoteright}
+\DeclareQuoteAlias[ancient]{greek}{greek}
+
+\setlist{listparindent=\parindent,parsep=0pt}
+\setlist[itemize,2]{label=\ding{118}}
+\setlist[itemize,3]{label=\ding{66}}
+\newlist{outline}{enumerate}{5}
+\setlistdepth{5}
+\setlist[outline,1]{itemsep=2\itemsep,label=\Roman*.}
+\setlist[outline,2]{itemsep=2\itemsep,label=\Alph*.}
+\setlist[outline,3]{label=\arabic*.}
+\setlist[outline,4]{label=\alph*.}
+\setlist[outline,5]{label=\roman*.}
+%\setlist[description]{%
+%	style=nextline,
+%	leftmargin=0em,
+%	itemindent=!,
+%	itemsep=2\itemsep,
+%	}
+
+\AtEndOfPackage{
+	\hypersetup{
+		colorlinks=true,
+		linkcolor=black,
+		filecolor=magenta,  
+		citecolor=black,
+		urlcolor=blue,
+		pdfpagemode=UseNone,
+		}
+	\AtBeginDocument{
+		\hypersetup{pdftitle = {\@title}}
+		}
+	\urlstyle{same}
+	}
+
+\NewCommandCopy{\emphit}{\emph}
+\NewDocumentCommand{\texttitle}{m}{\emphit{#1}}
+\NewDocumentCommand{\alialingua}{O{}mm}{
+	\textlang[#1]{#2}{\emphit{#3}}
+	}
+\NewCommandCopy{\define}{\emph}
+
+\endinput
