@@ -1,4 +1,4 @@
-autocmd FileType * set fo-=r fo-=o
+autocmd FileType * set fo-=r fo-=o fo-=c
 autocmd FileType * set smartindent
 autocmd FileType tex set linebreak
 autocmd FileType tex set nosmartindent
@@ -28,8 +28,11 @@ set softtabstop=5
 set splitbelow
 set splitright
 
-function! Luatable() range
+
+"Convert tab-separated lists (i.e., as copied/pasted from Excel spreadsheets) into Lua tables
+function Luatable() range
      execute a:firstline .. "," .. a:lastline .. 's/^\(.*\)\t\(.*\)$/[''\1''] = ''\2'','
+     execute "noh"
      execute "normal" .. a:firstline .. "GO= {\<Esc>"
      execute "normal =" .. (a:lastline + 1) .. "G"
      execute "normal" .. (a:lastline + 1) .. "Go}\<Esc>"
@@ -38,12 +41,7 @@ function! Luatable() range
      execute "startinsert"
 endfunction
 
-command -range=% Luacommand  
-     \ execute <line1> .. "," .. <line2> .. 's/^\(.*\)\t\(.*\)$/[''\1''] = ''\2'',' |
-     \ execute "normal" .. <line1> .. "GO= {\<Esc>" |
-     \ execute "normal =" .. (<line2> + 1) .. "G" |
-     \ execute "normal" .. (<line2> + 1) .. "Go}\<Esc>" |
-     \ execute "normal == " .. <line1> .. "G"
+command -range=% Luatable <line1>,<line2>call Luatable()
 
 
 "" Vimtex settings
@@ -106,3 +104,15 @@ augroup terminal_window_switch
      autocmd TermLeave * tunmap <C-W><C-W>
      autocmd TermLeave * tunmap <C-W>w
 augroup END
+
+
+"" Here's how to define Luatable as a command directly
+" command -range=% LuaTableCommand  
+"      \ execute "<line1>,<line2>" .. 's/^\(.*\)\t\(.*\)$/[''\1''] = ''\2'',' |
+"      \ execute "noh" |
+"      \ execute "normal <line1>GO= {\<Esc>" |
+"      \ execute "normal =" .. (<line2> + 1) .. "G" |
+"      \ execute "normal" .. (<line2> + 1) .. "Go}\<Esc>" |
+"      \ execute "normal ==" |
+"      \ execute "normal <line1>G^" |
+"      \ execute "startinsert"
