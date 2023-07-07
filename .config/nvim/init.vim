@@ -12,7 +12,7 @@ let $UCB = "~/Library/CloudStorage/Dropbox/UCBerkeley"
 let $VTC = "~/.config/nvim/pack/plugins/start/vimtex/autoload/vimtex/complete"
 let $ZSHRC = "~/.zshrc"
 let g:python3_host_prog = "/usr/local/bin/python3"
-let g:vim_indent_cont = shiftwidth() * 1
+let g:vim_indent_cont = 0
 set belloff=
 set clipboard=unnamed
 set guicursor=
@@ -27,6 +27,23 @@ set smartcase
 set softtabstop=5
 set splitbelow
 set splitright
+
+function! Luatable() range
+     execute a:firstline .. "," .. a:lastline .. 's/^\(.*\)\t\(.*\)$/[''\1''] = ''\2'','
+     execute "normal" .. a:firstline .. "GO= {\<Esc>"
+     execute "normal =" .. (a:lastline + 1) .. "G"
+     execute "normal" .. (a:lastline + 1) .. "Go}\<Esc>"
+     normal ==
+     execute "normal" .. a:firstline .. "G^"
+     execute "startinsert"
+endfunction
+
+command -range=% Luacommand  
+     \ execute <line1> .. "," .. <line2> .. 's/^\(.*\)\t\(.*\)$/[''\1''] = ''\2'',' |
+     \ execute "normal" .. <line1> .. "GO= {\<Esc>" |
+     \ execute "normal =" .. (<line2> + 1) .. "G" |
+     \ execute "normal" .. (<line2> + 1) .. "Go}\<Esc>" |
+     \ execute "normal == " .. <line1> .. "G"
 
 
 "" Vimtex settings
