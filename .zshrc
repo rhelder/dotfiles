@@ -1,5 +1,4 @@
 # Options
-export MANPAGER='nvim +Man!'
 HISTSIZE=1200000
 SAVEHIST=1000000
 setopt rcquotes
@@ -22,7 +21,7 @@ PS1="%F{14}%n@%m (%!) %1~ %# %f"
 
 
 # Aliases and Functions
-alias aristotelis="cd $(dirname $(kpsewhich aristotelis.sty))"
+alias arist="cd $(dirname $(kpsewhich aristotelis.sty))"
 alias bib="cd $(dirname $(kpsewhich MyLibrary.bib))"
 alias budget="open $HOME/Library/CloudStorage/Dropbox/Budget_2023.xlsx" 
 alias clean="mv *.[^tp]* $HOME/.Trash"
@@ -53,11 +52,12 @@ function trash {
 
 
 # Variables
-ARISTOTELIS="$(dirname $(kpsewhich aristotelis.sty))"
-DB="$HOME/Library/CloudStorage/Dropbox"
-NVIMRC="$HOME/.config/nvim/init.vim"
-RHELDER="$(dirname $(kpsewhich rhelder.sty))"
-TEXMF="$HOME/Library/texmf"
-UCB="$HOME/Library/CloudStorage/Dropbox/UCBerkeley"
-VTC="$HOME/.config/nvim/pack/plugins/start/vimtex/autoload/vimtex/complete"
-ZSHRC="$HOME/.zshrc"
+export ARIST="$(kpsewhich aristotelis.sty)"
+export DB="$HOME/Library/CloudStorage/Dropbox"
+export MANPAGER='nvim +Man!'
+export NVIMRC="$HOME/.config/nvim/init.vim"
+export RHELDER="$(kpsewhich rhelder.sty)"
+export TEXMF="$HOME/Library/texmf"
+export UCB="$HOME/Library/CloudStorage/Dropbox/UCBerkeley"
+export VTC="$HOME/.config/nvim/pack/plugins/start/vimtex/autoload/vimtex/complete"
+export ZSHRC="$HOME/.zshrc"
