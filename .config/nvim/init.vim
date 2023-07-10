@@ -3,14 +3,9 @@ autocmd FileType * set smartindent
 autocmd FileType tex set linebreak
 autocmd FileType tex set nosmartindent
 autocmd TermOpen * startinsert
+command Nvimrc vs $NVIMRC
+command Terminal vs | terminal
 command Spellcheck set spell spelllang=en_us
-let $ARISTOTELIS = "/usr/local/texlive/texmf-local/tex/latex/aristotelis/aristotelis.sty"
-let $DB = "~/Library/CloudStorage/Dropbox"
-let $NVIMRC = "~/.config/nvim/init.vim"
-let $TEMPLATE = "/usr/local/texlive/texmf-local/tex/latex/template/template.sty"
-let $UCB = "~/Library/CloudStorage/Dropbox/UCBerkeley"
-let $VTC = "~/.config/nvim/pack/plugins/start/vimtex/autoload/vimtex/complete"
-let $ZSHRC = "~/.zshrc"
 let g:python3_host_prog = "/usr/local/bin/python3"
 let g:vim_indent_cont = 0
 set belloff=
@@ -100,9 +95,17 @@ augroup END
 augroup terminal_window_switch
      autocmd!
      autocmd TermEnter * tmap <C-W><C-W> <C-\><C-N><C-W><C-W>
-     autocmd TermEnter * tmap <C-W>w <C-\><C-N><C-W><C-W>
+     autocmd TermEnter * tmap <C-W>w <C-\><C-N><C-W>w
+     autocmd TermEnter * tmap <C-W>j <C-\><C-N><C-W>j
+     autocmd TermEnter * tmap <C-W>k <C-\><C-N><C-W>k
+     autocmd TermEnter * tmap <C-W>h <C-\><C-N><C-W>h
+     autocmd TermEnter * tmap <C-W>l <C-\><C-N><C-W>l
      autocmd TermLeave * tunmap <C-W><C-W>
      autocmd TermLeave * tunmap <C-W>w
+     autocmd TermLeave * tunmap <C-W>j
+     autocmd TermLeave * tunmap <C-W>k
+     autocmd TermLeave * tunmap <C-W>h
+     autocmd TermLeave * tunmap <C-W>l
 augroup END
 
 
