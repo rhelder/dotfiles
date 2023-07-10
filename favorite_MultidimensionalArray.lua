@@ -35,3 +35,23 @@ end
 
 row, col = coordinates('L')
 print(row .. ', ' .. col)
+
+---
+
+table1 = {
+     nes = 'Classic choice!',
+     snes = 'Super choice!',
+}
+
+table2 = {
+     nes = {'NES', 'Nintendo Entertainment System'},
+     snes = {'SNES', 'Super Nintendo', 'Super Nintendo Entertainment System'},
+}
+
+tableoftables = {}
+for k, a in pairs(table2) do
+     tableoftables[k] = {}
+     for i, v in ipairs(a) do 
+	  tableoftables[k][v] = table1[k]
+     end
+end
