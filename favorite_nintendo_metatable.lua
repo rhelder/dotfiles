@@ -16,14 +16,17 @@ end
 
 Nes = Console:new()
 Nes.response = 'Classic choice!'
-Nes.keywords = {'NES', 'Nintendo Entertainment System'}
+-- Nes.keywords = {'NES', 'Nintendo Entertainment System'}
+Nes['NES'] = Nes.response
+Nes['Nintendo Entertainment System'] = Nes.response
 Nes.__index = function(table, key)
-     for i, v in ipairs(Nes.keywords) do
-	  if key == v then
-	       print('success')
-	       return Nes.response
-	  end
-     end
+     return Nes[key]
+     -- for i, v in ipairs(Nes.keywords) do
+     --      if key == v then
+     --           print('success')
+     --           return Nes.response
+     --      end
+     -- end
 end
 Snes = Console:new()
 Snes.response = 'Super choice!'
@@ -52,6 +55,7 @@ setmetatable(console_names, Nes)
 print('Try entering the name of one of the best Nintendo consoles.')
 
 print(console_names['NES'])
+print(console_names['Wii'])
 
 -- input = io.read()
 -- name = load('return ' .. input)()
