@@ -33,7 +33,7 @@ alias luaqs='open -a skim '/Users/rhelder/Documents/Other/Lua_Quick_Start_Guide_
 alias nvimrc="nvim $HOME/.config/nvim/init.vim"
 alias reload="source $HOME/.zshrc"
 alias rhelder="cd $(dirname $(kpsewhich rhelder.sty))"
-alias rhmhd='lsof +D '/Volumes/RH Media HD/''
+alias rhmhd='lsof +D ''/Volumes/RH Media HD/'''
 alias ucb="cd $HOME/Library/CloudStorage/Dropbox/UCBerkeley"
 alias vtc="cd $HOME/.config/nvim/pack/plugins/start/vimtex/autoload/vimtex/complete"
 alias zshrc="nvim $HOME/.zshrc"
@@ -52,12 +52,12 @@ function trash {
 
 
 # Variables
-export ARIST="$(kpsewhich aristotelis.sty)"
-export DB="$HOME/Library/CloudStorage/Dropbox"
+ARIST="$(kpsewhich aristotelis.sty)"
+DB="$HOME/Library/CloudStorage/Dropbox"
 export MANPAGER='nvim +Man!'
-export NVIMRC="$HOME/.config/nvim/init.vim"
-export RHELDER="$(kpsewhich rhelder.sty)"
-export TEXMF="$HOME/Library/texmf"
-export UCB="$HOME/Library/CloudStorage/Dropbox/UCBerkeley"
-export VTC="$HOME/.config/nvim/pack/plugins/start/vimtex/autoload/vimtex/complete"
-export ZSHRC="$HOME/.zshrc"
+NVIMRC="$HOME/.config/nvim/init.vim"
+RHELDER="$(kpsewhich rhelder.sty)"
+TEXMF="$HOME/Library/texmf"
+UCB="$HOME/Library/CloudStorage/Dropbox/UCBerkeley"
+VTC="$HOME/.config/nvim/pack/plugins/start/vimtex/autoload/vimtex/complete"
+ZSHRC="$HOME/.zshrc"
