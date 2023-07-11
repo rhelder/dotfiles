@@ -21,7 +21,7 @@ PS1="%F{14}%n@%m (%!) %1~ %# %f"
 
 
 # Aliases and Functions
-alias arist="cd $(dirname $(kpsewhich aristotelis.sty))"
+alias arist="cd $HOME/Library/texmf/tex/latex/aristotelis"
 alias bib="cd $(dirname $(kpsewhich MyLibrary.bib))"
 alias budget="open $HOME/Library/CloudStorage/Dropbox/Budget_2023.xlsx" 
 alias clean="mv *.[^tp]* $HOME/.Trash"
@@ -32,7 +32,7 @@ alias lua='luajit'
 alias luaqs='open -a skim '/Users/rhelder/Documents/Other/Lua_Quick_Start_Guide_The_Easiest_Way_to_Learn_Lua....pdf''
 alias nvimrc="nvim $HOME/.config/nvim/init.vim"
 alias reload="source $HOME/.zshrc"
-alias rhelder="cd $(dirname $(kpsewhich rhelder.sty))"
+alias rhelder="cd $HOME/Library/texmf/tex/latex/rhelder"
 alias rhmhd='lsof +D ''/Volumes/RH Media HD/'''
 alias ucb="cd $HOME/Library/CloudStorage/Dropbox/UCBerkeley"
 alias vtc="cd $HOME/.config/nvim/pack/plugins/start/vimtex/autoload/vimtex/complete"
@@ -52,11 +52,11 @@ function trash {
 
 
 # Variables
-ARIST="$(kpsewhich aristotelis.sty)"
+ARIST="$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
 DB="$HOME/Library/CloudStorage/Dropbox"
 export MANPAGER='nvim +Man!'
 NVIMRC="$HOME/.config/nvim/init.vim"
-RHELDER="$(kpsewhich rhelder.sty)"
+RHELDER="$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
 TEXMF="$HOME/Library/texmf"
 UCB="$HOME/Library/CloudStorage/Dropbox/UCBerkeley"
 VTC="$HOME/.config/nvim/pack/plugins/start/vimtex/autoload/vimtex/complete"
