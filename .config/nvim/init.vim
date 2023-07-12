@@ -15,7 +15,6 @@ let $UCB = "$HOME/Library/CloudStorage/Dropbox/UCBerkeley"
 let $VTC = "$HOME/.config/nvim/pack/plugins/start/vimtex/autoload/vimtex/complete"
 let $ZSHRC = "$HOME/.zshrc"
 let g:python3_host_prog = "/usr/local/bin/python3"
-let g:vim_indent_cont = 0
 set belloff=
 set clipboard=unnamed
 set guicursor=
@@ -30,6 +29,8 @@ set smartcase
 set softtabstop=5
 set splitbelow
 set splitright
+
+let g:vim_indent_cont = shiftwidth() * 1
 
 
 "Convert tab-separated lists (i.e., as copied/pasted from Excel spreadsheets) into Lua tables
@@ -61,6 +62,11 @@ let g:vimtex_indent_delims = {
      \ 'close_indented' : 0,
      \ 'include_modified_math' : 1,
      \ }
+let g:vimtex_indent_conditionals = {
+     \ 'open': '\v%(\\newif)@<!\\if%(f>|field|name|numequal|thenelse|toggle|bool)@!',
+     \ 'else': '\\else\>',
+     \ 'close': '\\fi\>',
+     \}
 function! s:TexFocusVim() abort
      silent execute "!open -a Terminal"
      redraw!
