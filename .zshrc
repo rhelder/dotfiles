@@ -1,10 +1,12 @@
 # Options
+
 HISTSIZE=1200000
 SAVEHIST=1000000
 setopt rcquotes
 
 
 # run-help Settings
+
 HELPDIR='/usr/share/zsh/5.9/help'
 if [[ $(alias -m run-help) != '' ]]
      then unalias run-help
@@ -17,10 +19,12 @@ function run-help {
 
 
 # Prompt
+
 PS1="%F{14}%n@%m (%!) %1~ %# %f"
 
 
 # Aliases and Functions
+
 alias arist="cd $HOME/Library/texmf/tex/latex/aristotelis"
 alias bib="cd $(dirname $(kpsewhich MyLibrary.bib))"
 alias budget="open $HOME/Library/CloudStorage/Dropbox/Budget_2023.xlsx" 
@@ -52,6 +56,7 @@ function trash {
 
 
 # Variables
+
 ARIST="$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
 DB="$HOME/Library/CloudStorage/Dropbox"
 export MANPAGER='nvim +Man!'
@@ -61,3 +66,11 @@ TEXMF="$HOME/Library/texmf"
 UCB="$HOME/Library/CloudStorage/Dropbox/UCBerkeley"
 VTC="$HOME/.config/nvim/pack/plugins/start/vimtex/autoload/vimtex/complete"
 ZSHRC="$HOME/.zshrc"
+
+
+# Configure gpg-agent
+
+GPG_TTY=$(tty)
+export GPG_TTY
+# Use TTY-based pinentry (rather than pinentry-mac) in most cases
+export PINENTRY_USER_DATA="USE_CURSES=1"
