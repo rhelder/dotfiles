@@ -1,0 +1,7 @@
+/Dropbox
+/*/
+!/Library/
+!/.config/
+/Library/*
+!/Library/texmf
+.DS_Store
