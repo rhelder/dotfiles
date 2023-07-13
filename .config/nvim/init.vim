@@ -6,6 +6,7 @@ autocmd TermOpen * startinsert
 command Nvimrc vs $NVIMRC
 command Spellcheck set spell spelllang=en_us
 command Terminal vs | terminal
+command Zshrc vs $ZSHRC
 let $ARIST = "$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
 let $DB = "$HOME/Library/CloudStorage/Dropbox"
 let $NVIMRC = "$HOME/.config/nvim/init.vim"
@@ -83,6 +84,7 @@ call plug#begin('~/.config/nvim/vim-plug')
      Plug 'lervag/vimtex'
      Plug 'roxma/nvim-yarp'
      Plug 'ncm2/ncm2'
+     Plug 'jamessan/vim-gnupg'
 call plug#end()
 
 
@@ -102,6 +104,11 @@ augroup my_cm_setup
 	  \ 'on_complete': ['ncm2#on_complete#omni', 'vimtex#complete#omnifunc'],
 	  \ })
 augroup END
+
+
+" vim-gnupg configuration
+
+let g:GPGExecutable = "PINENTRY_USER_DATA='' gpg --trust-model always"
 
 
 " Exit terminal mode when switching windows
