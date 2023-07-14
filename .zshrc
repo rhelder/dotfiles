@@ -25,7 +25,7 @@ PS1="%F{14}%n@%m (%!) %1~ %# %f"
 
 # Aliases and Functions
 
-alias arist="cd $HOME/Library/texmf/tex/latex/aristotelis"
+alias arist="nvim $HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
 alias bib="cd $(dirname $(kpsewhich MyLibrary.bib))"
 alias budget="open $HOME/Library/CloudStorage/Dropbox/Budget_2023.xlsx" 
 alias clean="mv *.[^tp]* $HOME/.Trash"
@@ -36,7 +36,7 @@ alias lua='luajit'
 alias luaqs='open -a skim '/Users/rhelder/Documents/Other/Lua_Quick_Start_Guide_The_Easiest_Way_to_Learn_Lua....pdf''
 alias nvimrc="nvim $HOME/.config/nvim/init.vim"
 alias reload="source $HOME/.zshrc"
-alias rhelder="cd $HOME/Library/texmf/tex/latex/rhelder"
+alias rhelder="nvim $HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
 alias rhmhd='lsof +D ''/Volumes/RH Media HD/'''
 alias ucb="cd $HOME/Library/CloudStorage/Dropbox/UCBerkeley"
 alias vtc="cd $HOME/.config/nvim/pack/plugins/start/vimtex/autoload/vimtex/complete"
