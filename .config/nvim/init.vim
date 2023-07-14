@@ -3,18 +3,20 @@ autocmd FileType * set smartindent
 autocmd FileType tex set linebreak
 autocmd FileType tex set nosmartindent
 autocmd TermOpen * startinsert
-command Nvimrc vs $NVIMRC
+command Arist execute 'vs' .. ARIST
+command Nvimrc execute 'vs' .. NVIMRC
+command Rhelder execute 'vs' .. RHELDER
 command Spellcheck set spell spelllang=en_us
 command Terminal vs | terminal
-command Zshrc vs $ZSHRC
-let $ARIST = "$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
-let $DB = "$HOME/Library/CloudStorage/Dropbox"
-let $NVIMRC = "$HOME/.config/nvim/init.vim"
-let $RHELDER = "$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
-let $TEXMF = "$HOME/Library/texmf"
-let $UCB = "$HOME/Library/CloudStorage/Dropbox/UCBerkeley"
-let $VTC = "$HOME/.config/nvim/pack/plugins/start/vimtex/autoload/vimtex/complete"
-let $ZSHRC = "$HOME/.zshrc"
+command Zshrc execute 'vs' .. ZSHRC
+let ARIST = "$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
+let DB = "$HOME/Library/CloudStorage/Dropbox"
+let NVIMRC = "$HOME/.config/nvim/init.vim"
+let RHELDER = "$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
+let TEXMF = "$HOME/Library/texmf"
+let UCB = "$HOME/Library/CloudStorage/Dropbox/UCBerkeley"
+let VTC = "$HOME/.config/nvim/pack/plugins/start/vimtex/autoload/vimtex/complete"
+let ZSHRC = "$HOME/.zshrc"
 let g:python3_host_prog = "/usr/local/bin/python3"
 set belloff=
 set clipboard=unnamed
