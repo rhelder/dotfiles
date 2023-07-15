@@ -45,7 +45,7 @@ function cs {
      cd $* && ls
 }
 function ffr {
-     sudo find / ${*:?Expression required.} -print 2>/dev/null > rm_files.txt
+     sudo find / ${*:?Expression required.} -print 2>/dev/null > ~/rm_files.txt
 }
 function nvimh {
      nvim -c "help $*" -c "only"
