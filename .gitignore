@@ -1,7 +1,14 @@
 /Dropbox
 /*/
+!/[a-z]*/
 !/Library/
 !/.config/
 /Library/*
 !/Library/texmf
+/Library/texmf/bibtex
 .DS_Store
+.CFUserTextEncoding
+.lesshst
+.viminfo
+.zprofile*
+.zsh_*
