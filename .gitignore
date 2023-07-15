@@ -3,6 +3,7 @@
 !/[a-z]*/
 !/Library/
 !/.config/
+!/.terminal_login_fullscreen.app/
 /Library/*
 !/Library/texmf
 /Library/texmf/bibtex
