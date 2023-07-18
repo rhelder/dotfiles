@@ -39,6 +39,7 @@ alias reload="source $HOME/.zshrc"
 alias rhelder="nvim $HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
 alias rhmhd='lsof +D ''/Volumes/RH Media HD/'''
 alias ucb="cd $HOME/Library/CloudStorage/Dropbox/UCBerkeley"
+alias VimtexClearCache="trash $HOME/.cache/vimtex/pkgcomplete.json"
 alias vtc="cd $HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete"
 alias zshrc="nvim $HOME/.zshrc"
 function cs {
