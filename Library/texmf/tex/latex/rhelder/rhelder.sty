@@ -1,11 +1,19 @@
-%%Author: Russell Wright Helder
+%%% Author: Russell Wright Helder
+
 \NeedsTeXFormat{LaTeX2e}[2022/11/01]
 \ProvidesExplPackage{rhelder}{2023/06/28}{1.0}{Russ Helder's style file}
 
-\RequirePackage[letterpaper,margin=1.5in]{geometry}
+
 \RequirePackage{polyglossia}
-\RequirePackage[autostyle,latin=britishquotes,english=british]{csquotes}
-\RequirePackage[indentfirst=false,rightmargin=0in]{quoting}
+\RequirePackage{geometry}
+\RequirePackage[
+     autostyle,
+     latin=britishquotes,
+]{csquotes}
+\RequirePackage[
+     indentfirst=false,
+     rightmargin=0in,
+]{quoting}
 \RequirePackage{microtype}
 \RequirePackage[chicago]{xellipsis}
 \RequirePackage{enumitem}
@@ -19,28 +27,27 @@
 \newbool{biblatex}
 \newbool{nomencl}
 \newbool{doublespaced}
-\newbool{authorruss}
+\newbool{defaultauthor}
 \newbool{anonymous}
-\newbool{default}
+\newbool{defaultlangs}
 \newbool{misguided}
 
 \DeclareOption{biblatex}{\booltrue{biblatex}}
 \DeclareOption{nomencl}{\booltrue{nomencl}}
 \DeclareOption{doublespaced}{\booltrue{doublespaced}}
-\DeclareOption{authorruss}{\booltrue{authorruss}}
-\DeclareOption{anonymous}{\boolfalse{authorruss}\booltrue{anonymous}}
-\DeclareOption{default}{\booltrue{default}}
-\DeclareOption{custom}{\boolfalse{default}}
+\DeclareOption{defaultauthor}{\booltrue{defaultauthor}}
+\DeclareOption{anonymous}{\boolfalse{defaultauthor}\booltrue{anonymous}}
+\DeclareOption{defaultlangs}{\booltrue{defaultlangs}}
+\DeclareOption{custom}{\boolfalse{defaultlangs}}
 \DeclareOption{misguided}{\booltrue{misguided}}
 
 \DeclareOption*{\PackageWarning{template}{Unknown ‘\CurrentOption’}}
 
-\ExecuteOptions{default,authorruss}
-
+\ExecuteOptions{defaultlangs, defaultauthor}
 \ProcessOptions\relax
 
 \ifbool{biblatex}{%
-     \RequirePackage[%
+     \RequirePackage[
 	  authordate,
 	  dashed=false,
 	  citereset=section,
@@ -50,394 +57,9 @@
 	  autolang=hyphen,
 	  backend=biber,
      ]{biblatex-chicago}%
-     \DeclareLanguageMapping{latin}{cms-american}%
-     \DeclareBibstringSet{all}{%
-	  bibliography,
-	  references,˙
-	  shorthands,
-	  editor,
-	  editors,
-	  compiler,
-	  compilers,
-	  redactor,
-	  redactors,
-	  reviser,
-	  revisers,
-	  founder,
-	  founders,
-	  continuator,
-	  continuators,
-	  collaborator,
-	  collaborators,
-	  translator,
-	  translators,
-	  commentator,
-	  commentators,
-	  annotator,
-	  annotators,
-	  commentary,
-	  annotations,
-	  introduction,
-	  foreword,
-	  afterword,
-	  editortr,
-	  editorstr,
-	  editorco,
-	  editorsco,
-	  editoran,
-	  editorsan,
-	  editorin,
-	  editorsin,
-	  editorfo,
-	  editorsfo,
-	  editoraf,
-	  editorsaf,
-	  editortrco,
-	  editorstrco,
-	  editortran,
-	  editorstran,
-	  editortrin,
-	  editorstrin,
-	  editortrfo,
-	  editorstrfo,
-	  editortraf,
-	  editorstraf,
-	  editorcoin,
-	  editorscoin,
-	  editorcofo,
-	  editorscofo,
-	  editorcoaf,
-	  editorscoaf,
-	  editoranin,
-	  editorsanin,
-	  editoranfo,
-	  editorsanfo,
-	  editoranaf,
-	  editorsanaf,
-	  editortrcoin,
-	  editorstrcoin,
-	  editortrcofo,
-	  editorstrcofo,
-	  editortrcoaf,
-	  editorstrcoaf,
-	  editortranin,
-	  editorstranin,
-	  editortranfo,
-	  editorstranfo,
-	  editortranaf,
-	  editorstranaf,
-	  translatorco,
-	  translatorsco,
-	  translatoran,
-	  translatorsan,
-	  translatorin,
-	  translatorsin,
-	  translatorfo,
-	  translatorsfo,
-	  translatoraf,
-	  translatorsaf,
-	  translatorcoin,
-	  translatorscoin,
-	  translatorcofo,
-	  translatorscofo,
-	  translatorcoaf,
-	  translatorscoaf,
-	  translatoranin,
-	  translatorsanin,
-	  translatoranfo,
-	  translatorsanfo,
-	  translatoranaf,
-	  translatorsanaf,
-	  byauthor,
-	  byeditor,
-	  bycompiler,
-	  byredactor,
-	  byreviser,
-	  byreviewer,
-	  byfounder,
-	  bycontinuator,
-	  bycollaborator,
-	  bytranslator,
-	  bycommentator,
-	  byannotator,
-	  withcommentator,
-	  withannotator,
-	  withintroduction,
-	  withforeword,
-	  withafterword,
-	  organizer,
-	  organizers,
-	  byorganizer,
-	  byeditortr,
-	  byeditorco,
-	  byeditoran,
-	  byeditorin,
-	  byeditorfo,
-	  byeditoraf,
-	  byeditortrco,
-	  byeditortran,
-	  byeditortrin,
-	  byeditortrfo,
-	  byeditortraf,
-	  byeditorcoin,
-	  byeditorcofo,
-	  byeditorcoaf,
-	  byeditoranin,
-	  byeditoranfo,
-	  byeditoranaf,
-	  byeditortrcoin,
-	  byeditortrcofo,
-	  byeditortrcoaf,
-	  byeditortranin,
-	  byeditortranfo,
-	  byeditortranaf,
-	  bytranslatorco,
-	  bytranslatoran,
-	  bytranslatorin,
-	  bytranslatorfo,
-	  bytranslatoraf,
-	  bytranslatorcoin,
-	  bytranslatorcofo,
-	  bytranslatorcoaf,
-	  bytranslatoranin,
-	  bytranslatoranfo,
-	  bytranslatoranaf,
-	  and,
-	  andothers,
-	  andmore,
-	  volume,
-	  volumes,
-	  involumes,
-	  part,
-	  jourvol,
-	  jourser,
-	  newseries,
-	  oldseries,
-	  edition,
-	  reprint,
-	  reprintof,
-	  reprintas,
-	  reprintfrom,
-	  reviewof,
-	  translationof,
-	  translationas,
-	  translationfrom,
-	  origpubas,
-	  origpubin,
-	  astitle,
-	  bypublisher,
-	  nodate,
-	  page,
-	  pages,
-	  column,
-	  columns,
-	  line,
-	  lines,
-	  verse,
-	  verses,
-	  section,
-	  sections,
-	  paragraph,
-	  paragraphs,
-	  pagetotal,
-	  pagetotals,
-	  columntotal,
-	  columntotals,
-	  linetotal,
-	  linetotals,
-	  versetotal,
-	  versetotals,
-	  sectiontotal,
-	  sectiontotals,
-	  paragraphtotal,
-	  paragraphtotals,
-	  in,
-	  inseries,
-	  ofseries,
-	  book,
-	  issue,
-	  number,
-	  chapter,
-	  bathesis,
-	  mathesis,
-	  phdthesis,
-	  candthesis,
-	  resreport,
-	  techreport,
-	  software,
-	  datacd,
-	  audiocd,
-	  version,
-	  url,
-	  urlfrom,
-	  urlseen,
-	  file,
-	  inpreparation,
-	  submitted,
-	  inpress,
-	  prepublished,
-	  forthcoming,
-	  library,
-	  abstract,
-	  annotation,
-	  citedas,
-	  seenote,
-	  quotedin,
-	  opcit,
-	  loccit,
-	  ibidem,
-	  idem,
-	  idemsf,
-	  idemsm,
-	  idemsn,
-	  idempf,
-	  idempm,
-	  idempn,
-	  idempp,
-	  confer,
-	  sequens,
-	  sequentes,
-	  passim,
-	  see,
-	  seealso,
-	  backrefpage,
-	  backrefpages,
-	  thiscite,
-	  january,
-	  february,
-	  march,
-	  april,
-	  may,
-	  june,
-	  july,
-	  august,
-	  september,
-	  october,
-	  november,
-	  december,
-	  langamerican,
-	  langbasque,
-	  langbrazilian,
-	  langbulgarian,
-	  langcatalan,
-	  langcroatian,
-	  langczech,
-	  langdanish,
-	  langdutch,
-	  langenglish,
-	  langestonian,
-	  langfinnish,
-	  langfrench,
-	  langgalician,
-	  langgerman,
-	  langgreek,
-	  langhungarian,
-	  langitalian,
-	  langjapanese,
-	  langlatin,
-	  langlatvian,
-	  langlithuanian,
-	  langmarathi,
-	  langnorwegian,
-	  langpolish,
-	  langportuguese,
-	  langserbian,
-	  langromanian,
-	  langrussian,
-	  langslovak,
-	  langslovene,
-	  langspanish,
-	  langswedish,
-	  langturkish,
-	  langukrainian,
-	  fromamerican,
-	  frombasque,
-	  frombrazilian,
-	  frombulgarian,
-	  fromcatalan,
-	  fromcroatian,
-	  fromczech,
-	  fromdanish,
-	  fromdutch,
-	  fromenglish,
-	  fromestonian,
-	  fromfinnish,
-	  fromfrench,
-	  fromgalician,
-	  fromgerman,
-	  fromgreek,
-	  fromhungarian,
-	  fromitalian,
-	  fromjapanese,
-	  fromlatin,
-	  fromlithuanian,
-	  fromlatvian,
-	  frommarathi,
-	  fromnorwegian,
-	  frompolish,
-	  fromportuguese,
-	  fromromanian,
-	  fromrussian,
-	  fromserbian,
-	  fromslovak,
-	  fromslovene,
-	  fromspanish,
-	  fromswedish,
-	  fromturkish,
-	  fromukrainian,
-	  countryde,
-	  countryep,
-	  countryeu,
-	  countryfr,
-	  countryuk,
-	  countryus,
-	  patent,
-	  patentde,
-	  patenteu,
-	  patentfr,
-	  patentuk,
-	  patentus,
-	  patreq,
-	  patreqde,
-	  patreqeu,
-	  patreqfr,
-	  patrequk,
-	  patrequs,
-	  commonera,
-	  beforecommonera,
-	  annodomini,
-	  beforechrist,
-	  circa,
-	  spring,
-	  summer,
-	  autumn,
-	  winter,
-	  springN,
-	  summerN,
-	  autumnN,
-	  winterN,
-	  springS,
-	  summerS,
-	  autumnS,
-	  winterS,
-	  Q1,
-	  Q2,
-	  Q3,
-	  Q4,
-	  QD1,
-	  QD2,
-	  QD3,
-	  S1,
-	  S2,
-	  am,
-	  pm,
-     }%
-     \DeclareBibstringSetFormat{all}{\textmainlang{#1}}%
-     \DeclareListFormat{location}{%
-	  \usebibmacro{list:delim}{#1}%
-	  \textmainlang{#1}\isdot
-	  \usebibmacro{list:andothers}%
-     }%
+     \DeclareLanguageMapping{latin}{cms-american}%	    % Map cms-american.lbx onto polyglossia language `latin'; replaces dummy latin.lbx
+     \input{rhelder_BibstringSet}%			    % Declare group of all bibstrings
+     \DeclareBibstringSetFormat{all}{\textmainlang{#1}}%    % Format the group of all bibstrings in accordance with the document's main language
 }{}
 
 \ifbool{nomencl}{%
@@ -445,10 +67,10 @@
      \makenomenclature
      \renewcommand{\nomname}{Abbreviations}%
      \ifbool{biblatex}{%
-	  \setlength{\nomitemsep}{\bibitemsep}%
-	  \addtolength{\nomitemsep}{-\parsep}%				
+	  \setlength{\nomitemsep}{\bibitemsep}%	  % Ensure uniformity with bibliography spacing
+	  \addtolength{\nomitemsep}{-\parsep}%	  % Remove excess spacing
      }{%
-	  \addtolength{\nomitemsep}{-\parsep}%
+	  \addtolength{\nomitemsep}{-\parsep}%	  % Remove excess spacing
      }%
 }{}
 
@@ -456,80 +78,82 @@
      \RequirePackage{setspace}%
      \doublespacing
      \geometry{hmargin=1in}%
-     \quotingsetup{font={small,singlespace}}%
+     \quotingsetup{font={small,singlespace}}%	  % Make block quotes single-spaced
      \ifbool{biblatex}{%
 	  \ifbool{nomencl}{%
-	       \setlength{\bibitemsep}{0pt}%
-	       \addtolength{\nomitemsep}{-\parsep}%
+	       \setlength{\bibitemsep}{0pt}%	       % Remove excess spacing
+	       \addtolength{\nomitemsep}{-\parsep}%    % Remove excess spacing
 	  }{%
-	       \setlength{\bibitemsep}{0pt}%			
+	       \setlength{\bibitemsep}{0pt}%	       % Remove excess spacing
 	  }%
      }{}%
 }{}
 
-\ifbool{authorruss}{
-     \AtEndOfPackage{
-	  \hypersetup{
-	       pdfauthor={Russell\ Wright\ Helder},
-	  }
-     }
+\ifbool{defaultauthor}{%
+     \AtEndOfPackage{%
+	  \hypersetup{pdfauthor={Russell\ Wright\ Helder}}%
+     }%
 }{}
 
-\ifbool{anonymous}{
-     \def\@maketitle{
+\ifbool{anonymous}{%
+     \def\@maketitle{%
 	  \newpage
 	  \null
-	  \vskip 2em
-	  \begin{center}
+	  \vskip 2em%
+	  \begin{center}%
 	       \let \footnote \thanks
-	       {\LARGE \@title \par}
-	       \vskip 1.5em
+	       {\LARGE \@title \par}%
+	       \vskip 1.5em%
 	       % {\large
-	       %      \lineskip 0.5em
-	       %      \begin{tabular}[t]{c}
+	       %      \lineskip 0.5em%
+	       %      \begin{tabular}[t]{c}%
 	       %  	 \@author
-	       %      \end{tabular}\par}
-	       % \vskip 1em
-	       {\large \@date}
-	  \end{center}
+	       %      \end{tabular}\par}%
+	       % \vskip 1em%
+	       {\large \@date}%
+	  \end{center}%
 	  \par
-	  \vskip 1.5em
-     }
+	  \vskip 1.5em%
+     }%
 }{}
 
-\ifbool{default}{
-     \AtEndOfPackage{
-	  \setdefaultlanguage[variant=american]{english}
-	  \setotherlanguage[variant=ancient]{greek}
-	  \setotherlanguage{latin}
-     }
+\ifbool{defaultlangs}{%
+     \AtEndOfPackage{%
+	  \setdefaultlanguage[variant=american]{english}%
+	  \setotherlanguage[variant=ancient]{greek}%
+	  \setotherlanguage{latin}%
+     }%
 }{}
 
-\ifbool{misguided}{
-     \DeclareAutoPunct{.,}
-     \renewcommand{\mktextquote}[6]{#1#2#4#5#3#6}
-}{
-     \DeclareQuoteStyle[american]{english}
-	  {\textquoteleft}{\textquoteright}
-     	  {\textquotedblleft}{\textquotedblright}
-     \ifbool{biblatex}{\DefineBibliographyExtras{american}{\stdpunctuation}}{}
+\ifbool{misguided}{%
+     % Include punctuation within quotes
+     \DeclareAutoPunct{.,}%
+     \renewcommand{\mktextquote}[6]{#1#2#4#5#3#6}%
+}{%
+     % Use British quotation conventions when language is american english
+     \DeclareQuoteStyle[american]{english}%  % Use single quotes outside, double quotes inside
+	  {\textquoteleft}{\textquoteright}%
+     	  {\textquotedblleft}{\textquotedblright}%
+     \ifbool{biblatex}{\DefineBibliographyExtras{american}{\stdpunctuation}}{}%	% Place punctuation outside quotes in bibliographies
 }
+
 
 \setmainfont{Brill}
 
-\clubpenalty=10000
-\widowpenalty=10000
+\clubpenalty=10000  % At least two lines after paragraph break before page break
+\widowpenalty=10000 % At least two lines before paragraph break after page break
 
-\renewcommand*{\quotingfont}{\small\setlength{\itemsep}{0pt}}
-\SetBlockEnvironment{quoting}
-\renewenvironment{quotation}{\begin{quoting}}{\end{quoting}}
+\renewcommand*{\quotingfont}{\small\setlength{\itemsep}{0pt}}	 % Achieve desired spacing for syllogisms in block quotes
+\SetBlockEnvironment{quoting}					 % Set quoting environment as default block quote environment for csquotes
+\renewenvironment{quotation}{\begin{quoting}}{\end{quoting}}	 % Replace quotation environment (which is used for abstracts) with quoting environment
 
+% Use double quotes when language is ancient greek
 \DeclareQuoteStyle[ancient]{greek}
      {\textquotedblleft}{\textquotedblright}
      {\textquoteleft}{\textquoteright}
 \DeclareQuoteAlias[ancient]{greek}{greek}
 
-\setlist{listparindent=\parindent,parsep=0pt}
+\setlist{listparindent=\parindent,parsep=0pt}	  % Make paragraph spacing within list same as outside of list
 \setlist[itemize,2]{label=\ding{118}}
 \setlist[itemize,3]{label=\ding{66}}
 \newlist{outline}{enumerate}{5}
@@ -539,6 +163,7 @@
 \setlist[outline,3]{label=\arabic*.}
 \setlist[outline,4]{label=\alph*.}
 \setlist[outline,5]{label=\roman*.}
+% A potentially useful configuration for description
 % \setlist[description]{%
 %      style=nextline,
 %      leftmargin=0em,
@@ -546,7 +171,7 @@
 %      itemsep=2\itemsep,
 % }
 
-\AtEndOfPackage{
+\AtEndOfPackage{%
      \hypersetup{
 	  colorlinks=true,
 	  linkcolor=black,
@@ -554,18 +179,20 @@
 	  citecolor=black,
 	  urlcolor=blue,
 	  pdfpagemode=UseNone,
-     }
-     \AtBeginDocument{
+     }%
+     \AtBeginDocument{%
 	  \hypersetup{pdftitle = {\@title}}
-     }
-     \urlstyle{same}
+     }%
+     \urlstyle{same}%
 }
 
-\NewCommandCopy{\emphit}{\emph}
+
+\NewCommandCopy{\emphit}{\emph}	   % Define copy of \emph so that, even if \emph is redefined, the following commands italicize their arguments
 \NewDocumentCommand{\texttitle}{m}{\emphit{#1}}
-\NewDocumentCommand{\alialingua}{O{}mm}{
-     \textlang[#1]{#2}{\emphit{#3}}
+\NewDocumentCommand{\alialingua}{O{}mm}{%
+     \textlang[#1]{#2}{\emphit{#3}}%
 }
 \NewCommandCopy{\define}{\emph}
+
 
 \endinput
