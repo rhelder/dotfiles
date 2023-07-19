@@ -58,15 +58,15 @@ function trash {
 
 # Variables
 
-ARIST="$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
-DB="$HOME/Library/CloudStorage/Dropbox"
+arist="$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
+db="$HOME/Library/CloudStorage/Dropbox"
 export MANPAGER='nvim +Man!'
-NVIMRC="$HOME/.config/nvim/init.vim"
-RHELDER="$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
-TEXMF="$HOME/Library/texmf"
-UCB="$HOME/Library/CloudStorage/Dropbox/UCBerkeley"
-VTC="$HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete"
-ZSHRC="$HOME/.zshrc"
+nvimrc="$HOME/.config/nvim/init.vim"
+rhelder="$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
+texmf="$HOME/Library/texmf"
+ucb="$HOME/Library/CloudStorage/Dropbox/UCBerkeley"
+vtc="$HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete"
+zshrc="$HOME/.zshrc"
 
 
 # Configure gpg-agent
