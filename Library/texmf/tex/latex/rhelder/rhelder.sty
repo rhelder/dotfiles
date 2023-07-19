@@ -24,29 +24,29 @@
 \AtEndOfPackage{\RequirePackage{hyperref}}
 
 
-\newbool{biblatex}
-\newbool{nomencl}
-\newbool{doublespaced}
-\newbool{defaultauthor}
-\newbool{anonymous}
-\newbool{defaultlangs}
-\newbool{misguided}
+\newbool{@biblatex}
+\newbool{@nomencl}
+\newbool{@doublespaced}
+\newbool{@defaultauthor}
+\newbool{@anonymous}
+\newbool{@defaultlangs}
+\newbool{@misguided}
 
-\DeclareOption{biblatex}{\booltrue{biblatex}}
-\DeclareOption{nomencl}{\booltrue{nomencl}}
-\DeclareOption{doublespaced}{\booltrue{doublespaced}}
-\DeclareOption{defaultauthor}{\booltrue{defaultauthor}}
-\DeclareOption{anonymous}{\boolfalse{defaultauthor}\booltrue{anonymous}}
-\DeclareOption{defaultlangs}{\booltrue{defaultlangs}}
-\DeclareOption{custom}{\boolfalse{defaultlangs}}
-\DeclareOption{misguided}{\booltrue{misguided}}
+\DeclareOption{biblatex}{\booltrue{@biblatex}}
+\DeclareOption{nomencl}{\booltrue{@nomencl}}
+\DeclareOption{doublespaced}{\booltrue{@doublespaced}}
+\DeclareOption{defaultauthor}{\booltrue{@defaultauthor}}
+\DeclareOption{anonymous}{\boolfalse{@defaultauthor}\booltrue{@anonymous}}
+\DeclareOption{defaultlangs}{\booltrue{@defaultlangs}}
+\DeclareOption{custom}{\boolfalse{@defaultlangs}}
+\DeclareOption{misguided}{\booltrue{@misguided}}
 
 \DeclareOption*{\PackageWarning{template}{Unknown ‘\CurrentOption’}}
 
 \ExecuteOptions{defaultlangs, defaultauthor}
 \ProcessOptions\relax
 
-\ifbool{biblatex}{%
+\if@biblatex
      \RequirePackage[
 	  authordate,
 	  dashed=false,
@@ -57,45 +57,45 @@
 	  autolang=hyphen,
 	  backend=biber,
      ]{biblatex-chicago}%
-     \DeclareLanguageMapping{latin}{cms-american}%	    % Map cms-american.lbx onto polyglossia language `latin'; replaces dummy latin.lbx
-     \input{rhelder_BibstringSet}%			    % Declare group of all bibstrings
-     \DeclareBibstringSetFormat{all}{\textmainlang{#1}}%    % Format the group of all bibstrings in accordance with the document's main language
-}{}
+     \DeclareLanguageMapping{latin}{cms-american}	    % Map cms-american.lbx onto polyglossia language `latin'; replaces dummy latin.lbx
+     \input{rhelder_BibstringSet}			    % Declare group of all bibstrings
+     \DeclareBibstringSetFormat{all}{\textmainlang{#1}}	    % Format the group of all bibstrings in accordance with the document's main language
+\fi
 
-\ifbool{nomencl}{%
-     \RequirePackage{nomencl}%
+\if@nomencl
+     \RequirePackage{nomencl}
      \makenomenclature
-     \renewcommand{\nomname}{Abbreviations}%
-     \ifbool{biblatex}{%
-	  \setlength{\nomitemsep}{\bibitemsep}%	  % Ensure uniformity with bibliography spacing
-	  \addtolength{\nomitemsep}{-\parsep}%	  % Remove excess spacing
-     }{%
-	  \addtolength{\nomitemsep}{-\parsep}%	  % Remove excess spacing
-     }%
-}{}
-
-\ifbool{doublespaced}{%
-     \RequirePackage{setspace}%
+     \renewcommand{\nomname}{Abbreviations}
+     \if@biblatex
+	  \setlength{\nomitemsep}{\bibitemsep}	  % ensure uniformity with bibliography spacing
+	  \addtolength{\nomitemsep}{-\parsep}     % Remove excess spacing
+     \else
+	  \addtolength{\nomitemsep}{-\parsep}	  % Remove excess spacing
+     \fi
+\fi
+	  
+\if@doublespaced
+     \RequirePackage{setspace}
      \doublespacing
-     \geometry{hmargin=1in}%
-     \quotingsetup{font={small,singlespace}}%	  % Make block quotes single-spaced
-     \ifbool{biblatex}{%
-	  \ifbool{nomencl}{%
-	       \setlength{\bibitemsep}{0pt}%	       % Remove excess spacing
-	       \addtolength{\nomitemsep}{-\parsep}%    % Remove excess spacing
-	  }{%
-	       \setlength{\bibitemsep}{0pt}%	       % Remove excess spacing
-	  }%
-     }{}%
-}{}
-
-\ifbool{defaultauthor}{%
+     \geometry{hmargin=1in}
+     \quotingsetup{font={small,singlespace}}	  % Make block quotes single-spaced
+     \if@biblatex
+	  \if@nomencl
+	       \setlength{\bibitemsep}{0pt}	       % Remove excess spacing
+	       \addtolength{\nomitemsep}{-\parsep}     % Remove excess spacing
+	  \else
+	       \setlength{\bibitemsep}{0pt}	       % Remove excess spacing
+	  \fi
+     \fi
+\fi
+     
+\if@defaultauthor
      \AtEndOfPackage{%
 	  \hypersetup{pdfauthor={Russell\ Wright\ Helder}}%
-     }%
-}{}
+     }
+\fi
 
-\ifbool{anonymous}{%
+\if@anonymous
      \def\@maketitle{%
 	  \newpage
 	  \null
@@ -114,28 +114,31 @@
 	  \end{center}%
 	  \par
 	  \vskip 1.5em%
-     }%
-}{}
+     }
+\fi
 
-\ifbool{defaultlangs}{%
+\if@defaultlangs
      \AtEndOfPackage{%
 	  \setdefaultlanguage[variant=american]{english}%
 	  \setotherlanguage[variant=ancient]{greek}%
 	  \setotherlanguage{latin}%
-     }%
-}{}
+     }
+\fi
 
-\ifbool{misguided}{%
+\if@misguided
      % Include punctuation within quotes
-     \DeclareAutoPunct{.,}%
-     \renewcommand{\mktextquote}[6]{#1#2#4#5#3#6}%
-}{%
+     \DeclareAutoPunct{.,}
+     \renewcommand{\mktextquote}[6]{#1#2#4#5#3#6}
+\else
      % Use British quotation conventions when language is american english
-     \DeclareQuoteStyle[american]{english}%  % Use single quotes outside, double quotes inside
-	  {\textquoteleft}{\textquoteright}%
-     	  {\textquotedblleft}{\textquotedblright}%
-     \ifbool{biblatex}{\DefineBibliographyExtras{american}{\stdpunctuation}}{}%	% Place punctuation outside quotes in bibliographies
-}
+     \DeclareQuoteStyle[american]{english}   % Use single quotes outside, double quotes inside
+	  {\textquoteleft}{\textquoteright}
+     	  {\textquotedblleft}{\textquotedblright}
+     % Place punctuation outside quotes in bibliographies
+     \if@biblatex
+	  \DefineBibliographyExtras{american}{\stdpunctuation}
+     \fi  
+\fi
 
 
 \setmainfont{Brill}
