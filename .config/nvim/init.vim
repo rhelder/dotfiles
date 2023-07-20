@@ -15,7 +15,7 @@ let nvimrc = "$HOME/.config/nvim/init.vim"
 let rhelder = "$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
 let texmf = "$HOME/Library/texmf"
 let ucb = "$HOME/Library/CloudStorage/Dropbox/UCBerkeley"
-let vtc = "$HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete"
+let vtc = "$HOME/.local/share/nvim/site/vimtex/autoload/vimtex/complete"
 let zshrc = "$HOME/.zshrc"
 let g:python3_host_prog = "/usr/local/bin/python3"
 set belloff=
@@ -78,6 +78,7 @@ augroup vimtex_event_focus
      autocmd!
      autocmd User VimtexEventViewReverse call s:TexFocusVim()
 augroup END
+set runtimepath^=$HOME/.local/share/nvim/site/vimtex/
 
 
 " Vim-plug

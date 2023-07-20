@@ -40,7 +40,7 @@ alias rhelder="nvim $HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
 alias rhmhd='lsof +D ''/Volumes/RH Media HD/'''
 alias ucb="cd $HOME/Library/CloudStorage/Dropbox/UCBerkeley"
 alias VimtexClearCache="trash $HOME/.cache/vimtex/pkgcomplete.json"
-alias vtc="cd $HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete"
+alias vtc="cd $HOME/.local/share/nvim/site/vimtex/autoload/vimtex/complete"
 alias zshrc="nvim $HOME/.zshrc"
 function cs {
      cd $* && ls
@@ -65,7 +65,7 @@ nvimrc="$HOME/.config/nvim/init.vim"
 rhelder="$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
 texmf="$HOME/Library/texmf"
 ucb="$HOME/Library/CloudStorage/Dropbox/UCBerkeley"
-vtc="$HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete"
+vtc="$HOME/.local/share/nvim/site/vimtex/autoload/vimtex/complete"
 zshrc="$HOME/.zshrc"
 
 
