@@ -1,3 +1,15 @@
+#include:polyglossia
+#include:geometry
+#include:csquotes
+#include:quoting
+#include:microtype
+#include:xellipsis
+#include:enumitem
+#include:pifont
+#include:array
+#include:ragged2e
+#include:etoolbox
+#include:hyperref
 \begin{outline}
 texttitle
 alialingua
