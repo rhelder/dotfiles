@@ -74,4 +74,4 @@ zshrc="$HOME/.zshrc"
 GPG_TTY=$(tty)
 export GPG_TTY
 # Use TTY-based pinentry (rather than pinentry-mac) in most cases
-export PINENTRY_USER_DATA="USE_CURSES=1"
+# export PINENTRY_USER_DATA="USE_CURSES=1"
