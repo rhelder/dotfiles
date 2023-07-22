@@ -52,14 +52,15 @@
 	  dashed=false,
 	  citereset=section,
 	  pagetracker=false,
-	  ibidtracker=constrict,
 	  cmslos=false,
 	  autolang=hyphen,
-	  backend=biber,
      ]{biblatex-chicago}%
      \DeclareLanguageMapping{latin}{cms-american}	    % Map cms-american.lbx onto polyglossia language `latin'; replaces dummy latin.lbx
      \input{rhelder_BibstringSet}			    % Declare group of all bibstrings
      \DeclareBibstringSetFormat{all}{\textmainlang{#1}}	    % Format the group of all bibstrings in accordance with the document's main language
+     % Patch \footnotetext so that the footnote-specific ibidtracker resets at the beginning of each footnote
+     \NewCommandCopy{\oldfootnotetext}{\footnotetext}
+     \RenewDocumentCommand{\footnotetext}{+m}{\oldfootnotetext{\mancite #1}}
 \fi
 
 \if@nomencl
