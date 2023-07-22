@@ -11,15 +11,15 @@ command Terminal vs | terminal
 command Zshrc execute 'vs' .. ZSHRC
 let arist = "$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
 let db = "$HOME/Library/CloudStorage/Dropbox"
+let g:python3_host_prog = "/usr/local/bin/python3"
+let g:vim_indent_cont = shiftwidth() * 1
 let nvimrc = "$HOME/.config/nvim/init.vim"
 let rhelder = "$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
 let texmf = "$HOME/Library/texmf"
 let ucb = "$HOME/Library/CloudStorage/Dropbox/UCBerkeley"
 let vtc = "$HOME/.local/share/nvim/site/vimtex/autoload/vimtex/complete"
 let zshrc = "$HOME/.zshrc"
-let g:python3_host_prog = "/usr/local/bin/python3"
 set belloff=
-set clipboard=unnamed
 set guicursor=
 set ignorecase
 set mouse=
@@ -33,10 +33,9 @@ set softtabstop=5
 set splitbelow
 set splitright
 
-let g:vim_indent_cont = shiftwidth() * 1
 
+""" Convert tab-separated lists (i.e., as copied/pasted from Excel spreadsheets) into Lua tables
 
-"Convert tab-separated lists (i.e., as copied/pasted from Excel spreadsheets) into Lua tables
 function Luatable() range
      execute a:firstline .. "," .. a:lastline .. 's/^\(.*\)\t\(.*\)$/[''\1''] = ''\2'','
      execute "noh"
@@ -51,7 +50,7 @@ endfunction
 command -range=% Luatable <line1>,<line2>call Luatable()
 
 
-"" Vimtex settings
+""" Vimtex settings
 
 let g:tex_flavor = "latex"
 let g:vimtex_compiler_latexmk_engines = {'_' : '-xelatex'}
@@ -81,7 +80,7 @@ augroup END
 set runtimepath^=$HOME/.local/share/nvim/site/vimtex/
 
 
-" Vim-plug
+""" Vim-plug
 
 call plug#begin('~/.config/nvim/vim-plug')
      Plug 'lervag/vimtex'
@@ -91,7 +90,7 @@ call plug#begin('~/.config/nvim/vim-plug')
 call plug#end()
 
 
-"ncm2 configuration
+"""ncm2 configuration
 
 set completeopt=noinsert,menuone,noselect
 augroup my_cm_setup
@@ -109,12 +108,12 @@ augroup my_cm_setup
 augroup END
 
 
-" vim-gnupg configuration
+""" vim-gnupg configuration
 
 let g:GPGExecutable = "PINENTRY_USER_DATA='' gpg --trust-model always"
 
 
-" Exit terminal mode when switching windows
+""" Exit terminal mode when switching windows
 
 augroup terminal_window_switch
      autocmd!
@@ -131,6 +130,27 @@ augroup terminal_window_switch
      autocmd TermLeave * tunmap <C-W>h
      autocmd TermLeave * tunmap <C-W>l
 augroup END
+
+
+""" Map <Esc> to :noh without bell going off
+
+" Map keys that trigger search commands to set belloff=esc
+cnoremap <expr><silent> <CR> getcmdtype() =~ '[/?]' ? '<CR>:set belloff=esc<CR>' : '<CR>'
+nnoremap <silent> n :set belloff=esc<CR>n
+nnoremap <silent> N :set belloff=esc<CR>N
+nnoremap <silent> * :set belloff=esc<CR>*
+nnoremap <silent> # :set belloff=esc<CR>#
+nnoremap <silent> g* :set belloff=esc<CR>g*
+nnoremap <silent> g# :set belloff=esc<CR>g#
+" Map <Esc> to itself and turn bell back on
+nnoremap <silent> <Esc> <Esc>:noh <Bar> set belloff=<CR>
+
+
+""" Use only yanked text for system clipboard
+
+noremap y "*y
+noremap Y "*Y
+" Maybe also deleted text? Just not small deletions?
 
 
 "" Here's how to define Luatable as a command directly
