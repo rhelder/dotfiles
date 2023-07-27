@@ -33,7 +33,7 @@ alias Clean="mv *.[^t]* $HOME/.Trash"
 alias db="cd $HOME/Library/CloudStorage/Dropbox"
 alias ls='ls -aF'
 alias lua='luajit'
-alias luaqs='open -a skim '/Users/rhelder/Documents/Other/Lua_Quick_Start_Guide_The_Easiest_Way_to_Learn_Lua....pdf''
+alias luaqs='open -a skim "$HOME/Documents/Books/lua_quickStart.pdf"'
 alias nvimrc="nvim $HOME/.config/nvim/init.vim"
 alias reload="source $HOME/.zshrc"
 alias rhelder="nvim $HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
@@ -53,6 +53,11 @@ function nvimh {
 }
 function trash {
      mv ${*:?What you want to move to Trash needs to be specified.} $HOME/.Trash
+}
+function untar {
+     file=${*:?Tarball must be specified.}
+     mkdir ${file%.tar*}
+     tar -xf $file -C ${file%.tar*}
 }
 
 
