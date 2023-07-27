@@ -1,7 +1,3 @@
-autocmd FileType * set fo-=r fo-=o fo-=c
-autocmd FileType * set smartindent
-autocmd FileType tex set linebreak
-autocmd FileType tex set nosmartindent
 autocmd TermOpen * startinsert
 command Arist execute 'vs' .. ARIST
 command Nvimrc execute 'vs' .. NVIMRC
@@ -151,6 +147,21 @@ nnoremap <silent> <Esc> <Esc>:noh <Bar> set belloff=<CR>
 noremap y "*y
 noremap Y "*Y
 " Maybe also deleted text? Just not small deletions?
+
+
+""" Set defaults for various filetypes
+
+augroup my_filetype_defaults
+     autocmd!
+     autocmd FileType * set textwidth=78
+     autocmd FileType text set fo+=n
+     autocmd FileType markdown set fo-=l 
+     autocmd FileType lua,vim,zsh set fo-=cro
+     autocmd FileType text,markdown,tex set linebreak
+     autocmd FileType * set smartindent
+     autocmd FileType tex set nosmartindent
+augroup END
+
 
 
 "" Here's how to define Luatable as a command directly
