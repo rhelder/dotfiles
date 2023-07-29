@@ -1,10 +1,11 @@
 autocmd TermOpen * startinsert
-command Arist execute 'vs' .. ARIST
-command Nvimrc execute 'vs' .. NVIMRC
-command Rhelder execute 'vs' .. RHELDER
+command Arist execute 'vs ' .. arist
+command Nvimrc execute 'vs ' .. nvimrc
+command Reload execute 'so ' .. nvimrc
+command Rhelder execute 'vs ' .. rhelder
 command Spellcheck set spell spelllang=en_us
 command Terminal vs | terminal
-command Zshrc execute 'vs' .. ZSHRC
+command Zshrc execute 'vs ' .. zshrc
 let arist = "$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
 let db = "$HOME/Library/CloudStorage/Dropbox"
 let g:python3_host_prog = "/usr/local/bin/python3"
@@ -32,18 +33,33 @@ set splitright
 
 """ Convert tab-separated lists (i.e., as copied/pasted from Excel spreadsheets) into Lua tables
 
-function Luatable() range
-     execute a:firstline .. "," .. a:lastline .. 's/^\(.*\)\t\(.*\)$/[''\1''] = ''\2'','
-     execute "noh"
-     execute "normal" .. a:firstline .. "GO= {\<Esc>"
-     execute "normal =" .. (a:lastline + 1) .. "G"
-     execute "normal" .. (a:lastline + 1) .. "Go}\<Esc>"
-     normal ==
-     execute "normal" .. a:firstline .. "G^"
-     execute "startinsert"
+function LuaTable(format = "csv") range
+     if a:format == "csv"
+	  execute a:firstline .. "," .. a:lastline .. 's/^"\(.\{-}\)","\=\(.\{-}\)"\=$/\["\1"\] = "\2"'
+	  execute a:firstline .. "," .. a:lastline .. 's/^\([^\[].\{-}\),"\=\(.\{-}\)"\=$/\["\1"\] = "\2"'
+	  execute "noh"
+	  execute "normal" .. a:firstline .. "GO= {\<Esc>"
+	  execute "normal =" .. (a:lastline + 1) .. "G"
+	  execute "normal" .. (a:lastline + 1) .. "Go}\<Esc>"
+	  normal ==
+	  execute "normal" .. a:firstline .. "G^"
+	  execute "startinsert"
+     elseif a:format == "tab"
+	  execute a:firstline .. "," .. a:lastline .. 's/^\(.*\)\t\(.*\)$/[''\1''] = ''\2'','
+	  execute "noh"
+	  execute "normal" .. a:firstline .. "GO= {\<Esc>"
+	  execute "normal =" .. (a:lastline + 1) .. "G"
+	  execute "normal" .. (a:lastline + 1) .. "Go}\<Esc>"
+	  normal ==
+	  execute "normal" .. a:firstline .. "G^"
+	  execute "startinsert"
+     endif
 endfunction
 
-command -range=% Luatable <line1>,<line2>call Luatable()
+" function Luatable() range
+" endfunction
+
+command -range=% -nargs=? LuaTable silent! <line1>,<line2>call LuaTable(<f-args>)
 
 
 """ Vimtex settings
