@@ -144,8 +144,10 @@ nnoremap <silent> <Esc> <Esc>:noh <Bar> set belloff=<CR>
 
 """ Use only yanked text for system clipboard
 
-noremap y "*y
-noremap Y "*Y
+nnoremap y "*y
+vnoremap y "*y
+nnoremap Y "*Y
+vnoremap Y "*Y
 " Maybe also deleted text? Just not small deletions?
 
 
