@@ -1,0 +1,13 @@
+#include:ltxcmds
+#include:infwarerr
+addtocounterpageref
+addtocounterref
+getpagerefnumber
+getrefbykeydefault
+getrefnumber
+IfRefUndefinedBabel
+IfRefUndefinedExpandable
+refused
+setcounterpageref
+setcounterref
+setrefcountdefault
