@@ -174,6 +174,7 @@ augroup my_filetype_defaults
      autocmd FileType * set textwidth=78
      autocmd FileType text set fo+=n
      autocmd FileType markdown set fo-=l 
+     autocmd FileType markdown source ~/md_view/mdView.vim
      autocmd FileType lua,vim,zsh set fo-=cro
      autocmd FileType text,markdown,tex set linebreak
      autocmd FileType * set smartindent
