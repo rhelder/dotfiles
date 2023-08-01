@@ -10,7 +10,6 @@
 !.local/share/nvim
 /.local/share/nvim/.netrwhist
 /.local/share/nvim/site/autoload
-/.local/share/nvim/site/vimtex/autoload/vimtex/complete.vim
 
 !/.terminal_login_fullscreen.app/
 
