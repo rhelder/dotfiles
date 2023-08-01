@@ -1,8 +1,9 @@
 """ to-do
+" Execute BufWritePost autocommand *only when* MdView has been called
 " Finish reading usr_41.txt
 " Consider whether or not BufWritePost is the right event
 " Add browser option
-" Add option to focus or not to focus
+" Add browser-specific option to focus or not to focus
 " Add pandoc options (look to vimtex on latexmk)
 " Define key bindings
 
