@@ -1,6 +1,18 @@
-title = 'Kapitel 1: Grundwortschatz'
+-- to-do
+-- -- Add just view flashcard option
+-- -- Add procedure for disambiguating duplicates. Rough idea:
+-- -- -- Looping through each line, search that line for search pattern.
+-- -- -- Using gn text object, yank search result and set it equal to variable
+-- -- -- -- Looping through all of the other lines, yank the results of the search patterns for each of those lines also
+-- -- -- -- Each time, compare the yanked text (in register "0) to the variable.
+-- -- -- -- If they are, substitute with the same text plus a number
+-- -- -- -- Increment the number
+-- -- -- Reset number, reset variable, repeat
 
-vocab = {}
+
+-- title =
+
+-- vocab = {}
 
 
 -- Loop to automatically find number of vocabulary words
