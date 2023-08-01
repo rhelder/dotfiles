@@ -35,8 +35,8 @@ set splitright
 
 function LuaTable(format = "csv") range
      if a:format == "csv"
-	  execute a:firstline .. "," .. a:lastline .. 's/^"\(.\{-}\)","\=\(.\{-}\)"\=$/\["\1"\] = "\2"'
-	  execute a:firstline .. "," .. a:lastline .. 's/^\([^\[].\{-}\),"\=\(.\{-}\)"\=$/\["\1"\] = "\2"'
+	  execute a:firstline .. "," .. a:lastline .. 's/^"\(.\{-}\)","\=\(.\{-}\)"\=$/\["\1"\] = "\2",'
+	  execute a:firstline .. "," .. a:lastline .. 's/^\([^\[].\{-}\),"\=\(.\{-}\)"\=$/\["\1"\] = "\2",'
 	  execute "noh"
 	  execute "normal" .. a:firstline .. "GO= {\<Esc>"
 	  execute "normal =" .. (a:lastline + 1) .. "G"
@@ -160,10 +160,10 @@ nnoremap <silent> <Esc> <Esc>:noh <Bar> set belloff=<CR>
 
 """ Use only yanked text for system clipboard
 
-nnoremap y "*y
-vnoremap y "*y
-nnoremap Y "*Y
-vnoremap Y "*Y
+" nnoremap y "*y
+" vnoremap y "*y
+" nnoremap Y "*Y
+" vnoremap Y "*Y
 " Maybe also deleted text? Just not small deletions?
 
 
@@ -174,11 +174,12 @@ augroup my_filetype_defaults
      autocmd FileType * set textwidth=78
      autocmd FileType text set fo+=n
      autocmd FileType markdown set fo-=l 
-     autocmd FileType markdown source ~/md_view/mdView.vim
+     autocmd FileType csv set fo-=tc
      autocmd FileType lua,vim,zsh set fo-=cro
      autocmd FileType text,markdown,tex set linebreak
      autocmd FileType * set smartindent
      autocmd FileType tex set nosmartindent
+     autocmd FileType markdown source ~/mdView/mdView.vim
 augroup END
 
 
