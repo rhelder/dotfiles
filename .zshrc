@@ -1,3 +1,7 @@
+# to-do
+# *  Research lsof to find just Library.musicdb
+
+
 # Options
 
 HISTSIZE=1200000
@@ -37,7 +41,7 @@ alias luaqs='open -a skim "$HOME/Documents/Books/lua_quickStart.pdf"'
 alias nvimrc="nvim $HOME/.config/nvim/init.vim"
 alias reload="source $HOME/.zshrc"
 alias rhelder="nvim $HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
-alias rhmhd='lsof +D ''/Volumes/RH Media HD/'''
+alias rhmhd='lsof ''/Volumes/RH Media HD/iTunes/Apple Music Library/Music Library.musiclibrary/Library.musicdb''; lsof ''/Volumes/RH Media HD/Apple TV/TV Library.tvlibrary/Library.tvdb'''
 alias ucb="cd $HOME/Library/CloudStorage/Dropbox/UCBerkeley"
 alias VimtexClearCache="trash $HOME/.cache/vimtex/pkgcomplete.json"
 alias vtc="cd $HOME/.local/share/nvim/site/vimtex/autoload/vimtex/complete"
@@ -78,5 +82,6 @@ zshrc="$HOME/.zshrc"
 
 GPG_TTY=$(tty)
 export GPG_TTY
-# Use TTY-based pinentry (rather than pinentry-mac) in most cases
+# Use TTY-based pinentry (rather than pinentry-mac) in most cases (not
+# recommended)
 # export PINENTRY_USER_DATA="USE_CURSES=1"
