@@ -1,3 +1,8 @@
+" to-do
+" -  Instead of just clearing yank register, yank some random text so that
+"    current yank is saved in subsequent registers, then overwrite yank
+"    register
+
 let foo = '"wie viele",'
 let variant = 1
 let search_pattern1 = '^"\(.\{-}\)",'

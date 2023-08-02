@@ -1,3 +1,5 @@
+" to-do
+" -  correct formatlistpat, and re-add cro fo options to code formats (also n option)
 autocmd TermOpen * startinsert
 command Arist execute 'vs ' .. arist
 command Nvimrc execute 'vs ' .. nvimrc
