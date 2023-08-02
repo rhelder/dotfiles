@@ -1,5 +1,3 @@
-" to-do
-" -  correct formatlistpat, and re-add cro fo options to code formats (also n option)
 autocmd TermOpen * startinsert
 command Arist execute 'vs ' .. arist
 command Nvimrc execute 'vs ' .. nvimrc
@@ -160,30 +158,20 @@ nnoremap <silent> g# :set belloff=esc<CR>g#
 nnoremap <silent> <Esc> <Esc>:noh <Bar> set belloff=<CR>
 
 
-""" Use only yanked text for system clipboard
-
-" nnoremap y "*y
-" vnoremap y "*y
-" nnoremap Y "*Y
-" vnoremap Y "*Y
-" Maybe also deleted text? Just not small deletions?
-
-
 """ Set defaults for various filetypes
 
 augroup my_filetype_defaults
      autocmd!
      autocmd FileType * set textwidth=78
-     autocmd FileType text set fo+=n
      autocmd FileType markdown set fo-=l 
      autocmd FileType csv set fo-=tc
-     autocmd FileType lua,vim,zsh set fo-=cro
      autocmd FileType text,markdown,tex set linebreak
+     autocmd FileType * set fo+=n
+     autocmd FileType * let &formatlistpat = '^\s*\(\d\|\*\|+\|-\)\+[\]:.)}\t ]\s*'
      autocmd FileType * set smartindent
      autocmd FileType tex set nosmartindent
      autocmd FileType markdown source ~/mdView/mdView.vim
 augroup END
-
 
 
 "" Here's how to define Luatable as a command directly
