@@ -1,24 +1,22 @@
-/*/
+/.*/
 
 !/.config/
 /.config/nvim/vim-plug
 
-!/.local/
-/.local/*
-!/.local/share
-/.local/share/*
-!.local/share/nvim
-/.local/share/nvim/.netrwhist
-/.local/share/nvim/site/autoload
-
 !/.terminal_login_fullscreen.app/
 
-!/Library/
+/Desktop/
+/Documents/
+/Downloads/
+/Movies/
+/Music/
+/Pictures/
+/Public/
+/Zotero/
+
 /Library/*
 !/Library/texmf
 /Library/texmf/bibtex
-
-!/[a-z]*/
 
 /Dropbox
 /.lesshst
