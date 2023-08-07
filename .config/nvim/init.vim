@@ -37,27 +37,41 @@ function LuaTable(format = "csv") range
      if a:format == "csv"
 	  execute a:firstline .. "," .. a:lastline .. 's/^"\(.\{-}\)","\=\(.\{-}\)"\=$/\["\1"\] = "\2",'
 	  execute a:firstline .. "," .. a:lastline .. 's/^\([^\[].\{-}\),"\=\(.\{-}\)"\=$/\["\1"\] = "\2",'
-	  execute "noh"
-	  execute "normal" .. a:firstline .. "GO= {\<Esc>"
-	  execute "normal =" .. (a:lastline + 1) .. "G"
-	  execute "normal" .. (a:lastline + 1) .. "Go}\<Esc>"
-	  normal ==
-	  execute "normal" .. a:firstline .. "G^"
-	  execute "startinsert"
      elseif a:format == "tab"
 	  execute a:firstline .. "," .. a:lastline .. 's/^\(.*\)\t\(.*\)$/[''\1''] = ''\2'','
-	  execute "noh"
-	  execute "normal" .. a:firstline .. "GO= {\<Esc>"
-	  execute "normal =" .. (a:lastline + 1) .. "G"
-	  execute "normal" .. (a:lastline + 1) .. "Go}\<Esc>"
-	  normal ==
-	  execute "normal" .. a:firstline .. "G^"
-	  execute "startinsert"
      endif
+     execute "normal" .. a:firstline .. "GO= {\<Esc>"
+     execute "normal =" .. (a:lastline + 1) .. "G"
+     execute "normal" .. (a:lastline + 1) .. "Go}\<Esc>"
+     normal ==
+     " Find duplicate keys and disambiguate
+     let @0 = ''
+     for i in range(a:firstline + 1, a:lastline)
+	  let l:variant = 2
+	  silent! execute '/\%' .. i .. 'l\["\(.*\)"\]'
+	  silent! normal ygn
+	  if @0 == ''
+	  else
+	       let l:word = @0
+	       let @0 = ''
+	       for j in range(i + 1, a:lastline + 1)
+		    silent! execute '/\%' .. j .. 'l\["\(.*\)"\]'
+		    silent! normal ygn
+		    if @0 ==# l:word
+			 execute j .. 'substitute/\["\(.*\)"\]/\["\1(' .. l:variant .. ')"\]'
+			 let l:variant = l:variant + 1
+		    endif
+		    let @0 = ''
+	       endfor
+	       if l:variant > 2
+		    execute i .. 'substitute/\["\(.*\)"\]/\["\1(1)"\]'
+	       endif
+	       unlet l:word
+	  endif
+     endfor
+     execute "normal" .. a:firstline .. "G^"
+     startinsert
 endfunction
-
-" function Luatable() range
-" endfunction
 
 command -range=% -nargs=? LuaTable silent! <line1>,<line2>call LuaTable(<f-args>)
 
