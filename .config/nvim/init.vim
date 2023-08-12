@@ -33,10 +33,10 @@ set splitright
 
 """ Convert tab-separated lists (i.e., as copied/pasted from Excel spreadsheets) into Lua tables
 
-function LuaTable(format = "csv") range
+function Luatable(operation = 'disamb', format = "csv") range
      if a:format == "csv"
-	  execute a:firstline .. "," .. a:lastline .. 's/^"\(.\{-}\)","\=\(.\{-}\)"\=$/\["\1"\] = "\2",'
-	  execute a:firstline .. "," .. a:lastline .. 's/^\([^\[].\{-}\),"\=\(.\{-}\)"\=$/\["\1"\] = "\2",'
+	  silent! execute a:firstline .. "," .. a:lastline .. 's/^"\(.\{-}\)","\=\(.\{-}\)"\=$/\["\1"\] = "\2",'
+	  silent! execute a:firstline .. "," .. a:lastline .. 's/^\([^\[].\{-}\),"\=\(.\{-}\)"\=$/\["\1"\] = "\2",'
      elseif a:format == "tab"
 	  execute a:firstline .. "," .. a:lastline .. 's/^\(.*\)\t\(.*\)$/[''\1''] = ''\2'','
      endif
@@ -44,36 +44,52 @@ function LuaTable(format = "csv") range
      execute "normal =" .. (a:lastline + 1) .. "G"
      execute "normal" .. (a:lastline + 1) .. "Go}\<Esc>"
      normal ==
-     " Find duplicate keys and disambiguate
+     " Find duplicate keys and disambiguate or concatenate
      let @0 = ''
      for i in range(a:firstline + 1, a:lastline)
-	  let l:variant = 2
 	  silent! execute '/\%' .. i .. 'l\["\(.*\)"\]'
 	  silent! normal ygn
 	  if @0 == ''
 	  else
 	       let l:word = @0
 	       let @0 = ''
-	       for j in range(i + 1, a:lastline + 1)
-		    silent! execute '/\%' .. j .. 'l\["\(.*\)"\]'
-		    silent! normal ygn
-		    if @0 ==# l:word
-			 execute j .. 'substitute/\["\(.*\)"\]/\["\1(' .. l:variant .. ')"\]'
-			 let l:variant = l:variant + 1
+	       if a:operation == 'disamb'
+		    let l:variant = 2
+		    for j in range(i + 1, a:lastline + 1)
+			 silent! execute '/\%' .. j .. 'l\["\(.*\)"\]'
+			 silent! normal ygn
+			 if @0 ==# l:word
+			      execute j .. 'substitute/\["\(.*\)"\]/\["\1(' .. l:variant .. ')"\]'
+			      let l:variant = l:variant + 1
+			 endif
+			 let @0 = ''
+		    endfor
+		    if l:variant > 2
+			 execute i .. 'substitute/\["\(.*\)"\]/\["\1(1)"\]'
 		    endif
-		    let @0 = ''
-	       endfor
-	       if l:variant > 2
-		    execute i .. 'substitute/\["\(.*\)"\]/\["\1(1)"\]'
+	       elseif a:operation == 'concat'
+		    let l:lines_del = 0
+		    for j in range(i + 1, a:lastline + 1)
+			 silent! execute '/\%' .. (j - l:lines_del) .. 'l\["\(.*\)"\]'
+			 silent! normal ygn
+			 if @0 ==# l:word
+			      execute '/\%' .. (j - l:lines_del) .. 'l=\s"\zs.*\ze",'
+			      execute 'normal ygn'
+			      execute (j - l:lines_del) .. 'delete _'
+			      let l:lines_del = l:lines_del + 1
+			      execute 'normal' .. i .. "G$F\"i; \<Esc>p"
+			 endif
+			 let @0 = ''
+		    endfor
 	       endif
-	       unlet l:word
+	       unlet l:word   " Is this line necessary?
 	  endif
      endfor
      execute "normal" .. a:firstline .. "G^"
      startinsert
 endfunction
 
-command -range=% -nargs=? LuaTable silent! <line1>,<line2>call LuaTable(<f-args>)
+command -range=% -nargs=* Luatable silent <line1>,<line2>call Luatable(<f-args>)
 
 
 """ Vimtex settings
