@@ -33,12 +33,21 @@ set splitright
 
 """ Convert tab-separated lists (i.e., as copied/pasted from Excel spreadsheets) into Lua tables
 
-function Luatable(operation = 'disamb', format = "csv") range
+function Luatable(operation = 'disamb', swap = 'noswap', format = "csv") range
      if a:format == "csv"
-	  silent! execute a:firstline .. "," .. a:lastline .. 's/^"\(.\{-}\)","\=\(.\{-}\)"\=$/\["\1"\] = "\2",'
-	  silent! execute a:firstline .. "," .. a:lastline .. 's/^\([^\[].\{-}\),"\=\(.\{-}\)"\=$/\["\1"\] = "\2",'
+	  if a:swap == 'noswap'
+	       silent! execute a:firstline .. "," .. a:lastline .. 's/^"\(.\{-}\)","\=\(.\{-}\)"\=$/\["\1"\] = "\2",'
+	       silent! execute a:firstline .. "," .. a:lastline .. 's/^\([^\[].\{-}\),"\=\(.\{-}\)"\=$/\["\1"\] = "\2",'
+	  elseif a:swap == 'swap'
+	       silent! execute a:firstline .. "," .. a:lastline .. 's/^"\(.\{-}\)","\=\(.\{-}\)"\=$/\["\2"\] = "\1",'
+	       silent! execute a:firstline .. "," .. a:lastline .. 's/^\([^\[].\{-}\),"\=\(.\{-}\)"\=$/\["\2"\] = "\1",'
+	  endif
      elseif a:format == "tab"
-	  execute a:firstline .. "," .. a:lastline .. 's/^\(.*\)\t\(.*\)$/[''\1''] = ''\2'','
+	  if a:swap == 'noswap'
+	       execute a:firstline .. "," .. a:lastline .. 's/^\(.*\)\t\(.*\)$/["\1"] = "\2",'
+	  elseif a:swap == 'swap'
+	       execute a:firstline .. "," .. a:lastline .. 's/^\(.*\)\t\(.*\)$/["\2"] = "\1",'
+	  endif
      endif
      execute "normal" .. a:firstline .. "GO= {\<Esc>"
      execute "normal =" .. (a:lastline + 1) .. "G"
