@@ -2,9 +2,14 @@
 
 !/.config/
 /.config/nvim/vim-plug
+!/.local/
+/.local/*
+!/.local/share
+/.local/share/nvim
 
 !/.terminal_login_fullscreen.app/
 
+/Creative Cloud Files/
 /Desktop/
 /Documents/
 /Downloads/
@@ -12,6 +17,7 @@
 /Music/
 /Pictures/
 /Public/
+/Sites/
 /Zotero/
 
 /Library/*
