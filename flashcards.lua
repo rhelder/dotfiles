@@ -1,11 +1,41 @@
 -- to-do
 -- * Add just view flashcard option
--- * Add back-to-front review
 
+
+-- Define delay function
+
+function sleep(s)
+     local ntime = os.clock() + s/10
+     repeat until os.clock() > ntime
+end
+
+
+-- Initialize and ask for mode
 
 -- title =
 
--- cards = {}
+print(title)
+sleep(5)
+
+print('Review front or back of flashcards (f/b)?')
+while true do
+     mode = io.read()
+     if mode == 'f' then
+	  if cards_front ~= nil then
+	       cards = cards_front
+	  end
+	       break
+     elseif mode == 'b' then
+	  if cards_back ~= nil then
+	       cards = cards_back
+	  end
+	       break
+     else
+	  print("Please type either 'f' or 'b'.")
+     end
+end
+
+sleep(5)
 
 
 -- Loop to automatically find number of cards
@@ -19,8 +49,8 @@ end
 -- Create an array in which each key in `cards` is paired with a random number
 
 rand = {}
-
 math.randomseed(os.time())
+
 for k, v in pairs(cards) do
      local num = math.random(verba)
      -- Make sure there are no duplicates
@@ -31,21 +61,11 @@ for k, v in pairs(cards) do
 end
 
 
--- Define delay and iterator functions
-
-function sleep(s)
-     local ntime = os.clock() + s/10
-     repeat until os.clock() > ntime
-end
-
-
 -- Start reviewing flashcards
-
-print(title)
-sleep(10)
 
 review = {}
 reverba = 0
+
 for i, verbum in ipairs(rand) do
      print(verbum)
      if io.read() == cards[verbum] then
@@ -58,14 +78,16 @@ for i, verbum in ipairs(rand) do
 end
 
 
--- Start loop for reviewing missed flashcards
+-- Review missed flashcards
 
-print('Review missed cards')
+print('Review missed flashcards')
 sleep(10)
 
 for i, verbum in ipairs(rand) do
+
      -- Create an array in which each key in table `review` is paired with a random number (clearing and re-using rand)
      rand = {}
+
      for k, v in pairs(review) do
 	  local num = math.random(reverba)
 	  while rand[num] ~= nil do
@@ -77,6 +99,7 @@ for i, verbum in ipairs(rand) do
      -- Start reviewing missed flashcards (clearing and re-using `review` and `reverba`)
      review = {}
      reverba = 0
+
      for i, verbum in ipairs(rand) do
 	  print(verbum)
 	  if io.read() == cards[verbum] then
@@ -87,4 +110,5 @@ for i, verbum in ipairs(rand) do
 	  end
 	  sleep(5)
      end
+
 end
