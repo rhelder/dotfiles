@@ -54,44 +54,33 @@ function Luatable(operation = 'disamb', swap = 'noswap', format = "csv") range
      execute "normal" .. (a:lastline + 1) .. "Go}\<Esc>"
      normal ==
      " Find duplicate keys and disambiguate or concatenate
-     let @0 = ''
      for i in range(a:firstline + 1, a:lastline)
-	  silent! execute '/\%' .. i .. 'l\["\(.*\)"\]'
-	  silent! normal ygn
-	  if @0 == ''
-	  else
-	       let l:word = @0
-	       let @0 = ''
-	       if a:operation == 'disamb'
-		    let l:variant = 2
-		    for j in range(i + 1, a:lastline + 1)
-			 silent! execute '/\%' .. j .. 'l\["\(.*\)"\]'
-			 silent! normal ygn
-			 if @0 ==# l:word
-			      execute j .. 'substitute/\["\(.*\)"\]/\["\1(' .. l:variant .. ')"\]'
-			      let l:variant = l:variant + 1
-			 endif
-			 let @0 = ''
-		    endfor
-		    if l:variant > 2
-			 execute i .. 'substitute/\["\(.*\)"\]/\["\1(1)"\]'
+	  let l:key = matchstr(getline(i), '\["\(.*\)"\]')
+	  if a:operation == 'disamb'
+	       let l:variant = 2
+	       for j in range(i + 1, a:lastline + 1)
+		    let l:candidate = matchstr(getline(j), '\["\(.*\)"\]')
+		    if l:candidate ==# l:key
+			 execute j .. 'substitute/\["\(.*\)"\]/\["\1(' .. l:variant .. ')"\]'
+			 let l:variant = l:variant + 1
 		    endif
-	       elseif a:operation == 'concat'
-		    let l:lines_del = 0
-		    for j in range(i + 1, a:lastline + 1)
-			 silent! execute '/\%' .. (j - l:lines_del) .. 'l\["\(.*\)"\]'
-			 silent! normal ygn
-			 if @0 ==# l:word
-			      execute '/\%' .. (j - l:lines_del) .. 'l=\s"\zs.*\ze",'
-			      execute 'normal ygn'
+	       endfor
+	       if l:variant > 2
+		    execute i .. 'substitute/\["\(.*\)"\]/\["\1(1)"\]'
+	       endif
+	  elseif a:operation == 'concat'
+	       let l:lines_del = 0
+	       for j in range(i + 1, a:lastline + 1)
+		    silent! let l:candidate = matchstr(getline(j - l:lines_del), '\["\(.*\)"\]')
+		    if l:candidate ==# l:key
+			 let l:match = matchstr(getline(j - l:lines_del), '=\s"\zs.*\ze",')
+			 if l:match != ''
 			      execute (j - l:lines_del) .. 'delete _'
 			      let l:lines_del = l:lines_del + 1
-			      execute 'normal' .. i .. "G$F\"i; \<Esc>p"
+			      execute 'normal' .. i .. 'G$F"i; ' .. l:match .. "\<Esc>"
 			 endif
-			 let @0 = ''
-		    endfor
-	       endif
-	       unlet l:word   " Is this line necessary?
+		    endif
+	       endfor
 	  endif
      endfor
      execute "normal" .. a:firstline .. "G^"
