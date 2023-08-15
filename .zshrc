@@ -1,10 +1,8 @@
-# to-do
-
-
 # Options
 
 HISTSIZE=1200000
 SAVEHIST=1000000
+setopt extended_glob
 setopt rcquotes
 
 
@@ -31,8 +29,8 @@ PS1="%F{14}%n@%m (%!) %1~ %# %f"
 alias arist="nvim $HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
 alias bib="cd $(dirname $(kpsewhich MyLibrary.bib))"
 alias budget="open $HOME/Library/CloudStorage/Dropbox/budget_2023.xlsx"
-alias clean="mv *.[^tp]* $HOME/.Trash"
-alias Clean="mv *.[^t]* $HOME/.Trash"
+alias clean="mv ^*.(((tex)|(sty)|(bib)|(txt)|(md)|(vim))) $HOME/.Trash"
+alias Clean="mv ^*.(((tex)|(sty)|(bib)|(txt)|(md)|(vim)|(pdf))) $HOME/.Trash"
 alias db="cd $HOME/Library/CloudStorage/Dropbox"
 alias ls='ls -aF'
 alias lua='luajit'
