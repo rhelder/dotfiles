@@ -193,6 +193,8 @@ augroup my_filetype_defaults
      autocmd FileType * set textwidth=78
      autocmd FileType markdown set fo-=l 
      autocmd FileType csv set fo-=tc
+     autocmd FileType tex set fo-=tc
+     autocmd FileType tex set fo+=l
      autocmd FileType text,markdown,tex set linebreak
      autocmd FileType * set fo+=n
      autocmd FileType * let &formatlistpat = '^\s*\(\d\|\*\|+\|-\)\+[\]:.)}\t ]\s*'
