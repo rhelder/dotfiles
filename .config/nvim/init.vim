@@ -10,6 +10,7 @@ let arist = "$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
 let db = "$HOME/Library/CloudStorage/Dropbox"
 let g:python3_host_prog = "/usr/local/bin/python3"
 let g:vim_indent_cont = shiftwidth() * 1
+let maplocalleader = "\<Space>"
 let nvimrc = "$HOME/.config/nvim/init.vim"
 let rhelder = "$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
 let texmf = "$HOME/Library/texmf"
@@ -17,6 +18,8 @@ let ucb = "$HOME/Library/CloudStorage/Dropbox/UCBerkeley"
 let vtc = "$HOME/.local/share/nvim/site/vimtex/autoload/vimtex/complete"
 let zshrc = "$HOME/.zshrc"
 set belloff=
+set cursorline
+set cursorlineopt=line
 set guicursor=
 set ignorecase
 set mouse=
