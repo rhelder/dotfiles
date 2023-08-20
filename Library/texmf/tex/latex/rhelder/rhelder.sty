@@ -5,7 +5,6 @@
 
 
 \RequirePackage{polyglossia}
-\RequirePackage{geometry}
 \RequirePackage[
      autostyle,
      latin=britishquotes,
@@ -78,7 +77,7 @@
 \if@doublespaced
      \RequirePackage{setspace}
      \doublespacing
-     \geometry{hmargin=1in}
+     \RequirePackage[hmargin=1in]{geometry}
      \quotingsetup{font={small,singlespace}}	  % Make block quotes single-spaced
      \if@biblatex
 	  \if@nomencl
