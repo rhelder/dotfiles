@@ -5,7 +5,9 @@ command Reload execute 'so ' .. nvimrc
 command Rhelder execute 'vs ' .. rhelder
 command Spellcheck set spell spelllang=en_us
 command Terminal vs | terminal
+command -nargs=* Vhelp vertical help <args>
 command Zshrc execute 'vs ' .. zshrc
+let &spellfile = "$HOME/.config/nvim/spell/en.utf-8.add"
 let arist = "$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
 let db = "$HOME/Library/CloudStorage/Dropbox"
 let g:python3_host_prog = "/usr/local/bin/python3"
@@ -187,6 +189,14 @@ nnoremap <silent> g* :set belloff=esc<CR>g*
 nnoremap <silent> g# :set belloff=esc<CR>g#
 " Map <Esc> to itself and turn bell back on
 nnoremap <silent> <Esc> <Esc>:noh <Bar> set belloff=<CR>
+
+
+" Rebuild .spl file whenever nvimrc is loaded
+
+if filereadable(expand(&spellfile)) && !filereadable(expand(&spellfile .. '.spl'))
+	\ || getftime(expand(&spellfile)) > getftime(expand(&spellfile .. '.spl'))
+     execute 'mkspell! ' .. &spellfile
+endif
 
 
 """ Set defaults for various filetypes
