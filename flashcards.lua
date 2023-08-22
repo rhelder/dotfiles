@@ -80,12 +80,9 @@ end
 
 -- Review missed flashcards
 
-print('Review missed flashcards')
-sleep(10)
-
 for i, verbum in ipairs(rand) do
 
-     -- Create an array in which each key in table `review` is paired with a random number (clearing and re-using rand)
+     -- Create an array in which each key in `review` is paired with a unique random number (clearing and re-using `rand`)
      rand = {}
 
      for k, v in pairs(review) do
@@ -100,6 +97,9 @@ for i, verbum in ipairs(rand) do
      review = {}
      reverba = 0
 
+     print('Review missed flashcards')
+     sleep(10)
+
      for i, verbum in ipairs(rand) do
 	  print(verbum)
 	  if io.read() == cards[verbum] then
@@ -109,6 +109,10 @@ for i, verbum in ipairs(rand) do
 	       reverba = reverba + 1
 	  end
 	  sleep(5)
+     end
+
+     if reverba == 0 then
+	  break
      end
 
 end
