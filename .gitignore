@@ -2,6 +2,7 @@
 
 !/.config/
 /.config/nvim/vim-plug
+/.config/nvim/spell/*.spl
 !/.local/
 /.local/*
 !/.local/share
