@@ -3,7 +3,7 @@ command Arist execute 'vs ' .. arist
 command Nvimrc execute 'vs ' .. nvimrc
 command Reload execute 'so ' .. nvimrc
 command Rhelder execute 'vs ' .. rhelder
-command Spellcheck set spell spelllang=en_us
+command Spellcheck set invspell spelllang=en_us
 command Terminal vs | terminal
 command -nargs=* Vhelp vertical help <args>
 command Zshrc execute 'vs ' .. zshrc
