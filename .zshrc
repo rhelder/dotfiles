@@ -32,6 +32,7 @@ alias budget="open $HOME/Library/CloudStorage/Dropbox/budget_2023.xlsx"
 alias clean="mv ^*.(((tex)|(sty)|(bib)|(txt)|(md)|(vim))) $HOME/.Trash"
 alias Clean="mv ^*.(((tex)|(sty)|(bib)|(txt)|(md)|(vim)|(pdf))) $HOME/.Trash"
 alias db="cd $HOME/Library/CloudStorage/Dropbox"
+alias hosts='sudo nvim /etc/hosts'
 alias ls='ls -aF'
 alias lua='luajit'
 alias luaqs='open -a skim "$HOME/Documents/Books/lua_quickStart.pdf"'
