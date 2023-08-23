@@ -1,5 +1,5 @@
 -- to-do
--- * Add just view flashcard option
+-- * Consider reading `csv` file directly
 
 
 -- Define delay function
@@ -10,28 +10,38 @@ function sleep(s)
 end
 
 
--- Initialize and ask for mode
-
--- title =
+-- Initialize and ask for modes
 
 print(title)
 sleep(5)
 
 print('Review front or back of flashcards (f/b)?')
 while true do
-     mode = io.read()
+     local mode = io.read()
      if mode == 'f' then
 	  if cards_front ~= nil then
 	       cards = cards_front
 	  end
-	       break
+	  break
      elseif mode == 'b' then
 	  if cards_back ~= nil then
 	       cards = cards_back
 	  end
-	       break
+	  break
      else
 	  print("Please type either 'f' or 'b'.")
+     end
+end
+
+print('Type or view answers (t/v)?')
+while true do
+     mode = io.read()
+     if mode == 't' then
+	  break
+     elseif mode == 'v' then
+	  break
+     else
+	  print("Please type either 't' or 'v'.")
      end
 end
 
@@ -41,6 +51,7 @@ sleep(5)
 -- Loop to automatically find number of cards
 
 verba = 0
+
 for k, v in pairs(cards) do
      verba = verba + 1
 end
@@ -68,11 +79,31 @@ reverba = 0
 
 for i, verbum in ipairs(rand) do
      print(verbum)
-     if io.read() == cards[verbum] then
-	  print('Correct')
-     else print ('Incorrect. Correct answer: ' .. cards[verbum])
-	  review[verbum] = cards[verbum]
-	  reverba = reverba + 1
+     if mode == 't' then
+	  if io.read() == cards[verbum] then
+	       print('Correct')
+	  else print ('Incorrect. Correct answer: ' .. cards[verbum])
+	       review[verbum] = cards[verbum]
+	       reverba = reverba + 1
+	  end
+     end
+     if mode == 'v' then
+	  io.read()
+	  print(cards[verbum])
+	  sleep(5)
+	  print('Learned? (y/n)')
+	  while true do
+	       local learned = io.read()
+	       if learned == 'y' then
+		    break
+	       elseif learned == 'n' then
+		    review[verbum] = cards[verbum]
+		    reverba = reverba + 1
+		    break
+	       else
+		    print("Please type either 'y' or 'n'.")
+	       end
+	  end
      end
      sleep(5)
 end
@@ -102,11 +133,31 @@ for i, verbum in ipairs(rand) do
 
      for i, verbum in ipairs(rand) do
 	  print(verbum)
-	  if io.read() == cards[verbum] then
-	       print('Correct')
-	  else print ('Incorrect. Correct answer: ' .. cards[verbum])
-	       review[verbum] = cards[verbum]
-	       reverba = reverba + 1
+	  if mode == 't' then
+	       if io.read() == cards[verbum] then
+		    print('Correct')
+	       else print ('Incorrect. Correct answer: ' .. cards[verbum])
+		    review[verbum] = cards[verbum]
+		    reverba = reverba + 1
+	       end
+	  end
+	  if mode == 'v' then
+	       io.read()
+	       print(cards[verbum])
+	       sleep(5)
+	       print('Learned? (y/n)')
+	       while true do
+		    local learned = io.read()
+		    if learned == 'y' then
+			 break
+		    elseif learned == 'n' then
+			 review[verbum] = cards[verbum]
+			 reverba = reverba + 1
+			 break
+		    else
+			 print("Please type either 'y' or 'n'.")
+		    end
+	       end
 	  end
 	  sleep(5)
      end
