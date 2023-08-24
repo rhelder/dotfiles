@@ -1,50 +1,59 @@
-# Options
+# {{{1 Options and settings
 
 HISTSIZE=1200000
 SAVEHIST=1000000
 setopt extended_glob
 setopt rcquotes
 
-
-# run-help Settings
-
-HELPDIR='/usr/share/zsh/5.9/help'
-if [[ $(alias -m run-help) != '' ]]
-     then unalias run-help
-fi
-autoload -Uz run-help
-functions -c run-help run-help-def
-function run-help {
-     run-help-def $* | nvim -R -
-}
-
-
-# Prompt
-
+# Set prompt
 PS1="%F{14}%n@%m (%!) %1~ %# %f"
 
+# Set Neovim as man pager
+export MANPAGER='nvim +Man!'
 
-# Aliases and Functions
+# Configure gpg-agent
+export GPG_TTY=$(tty)
+# Use TTY-based pinentry (rather than pinentry-mac) in most cases (glitched
+# for me)
+# export PINENTRY_USER_DATA="USE_CURSES=1"
 
-alias arist="nvim $HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
-alias bib="cd $(dirname $(kpsewhich MyLibrary.bib))"
-alias budget="open $HOME/Library/CloudStorage/Dropbox/budget_2023.xlsx"
-alias clean="mv ^*.(((tex)|(sty)|(bib)|(txt)|(md)|(vim))) $HOME/.Trash"
-alias Clean="mv ^*.(((tex)|(sty)|(bib)|(txt)|(md)|(vim)|(pdf))) $HOME/.Trash"
-alias db="cd $HOME/Library/CloudStorage/Dropbox"
-alias hosts='sudo nvim /etc/hosts'
+# {{{1 Variables
+
+arist="$(kpsewhich aristotelis.sty)"
+bib="$(kpsewhich myLibrary.bib)"
+db="$HOME/Library/CloudStorage/Dropbox"
+nvimrc="$HOME/.config/nvim/init.vim"
+rhelder="$(kpsewhich rhelder.sty)"
+texmf="$HOME/Library/texmf"
+ucb="$db/UCBerkeley"
+vtc="$HOME/.local/share/nvim/site/vimtex/autoload/vimtex/complete"
+zshrc="$HOME/.zshrc"
+
+# {{{1 Aliases
+
+alias bib="cd $(dirname $bib)"
+alias bt="open $db/budget_2023.xlsx"
+alias Cl="mv ^*.(((tex)|(sty)|(bib)|(txt)|(md)|(vim))) $HOME/.Trash"
+alias cl="mv ^*.(((tex)|(sty)|(bib)|(txt)|(md)|(vim)|(pdf))) $HOME/.Trash"
+alias db="cd $db"
+alias ea="nvim $arist"
+alias es="nvim $rhelder"
+alias ev="nvim $HOME/.config/nvim/init.vim"
+alias ez="nvim $HOME/.zshrc"
+alias hf='sudo nvim /etc/hosts'
+alias lqs='open -a skim "$HOME/Documents/Books/lua_quickStart.pdf"'
 alias ls='ls -aF'
 alias lua='luajit'
-alias luaqs='open -a skim "$HOME/Documents/Books/lua_quickStart.pdf"'
-alias nvimrc="nvim $HOME/.config/nvim/init.vim"
-alias reload="source $HOME/.zshrc"
-alias rhelder="nvim $HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
-alias rhmhd='lsof ''/Volumes/RH Media HD/iTunes/Apple Music Library/Music Library.musiclibrary/Library.musicdb''; \
+alias mhd='lsof ''/Volumes/RH Media HD/iTunes/Apple Music Library/Music Library.musiclibrary/Library.musicdb''; \
      lsof ''/Volumes/RH Media HD/Apple TV/TV Library.tvlibrary/Library.tvdb'''
-alias ucb="cd $HOME/Library/CloudStorage/Dropbox/UCBerkeley"
-alias VimtexClearCache="trash $HOME/.cache/vimtex/pkgcomplete.json"
+alias sz="source $zshrc"
+alias ucb="cd $db/UCBerkeley"
+alias vcc="trash $HOME/.cache/vimtex/pkgcomplete.json"
 alias vtc="cd $HOME/.local/share/nvim/site/vimtex/autoload/vimtex/complete"
-alias zshrc="nvim $HOME/.zshrc"
+
+# {{{1 Functions
+
+# User-defined functions
 function cs {
      cd $* && ls
 }
@@ -63,24 +72,16 @@ function untar {
      tar -xf $file -C ${file%.tar*}
 }
 
-
-# Variables
-
-arist="$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
-db="$HOME/Library/CloudStorage/Dropbox"
-export MANPAGER='nvim +Man!'
-nvimrc="$HOME/.config/nvim/init.vim"
-rhelder="$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
-texmf="$HOME/Library/texmf"
-ucb="$HOME/Library/CloudStorage/Dropbox/UCBerkeley"
-vtc="$HOME/.local/share/nvim/site/vimtex/autoload/vimtex/complete"
-zshrc="$HOME/.zshrc"
-
-
-# Configure gpg-agent
-
-GPG_TTY=$(tty)
-export GPG_TTY
-# Use TTY-based pinentry (rather than pinentry-mac) in most cases (glitched
-# for me)
-# export PINENTRY_USER_DATA="USE_CURSES=1"
+# Install run-help
+if [[ $(alias -m run-help) != '' ]]
+     then unalias run-help
+fi
+autoload -Uz run-help
+autoload -Uz run-help-git
+# Set Neovim as pager for run-help
+functions -c run-help run-help-def
+function run-help {
+     local HELPDIR='/usr/share/zsh/5.9/help'
+     local PAGER='nvim +silent!Man!'
+     run-help-def $*
+}
