@@ -117,15 +117,15 @@ endfunction
 
 " {{{1 Mappings
 
-nnoremap <Leader>u viwUe
-nnoremap <Leader>ev <Cmd>vsplit $MYVIMRC<CR>
-nnoremap <Leader>sv <Cmd>source $MYVIMRC<CR>
-nnoremap <Leader>ez <Cmd>execute 'vsplit ' .. zshrc<CR>
-
 " Use <Space> as leader key
 nnoremap <Space> <NOP>
 let mapleader = "\<Space>"
 let maplocalleader = "\<Space>"
+
+nnoremap <Leader>u viwUe
+nnoremap <Leader>ev <Cmd>vsplit $MYVIMRC<CR>
+nnoremap <Leader>sv <Cmd>source $MYVIMRC<CR>
+nnoremap <Leader>ez <Cmd>execute 'vsplit ' .. zshrc<CR>
 
 " Exit terminal mode when moving cursor to another window
 augroup leave_terminal_window
@@ -155,6 +155,7 @@ nnoremap <silent> g* :set belloff=esc<CR>g*
 nnoremap <silent> g# :set belloff=esc<CR>g#
 " Map <Esc> to itself and turn bell back on
 nnoremap <silent> <Esc> <Esc>:noh <Bar> set belloff=<CR>
+
 
 " {{{1 Other autocommands
 
