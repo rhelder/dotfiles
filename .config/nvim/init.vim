@@ -1,6 +1,4 @@
 " to-do
-" *  Update command to rebuild `.spl` file: parse `&spellfile` into separate
-"    items by comma
 " *  Add mapping for `Spellcheck`
 " *  Add arguments to customize `Spellcheck` by language?
 
@@ -166,17 +164,25 @@ nnoremap <silent> <Esc> <Esc>:noh <Bar> set belloff=<CR>
 
 " {{{1 Other autocommands
 
-" Enter terminal mode when opening terminal
-augroup terminal_mode_open
+augroup nvimrc_autocommands
      autocmd!
+     " Enter terminal mode when opening terminal
      autocmd TermOpen * startinsert
+     " Rebuild .spl files both before entering window at startup and after
+     " entering window of any subsequent new buffer
+     autocmd FileType,BufWinEnter * call Mkspell()
 augroup END
 
-" Rebuild .spl file whenever nvimrc is loaded
-" if filereadable(expand(&spellfile)) && !filereadable(expand(&spellfile .. '.spl'))
-" 	\ || getftime(expand(&spellfile)) > getftime(expand(&spellfile .. '.spl'))
-"      execute 'mkspell! ' .. &spellfile
-" endif
+" Rebuild .spl files
+function Mkspell()
+     let l:spellfiles = split(&spellfile, ',')
+     for n in l:spellfiles
+	  if filereadable(expand(n)) && !filereadable(expand(n .. '.spl'))
+		  \ || getftime(expand(n)) > getftime(expand(n .. '.spl'))
+	       execute 'mkspell! ' .. n
+	  endif
+     endfor
+endfunction
 
 " {{{1 Vim-plug
 
