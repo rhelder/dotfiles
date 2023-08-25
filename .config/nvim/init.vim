@@ -1,6 +1,12 @@
+" to-do
+" *  Update command to rebuild `.spl` file: parse `&spellfile` into separate
+"    items by comma
+" *  Add mapping for `Spellcheck`
+" *  Add arguments to customize `Spellcheck` by language?
+
 " {{{1 Options
 
-let &spellfile = "$HOME/.config/nvim/spell/en.utf-8.add"
+let &spellfile = "~/.config/nvim/spell/en.utf-8.add,~/.config/nvim/spell/de.utf-8.add"
 let g:python3_host_prog = "/usr/local/bin/python3"
 let g:vim_indent_cont = shiftwidth() * 1
 set belloff=
@@ -20,6 +26,7 @@ set smartcase
 set softtabstop=5
 set splitbelow
 set splitright
+
 
 " {{{1 Filetype options
 
@@ -166,10 +173,10 @@ augroup terminal_mode_open
 augroup END
 
 " Rebuild .spl file whenever nvimrc is loaded
-if filereadable(expand(&spellfile)) && !filereadable(expand(&spellfile .. '.spl'))
-	\ || getftime(expand(&spellfile)) > getftime(expand(&spellfile .. '.spl'))
-     execute 'mkspell! ' .. &spellfile
-endif
+" if filereadable(expand(&spellfile)) && !filereadable(expand(&spellfile .. '.spl'))
+" 	\ || getftime(expand(&spellfile)) > getftime(expand(&spellfile .. '.spl'))
+"      execute 'mkspell! ' .. &spellfile
+" endif
 
 " {{{1 Vim-plug
 
@@ -228,3 +235,5 @@ augroup END
 " {{{1 vim-gnupg configuration
 
 let g:GPGExecutable = "PINENTRY_USER_DATA='' gpg --trust-model always"
+
+" }}}1
