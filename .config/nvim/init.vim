@@ -1,11 +1,13 @@
 " to-do
-" *  Shorten lines
 " *  Standardize single vs. double quotes
 " *  Reconsider mapping <Esc> to noh; also consider redefining substitute
 
 " {{{1 Options
 
-let &spellfile = '~/.config/nvim/spell/en.utf-8.add,~/.config/nvim/spell/de.utf-8.add'
+let &formatlistpat = '^\s*\(\d\|\*\|+\|-\)\+[\]:.)}\t ]\s*'
+let &spellfile =
+	\ '~/.config/nvim/spell/en.utf-8.add,
+	\~/.config/nvim/spell/de.utf-8.add'
 let g:python3_host_prog = "/usr/local/bin/python3"
 let g:vim_indent_cont = shiftwidth() * 1
 set belloff=
@@ -13,6 +15,7 @@ set cursorline
 set cursorlineopt=line
 set foldlevelstart=0
 set foldmethod=marker
+set formatoptions+=n
 set guicursor=
 set ignorecase
 set mouse=
@@ -22,24 +25,22 @@ set report=0
 set scrolloff=3
 set shiftwidth=5
 set smartcase
+set smartindent
 set softtabstop=5
 set spelllang=en_us
 set splitbelow
 set splitright
+set textwidth=78
 
 " {{{1 Filetype options
 
 augroup nvimrc_filetype_defaults
      autocmd!
-     autocmd FileType * set textwidth=78
      autocmd FileType markdown set formatoptions-=l 
      autocmd FileType csv set formatoptions-=tc
      autocmd FileType tex set formatoptions-=tc
      autocmd FileType tex set formatoptions+=l
      autocmd FileType text,markdown,tex set linebreak
-     autocmd FileType * set formatoptions+=n
-     autocmd FileType * let &formatlistpat = '^\s*\(\d\|\*\|+\|-\)\+[\]:.)}\t ]\s*'
-     autocmd FileType * set smartindent
      autocmd FileType tex set nosmartindent
      autocmd FileType markdown source ~/mdView/mdView.vim
 augroup END
@@ -66,7 +67,9 @@ command -nargs=? Spellcheck set spell! |
 command Terminal vsplit | terminal
 command -nargs=* Vhelp vertical help <args>
 command Zshrc execute 'vsplit ' .. zshrc
-command -range=% -nargs=* Luatable silent <line1>,<line2>call Luatable(<f-args>)     " Convert tab-separated lists (i.e., as copied/pasted from Excel spreadsheets) into Lua tables
+" Convert tab-separated lists (i.e., as copied/pasted from Excel spreadsheets)
+" into Lua tables
+command -range=% -nargs=* Luatable <line1>,<line2>call Luatable(<f-args>)
 
 function Luatable(operation = 'disamb', swap = 'noswap', format = "csv") range
      if a:format == "csv"
