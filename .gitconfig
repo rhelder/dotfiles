@@ -9,3 +9,4 @@
 	useHttpPath = true
 [core]
      ignoreCase = false
+     editor = nvim
