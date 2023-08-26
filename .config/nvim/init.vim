@@ -1,10 +1,11 @@
 " to-do
-" *  Add mapping for `Spellcheck`
-" *  Add arguments to customize `Spellcheck` by language?
+" *  Shorten lines
+" *  Standardize single vs. double quotes
+" *  Reconsider mapping <Esc> to noh; also consider redefining substitute
 
 " {{{1 Options
 
-let &spellfile = "~/.config/nvim/spell/en.utf-8.add,~/.config/nvim/spell/de.utf-8.add"
+let &spellfile = '~/.config/nvim/spell/en.utf-8.add,~/.config/nvim/spell/de.utf-8.add'
 let g:python3_host_prog = "/usr/local/bin/python3"
 let g:vim_indent_cont = shiftwidth() * 1
 set belloff=
@@ -22,9 +23,9 @@ set scrolloff=3
 set shiftwidth=5
 set smartcase
 set softtabstop=5
+set spelllang=en_us
 set splitbelow
 set splitright
-
 
 " {{{1 Filetype options
 
@@ -60,7 +61,8 @@ command Arist execute 'vsplit ' .. arist
 command Nvimrc execute 'vsplit ' .. nvimrc
 command Reload execute 'so ' .. nvimrc
 command Rhelder execute 'vsplit ' .. rhelder
-command Spellcheck set invspell spelllang=en_us
+command -nargs=? Spellcheck set spell! |
+     \ if <q-args> != '' | set spelllang=<args> | endif
 command Terminal vsplit | terminal
 command -nargs=* Vhelp vertical help <args>
 command Zshrc execute 'vsplit ' .. zshrc
@@ -131,6 +133,8 @@ nnoremap <Leader>u viwUe
 nnoremap <Leader>ev <Cmd>vsplit $MYVIMRC<CR>
 nnoremap <Leader>sv <Cmd>source $MYVIMRC<CR>
 nnoremap <Leader>ez <Cmd>execute 'vsplit ' .. zshrc<CR>
+nnoremap <Leader>sp <Cmd>set spell!<CR>
+nnoremap <Leader>sl :set spelllang=
 
 " Exit terminal mode when moving cursor to another window
 augroup leave_terminal_window
@@ -160,7 +164,6 @@ nnoremap <silent> g* :set belloff=esc<CR>g*
 nnoremap <silent> g# :set belloff=esc<CR>g#
 " Map <Esc> to itself and turn bell back on
 nnoremap <silent> <Esc> <Esc>:noh <Bar> set belloff=<CR>
-
 
 " {{{1 Other autocommands
 
