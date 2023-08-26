@@ -1,6 +1,3 @@
-" to-do
-" *  Reconsider mapping <Esc> to noh
-
 " {{{1 Options
 
 let &formatlistpat = '^\s*\(\d\|\*\|+\|-\)\+[\]:.)}\t ]\s*'
@@ -45,18 +42,7 @@ nnoremap <Leader>sl :set spelllang=
 nnoremap <Leader>sp <Cmd>set spell!<CR>
 nnoremap <Leader>sv <Cmd>source $MYVIMRC<CR>
 nnoremap <Leader>u viwUe
-
-" Map <Esc> to :noh without bell going off
-" Map keys that trigger search commands to set belloff=esc
-cnoremap <expr><silent> <CR> getcmdtype() =~ '[/?]' ? '<CR>:set belloff=esc<CR>' : '<CR>'
-nnoremap <silent> n :set belloff=esc<CR>n
-nnoremap <silent> N :set belloff=esc<CR>N
-nnoremap <silent> * :set belloff=esc<CR>*
-nnoremap <silent> # :set belloff=esc<CR>#
-nnoremap <silent> g* :set belloff=esc<CR>g*
-nnoremap <silent> g# :set belloff=esc<CR>g#
-" Map <Esc> to itself and turn bell back on
-nnoremap <silent> <Esc> <Esc>:noh <Bar> set belloff=<CR>
+nnoremap <silent> <Leader><Esc> <Cmd>noh<CR>
 
 " {{{1 Autocommands
 
@@ -76,8 +62,8 @@ augroup nvrimc_key_mappings
      autocmd!
 
      " Set key mapping for command window
-     autocmd CmdwinEnter * nnoremap <buffer> q	       <C-C><C-C>
-     autocmd CmdwinEnter * nnoremap <buffer> <C-F>     <C-C>
+     autocmd CmdwinEnter * nnoremap <buffer> q <C-C><C-C>
+     autocmd CmdwinEnter * nnoremap <buffer> <C-F> <C-C>
 
      " Exit terminal mode when moving cursor to another window
      autocmd TermEnter * tnoremap <buffer> <C-W><C-W> <C-\><C-N><C-W><C-W>
