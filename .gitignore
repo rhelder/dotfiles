@@ -4,9 +4,9 @@
 /.config/nvim/vim-plug
 /.config/nvim/spell/*.spl
 !/.local/
-/.local/*
-!/.local/share
-/.local/share/nvim
+/.local/state
+/.local/share/nvim/.netrwhist
+/.local/share/nvim/site/autoload
 
 !/.terminal_login_fullscreen.app/
 
