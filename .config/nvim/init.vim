@@ -1,6 +1,5 @@
 " to-do
 " *  Reconsider mapping <Esc> to noh
-" *  Set gdefault and add lervag's keymapping for command window
 
 " {{{1 Options
 
@@ -16,6 +15,7 @@ set cursorlineopt=line
 set foldlevelstart=0
 set foldmethod=marker
 set formatoptions+=n
+set gdefault
 set guicursor=
 set ignorecase
 set mouse=
@@ -32,11 +32,37 @@ set splitbelow
 set splitright
 set textwidth=78
 
+" {{{1 Mappings
+
+" Use <Space> as leader key
+nnoremap <Space> <NOP>
+let mapleader = "\<Space>"
+let maplocalleader = "\<Space>"
+
+nnoremap <Leader>ev <Cmd>vsplit $MYVIMRC<CR>
+nnoremap <Leader>ez <Cmd>execute 'vsplit ' .. zshrc<CR>
+nnoremap <Leader>sl :set spelllang=
+nnoremap <Leader>sp <Cmd>set spell!<CR>
+nnoremap <Leader>sv <Cmd>source $MYVIMRC<CR>
+nnoremap <Leader>u viwUe
+
+" Map <Esc> to :noh without bell going off
+" Map keys that trigger search commands to set belloff=esc
+cnoremap <expr><silent> <CR> getcmdtype() =~ '[/?]' ? '<CR>:set belloff=esc<CR>' : '<CR>'
+nnoremap <silent> n :set belloff=esc<CR>n
+nnoremap <silent> N :set belloff=esc<CR>N
+nnoremap <silent> * :set belloff=esc<CR>*
+nnoremap <silent> # :set belloff=esc<CR>#
+nnoremap <silent> g* :set belloff=esc<CR>g*
+nnoremap <silent> g# :set belloff=esc<CR>g#
+" Map <Esc> to itself and turn bell back on
+nnoremap <silent> <Esc> <Esc>:noh <Bar> set belloff=<CR>
+
 " {{{1 Autocommands
 
 augroup nvimrc_filetype_defaults
      autocmd!
-     autocmd FileType markdown set formatoptions-=l 
+     autocmd FileType markdown set formatoptions-=l
      autocmd FileType csv set formatoptions-=tc
      autocmd FileType tex set formatoptions-=tc
      autocmd FileType tex set formatoptions+=l
@@ -45,10 +71,28 @@ augroup nvimrc_filetype_defaults
      autocmd FileType markdown source ~/mdView/mdView.vim
 augroup END
 
+augroup nvrimc_key_mappings
+     autocmd!
+
+     " Set key mapping for command window
+     autocmd CmdwinEnter * nnoremap <buffer> q	       <C-C><C-C>
+     autocmd CmdwinEnter * nnoremap <buffer> <C-F>     <C-C>
+
+     " Exit terminal mode when moving cursor to another window
+     autocmd TermEnter * tnoremap <buffer> <C-W><C-W> <C-\><C-N><C-W><C-W>
+     autocmd TermEnter * tnoremap <buffer> <C-W>w <C-\><C-N><C-W>w
+     autocmd TermEnter * tnoremap <buffer> <C-W>j <C-\><C-N><C-W>j
+     autocmd TermEnter * tnoremap <buffer> <C-W>k <C-\><C-N><C-W>k
+     autocmd TermEnter * tnoremap <buffer> <C-W>h <C-\><C-N><C-W>h
+     autocmd TermEnter * tnoremap <buffer> <C-W>l <C-\><C-N><C-W>l
+augroup END
+
 augroup nvimrc_autocommands
      autocmd!
+
      " Enter terminal mode when opening terminal
      autocmd TermOpen * startinsert
+
      " Rebuild .spl files both before entering window at startup and after
      " entering window of any subsequent new buffer
      autocmd FileType,BufWinEnter * call Mkspell()
@@ -64,49 +108,6 @@ function Mkspell()
 	  endif
      endfor
 endfunction
-
-" {{{1 Mappings
-
-" Use <Space> as leader key
-nnoremap <Space> <NOP>
-let mapleader = "\<Space>"
-let maplocalleader = "\<Space>"
-
-nnoremap <Leader>ev <Cmd>vsplit $MYVIMRC<CR>
-nnoremap <Leader>ez <Cmd>execute 'vsplit ' .. zshrc<CR>
-nnoremap <Leader>sl :set spelllang=
-nnoremap <Leader>sp <Cmd>set spell!<CR>
-nnoremap <Leader>sv <Cmd>source $MYVIMRC<CR>
-nnoremap <Leader>u viwUe
-
-" Exit terminal mode when moving cursor to another window
-augroup leave_terminal_window
-     autocmd!
-     autocmd TermEnter * tnoremap <C-W><C-W> <C-\><C-N><C-W><C-W>
-     autocmd TermEnter * tnoremap <C-W>w <C-\><C-N><C-W>w
-     autocmd TermEnter * tnoremap <C-W>j <C-\><C-N><C-W>j
-     autocmd TermEnter * tnoremap <C-W>k <C-\><C-N><C-W>k
-     autocmd TermEnter * tnoremap <C-W>h <C-\><C-N><C-W>h
-     autocmd TermEnter * tnoremap <C-W>l <C-\><C-N><C-W>l
-     autocmd TermLeave * tunmap <C-W><C-W>
-     autocmd TermLeave * tunmap <C-W>w
-     autocmd TermLeave * tunmap <C-W>j
-     autocmd TermLeave * tunmap <C-W>k
-     autocmd TermLeave * tunmap <C-W>h
-     autocmd TermLeave * tunmap <C-W>l
-augroup END
-
-" Map <Esc> to :noh without bell going off
-" Map keys that trigger search commands to set belloff=esc
-cnoremap <expr><silent> <CR> getcmdtype() =~ '[/?]' ? '<CR>:set belloff=esc<CR>' : '<CR>'
-nnoremap <silent> n :set belloff=esc<CR>n
-nnoremap <silent> N :set belloff=esc<CR>N
-nnoremap <silent> * :set belloff=esc<CR>*
-nnoremap <silent> # :set belloff=esc<CR>#
-nnoremap <silent> g* :set belloff=esc<CR>g*
-nnoremap <silent> g# :set belloff=esc<CR>g#
-" Map <Esc> to itself and turn bell back on
-nnoremap <silent> <Esc> <Esc>:noh <Bar> set belloff=<CR>
 
 " {{{1 Variables
 
