@@ -67,6 +67,7 @@ augroup nvimrc_filetype_defaults
      autocmd FileType tex set formatoptions-=tc
      autocmd FileType tex set formatoptions+=l
      autocmd FileType text,markdown,tex set linebreak
+     autocmd BufWinEnter COMMIT_EDITMSG set textwidth=72
      autocmd FileType tex set nosmartindent
      autocmd FileType markdown source ~/mdView/mdView.vim
 augroup END
