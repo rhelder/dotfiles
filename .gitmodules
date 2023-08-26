@@ -1,0 +1,3 @@
+[submodule ".local/share/pandoc/github-markdown-css"]
+	path = .local/share/pandoc/github-markdown-css
+	url = https://github.com/sindresorhus/github-markdown-css.git
