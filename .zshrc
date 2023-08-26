@@ -11,6 +11,9 @@ PS1="%F{14}%n@%m (%!) %1~ %# %f"
 # Set Neovim as man pager
 export MANPAGER='nvim +Man!'
 
+# No .lesshst file
+export LESSHISTFILE='-'
+
 # Configure gpg-agent
 export GPG_TTY=$(tty)
 # Use TTY-based pinentry (rather than pinentry-mac) in most cases (glitched
