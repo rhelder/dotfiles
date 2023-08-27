@@ -36,13 +36,28 @@ nnoremap <Space> <NOP>
 let mapleader = "\<Space>"
 let maplocalleader = "\<Space>"
 
+" Open/load files
 nnoremap <Leader>ev <Cmd>vsplit $MYVIMRC<CR>
 nnoremap <Leader>ez <Cmd>execute 'vsplit ' .. zshrc<CR>
+nnoremap <Leader>sv <Cmd>source $MYVIMRC<CR>
+
+" Switch off search hilighting
+nnoremap <silent> <Leader><Esc> <Cmd>noh<CR>
+
+" Spell check
 nnoremap <Leader>sl :set spelllang=
 nnoremap <Leader>sp <Cmd>set spell!<CR>
-nnoremap <Leader>sv <Cmd>source $MYVIMRC<CR>
+
+" Navigation
+nnoremap H ^
+nnoremap L $
+
+" Uppercase word
 nnoremap <Leader>u viwUe
-nnoremap <silent> <Leader><Esc> <Cmd>noh<CR>
+
+" Surround word or selection with delimeters
+nnoremap <Leader>{ ea}<Esc>bi{<Esc>el
+vnoremap <Leader>{ <Esc>`<i{<Esc>`>a}<Esc>
 
 " {{{1 Autocommands
 
