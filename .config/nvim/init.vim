@@ -63,13 +63,13 @@ vnoremap <Leader>{ <Esc>`<i{<Esc>`>a}<Esc>
 
 augroup nvimrc_filetype_defaults
      autocmd!
-     autocmd FileType markdown set formatoptions-=l
-     autocmd FileType csv set formatoptions-=tc
-     autocmd FileType tex set formatoptions-=tc
-     autocmd FileType tex set formatoptions+=l
-     autocmd FileType text,markdown,tex set linebreak
-     autocmd BufWinEnter COMMIT_EDITMSG set textwidth=72
-     autocmd FileType tex set nosmartindent
+     autocmd FileType markdown setlocal formatoptions-=l
+     autocmd FileType csv setlocal formatoptions-=tc
+     autocmd FileType tex setlocal formatoptions-=tc
+     autocmd FileType tex setlocal formatoptions+=l
+     autocmd FileType text,markdown,tex setlocal linebreak
+     autocmd BufWinEnter COMMIT_EDITMSG setlocal textwidth=72
+     autocmd FileType tex setlocal nosmartindent
      autocmd FileType markdown source ~/mdView/mdView.vim
 augroup END
 
