@@ -91,16 +91,12 @@ augroup END
 
 augroup nvimrc_autocommands
      autocmd!
-
      " Enter terminal mode when opening terminal
      autocmd TermOpen * startinsert
-
-     " Rebuild .spl files both before entering window at startup and after
-     " entering window of any subsequent new buffer
-     autocmd FileType,BufWinEnter * call Mkspell()
 augroup END
 
-" Rebuild .spl files
+" Rebuild .spl files upon initialization, and then subsequently whenever
+" a buffer is loaded (or a hiddent buffer is displayed) in a new window
 function Mkspell()
      let l:spellfiles = split(&spellfile, ',')
      for n in l:spellfiles
@@ -109,7 +105,15 @@ function Mkspell()
 	       execute 'mkspell! ' .. n
 	  endif
      endfor
+     augroup nvimrc_Mkspell
+	  autocmd!
+	  autocmd BufWinEnter * call Mkspell()
+     augroup END
 endfunction
+
+if v:vim_did_enter == 0
+     call Mkspell()
+endif
 
 " {{{1 Variables
 
