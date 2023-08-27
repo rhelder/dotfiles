@@ -59,7 +59,7 @@ nnoremap <Leader>hv <Cmd>vert help<CR>:help
 nnoremap <Leader>hs <Cmd>help<CR>:help 
 
 " Open terminal
-nnoremap <Leader>t <Cmd>vsplit<CR> <Bar> <Cmd>terminal<CR>
+nnoremap <Leader>t <Cmd>vsplit<CR><Cmd>terminal<CR>
 
 " Switch off search hilighting
 nnoremap <silent> <Leader><Esc> <Cmd>noh<CR>
