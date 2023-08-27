@@ -12,7 +12,7 @@ PS1="%F{14}%n@%m (%!) %1~ %# %f"
 export MANPAGER='nvim +Man!'
 
 # No .lesshst file
-export LESSHISTFILE='-'
+export LESSHISTFILE=-
 
 # Configure gpg-agent
 export GPG_TTY=$(tty)
