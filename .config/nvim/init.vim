@@ -29,6 +29,17 @@ set splitbelow
 set splitright
 set textwidth=78
 
+" {{{1 Variables
+
+let arist = '~/Library/texmf/tex/latex/aristotelis/aristotelis.sty'
+let db = '~/Library/CloudStorage/Dropbox'
+let nvimrc = '~/.config/nvim/init.vim'
+let rhelder = '~/Library/texmf/tex/latex/rhelder/rhelder.sty'
+let texmf = '~/Library/texmf'
+let ucb = '~/Library/CloudStorage/Dropbox/UCBerkeley'
+let vtc = '~/.local/share/nvim/site/vimtex/autoload/vimtex/complete'
+let zshrc = '~/.zshrc'
+
 " {{{1 Mappings
 
 " Use <Space> as leader key
@@ -37,15 +48,24 @@ let mapleader = "\<Space>"
 let maplocalleader = "\<Space>"
 
 " Open/load files
+nnoremap <Leader>ea <Cmd>execute 'vsplit ' .. arist<CR>
+nnoremap <Leader>es <Cmd>execute 'vsplit ' .. rhelder<CR>
 nnoremap <Leader>ev <Cmd>vsplit $MYVIMRC<CR>
 nnoremap <Leader>ez <Cmd>execute 'vsplit ' .. zshrc<CR>
 nnoremap <Leader>sv <Cmd>source $MYVIMRC<CR>
+
+" Open help
+nnoremap <Leader>hv <Cmd>vert help<CR>:help 
+nnoremap <Leader>hs <Cmd>help<CR>:help 
+
+" Open terminal
+nnoremap <Leader>t <Cmd>vsplit<CR> <Bar> <Cmd>terminal<CR>
 
 " Switch off search hilighting
 nnoremap <silent> <Leader><Esc> <Cmd>noh<CR>
 
 " Spell check
-nnoremap <Leader>sl :set spelllang=
+nnoremap <Leader>sl :set spelllang=<C-R>=&spelllang<CR>
 nnoremap <Leader>sp <Cmd>set spell!<CR>
 
 " Navigation
@@ -115,28 +135,8 @@ if v:vim_did_enter == 0
      call Mkspell()
 endif
 
-" {{{1 Variables
-
-let arist = '~/Library/texmf/tex/latex/aristotelis/aristotelis.sty'
-let db = '~/Library/CloudStorage/Dropbox'
-let nvimrc = '~/.config/nvim/init.vim'
-let rhelder = '~/Library/texmf/tex/latex/rhelder/rhelder.sty'
-let texmf = '~/Library/texmf'
-let ucb = '~/Library/CloudStorage/Dropbox/UCBerkeley'
-let vtc = '~/.local/share/nvim/site/vimtex/autoload/vimtex/complete'
-let zshrc = '~/.zshrc'
-
 " {{{1 Commands
 
-command Arist execute 'vsplit ' .. arist
-command Nvimrc execute 'vsplit ' .. nvimrc
-command Reload execute 'so ' .. nvimrc
-command Rhelder execute 'vsplit ' .. rhelder
-command -nargs=? Spellcheck set spell! |
-     \ if <q-args> != '' | set spelllang=<args> | endif
-command Terminal vsplit | terminal
-command -nargs=* Vhelp vertical help <args>
-command Zshrc execute 'vsplit ' .. zshrc
 " Transform comma-separated or tab-separated lists into Lua table constructor
 command -range=% -nargs=* Luatable <line1>,<line2>call Luatable(<f-args>)
 
