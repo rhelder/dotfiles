@@ -101,6 +101,11 @@ augroup END
 augroup nvrimc_key_mappings
      autocmd!
 
+     " Comment out lines according to filetype
+     autocmd FileType vim nnoremap <buffer> <LocalLeader>c I"<Space><Esc>
+     autocmd FileType zsh nnoremap <buffer> <LocalLeader>c I#<Space><Esc>
+     autocmd FileType tex nnoremap <buffer> <LocalLeader>c I%<Space><Esc>
+
      " Make it easier to exit the command window (from @lervag's `vimrc`)
      autocmd CmdwinEnter * nnoremap <buffer> q <C-C><C-C>
      autocmd CmdwinEnter * nnoremap <buffer> <C-F> <C-C>
