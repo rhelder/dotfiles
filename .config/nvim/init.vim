@@ -42,7 +42,7 @@ let zshrc = '~/.zshrc'
 
 " {{{1 Mappings
 
-" Use <Space> as leader key
+" Use `<Space>` as leader key
 nnoremap <Space> <NOP>
 let mapleader = "\<Space>"
 let maplocalleader = "\<Space>"
@@ -59,9 +59,10 @@ nnoremap <Leader>hv <Cmd>vert help<CR>:help
 nnoremap <Leader>hs <Cmd>help<CR>:help 
 
 " Open terminal
-nnoremap <Leader>t <Cmd>vsplit<CR><Cmd>terminal<CR>
+nnoremap <Leader>t <Cmd>terminal<CR>
+nnoremap <Leader>T <Cmd>vsplit<CR><Cmd>terminal<CR>
 
-" Switch off search hilighting
+" Switch off search highlighting
 nnoremap <silent> <Leader><Esc> <Cmd>noh<CR>
 
 " Spell check
@@ -72,10 +73,14 @@ nnoremap <Leader>sp <Cmd>set spell!<CR>
 nnoremap H ^
 nnoremap L $
 
+" Move lines up or down
+nnoremap - ddkP
+nnoremap _ ddp
+
 " Uppercase word
 nnoremap <Leader>u viwUe
 
-" Surround word or selection with delimeters
+" Surround word or selection with delimiters
 nnoremap <Leader>{ ea}<Esc>bi{<Esc>el
 vnoremap <Leader>{ <Esc>`<i{<Esc>`>a}<Esc>
 
@@ -96,17 +101,19 @@ augroup END
 augroup nvrimc_key_mappings
      autocmd!
 
-     " Set key mapping for command window
+     " Make it easier to exit the command window (from @lervag's `vimrc`)
      autocmd CmdwinEnter * nnoremap <buffer> q <C-C><C-C>
      autocmd CmdwinEnter * nnoremap <buffer> <C-F> <C-C>
 
-     " Exit terminal mode when moving cursor to another window
+     " Exit terminal mode when using `<C-W>` commands to move cursor to another
+     " window or to close window
      autocmd TermEnter * tnoremap <buffer> <C-W><C-W> <C-\><C-N><C-W><C-W>
      autocmd TermEnter * tnoremap <buffer> <C-W>w <C-\><C-N><C-W>w
      autocmd TermEnter * tnoremap <buffer> <C-W>j <C-\><C-N><C-W>j
      autocmd TermEnter * tnoremap <buffer> <C-W>k <C-\><C-N><C-W>k
      autocmd TermEnter * tnoremap <buffer> <C-W>h <C-\><C-N><C-W>h
      autocmd TermEnter * tnoremap <buffer> <C-W>l <C-\><C-N><C-W>l
+     autocmd TermEnter * tnoremap <buffer> <C-W>c <C-\><C-N>
 augroup END
 
 augroup nvimrc_autocommands
@@ -115,8 +122,8 @@ augroup nvimrc_autocommands
      autocmd TermOpen * startinsert
 augroup END
 
-" Rebuild .spl files upon initialization, and then subsequently whenever
-" a buffer is loaded (or a hiddent buffer is displayed) in a new window
+" Rebuild `.spl` files upon initialization, and then subsequently whenever a
+" buffer is loaded (or a hidden buffer is displayed) in a new window
 function Mkspell()
      let l:spellfiles = split(&spellfile, ',')
      for n in l:spellfiles
@@ -203,24 +210,30 @@ call plug#begin('~/.config/nvim/vim-plug')
      Plug 'jamessan/vim-gnupg'
 call plug#end()
 
-" {{{1 Vimtex settings
+" {{{1 VimTeX settings
 
 let g:vimtex_compiler_latexmk_engines = {'_' : '-xelatex'}
 let g:vimtex_complete_close_braces = 1
 let g:vimtex_view_method = 'skim'
 let g:vimtex_view_skim_sync = 1
 let g:vimtex_view_skim_reading_bar = 1
+
+" Indent after `[` and `]`, not just `{` and `}`
 let g:vimtex_indent_delims = {
      \ 'open' : ['{','['],
      \ 'close' : ['}',']'],
      \ 'close_indented' : 0,
      \ 'include_modified_math' : 1,
      \ }
+
+" Do not indent after `ifbool`
 let g:vimtex_indent_conditionals = {
      \ 'open': '\v%(\\newif)@<!\\if%(f>|field|name|numequal|thenelse|toggle|bool)@!',
      \ 'else': '\\else\>',
      \ 'close': '\\fi\>',
      \}
+
+" Make Vim regain focus after inverse search
 function! s:TexFocusVim() abort
      silent execute "!open -a Terminal"
      redraw!
@@ -229,6 +242,9 @@ augroup vimtex_event_focus
      autocmd!
      autocmd User VimtexEventViewReverse call s:TexFocusVim()
 augroup END
+
+" Put directory with user configuration files at tip of `runtimepath`, so that
+" they can take precedence over default VimTeX files
 set runtimepath^=$HOME/.local/share/nvim/site/vimtex/
 
 " {{{1 ncm2 configuration
