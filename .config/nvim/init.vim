@@ -72,6 +72,7 @@ nnoremap <Leader>sp <Cmd>set spell!<CR>
 " Navigation
 nnoremap H ^
 nnoremap L $
+inoremap <BS> <Nop>
 
 " Move lines up or down
 nnoremap - ddkP
@@ -80,9 +81,16 @@ nnoremap _ ddp
 " Uppercase word
 nnoremap <Leader>u viwUe
 
+" Change surrounding quotes
+nnoremap <Leader>' vi"o<Esc>hr'gvo<Esc>lr'
+nnoremap <Leader>" vi'o<Esc>hr"gvo<Esc>lr"
+
 " Surround word or selection with delimiters
 nnoremap <Leader>{ ea}<Esc>bi{<Esc>el
 vnoremap <Leader>{ <Esc>`<i{<Esc>`>a}<Esc>
+
+" Insert mode abbreviations
+iabbrev perseverence perseverance
 
 " {{{1 Autocommands
 
@@ -148,6 +156,22 @@ if v:vim_did_enter == 0
 endif
 
 " {{{1 Commands
+
+" Insert numbered list
+command -nargs=+ Enumerate call Enumerate(<f-args>)
+
+" function Enumerate(begin, end, delim = '.', space = "\t")
+function Enumerate(range, delim = '.', space = "\t")
+     let l:range_string = substitute(a:range, ' ', '', '')
+     let l:range_list = split(l:range_string, ',')
+     for i in range(l:range_list[0],l:range_list[1])
+	  if (line('$') - line('.')) >= l:range_list[1]
+	       execute 'silent normal I' .. i .. a:delim .. a:space .. "\<Esc>j"
+	  else
+	       execute 'normal o' .. i .. a:delim .. a:space .. "\<Esc>"
+	  endif
+     endfor
+endfunction
 
 " Transform comma-separated or tab-separated lists into Lua table constructor
 command -range=% -nargs=* Luatable <line1>,<line2>call Luatable(<f-args>)
