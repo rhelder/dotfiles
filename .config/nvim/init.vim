@@ -1,3 +1,11 @@
+" To-do
+" *  Add visual mode mappings corresponding to new text objects
+" *  Decide whether or not `enumerate` command should be e.g. split up, etc.
+" *  Consider changing help mappings
+" *  Add more delimeters to surround mappings
+" *  Learn how to map an operator, then use that to change surrounding quotes
+"    (see `map-operator`)
+
 " {{{1 Options
 
 let &formatlistpat = '^\s*\(\d\|\*\|+\|-\)\+[\]:.)}\t ]\s*'
@@ -88,6 +96,73 @@ nnoremap <Leader>" vi'o<Esc>hr"gvo<Esc>lr"
 " Surround word or selection with delimiters
 nnoremap <Leader>{ ea}<Esc>bi{<Esc>el
 vnoremap <Leader>{ <Esc>`<i{<Esc>`>a}<Esc>
+
+" Text objects for next and last objects
+
+" Sentences (can't figure out how to do 'last' sentence)
+onoremap ans :<C-U>normal! )vas<CR>
+vnoremap ans :<C-U>normal! )vas<CR>
+onoremap ins :<C-U>normal! )vis<CR>
+vnoremap ins :<C-U>normal! )vis<CR>
+" Square brackets
+onoremap an[ :<C-U>normal! f[va[<CR>
+onoremap in[ :<C-U>normal! f[vi[<CR>
+onoremap al[ :<C-U>normal! F[va[<CR>
+onoremap il[ :<C-U>normal! F[vi[<CR>
+onoremap an] :<C-U>normal! f[va[<CR>
+onoremap in] :<C-U>normal! f[vi[<CR>
+onoremap al] :<C-U>normal! F[va[<CR>
+onoremap il] :<C-U>normal! F[vi[<CR>
+" Parentheses
+onoremap an( :<C-U>normal! f(va(<CR>
+onoremap in( :<C-U>normal! f(vi(<CR>
+onoremap al( :<C-U>normal! F(va(<CR>
+onoremap il( :<C-U>normal! F(vi(<CR>
+onoremap an) :<C-U>normal! f(va(<CR>
+onoremap in) :<C-U>normal! f(vi(<CR>
+onoremap al) :<C-U>normal! F(va(<CR>
+onoremap il) :<C-U>normal! F(vi(<CR>
+onoremap anb :<C-U>normal! f(va(<CR>
+onoremap inb :<C-U>normal! f(vi(<CR>
+onoremap alb :<C-U>normal! F(va(<CR>
+onoremap ilb :<C-U>normal! F(vi(<CR>
+" Angle brackets
+onoremap an< :<C-U>normal! f<va<<CR>
+onoremap in< :<C-U>normal! f<vi<<CR>
+onoremap al< :<C-U>normal! F<va<<CR>
+onoremap il< :<C-U>normal! F<vi<<CR>
+onoremap an> :<C-U>normal! f<va<<CR>
+onoremap in> :<C-U>normal! f<vi<<CR>
+onoremap al> :<C-U>normal! F<va<<CR>
+onoremap il> :<C-U>normal! F<vi<<CR>
+" Curly braces
+onoremap an{ :<C-U>normal! f{va{<CR>
+onoremap in{ :<C-U>normal! f{vi{<CR>
+onoremap al{ :<C-U>normal! F{va{<CR>
+onoremap il{ :<C-U>normal! F{vi{<CR>
+onoremap an} :<C-U>normal! f{va{<CR>
+onoremap in} :<C-U>normal! f{vi{<CR>
+onoremap al} :<C-U>normal! F{va{<CR>
+onoremap il} :<C-U>normal! F{vi{<CR>
+onoremap anB :<C-U>normal! f{va{<CR>
+onoremap inB :<C-U>normal! f{vi{<CR>
+onoremap alB :<C-U>normal! F{va{<CR>
+onoremap ilB :<C-U>normal! F{vi{<CR>
+" Double quotes
+onoremap an" :<C-U>normal! f"va"<CR>
+onoremap in" :<C-U>normal! f"vi"<CR>
+onoremap al" :<C-U>normal! F"va"<CR>
+onoremap il" :<C-U>normal! F"vi"<CR>
+" Single quotes
+onoremap an' :<C-U>normal! f'va'<CR>
+onoremap in' :<C-U>normal! f'vi'<CR>
+onoremap al' :<C-U>normal! F'va'<CR>
+onoremap il' :<C-U>normal! F'vi'<CR>
+" Backticks
+onoremap an` :<C-U>normal! f`va`<CR>
+onoremap in` :<C-U>normal! f`vi`<CR>
+onoremap al` :<C-U>normal! F`va`<CR>
+onoremap il` :<C-U>normal! F`vi`<CR>
 
 " Insert mode abbreviations
 iabbrev perseverence perseverance
