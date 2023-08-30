@@ -10,8 +10,8 @@
 
 let &formatlistpat = '^\s*\(\d\|\*\|+\|-\)\+[\]:.)}\t ]\s*'
 let &spellfile =
-	\ '~/.config/nvim/spell/en.utf-8.add,
-	\~/.config/nvim/spell/de.utf-8.add'
+	\ '/Users/rhelder/.config/nvim/spell/en.utf-8.add,
+	\/Users/rhelder/.config/nvim/spell/de.utf-8.add'
 let g:python3_host_prog = '/usr/local/bin/python3'
 let g:vim_indent_cont = shiftwidth() * 1
 set belloff=
@@ -67,8 +67,7 @@ nnoremap <Leader>hv <Cmd>vert help<CR>:help
 nnoremap <Leader>hs <Cmd>help<CR>:help 
 
 " Open terminal
-nnoremap <Leader>t <Cmd>terminal<CR>
-nnoremap <Leader>T <Cmd>vsplit<CR><Cmd>terminal<CR>
+nnoremap <Leader>t <Cmd>vsplit<CR><Cmd>terminal<CR>
 
 " Switch off search highlighting
 nnoremap <silent> <Leader><Esc> <Cmd>noh<CR>
@@ -76,6 +75,8 @@ nnoremap <silent> <Leader><Esc> <Cmd>noh<CR>
 " Spell check
 nnoremap <Leader>sl :set spelllang=<C-R>=&spelllang<CR>
 nnoremap <Leader>sp <Cmd>set spell!<CR>
+nnoremap <expr> <Leader>sn &spell ? "]sz=" : "<Leader>sn"
+nnoremap <expr> <Leader>sN &spell ? "[sz=" : "<Leader>sN"
 
 " Navigation
 nnoremap H ^
@@ -166,6 +167,8 @@ onoremap il` :<C-U>normal! F`vi`<CR>
 
 " Insert mode abbreviations
 iabbrev perseverence perseverance
+iabbrev ot to
+iabbrev nd and
 
 " {{{1 Autocommands
 
@@ -216,13 +219,13 @@ function Mkspell()
      let l:spellfiles = split(&spellfile, ',')
      for n in l:spellfiles
 	  if filereadable(expand(n)) && !filereadable(expand(n .. '.spl'))
-		  \ || getftime(expand(n)) > getftime(expand(n .. '.spl'))
+		  \ || getftime(expand(n)) >= getftime(expand(n .. '.spl'))
 	       execute 'mkspell! ' .. n
 	  endif
      endfor
      augroup nvimrc_Mkspell
 	  autocmd!
-	  autocmd BufWinEnter * call Mkspell()
+	  autocmd BufWinEnter * execute &filetype == 'qf' ? '' : 'call Mkspell()'
      augroup END
 endfunction
 
@@ -324,18 +327,27 @@ let g:vimtex_view_skim_reading_bar = 1
 
 " Indent after `[` and `]`, not just `{` and `}`
 let g:vimtex_indent_delims = {
-     \ 'open' : ['{','['],
-     \ 'close' : ['}',']'],
-     \ 'close_indented' : 0,
-     \ 'include_modified_math' : 1,
-     \ }
+	\ 'open' : ['{','['],
+	\ 'close' : ['}',']'],
+	\ 'close_indented' : 0,
+	\ 'include_modified_math' : 1,
+	\ }
 
 " Do not indent after `ifbool`
 let g:vimtex_indent_conditionals = {
-     \ 'open': '\v%(\\newif)@<!\\if%(f>|field|name|numequal|thenelse|toggle|bool)@!',
-     \ 'else': '\\else\>',
-     \ 'close': '\\fi\>',
-     \}
+	\ 'open': '\v%(\\newif)@<!\\if%(f>|field|name|numequal|thenelse|toggle|bool)@!',
+	\ 'else': '\\else\>',
+	\ 'close': '\\fi\>',
+	\}
+
+" Indent `outline` environment like other list environments
+let g:vimtex_indent_lists = [
+	\ 'itemize',
+	\ 'description',
+	\ 'enumerate',
+	\ 'thebibliography',
+	\ 'outline',
+	\]
 
 " Make Vim regain focus after inverse search
 function! s:TexFocusVim() abort
