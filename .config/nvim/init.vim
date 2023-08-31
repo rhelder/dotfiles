@@ -9,9 +9,7 @@
 " {{{1 Options
 
 let &formatlistpat = '^\s*\(\d\|\*\|+\|-\)\+[\]:.)}\t ]\s*'
-let &spellfile =
-	\ '/Users/rhelder/.config/nvim/spell/en.utf-8.add,
-	\/Users/rhelder/.config/nvim/spell/de.utf-8.add'
+set spellfile=~/.config/nvim/spell/en.utf-8.add,~/.config/nvim/spell/de.utf-8.add
 let g:python3_host_prog = '/usr/local/bin/python3'
 let g:vim_indent_cont = shiftwidth() * 1
 set belloff=
@@ -169,6 +167,7 @@ onoremap il` :<C-U>normal! F`vi`<CR>
 iabbrev perseverence perseverance
 iabbrev ot to
 iabbrev nd and
+iabbrev sya say
 
 " {{{1 Autocommands
 
