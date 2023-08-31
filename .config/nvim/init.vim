@@ -358,10 +358,6 @@ augroup vimtex_event_focus
      autocmd User VimtexEventViewReverse call s:TexFocusVim()
 augroup END
 
-" Put directory with user configuration files at tip of `runtimepath`, so that
-" they can take precedence over default VimTeX files
-set runtimepath^=$HOME/.local/share/nvim/site/vimtex/
-
 " {{{1 ncm2 configuration
 
 set completeopt=noinsert,menuone,noselect
