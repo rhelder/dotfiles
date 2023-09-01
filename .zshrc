@@ -52,7 +52,8 @@ alias mhd='lsof ''/Volumes/RH Media HD/iTunes/Apple Music Library/Music Library.
 alias sz="source $zshrc"
 alias ucb="cd $db/UCBerkeley"
 alias vcc="trash $HOME/.cache/vimtex/pkgcomplete.json"
-alias vtc="cd $HOME/.local/share/nvim/site/vimtex/autoload/vimtex/complete"
+alias vmc="cd $HOME/.config/nvim/vimtex_my_complete"
+alias vtc="cd $HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete"
 
 # {{{1 Functions
 
