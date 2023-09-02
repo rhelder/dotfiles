@@ -1,8 +1,10 @@
 " To-do
-" *  Add visual mode mappings corresponding to new text objects
+" *  Add visual mode mappings corresponding to new 'next' text objects
+" *  Decide whether to use e.g. `<Leader>'` to surround with quotes to to
+"    toggle between double and single quotes (the former is commented out for
+"    now)
 " *  Decide whether or not `enumerate` command should be e.g. split up, etc.
 " *  Consider changing help mappings
-" *  Add more delimeters to surround mappings
 " *  Learn how to map an operator, then use that to change surrounding quotes
 "    (see `map-operator`)
 
@@ -95,6 +97,22 @@ nnoremap <Leader>" vi'o<Esc>hr"gvo<Esc>lr"
 " Surround word or selection with delimiters
 nnoremap <Leader>{ ea}<Esc>bi{<Esc>el
 vnoremap <Leader>{ <Esc>`<i{<Esc>`>a}<Esc>
+nnoremap <Leader>} ea}<Esc>bi{<Esc>el
+vnoremap <Leader>} <Esc>`<i{<Esc>`>a}<Esc>
+nnoremap <Leader>[ ea]<Esc>bi[<Esc>el
+vnoremap <Leader>[ <Esc>`<i[<Esc>`>a]<Esc>
+nnoremap <Leader>] ea]<Esc>bi[<Esc>el
+vnoremap <Leader>] <Esc>`<i[<Esc>`>a]<Esc>
+nnoremap <Leader>( ea)<Esc>bi(<Esc>el
+vnoremap <Leader>( <Esc>`<i(<Esc>`>a)<Esc>
+nnoremap <Leader>) ea)<Esc>bi(<Esc>el
+vnoremap <Leader>) <Esc>`<i(<Esc>`>a)<Esc>
+" nnoremap <Leader>" ea"<Esc>bi"<Esc>el
+" vnoremap <Leader>" <Esc>`<i"<Esc>`>a"<Esc>
+" nnoremap <Leader>' ea'<Esc>bi'<Esc>el
+" vnoremap <Leader>' <Esc>`<i'<Esc>`>a'<Esc>
+nnoremap <Leader>` ea`<Esc>bi`<Esc>el
+vnoremap <Leader>` <Esc>`<i`<Esc>`>a`<Esc>
 
 " Text objects for next and last objects
 
