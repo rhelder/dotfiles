@@ -168,6 +168,7 @@ iabbrev perseverence perseverance
 iabbrev ot to
 iabbrev nd and
 iabbrev sya say
+iabbrev teh the
 
 " {{{1 Autocommands
 
