@@ -14,6 +14,13 @@ responses = {
      switch = 'Hard to believe, but does it top them all?',
 }
 
+
+-- For each array of keywords, assign a function. The function assigns a
+-- `count` value of `0` to the array. If the `count` value is `0` when the
+-- function is called, the function sets `count` to `1` and returns the
+-- corresponding value from the `response` table. The function also steps the
+-- variable `n` to indicate how many times the function has been successfully
+-- called. Otherwise, the function returns the message 'Please try again'.
 counts = {}
 functions = {}
 
@@ -30,6 +37,7 @@ for k, v in pairs(keywords) do
      end
 end
 
+-- Assign the function to each member of the array
 consoles = {}
 
 for k, a in pairs(keywords) do
@@ -38,6 +46,9 @@ for k, a in pairs(keywords) do
      end
 end
 
+-- Define a metatable with an `__index` meta method so that the same response
+-- will be returned whenever someone tries to retrieve a value for a key that
+-- doesn't exist
 other = {
      __index = function(table, key)
 	  return function(n) 
