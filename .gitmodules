@@ -1,6 +1,8 @@
 [submodule ".local/share/pandoc/github-markdown-css"]
 	path = .local/share/pandoc/github-markdown-css
 	url = https://github.com/sindresorhus/github-markdown-css.git
+	branch = main
 [submodule ".config/nvim/vimtex_my_complete"]
 	path = .config/nvim/vimtex_my_complete
 	url = https://github.com/rhelder/vimtex_my_complete.git
+	branch = main
