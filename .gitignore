@@ -1,14 +1,18 @@
 /.*/
 
 !/.config/
-/.config/nvim/vim-plug
+/.config/nvim/vim-plug/
 /.config/nvim/spell/*.spl
-!/.local/
-/.local/state
-/.local/share/nvim/.netrwhist
-/.local/share/nvim/site/autoload
 
-!/.terminal_login_fullscreen.app/
+!/.gnupg/
+/.gnupg/*
+!/.gnupg/gpg-agent.conf
+
+!/.local/
+/.local/state/
+/.local/share/nvim/.netrwhist
+/.local/share/nvim/site/autoload/
+
 
 /Creative Cloud Files/
 /Desktop/
@@ -22,8 +26,8 @@
 /Zotero/
 
 /Library/*
-!/Library/texmf
-/Library/texmf/bibtex
+!/Library/texmf/
+/Library/texmf/bibtex/
 
 /Dropbox
 /.zprofile*
