@@ -1,7 +1,7 @@
-%%% Author: Russell Wright Helder
+% Author: Russell Wright Helder
 
 \NeedsTeXFormat{LaTeX2e}[2022/11/01]
-\ProvidesExplPackage{rhelder}{2023/06/28}{1.0}{Russ Helder's style file}
+\ProvidesPackage{rhelder}[2023/06/28 Russ Helder's style file]
 
 
 \RequirePackage{polyglossia}
@@ -54,10 +54,10 @@
 	  cmslos=false,
 	  autolang=hyphen,
      ]{biblatex-chicago}%
-     \DeclareLanguageMapping{latin}{cms-american}	    % Map cms-american.lbx onto polyglossia language `latin'; replaces dummy latin.lbx
+     \DeclareLanguageMapping{latin}{cms-american}	    % Map `cms-american.lbx` onto polyglossia language `latin'; replaces dummy `latin.lbx`
      \input{rhelder_BibstringSet}			    % Declare group of all bibstrings
      \DeclareBibstringSetFormat{all}{\textmainlang{#1}}	    % Format the group of all bibstrings in accordance with the document's main language
-     % Patch \footnotetext so that the footnote-specific ibidtracker resets at the beginning of each footnote
+     % Patch `\footnotetext` so that the footnote-specific `ibidtracker` resets at the beginning of each footnote
      \NewCommandCopy{\oldfootnotetext}{\footnotetext}
      \RenewDocumentCommand{\footnotetext}{+m}{\oldfootnotetext{\mancite #1}}
 \fi
@@ -147,10 +147,10 @@
 \widowpenalty=10000 % At least two lines before paragraph break after page break
 
 \renewcommand*{\quotingfont}{\small\setlength{\itemsep}{0pt}}	 % Achieve desired spacing for syllogisms in block quotes
-\SetBlockEnvironment{quoting}					 % Set quoting environment as default block quote environment for csquotes
-\renewenvironment{quotation}{\begin{quoting}}{\end{quoting}}	 % Replace quotation environment (which is used for abstracts) with quoting environment
+\SetBlockEnvironment{quoting}					 % Set quoting environment as default block quote environment for `csquotes`
+\renewenvironment{quotation}{\begin{quoting}}{\end{quoting}}	 % Replace `quotation` environment (which is used for abstracts) with `quoting` environment
 
-% Use double quotes when language is ancient greek
+% Use double quotes when language is ancient Greek
 \DeclareQuoteStyle[ancient]{greek}
      {\textquotedblleft}{\textquotedblright}
      {\textquoteleft}{\textquoteright}
@@ -190,12 +190,11 @@
 }
 
 
-\NewCommandCopy{\emphit}{\emph}	   % Define copy of \emph so that, even if \emph is redefined, the following commands italicize their arguments
+\NewCommandCopy{\emphit}{\emph}	   % Define copy of `\emph` so that, even if `\emph` is redefined, the following commands italicize their arguments
 \NewDocumentCommand{\texttitle}{m}{\emphit{#1}}
 \NewDocumentCommand{\alialingua}{O{}mm}{%
      \textlang[#1]{#2}{\emphit{#3}}%
 }
 \NewCommandCopy{\define}{\emph}
-
 
 \endinput
