@@ -29,6 +29,7 @@ nvimrc="$HOME/.config/nvim/init.vim"
 rhelder="$(kpsewhich rhelder.sty)"
 texmf="$HOME/Library/texmf"
 ucb="$db/UCBerkeley"
+vmc="$HOME/.config/nvim/vimtex_my_complete"
 vtc="$HOME/.local/share/nvim/site/vimtex/autoload/vimtex/complete"
 zshrc="$HOME/.zshrc"
 
