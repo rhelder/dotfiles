@@ -79,8 +79,8 @@ nnoremap <expr> <Leader>sn &spell ? "]sz=" : "<Leader>sn"
 nnoremap <expr> <Leader>sN &spell ? "[sz=" : "<Leader>sN"
 
 " Navigation
-nnoremap H ^
-nnoremap L $
+noremap H ^
+noremap L $
 inoremap <BS> <Nop>
 
 " Move lines up or down
@@ -96,23 +96,23 @@ nnoremap <Leader>" vi'o<Esc>hr"gvo<Esc>lr"
 
 " Surround word or selection with delimiters
 nnoremap <Leader>{ ea}<Esc>bi{<Esc>el
-vnoremap <Leader>{ <Esc>`<i{<Esc>`>a}<Esc>
+vnoremap <Leader>{ <Esc>`>a}<Esc>`<i{<Esc>%
 nnoremap <Leader>} ea}<Esc>bi{<Esc>el
-vnoremap <Leader>} <Esc>`<i{<Esc>`>a}<Esc>
+vnoremap <Leader>} <Esc>`>a}<Esc>`<i{<Esc>%
 nnoremap <Leader>[ ea]<Esc>bi[<Esc>el
-vnoremap <Leader>[ <Esc>`<i[<Esc>`>a]<Esc>
+vnoremap <Leader>[ <Esc>`>a]<Esc>`<i[<Esc>%
 nnoremap <Leader>] ea]<Esc>bi[<Esc>el
-vnoremap <Leader>] <Esc>`<i[<Esc>`>a]<Esc>
+vnoremap <Leader>] <Esc>`>a]<Esc>`<i[<Esc>%
 nnoremap <Leader>( ea)<Esc>bi(<Esc>el
-vnoremap <Leader>( <Esc>`<i(<Esc>`>a)<Esc>
+vnoremap <Leader>( <Esc>`>a)<Esc>`<i(<Esc>%
 nnoremap <Leader>) ea)<Esc>bi(<Esc>el
-vnoremap <Leader>) <Esc>`<i(<Esc>`>a)<Esc>
+vnoremap <Leader>) <Esc>`>a)<Esc>`<i(<Esc>%
 " nnoremap <Leader>" ea"<Esc>bi"<Esc>el
-" vnoremap <Leader>" <Esc>`<i"<Esc>`>a"<Esc>
+" vnoremap <Leader>" <Esc>`>a"<Esc>`<i"<Esc>%
 " nnoremap <Leader>' ea'<Esc>bi'<Esc>el
-" vnoremap <Leader>' <Esc>`<i'<Esc>`>a'<Esc>
+" vnoremap <Leader>' <Esc>`>a'<Esc>`<i'<Esc>%
 nnoremap <Leader>` ea`<Esc>bi`<Esc>el
-vnoremap <Leader>` <Esc>`<i`<Esc>`>a`<Esc>
+vnoremap <Leader>` <Esc>`>a`<Esc>`<i`<Esc>%
 
 " Text objects for next and last objects
 
