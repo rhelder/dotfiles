@@ -84,9 +84,10 @@ fi
 autoload -Uz run-help
 autoload -Uz run-help-git
 # Set Neovim as pager for run-help
-functions -c run-help run-help-def
-function run-help {
-     local HELPDIR='/usr/share/zsh/5.9/help'
-     local PAGER='nvim +silent!Man!'
-     run-help-def $*
-}
+# functions -c run-help run-help-def
+# function run-help {
+#      local HELPDIR='/usr/share/zsh/5.9/help'
+#      local PAGER='nvim +silent!Man!'
+#      run-help-def $*
+# }
+local HELPDIR='/usr/share/zsh/5.9/help'
