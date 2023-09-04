@@ -65,7 +65,7 @@ function cs {
 
 # Find files to be removed (e.g., when uninstalling an application)
 function ffr {
-     sudo find / ${*:?Expression required.} -print 2>/dev/null > ~/rm_files.txt
+     sudo find / ${*:?Expression required.} -print 2>/dev/null > $HOME/rm_files.txt
 }
 
 # Search NeoVim help files from command line
@@ -89,13 +89,20 @@ function untar {
 # publishing part of my private repo as a public repo)
 function github-publish {
      trap 'trap -; return' ERR
+     if [[ ! $1 ]]; then
+	  echo Error: please enter name of target repository
+	  return 1
+     elif [[ ! -a $HOME/.github/$1 ]]; then
+	  echo Error: $HOME/.github/$1 does not exist
+	  return 1
+     fi
 
      echo Cloning:
      git clone https://github.com/rhelder/rhelder.git --recurse-submodules
      cd rhelder
 
      echo Filtering:
-     git filter-repo --paths-from-file ~/.github/$1
+     git filter-repo --paths-from-file $HOME/.github/$1
 
      echo Pushing:
      git remote add origin https://github.com/rhelder/$1.git
