@@ -58,23 +58,52 @@ alias vtc="cd $HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete"
 
 # {{{1 Functions
 
-# User-defined functions
+# Execute `cd` and then `ls`
 function cs {
      cd $* && ls
 }
+
+# Find files to be removed (e.g., when uninstalling an application)
 function ffr {
      sudo find / ${*:?Expression required.} -print 2>/dev/null > ~/rm_files.txt
 }
+
+# Search NeoVim help files from command line
 function nvimh {
      nvim -c "help $*" -c "only"
 }
+
+# Move a file to Trash
 function trash {
      mv ${*:?What you want to move to Trash needs to be specified.} $HOME/.Trash
 }
+
+# Extract a `tar` file into a directory of the same name in the parent directory
 function untar {
      file=${*:?Tarball must be specified.}
      mkdir ${file%.tar*}
      tar -xf $file -C ${file%.tar*}
+}
+
+# Filter my private repo and push the filtered repo to a new remote (e.g., for
+# publishing part of my private repo as a public repo)
+function github-publish {
+     trap 'trap -; return' ERR
+
+     echo Cloning:
+     git clone https://github.com/rhelder/rhelder.git --recurse-submodules
+     cd rhelder
+
+     echo Filtering:
+     git filter-repo --paths-from-file ~/.github/$1
+
+     echo Pushing:
+     git remote add origin https://github.com/rhelder/$1.git
+     git push origin main $2
+
+     echo Cleaning up
+     cd ..
+     sudo rm -r rhelder
 }
 
 # Install run-help
