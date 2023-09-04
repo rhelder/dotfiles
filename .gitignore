@@ -4,6 +4,8 @@
 /.config/nvim/vim-plug/
 /.config/nvim/spell/*.spl
 
+!/.github/
+
 !/.gnupg/
 /.gnupg/*
 !/.gnupg/gpg-agent.conf

@@ -1,0 +1,23 @@
+# List of files to be included in `dotfiles` GitHub repository
+
+.config/nvim/init.vim
+.config/nvim/vimtex_my_complete
+.github
+.gnupg
+.local/share/pandoc
+Library/texmf/tex/latex/rhelder
+Library/texmf/tex/latex/biblatex
+scripts/flashcards.lua
+scripts/.terminal_login_fullscreen.app
+flashcards.lua
+.terminal_login_fullscreen.app
+.better_bibtex_preferences.json
+.gitconfig
+.gitignore
+.gitmodules
+.latexmkrc
+.terminal_profile_rhelder.terminal
+.zshrc
+README.md
+scripts/README.md
+.local/share/pandoc/README.md
