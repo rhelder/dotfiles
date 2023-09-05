@@ -45,7 +45,8 @@ let nvimrc = '~/.config/nvim/init.vim'
 let rhelder = '~/Library/texmf/tex/latex/rhelder/rhelder.sty'
 let texmf = '~/Library/texmf'
 let ucb = '~/Library/CloudStorage/Dropbox/UCBerkeley'
-let vtc = '~/.local/share/nvim/site/vimtex/autoload/vimtex/complete'
+let vmc = '~/.config/nvim/vimtex_my_complete'
+let vtc = '~/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete'
 let zshrc = '~/.zshrc'
 
 " {{{1 Mappings
