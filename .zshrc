@@ -1,3 +1,7 @@
+# To-do
+# *  Write script for cloning `my_vimtex`complete` repository into
+#    VimTeX completion file directory
+
 # {{{1 Options and settings
 
 HISTSIZE=1200000
