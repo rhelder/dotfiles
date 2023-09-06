@@ -1,7 +1,3 @@
-# To-do
-# *  Write script for cloning `my_vimtex`complete` repository into
-#    VimTeX completion file directory
-
 # {{{1 Options and settings
 
 HISTSIZE=1200000
@@ -34,7 +30,7 @@ rhelder="$(kpsewhich rhelder.sty)"
 texmf="$HOME/Library/texmf"
 ucb="$db/UCBerkeley"
 vmc="$HOME/.config/nvim/vimtex_my_complete"
-vtc="$HOME/.local/share/nvim/site/vimtex/autoload/vimtex/complete"
+vtc="$HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete"
 zshrc="$HOME/.zshrc"
 
 # {{{1 Aliases
@@ -102,10 +98,17 @@ function github-publish {
      fi
 
      echo Cloning:
+     local dir=$(pwd)
      git clone https://github.com/rhelder/rhelder.git --recurse-submodules
      cd rhelder
 
      echo Filtering:
+     if [[ $(git rev-parse --show-toplevel) == /Users/rhelder \
+	  || $(pwd) != $dir/rhelder ]]; then
+	  echo Error: proceeding might rewrite the history of another repository \
+	       because you are in the wrong directory
+	  return 1
+     fi
      git filter-repo --paths-from-file $HOME/.github/$1
 
      echo Pushing:
@@ -115,6 +118,40 @@ function github-publish {
      echo Cleaning up
      cd ..
      sudo rm -r rhelder
+}
+
+# Clone my `vimtex_my_complete` repository into VimTeX's completion file
+# directory
+function vmc-clone {
+     trap 'trap -; return' ERR
+
+     echo Cloning:
+     echo $HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete
+     cd $HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete
+     ls
+     git clone https://github.com/rhelder/vimtex_my_complete.git
+     cd vimtex_my_complete
+
+     echo Filtering:
+     if [[ $(pwd) != $HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete/vimtex_my_complete ]]; then
+          echo Error: proceeding might rewrite the history of another repository \
+               because you are in the wrong directory
+          return 1
+     fi
+     git filter-repo --invert-paths --path README.md --path texstudio_my_cwls
+
+     echo Unpacking:
+     cd ..
+     if [[ $(pwd) != $HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete ]]; then
+          echo Error: obsolete .git directory cannot be deleted and replaced \
+               because you are in the wrong directory
+          return 1
+     fi
+     sudo rm -r .git
+     mv vimtex_my_complete/(.*|*) .
+
+     echo Cleaning up:
+     rmdir vimtex_my_complete
 }
 
 # Install run-help
