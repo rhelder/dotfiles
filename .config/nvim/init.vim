@@ -4,7 +4,6 @@
 "    toggle between double and single quotes (the former is commented out for
 "    now)
 " *  Decide whether or not `enumerate` command should be e.g. split up, etc.
-" *  Consider changing help mappings
 " *  Learn how to map an operator, then use that to change surrounding quotes
 "    (see `map-operator`)
 " *  Add mapping to comment out visually selected lines
@@ -65,8 +64,8 @@ nnoremap <Leader>ez <Cmd>execute 'vsplit ' .. zshrc<CR>
 nnoremap <Leader>sv <Cmd>source $MYVIMRC<CR>
 
 " Open help
-nnoremap <Leader>hv <Cmd>vert help<CR>:help 
-nnoremap <Leader>hs <Cmd>help<CR>:help 
+nnoremap \     <Cmd>vert help<CR>:help 
+nnoremap <BS>  <Cmd>help<CR>:help 
 
 " Open terminal
 nnoremap <Leader>t <Cmd>vsplit<CR><Cmd>terminal<CR>
