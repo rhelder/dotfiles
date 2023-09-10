@@ -7,6 +7,7 @@
 " *  Consider changing help mappings
 " *  Learn how to map an operator, then use that to change surrounding quotes
 "    (see `map-operator`)
+" *  Add mapping to comment out visually selected lines
 
 " {{{1 Options
 
@@ -96,24 +97,24 @@ nnoremap <Leader>' vi"o<Esc>hr'gvo<Esc>lr'
 nnoremap <Leader>" vi'o<Esc>hr"gvo<Esc>lr"
 
 " Surround word or selection with delimiters
-nnoremap <Leader>{ ea}<Esc>bi{<Esc>el
-vnoremap <Leader>{ <Esc>`>a}<Esc>`<i{<Esc>%
-nnoremap <Leader>} ea}<Esc>bi{<Esc>el
-vnoremap <Leader>} <Esc>`>a}<Esc>`<i{<Esc>%
-nnoremap <Leader>[ ea]<Esc>bi[<Esc>el
-vnoremap <Leader>[ <Esc>`>a]<Esc>`<i[<Esc>%
-nnoremap <Leader>] ea]<Esc>bi[<Esc>el
-vnoremap <Leader>] <Esc>`>a]<Esc>`<i[<Esc>%
-nnoremap <Leader>( ea)<Esc>bi(<Esc>el
-vnoremap <Leader>( <Esc>`>a)<Esc>`<i(<Esc>%
-nnoremap <Leader>) ea)<Esc>bi(<Esc>el
-vnoremap <Leader>) <Esc>`>a)<Esc>`<i(<Esc>%
-" nnoremap <Leader>" ea"<Esc>bi"<Esc>el
-" vnoremap <Leader>" <Esc>`>a"<Esc>`<i"<Esc>%
-" nnoremap <Leader>' ea'<Esc>bi'<Esc>el
-" vnoremap <Leader>' <Esc>`>a'<Esc>`<i'<Esc>%
-nnoremap <Leader>` ea`<Esc>bi`<Esc>el
-vnoremap <Leader>` <Esc>`>a`<Esc>`<i`<Esc>%
+nnoremap <Leader>{ bi{<Esc>ea}<Esc>
+nnoremap <Leader>} bi{<Esc>ea}<Esc>
+nnoremap <Leader>[ bi[<Esc>ea]<Esc>
+nnoremap <Leader>] bi[<Esc>ea]<Esc>
+nnoremap <Leader>( bi(<Esc>ea)<Esc>
+nnoremap <Leader>) bi(<Esc>ea)<Esc>
+" nnoremap <Leader>" bi"<Esc>ea"<Esc>
+" nnoremap <Leader>' bi'<Esc>ea'<Esc>
+nnoremap <Leader>` bi`<Esc>ea`<Esc>
+vnoremap <Leader>{ <Esc>`<i{<Esc>`>la}<Esc>%
+vnoremap <Leader>} <Esc>`<i{<Esc>`>la}<Esc>%
+vnoremap <Leader>[ <Esc>`<i[<Esc>`>la]<Esc>%
+vnoremap <Leader>] <Esc>`<i[<Esc>`>la]<Esc>%
+vnoremap <Leader>( <Esc>`<i(<Esc>`>la)<Esc>
+vnoremap <Leader>) <Esc>`<i(<Esc>`>la)<Esc>
+" vnoremap <Leader>" <Esc>`<i"<Esc>`>la"<Esc>
+" vnoremap <Leader>' <Esc>`<i'<Esc>`>la'<Esc>
+vnoremap <Leader>` <Esc>`<i`<Esc>`>la`<Esc>
 
 " Text objects for next and last objects
 
@@ -188,6 +189,7 @@ iabbrev ot to
 iabbrev nd and
 iabbrev sya say
 iabbrev teh the
+iabbrev fo of
 
 " {{{1 Autocommands
 
@@ -386,14 +388,14 @@ augroup my_cm_setup
      autocmd!
      autocmd BufEnter * call ncm2#enable_for_buffer()
      autocmd Filetype tex call ncm2#register_source({
-	  \ 'name': 'vimtex',
-	  \ 'priority': 8,
-	  \ 'scope': ['tex'],
-	  \ 'mark': 'tex',
-	  \ 'word_pattern': '\w+',
-	  \ 'complete_pattern': g:vimtex#re#ncm2,
-	  \ 'on_complete': ['ncm2#on_complete#omni', 'vimtex#complete#omnifunc'],
-	  \ })
+	     \ 'name': 'vimtex',
+	     \ 'priority': 8,
+	     \ 'scope': ['tex'],
+	     \ 'mark': 'tex',
+	     \ 'word_pattern': '\w+',
+	     \ 'complete_pattern': g:vimtex#re#ncm2,
+	     \ 'on_complete': ['ncm2#on_complete#omni', 'vimtex#complete#omnifunc'],
+	     \ })
 augroup END
 
 " {{{1 vim-gnupg configuration
