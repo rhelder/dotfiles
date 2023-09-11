@@ -27,6 +27,7 @@ bib="$(kpsewhich myLibrary.bib)"
 db="$HOME/Library/CloudStorage/Dropbox"
 nvimrc="$HOME/.config/nvim/init.vim"
 rhelder="$(kpsewhich rhelder.sty)"
+sp="$HOME/.config/nvim/spell"
 texmf="$HOME/Library/texmf"
 ucb="$db/UCBerkeley"
 vmc="$HOME/.config/nvim/vimtex_my_complete"
@@ -50,6 +51,7 @@ alias ls='ls -aF'
 alias lua='luajit'
 alias mhd='lsof ''/Volumes/RH Media HD/iTunes/Apple Music Library/Music Library.musiclibrary/Library.musicdb''; \
      lsof ''/Volumes/RH Media HD/Apple TV/TV Library.tvlibrary/Library.tvdb'''
+alias sp="cd $HOME/.config/nvim/spell"
 alias sz="source $zshrc"
 alias ucb="cd $db/UCBerkeley"
 alias vcc="trash $HOME/.cache/vimtex/pkgcomplete.json"
