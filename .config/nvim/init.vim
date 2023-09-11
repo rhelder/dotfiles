@@ -1,12 +1,14 @@
 " To-do
-" *  Add visual mode mappings corresponding to new 'next' text objects
-" *  Decide whether to use e.g. `<Leader>'` to surround with quotes to to
-"    toggle between double and single quotes (the former is commented out for
-"    now)
-" *  Decide whether or not `enumerate` command should be e.g. split up, etc.
-" *  Learn how to map an operator, then use that to change surrounding quotes
-"    (see `map-operator`)
-" *  Add mapping to comment out visually selected lines
+" * Add visual mode mappings corresponding to new 'next' text objects
+" * Decide whether to use e.g. `<Leader>'` to surround with quotes to to
+"   toggle between double and single quotes (the former is commented out for
+"   now)
+" * Decide whether or not `enumerate` command should be e.g. split up, etc.
+" * Learn how to map an operator, then use that to change surrounding quotes
+"   (see `map-operator`)
+" * Add mapping to comment out visually selected lines
+" * Fix normal-mode surround mappings (surrounds previous word if cursor is on
+"   first character of word)
 
 " {{{1 Options
 
