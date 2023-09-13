@@ -3,12 +3,9 @@
 " * Decide whether to use e.g. `<Leader>'` to surround with quotes to to
 "   toggle between double and single quotes (the former is commented out for
 "   now)
-" * Decide whether or not `enumerate` command should be e.g. split up, etc.
 " * Learn how to map an operator, then use that to change surrounding quotes
 "   (see `map-operator`)
 " * Add mapping to comment out visually selected lines
-" * Fix normal-mode surround mappings (surrounds previous word if cursor is on
-"   first character of word)
 
 " {{{1 Options
 
@@ -96,28 +93,28 @@ nnoremap _ ddp
 " Uppercase word
 nnoremap <Leader>u viwUe
 
-" Change surrounding quotes
-nnoremap <Leader>' vi"o<Esc>hr'gvo<Esc>lr'
-nnoremap <Leader>" vi'o<Esc>hr"gvo<Esc>lr"
+" " Change surrounding quotes
+" nnoremap <Leader>' vi"o<Esc>hr'gvo<Esc>lr'
+" nnoremap <Leader>" vi'o<Esc>hr"gvo<Esc>lr"
 
 " Surround word or selection with delimiters
-nnoremap <Leader>{ bi{<Esc>ea}<Esc>
-nnoremap <Leader>} bi{<Esc>ea}<Esc>
-nnoremap <Leader>[ bi[<Esc>ea]<Esc>
-nnoremap <Leader>] bi[<Esc>ea]<Esc>
-nnoremap <Leader>( bi(<Esc>ea)<Esc>
-nnoremap <Leader>) bi(<Esc>ea)<Esc>
-" nnoremap <Leader>" bi"<Esc>ea"<Esc>
-" nnoremap <Leader>' bi'<Esc>ea'<Esc>
-nnoremap <Leader>` bi`<Esc>ea`<Esc>
+nnoremap <Leader>{ viw<Esc>`<i{<Esc>`>la}<Esc>%
+nnoremap <Leader>} viw<Esc>`<i{<Esc>`>la}<Esc>%
+nnoremap <Leader>[ viw<Esc>`<i[<Esc>`>la]<Esc>%
+nnoremap <Leader>] viw<Esc>`<i[<Esc>`>la]<Esc>%
+nnoremap <Leader>( viw<Esc>`<i(<Esc>`>la)<Esc>
+nnoremap <Leader>) viw<Esc>`<i(<Esc>`>la)<Esc>
+nnoremap <Leader>" viw<Esc>`<i"<Esc>`>la"<Esc>
+nnoremap <Leader>' viw<Esc>`<i'<Esc>`>la'<Esc>
+nnoremap <Leader>` viw<Esc>`<i`<Esc>`>la`<Esc>
 vnoremap <Leader>{ <Esc>`<i{<Esc>`>la}<Esc>%
 vnoremap <Leader>} <Esc>`<i{<Esc>`>la}<Esc>%
 vnoremap <Leader>[ <Esc>`<i[<Esc>`>la]<Esc>%
 vnoremap <Leader>] <Esc>`<i[<Esc>`>la]<Esc>%
 vnoremap <Leader>( <Esc>`<i(<Esc>`>la)<Esc>
 vnoremap <Leader>) <Esc>`<i(<Esc>`>la)<Esc>
-" vnoremap <Leader>" <Esc>`<i"<Esc>`>la"<Esc>
-" vnoremap <Leader>' <Esc>`<i'<Esc>`>la'<Esc>
+vnoremap <Leader>" <Esc>`<i"<Esc>`>la"<Esc>
+vnoremap <Leader>' <Esc>`<i'<Esc>`>la'<Esc>
 vnoremap <Leader>` <Esc>`<i`<Esc>`>la`<Esc>
 
 " Text objects for next and last objects
@@ -262,22 +259,40 @@ endif
 " {{{1 Commands
 
 " Insert numbered list
-command -nargs=+ Enumerate call Enumerate(<f-args>)
 
-" function Enumerate(begin, end, delim = '.', space = "\t")
-function Enumerate(range, delim = '.', space = "\t")
-    let l:range_string = substitute(a:range, ' ', '', '')
-    let l:range_list = split(l:range_string, ',')
-    for i in range(l:range_list[0],l:range_list[1])
-        if (line('$') - line('.')) >= l:range_list[1]
-            execute 'silent normal I' .. i .. a:delim .. a:space .. "\<Esc>j"
-        else
-            execute 'normal o' .. i .. a:delim .. a:space .. "\<Esc>"
+command -range -nargs=+ Enumerate <line1>,<line2>call Enumerate(<args>)
+
+let g:enumoptions = {
+    \ 'space' : "\t",
+    \ 'delim' : '.',
+    \ }
+
+function Enumerate(
+    \ begin, end='',
+    \ space=g:enumoptions.space,
+    \ delim=g:enumoptions.delim
+    \ )
+    if a:end != '' && a:firstline != a:lastline
+        if a:lastline == line('.')
+            echohl ErrorMsg
+            echom 'No range allowed'
+            echohl None
         endif
-    endfor
+        return
+    elseif a:end != '' && a:firstline == a:lastline
+        for i in range(a:begin, a:end)
+            execute 'normal o' ..
+                \ i .. a:delim .. a:space .. "\<Esc>"
+        endfor
+    else
+        execute 'normal I' ..
+            \ (line('.') - a:firstline + a:begin) ..
+            \ a:delim .. a:space .. "\<Esc>"
+    endif
 endfunction
 
 " Transform comma-separated or tab-separated lists into Lua table constructor
+
 command -range=% -nargs=* Luatable <line1>,<line2>call Luatable(<f-args>)
 
 function Luatable(operation = 'disamb', swap = 'noswap', format = 'csv') range
