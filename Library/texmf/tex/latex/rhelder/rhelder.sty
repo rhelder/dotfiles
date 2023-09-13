@@ -1,17 +1,15 @@
-% Author: Russell Wright Helder
-
 \NeedsTeXFormat{LaTeX2e}[2022/11/01]
-\ProvidesPackage{rhelder}[2023/06/28 Russ Helder's style file]
+\ProvidesPackage{rhelder}[2023/09/13 Russell Wright Helder's style file]
 
 
 \RequirePackage{polyglossia}
 \RequirePackage[
-     autostyle,
-     latin=britishquotes,
+    autostyle,
+    latin=britishquotes,
 ]{csquotes}
 \RequirePackage[
-     indentfirst=false,
-     rightmargin=0in,
+    indentfirst=false,
+    rightmargin=0in,
 ]{quoting}
 \RequirePackage{microtype}
 \RequirePackage[chicago]{xellipsis}
@@ -46,117 +44,118 @@
 \ProcessOptions\relax
 
 \if@biblatex
-     \RequirePackage[
-	  authordate,
-	  dashed=false,
-	  citereset=section,
-	  pagetracker=false,
-	  cmslos=false,
-	  autolang=hyphen,
-     ]{biblatex-chicago}%
-     \DeclareLanguageMapping{latin}{cms-american}	    % Map `cms-american.lbx` onto polyglossia language `latin'; replaces dummy `latin.lbx`
-     \input{rhelder_BibstringSet}			    % Declare group of all bibstrings
-     \DeclareBibstringSetFormat{all}{\textmainlang{#1}}	    % Format the group of all bibstrings in accordance with the document's main language
-     % Patch `\footnotetext` so that the footnote-specific `ibidtracker` resets at the beginning of each footnote
-     \NewCommandCopy{\oldfootnotetext}{\footnotetext}
-     \RenewDocumentCommand{\footnotetext}{+m}{\oldfootnotetext{\mancite #1}}
+    \RequirePackage[
+        authordate,
+        compresspages=true,
+        dashed=false,
+        citereset=section,
+        pagetracker=false,
+        cmslos=false,
+        autolang=hyphen,
+    ]{biblatex-chicago}%
+    \DeclareLanguageMapping{latin}{cms-american}        % Map `cms-american.lbx` onto polyglossia language `latin'; replaces dummy `latin.lbx`
+    \input{rhelder_BibstringSet}                        % Declare group of all bibstrings
+    \DeclareBibstringSetFormat{all}{\textmainlang{#1}}  % Format the group of all bibstrings in accordance with the document's main language
+    % Patch `\footnotetext` so that the footnote-specific `ibidtracker` resets at the beginning of each footnote
+    \NewCommandCopy{\oldfootnotetext}{\footnotetext}
+    \RenewDocumentCommand{\footnotetext}{+m}{\oldfootnotetext{\mancite #1}}
 \fi
 
 \if@nomencl
-     \RequirePackage{nomencl}
-     \makenomenclature
-     \renewcommand{\nomname}{Abbreviations}
-     \if@biblatex
-	  \setlength{\nomitemsep}{\bibitemsep}	  % ensure uniformity with bibliography spacing
-	  \addtolength{\nomitemsep}{-\parsep}     % Remove excess spacing
-     \else
-	  \addtolength{\nomitemsep}{-\parsep}	  % Remove excess spacing
-     \fi
+    \RequirePackage{nomencl}
+    \makenomenclature
+    \renewcommand{\nomname}{Abbreviations}
+    \if@biblatex
+        \setlength{\nomitemsep}{\bibitemsep}    % ensure uniformity with bibliography spacing
+        \addtolength{\nomitemsep}{-\parsep}     % Remove excess spacing
+    \else
+        \addtolength{\nomitemsep}{-\parsep}     % Remove excess spacing
+    \fi
 \fi
-	  
+
 \if@doublespaced
-     \RequirePackage{setspace}
-     \doublespacing
-     \RequirePackage[hmargin=1in]{geometry}
-     \quotingsetup{font={small,singlespace}}	  % Make block quotes single-spaced
-     \if@biblatex
-	  \if@nomencl
-	       \setlength{\bibitemsep}{0pt}	       % Remove excess spacing
-	       \addtolength{\nomitemsep}{-\parsep}     % Remove excess spacing
-	  \else
-	       \setlength{\bibitemsep}{0pt}	       % Remove excess spacing
-	  \fi
-     \fi
+    \RequirePackage{setspace}
+    \doublespacing
+    \RequirePackage[hmargin=1in]{geometry}
+    \quotingsetup{font={small,singlespace}}     % Make block quotes single-spaced
+    \if@biblatex
+        \if@nomencl
+            \setlength{\bibitemsep}{0pt}        % Remove excess spacing
+            \addtolength{\nomitemsep}{-\parsep} % Remove excess spacing
+        \else
+            \setlength{\bibitemsep}{0pt}        % Remove excess spacing
+        \fi
+    \fi
 \fi
-     
+
 \if@defaultauthor
-     \AtEndOfPackage{%
-	  \hypersetup{pdfauthor={Russell\ Wright\ Helder}}%
-     }
+    \AtEndOfPackage{%
+        \hypersetup{pdfauthor={Russell\ Wright\ Helder}}%
+    }
 \fi
 
 \if@anonymous
-     \def\@maketitle{%
-	  \newpage
-	  \null
-	  \vskip 2em%
-	  \begin{center}%
-	       \let \footnote \thanks
-	       {\LARGE \@title \par}%
-	       \vskip 1.5em%
-	       % {\large
-	       %      \lineskip 0.5em%
-	       %      \begin{tabular}[t]{c}%
-	       %  	 \@author
-	       %      \end{tabular}\par}%
-	       % \vskip 1em%
-	       {\large \@date}%
-	  \end{center}%
-	  \par
-	  \vskip 1.5em%
-     }
+    \def\@maketitle{%
+        \newpage
+        \null
+        \vskip 2em%
+        \begin{center}%
+            \let \footnote \thanks
+            {\LARGE \@title \par}%
+            \vskip 1.5em%
+            % {\large
+            %      \lineskip 0.5em%
+            %      \begin{tabular}[t]{c}%
+            %         \@author
+            %      \end{tabular}\par}%
+            % \vskip 1em%
+            {\large \@date}%
+        \end{center}%
+        \par
+        \vskip 1.5em%
+    }
 \fi
 
 \if@defaultlangs
-     \AtEndOfPackage{%
-	  \setdefaultlanguage[variant=american]{english}%
-	  \setotherlanguage[variant=ancient]{greek}%
-	  \setotherlanguage{latin}%
-     }
+    \AtEndOfPackage{%
+        \setdefaultlanguage[variant=american]{english}%
+        \setotherlanguage[variant=ancient]{greek}%
+        \setotherlanguage{latin}%
+    }
 \fi
 
 \if@misguided
-     % Include punctuation within quotes
-     \DeclareAutoPunct{.,}
-     \renewcommand{\mktextquote}[6]{#1#2#4#5#3#6}
+    % Include punctuation within quotes
+    \DeclareAutoPunct{.,}
+    \renewcommand{\mktextquote}[6]{#1#2#4#5#3#6}
 \else
-     % Use British quotation conventions when language is american english
-     \DeclareQuoteStyle[american]{english}   % Use single quotes outside, double quotes inside
-	  {\textquoteleft}{\textquoteright}
-     	  {\textquotedblleft}{\textquotedblright}
-     % Place punctuation outside quotes in bibliographies
-     \if@biblatex
-	  \DefineBibliographyExtras{american}{\stdpunctuation}
-     \fi  
+    % Use British quotation conventions when language is american english
+    \DeclareQuoteStyle[american]{english}       % Use single quotes outside, double quotes inside
+        {\textquoteleft}{\textquoteright}
+        {\textquotedblleft}{\textquotedblright}
+    % Place punctuation outside quotes in bibliographies
+    \if@biblatex
+        \DefineBibliographyExtras{american}{\stdpunctuation}
+    \fi
 \fi
 
 
 \setmainfont{Brill}
 
-\clubpenalty=10000  % At least two lines after paragraph break before page break
-\widowpenalty=10000 % At least two lines before paragraph break after page break
+\clubpenalty=10000      % At least two lines after paragraph break before page break
+\widowpenalty=10000     % At least two lines before paragraph break after page break
 
-\renewcommand*{\quotingfont}{\small\setlength{\itemsep}{0pt}}	 % Achieve desired spacing for syllogisms in block quotes
-\SetBlockEnvironment{quoting}					 % Set quoting environment as default block quote environment for `csquotes`
-\renewenvironment{quotation}{\begin{quoting}}{\end{quoting}}	 % Replace `quotation` environment (which is used for abstracts) with `quoting` environment
+\renewcommand*{\quotingfont}{\small\setlength{\itemsep}{0pt}}   % Achieve desired spacing for syllogisms in block quotes
+\SetBlockEnvironment{quoting}                                   % Set quoting environment as default block quote environment for `csquotes`
+\renewenvironment{quotation}{\begin{quoting}}{\end{quoting}}    % Replace `quotation` environment (which is used for abstracts) with `quoting` environment
 
 % Use double quotes when language is ancient Greek
 \DeclareQuoteStyle[ancient]{greek}
-     {\textquotedblleft}{\textquotedblright}
-     {\textquoteleft}{\textquoteright}
+    {\textquotedblleft}{\textquotedblright}
+    {\textquoteleft}{\textquoteright}
 \DeclareQuoteAlias[ancient]{greek}{greek}
 
-\setlist{listparindent=\parindent,parsep=0pt}	  % Make paragraph spacing within list same as outside of list
+\setlist{listparindent=\parindent,parsep=0pt}   % Make paragraph spacing within list same as outside of list
 \setlist[itemize,2]{label=\ding{118}}
 \setlist[itemize,3]{label=\ding{66}}
 \newlist{outline}{enumerate}{5}
@@ -175,25 +174,25 @@
 % }
 
 \AtEndOfPackage{%
-     \hypersetup{
-	  colorlinks=true,
-	  linkcolor=black,
-	  filecolor=magenta,  
-	  citecolor=black,
-	  urlcolor=blue,
-	  pdfpagemode=UseNone,
-     }%
-     \AtBeginDocument{%
-	  \hypersetup{pdftitle = {\@title}}
-     }%
-     \urlstyle{same}%
+    \hypersetup{
+        colorlinks=true,
+        linkcolor=black,
+        filecolor=magenta,
+        citecolor=black,
+        urlcolor=blue,
+        pdfpagemode=UseNone,
+    }%
+    \AtBeginDocument{%
+        \hypersetup{pdftitle = {\@title}}
+    }%
+    \urlstyle{same}%
 }
 
 
-\NewCommandCopy{\emphit}{\emph}	   % Define copy of `\emph` so that, even if `\emph` is redefined, the following commands italicize their arguments
+\NewCommandCopy{\emphit}{\emph} % Define copy of `\emph` so that, even if `\emph` is redefined, the following commands italicize their arguments
 \NewDocumentCommand{\texttitle}{m}{\emphit{#1}}
 \NewDocumentCommand{\alialingua}{O{}mm}{%
-     \textlang[#1]{#2}{\emphit{#3}}%
+    \textlang[#1]{#2}{\emphit{#3}}%
 }
 \NewCommandCopy{\define}{\emph}
 
