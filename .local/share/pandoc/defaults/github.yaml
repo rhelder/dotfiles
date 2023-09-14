@@ -1,0 +1,9 @@
+---
+from: markdown
+to: html5
+css: /Users/rhelder/.local/share/pandoc/github-markdown-css/github-markdown.css
+variables:
+  include-before: <article class="markdown-body">
+  include-after: </article>
+  github: true
+...
