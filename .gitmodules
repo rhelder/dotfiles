@@ -6,3 +6,7 @@
 	path = .config/nvim/vimtex_my_complete
 	url = https://github.com/rhelder/vimtex_my_complete.git
 	branch = main
+[submodule ".local/share/pandoc/templates"]
+	path = .local/share/pandoc/templates
+	url = https://github.com/rhelder/pandoc-templates.git
+        branch = custom
