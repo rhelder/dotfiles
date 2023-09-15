@@ -1,11 +1,6 @@
 " To-do
-" * Add visual mode mappings corresponding to new 'next' text objects
-" * Decide whether to use e.g. `<Leader>'` to surround with quotes to to
-"   toggle between double and single quotes (the former is commented out for
-"   now)
 " * Learn how to map an operator, then use that to change surrounding quotes
 "   (see `map-operator`)
-" * Add mapping to comment out visually selected lines
 
 " {{{1 Options
 
@@ -121,68 +116,127 @@ vnoremap <Leader>` <Esc>`<i`<Esc>`>la`<Esc>
 
 " Sentences (can't figure out how to do 'last' sentence)
 onoremap ans :<C-U>normal! )vas<CR>
-vnoremap ans :<C-U>normal! )vas<CR>
 onoremap ins :<C-U>normal! )vis<CR>
+vnoremap ans :<C-U>normal! )vas<CR>
 vnoremap ins :<C-U>normal! )vis<CR>
+
 " Square brackets
 onoremap an[ :<C-U>normal! f[va[<CR>
 onoremap in[ :<C-U>normal! f[vi[<CR>
-onoremap al[ :<C-U>normal! F[va[<CR>
-onoremap il[ :<C-U>normal! F[vi[<CR>
+onoremap al[ :<C-U>normal! F]va[<CR>
+onoremap il[ :<C-U>normal! F]vi[<CR>
 onoremap an] :<C-U>normal! f[va[<CR>
-onoremap in] :<C-U>normal! f[vi[<CR>
-onoremap al] :<C-U>normal! F[va[<CR>
-onoremap il] :<C-U>normal! F[vi[<CR>
+onoremap in] :<C-U>normal! f[vi]<CR>
+onoremap al] :<C-U>normal! F]va]<CR>
+onoremap il] :<C-U>normal! F]vi]<CR>
+vnoremap an[ :<C-U>normal! f[va[<CR>
+vnoremap in[ :<C-U>normal! f[vi[<CR>
+vnoremap al[ :<C-U>normal! F]va[<CR>
+vnoremap il[ :<C-U>normal! F]vi[<CR>
+vnoremap an] :<C-U>normal! f[va]<CR>
+vnoremap in] :<C-U>normal! f[vi]<CR>
+vnoremap al] :<C-U>normal! F]va]<CR>
+vnoremap il] :<C-U>normal! F]vi]<CR>
+
 " Parentheses
 onoremap an( :<C-U>normal! f(va(<CR>
 onoremap in( :<C-U>normal! f(vi(<CR>
-onoremap al( :<C-U>normal! F(va(<CR>
-onoremap il( :<C-U>normal! F(vi(<CR>
-onoremap an) :<C-U>normal! f(va(<CR>
-onoremap in) :<C-U>normal! f(vi(<CR>
-onoremap al) :<C-U>normal! F(va(<CR>
-onoremap il) :<C-U>normal! F(vi(<CR>
-onoremap anb :<C-U>normal! f(va(<CR>
-onoremap inb :<C-U>normal! f(vi(<CR>
-onoremap alb :<C-U>normal! F(va(<CR>
-onoremap ilb :<C-U>normal! F(vi(<CR>
+onoremap al( :<C-U>normal! F)va(<CR>
+onoremap il( :<C-U>normal! F)vi(<CR>
+onoremap an) :<C-U>normal! f(va)<CR>
+onoremap in) :<C-U>normal! f(vi)<CR>
+onoremap al) :<C-U>normal! F)va)<CR>
+onoremap il) :<C-U>normal! F)vi)<CR>
+onoremap anb :<C-U>normal! f(vab<CR>
+onoremap inb :<C-U>normal! f(vib<CR>
+onoremap alb :<C-U>normal! F)vab<CR>
+onoremap ilb :<C-U>normal! F)vib<CR>
+vnoremap an( :<C-U>normal! f(va(<CR>
+vnoremap in( :<C-U>normal! f(vi(<CR>
+vnoremap al( :<C-U>normal! F)va(<CR>
+vnoremap il( :<C-U>normal! F)vi(<CR>
+vnoremap an) :<C-U>normal! f(va)<CR>
+vnoremap in) :<C-U>normal! f(vi)<CR>
+vnoremap al) :<C-U>normal! F)va)<CR>
+vnoremap il) :<C-U>normal! F)vi)<CR>
+vnoremap anb :<C-U>normal! f(vab<CR>
+vnoremap inb :<C-U>normal! f(vib<CR>
+vnoremap alb :<C-U>normal! F)vab<CR>
+vnoremap ilb :<C-U>normal! F)vib<CR>
+
 " Angle brackets
 onoremap an< :<C-U>normal! f<va<<CR>
 onoremap in< :<C-U>normal! f<vi<<CR>
-onoremap al< :<C-U>normal! F<va<<CR>
-onoremap il< :<C-U>normal! F<vi<<CR>
-onoremap an> :<C-U>normal! f<va<<CR>
-onoremap in> :<C-U>normal! f<vi<<CR>
-onoremap al> :<C-U>normal! F<va<<CR>
-onoremap il> :<C-U>normal! F<vi<<CR>
+onoremap al< :<C-U>normal! F>va<<CR>
+onoremap il< :<C-U>normal! F>vi<<CR>
+onoremap an> :<C-U>normal! f<va><CR>
+onoremap in> :<C-U>normal! f<vi><CR>
+onoremap al> :<C-U>normal! F>va><CR>
+onoremap il> :<C-U>normal! F>vi><CR>
+vnoremap an< :<C-U>normal! f<va<<CR>
+vnoremap in< :<C-U>normal! f<vi<<CR>
+vnoremap al< :<C-U>normal! F>va<<CR>
+vnoremap il< :<C-U>normal! F>vi<<CR>
+vnoremap an> :<C-U>normal! f<va><CR>
+vnoremap in> :<C-U>normal! f<vi><CR>
+vnoremap al> :<C-U>normal! F>va><CR>
+vnoremap il> :<C-U>normal! F>vi><CR>
+
 " Curly braces
 onoremap an{ :<C-U>normal! f{va{<CR>
 onoremap in{ :<C-U>normal! f{vi{<CR>
-onoremap al{ :<C-U>normal! F{va{<CR>
-onoremap il{ :<C-U>normal! F{vi{<CR>
-onoremap an} :<C-U>normal! f{va{<CR>
-onoremap in} :<C-U>normal! f{vi{<CR>
-onoremap al} :<C-U>normal! F{va{<CR>
-onoremap il} :<C-U>normal! F{vi{<CR>
-onoremap anB :<C-U>normal! f{va{<CR>
-onoremap inB :<C-U>normal! f{vi{<CR>
-onoremap alB :<C-U>normal! F{va{<CR>
-onoremap ilB :<C-U>normal! F{vi{<CR>
+onoremap al{ :<C-U>normal! F}va{<CR>
+onoremap il{ :<C-U>normal! F}vi{<CR>
+onoremap an} :<C-U>normal! f{va}<CR>
+onoremap in} :<C-U>normal! f{vi}<CR>
+onoremap al} :<C-U>normal! F}va}<CR>
+onoremap il} :<C-U>normal! F}vi}<CR>
+onoremap anB :<C-U>normal! f{vaB<CR>
+onoremap inB :<C-U>normal! f{viB<CR>
+onoremap alB :<C-U>normal! F}vaB<CR>
+onoremap ilB :<C-U>normal! F}viB<CR>
+vnoremap an{ :<C-U>normal! f{va{<CR>
+vnoremap in{ :<C-U>normal! f{vi{<CR>
+vnoremap al{ :<C-U>normal! F}va{<CR>
+vnoremap il{ :<C-U>normal! F}vi{<CR>
+vnoremap an} :<C-U>normal! f{va}<CR>
+vnoremap in} :<C-U>normal! f{vi}<CR>
+vnoremap al} :<C-U>normal! F}va}<CR>
+vnoremap il} :<C-U>normal! F}vi}<CR>
+vnoremap anB :<C-U>normal! f{vaB<CR>
+vnoremap inB :<C-U>normal! f{viB<CR>
+vnoremap alB :<C-U>normal! F}vaB<CR>
+vnoremap ilB :<C-U>normal! F}viB<CR>
+
 " Double quotes
-onoremap an" :<C-U>normal! f"va"<CR>
-onoremap in" :<C-U>normal! f"vi"<CR>
-onoremap al" :<C-U>normal! F"va"<CR>
-onoremap il" :<C-U>normal! F"vi"<CR>
+onoremap an" :<C-U>normal! f"f"va"<CR>
+onoremap in" :<C-U>normal! f"f"vi"<CR>
+onoremap al" :<C-U>normal! F"F"va"<CR>
+onoremap il" :<C-U>normal! F"F"vi"<CR>
+vnoremap an" :<C-U>normal! f"f"va"<CR>
+vnoremap in" :<C-U>normal! f"f"vi"<CR>
+vnoremap al" :<C-U>normal! F"F"va"<CR>
+vnoremap il" :<C-U>normal! F"F"vi"<CR>
+
 " Single quotes
-onoremap an' :<C-U>normal! f'va'<CR>
-onoremap in' :<C-U>normal! f'vi'<CR>
-onoremap al' :<C-U>normal! F'va'<CR>
-onoremap il' :<C-U>normal! F'vi'<CR>
+onoremap an' :<C-U>normal! f'f'va'<CR>
+onoremap in' :<C-U>normal! f'f'vi'<CR>
+onoremap al' :<C-U>normal! F'F'va'<CR>
+onoremap il' :<C-U>normal! F'F'vi'<CR>
+vnoremap an' :<C-U>normal! f'f'va'<CR>
+vnoremap in' :<C-U>normal! f'f'vi'<CR>
+vnoremap al' :<C-U>normal! F'F'va'<CR>
+vnoremap il' :<C-U>normal! F'F'vi'<CR>
+
 " Backticks
-onoremap an` :<C-U>normal! f`va`<CR>
-onoremap in` :<C-U>normal! f`vi`<CR>
-onoremap al` :<C-U>normal! F`va`<CR>
-onoremap il` :<C-U>normal! F`vi`<CR>
+onoremap an` :<C-U>normal! f`f`va`<CR>
+onoremap in` :<C-U>normal! f`f`vi`<CR>
+onoremap al` :<C-U>normal! F`F`va`<CR>
+onoremap il` :<C-U>normal! F`F`vi`<CR>
+vnoremap an` :<C-U>normal! f`f`va`<CR>
+vnoremap in` :<C-U>normal! f`f`vi`<CR>
+vnoremap al` :<C-U>normal! F`F`va`<CR>
+vnoremap il` :<C-U>normal! F`F`vi`<CR>
 
 " Insert mode abbreviations
 iabbrev perseverence    perseverance
@@ -214,6 +268,9 @@ augroup nvrimc_key_mappings
     autocmd FileType vim nnoremap <buffer> <LocalLeader>c I"<Space><Esc>
     autocmd FileType zsh nnoremap <buffer> <LocalLeader>c I#<Space><Esc>
     autocmd FileType tex nnoremap <buffer> <LocalLeader>c I%<Space><Esc>
+    autocmd FileType vim vnoremap <buffer> <LocalLeader>c :s/^/" / <Bar> noh<CR>
+    autocmd FileType zsh vnoremap <buffer> <LocalLeader>c :s/^/# / <Bar> noh<CR>
+    autocmd FileType tex vnoremap <buffer> <LocalLeader>c :s/^/% / <Bar> noh<CR>
 
     " Make it easier to exit the command window (from @lervag's `vimrc`)
     autocmd CmdwinEnter * nnoremap <buffer> q <C-C><C-C>
