@@ -5,9 +5,9 @@
 " {{{1 Options
 
 let &formatlistpat = '^\s*\(\d\|\*\|+\|-\)\+[\]:.)}\t ]\s*'
-set spellfile=~/.config/nvim/spell/en.utf-8.add,~/.config/nvim/spell/de.utf-8.add
+set spellfile=~/.config/nvim/spell/en.utf-8.add,
+            \~/.config/nvim/spell/de.utf-8.add
 let g:python3_host_prog = '/usr/local/bin/python3'
-let g:vim_indent_cont = shiftwidth() * 1
 set belloff=
 set cursorline
 set cursorlineopt=line
@@ -31,7 +31,7 @@ set softtabstop=4
 set spelllang=en_us
 set splitbelow
 set splitright
-set textwidth=78
+set textwidth=79
 
 " {{{1 Variables
 
@@ -112,7 +112,7 @@ vnoremap <Leader>" <Esc>`<i"<Esc>`>la"<Esc>
 vnoremap <Leader>' <Esc>`<i'<Esc>`>la'<Esc>
 vnoremap <Leader>` <Esc>`<i`<Esc>`>la`<Esc>
 
-" Text objects for next and last objects
+" Text objects for next and last objects {{{2
 
 " Sentences (can't figure out how to do 'last' sentence)
 onoremap ans :<C-U>normal! )vas<CR>
@@ -238,6 +238,8 @@ vnoremap in` :<C-U>normal! f`f`vi`<CR>
 vnoremap al` :<C-U>normal! F`F`va`<CR>
 vnoremap il` :<C-U>normal! F`F`vi`<CR>
 
+" }}}2
+
 " Insert mode abbreviations
 iabbrev perseverence    perseverance
 iabbrev ot              to
@@ -254,6 +256,7 @@ augroup nvimrc_filetype_defaults
     autocmd FileType csv                setlocal formatoptions-=tc
     autocmd FileType tex                setlocal formatoptions-=tc
     autocmd FileType tex                setlocal formatoptions+=l
+    autocmd FileType text,markdown      setlocal nonumber textwidth=78
     autocmd FileType text,markdown,tex  setlocal linebreak
     autocmd BufWinEnter COMMIT_EDITMSG  setlocal textwidth=72
     autocmd FileType tex                setlocal nosmartindent
@@ -266,17 +269,17 @@ augroup nvrimc_key_mappings
 
     " Comment out lines according to filetype
     autocmd FileType vim nnoremap <buffer> <silent> <LocalLeader>c
-        \ :call <SID>comment('"')<CR>
+                \ :call <SID>comment('"')<CR>
     autocmd FileType vim vnoremap <buffer> <silent> <LocalLeader>c
-        \ :call <SID>comment('"')<CR>
+                \ :call <SID>comment('"')<CR>
     autocmd FileType zsh nnoremap <buffer> <silent> <LocalLeader>c
-        \ :call <SID>comment('#')<CR>
+                \ :call <SID>comment('#')<CR>
     autocmd FileType zsh vnoremap <buffer> <silent> <LocalLeader>c
-        \ :call <SID>comment('#')<CR>
+                \ :call <SID>comment('#')<CR>
     autocmd FileType tex nnoremap <buffer> <silent> <LocalLeader>c
-        \ :call <SID>comment('%')<CR>
+                \ :call <SID>comment('%')<CR>
     autocmd FileType tex vnoremap <buffer> <silent> <LocalLeader>c
-        \ :call <SID>comment('%')<CR>
+                \ :call <SID>comment('%')<CR>
 
     " Make it easier to exit the command window (from @lervag's `vimrc`)
     autocmd CmdwinEnter * nnoremap <buffer> q <C-C><C-C>
@@ -293,12 +296,6 @@ augroup nvrimc_key_mappings
     autocmd TermEnter * tnoremap <buffer> <C-W>c <C-\><C-N>
 augroup END
 
-augroup nvimrc_autocommands
-    autocmd!
-    " Enter terminal mode when opening terminal
-    autocmd TermOpen * startinsert
-augroup END
-
 function s:comment(char)
     let l:patt = '^\s*' .. a:char
     if match(getline('.'), l:patt) == 0
@@ -308,13 +305,19 @@ function s:comment(char)
     endif
 endfunction
 
+augroup nvimrc_autocommands
+    autocmd!
+    " Enter terminal mode when opening terminal
+    autocmd TermOpen * startinsert
+augroup END
+
 " Rebuild `.spl` files upon initialization, and then subsequently whenever a
 " buffer is loaded (or a hidden buffer is displayed) in a new window
 function Mkspell()
     let l:spellfiles = split(&spellfile, ',')
     for n in l:spellfiles
         if filereadable(expand(n)) && !filereadable(expand(n .. '.spl'))
-            \ || getftime(expand(n)) >= getftime(expand(n .. '.spl'))
+                    \ || getftime(expand(n)) >= getftime(expand(n .. '.spl'))
             execute 'mkspell! ' .. n
         endif
     endfor
@@ -335,15 +338,15 @@ endif
 command -range -nargs=+ Enumerate <line1>,<line2>call Enumerate(<args>)
 
 let g:enumoptions = {
-    \ 'space' : "\t",
-    \ 'delim' : '.',
-    \ }
+            \ 'space' : "\t",
+            \ 'delim' : '.',
+            \ }
 
 function Enumerate(
-    \ begin, end='',
-    \ space=g:enumoptions.space,
-    \ delim=g:enumoptions.delim
-    \ )
+            \ begin, end='',
+            \ space=g:enumoptions.space,
+            \ delim=g:enumoptions.delim
+            \ )
     if a:end != '' && a:firstline != a:lastline
         if a:lastline == line('.')
             echohl ErrorMsg
@@ -354,34 +357,42 @@ function Enumerate(
     elseif a:end != '' && a:firstline == a:lastline
         for i in range(a:begin, a:end)
             execute 'normal o' ..
-                \ i .. a:delim .. a:space .. "\<Esc>"
+                        \ i .. a:delim .. a:space .. "\<Esc>"
         endfor
     else
         execute 'normal I' ..
-            \ (line('.') - a:firstline + a:begin) ..
-            \ a:delim .. a:space .. "\<Esc>"
+                    \ (line('.') - a:firstline + a:begin) ..
+                    \ a:delim .. a:space .. "\<Esc>"
     endif
 endfunction
 
 " Transform comma-separated or tab-separated lists into Lua table constructor
 
-command -range=% -nargs=* Luatable <line1>,<line2>call Luatable(<f-args>)
+command -range=% -nargs=* Luatable
+            \ silent <line1>,<line2>call Luatable(<f-args>)
 
-function Luatable(operation = 'disamb', swap = 'noswap', format = 'csv') range
+function Luatable(
+            \ operation = 'disamb',
+            \ swap = 'noswap',
+            \ format = 'csv'
+            \ )
+            \ range
+    if a:swap == 'noswap'
+        let l:replace_pattern = '/\["\1"\] = "\2",'
+    elseif a:swap == 'swap'
+        let l:replace_pattern = '/\["\2"\] = "\1",'
+    endif
     if a:format == 'csv'
-        if a:swap == 'noswap'
-            silent! execute a:firstline .. ',' .. a:lastline .. 'substitute/^"\(.\{-}\)","\=\(.\{-}\)"\=$/\["\1"\] = "\2",'
-            silent! execute a:firstline .. ',' .. a:lastline .. 'substitute/^\([^\[].\{-}\),"\=\(.\{-}\)"\=$/\["\1"\] = "\2",'
-        elseif a:swap == 'swap'
-            silent! execute a:firstline .. ',' .. a:lastline .. 'substitute/^"\(.\{-}\)","\=\(.\{-}\)"\=$/\["\2"\] = "\1",'
-            silent! execute a:firstline .. ',' .. a:lastline .. 'substitute/^\([^\[].\{-}\),"\=\(.\{-}\)"\=$/\["\2"\] = "\1",'
-        endif
+        let l:csv_pattern1 = '^"\(.\{-}\)","\=\(.\{-}\)"\=$'
+        let l:csv_pattern2 = '^\([^\[].\{-}\),"\=\(.\{-}\)"\=$'
+        silent! execute a:firstline .. ',' .. a:lastline ..
+                    \ 'substitute/' .. l:csv_pattern1 .. l:replace_pattern
+        silent! execute a:firstline .. ',' .. a:lastline ..
+                    \ 'substitute/' .. l:csv_pattern2 .. l:replace_pattern
     elseif a:format == 'tab'
-        if a:swap == 'noswap'
-            execute a:firstline .. ',' .. a:lastline .. 'substitute/^\(.*\)\t\(.*\)$/["\1"] = "\2",'
-        elseif a:swap == 'swap'
-            execute a:firstline .. ',' .. a:lastline .. 'substitute/^\(.*\)\t\(.*\)$/["\2"] = "\1",'
-        endif
+        let l:tab_pattern = '^\(.*\)\t\(.*\)$'
+        execute a:firstline .. ',' .. a:lastline ..
+                    \ 'substitute/' .. l:tab_pattern .. l:replace_pattern
     endif
     execute 'normal' .. a:firstline .. "GO= {\<Esc>"
     execute 'normal =' .. (a:lastline + 1) .. 'G'
@@ -389,29 +400,37 @@ function Luatable(operation = 'disamb', swap = 'noswap', format = 'csv') range
     normal ==
     " Find duplicate keys and disambiguate or concatenate
     for i in range(a:firstline + 1, a:lastline)
-        let l:key = matchstr(getline(i), '\["\(.*\)"\]')
+        let l:key_pattern = '\["\(.*\)"\]'
+        let l:key = matchstr(getline(i), l:key_pattern)
         if a:operation == 'disamb'
             let l:variant = 2
             for j in range(i + 1, a:lastline + 1)
-                let l:candidate = matchstr(getline(j), '\["\(.*\)"\]')
+                let l:candidate = matchstr(getline(j), l:key_pattern)
                 if l:candidate ==# l:key
-                    execute j .. 'substitute/\["\(.*\)"\]/\["\1(' .. l:variant .. ')"\]'
+                    execute j .. 'substitute/' .. l:key_pattern ..
+                                \ '/\["\1(' .. l:variant .. ')"\]'
                     let l:variant = l:variant + 1
                 endif
             endfor
             if l:variant > 2
-                execute i .. 'substitute/\["\(.*\)"\]/\["\1(1)"\]'
+                execute i .. 'substitute/' .. l:key_pattern ..
+                            \ '/\["\1(1)"\]'
             endif
         elseif a:operation == 'concat'
             let l:lines_del = 0
             for j in range(i + 1, a:lastline + 1)
-                silent! let l:candidate = matchstr(getline(j - l:lines_del), '\["\(.*\)"\]')
+                silent! let l:candidate =
+                            \ matchstr(getline(j - l:lines_del),
+                            \ l:key_pattern)
                 if l:candidate ==# l:key
-                    let l:match = matchstr(getline(j - l:lines_del), '=\s"\zs.*\ze",')
+                    let l:match =
+                                \ matchstr(getline(j - l:lines_del),
+                                \ '=\s"\zs.*\ze",')
                     if l:match != ''
                         execute (j - l:lines_del) .. 'delete _'
                         let l:lines_del = l:lines_del + 1
-                        execute 'normal' .. i .. 'G$F"i; ' .. l:match .. "\<Esc>"
+                        execute 'normal' .. i ..
+                                    \ 'G$F"i; ' .. l:match .. "\<Esc>"
                     endif
                 endif
             endfor
@@ -440,27 +459,27 @@ let g:vimtex_view_skim_reading_bar = 1
 
 " Indent after `[` and `]`, not just `{` and `}`
 let g:vimtex_indent_delims = {
-    \ 'open' : ['{','['],
-    \ 'close' : ['}',']'],
-    \ 'close_indented' : 0,
-    \ 'include_modified_math' : 1,
-    \ }
+            \ 'open' : ['{','['],
+            \ 'close' : ['}',']'],
+            \ 'close_indented' : 0,
+            \ 'include_modified_math' : 1,
+            \ }
 
 " Do not indent after `ifbool`
 let g:vimtex_indent_conditionals = {
-    \ 'open': '\v%(\\newif)@<!\\if%(f>|field|name|numequal|thenelse|toggle|bool)@!',
-    \ 'else': '\\else\>',
-    \ 'close': '\\fi\>',
-    \}
+            \ 'open': '\v%(\\newif)@<!\\if%(f>|field|name|numequal|thenelse|toggle|bool)@!',
+            \ 'else': '\\else\>',
+            \ 'close': '\\fi\>',
+            \}
 
 " Indent `outline` environment like other list environments
 let g:vimtex_indent_lists = [
-    \ 'itemize',
-    \ 'description',
-    \ 'enumerate',
-    \ 'thebibliography',
-    \ 'outline',
-    \]
+            \ 'itemize',
+            \ 'description',
+            \ 'enumerate',
+            \ 'thebibliography',
+            \ 'outline',
+            \]
 
 " Make Vim regain focus after inverse search
 function! s:TexFocusVim() abort
@@ -479,14 +498,14 @@ augroup my_cm_setup
     autocmd!
     autocmd BufEnter *      call ncm2#enable_for_buffer()
     autocmd Filetype tex    call ncm2#register_source({
-        \ 'name': 'vimtex',
-        \ 'priority': 8,
-        \ 'scope': ['tex'],
-        \ 'mark': 'tex',
-        \ 'word_pattern': '\w+',
-        \ 'complete_pattern': g:vimtex#re#ncm2,
-        \ 'on_complete': ['ncm2#on_complete#omni', 'vimtex#complete#omnifunc'],
-        \ })
+                \ 'name': 'vimtex',
+                \ 'priority': 8,
+                \ 'scope': ['tex'],
+                \ 'mark': 'tex',
+                \ 'word_pattern': '\w+',
+                \ 'complete_pattern': g:vimtex#re#ncm2,
+                \ 'on_complete': ['ncm2#on_complete#omni', 'vimtex#complete#omnifunc'],
+                \ })
 augroup END
 
 " {{{1 vim-gnupg configuration
