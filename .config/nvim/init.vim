@@ -265,12 +265,18 @@ augroup nvrimc_key_mappings
     autocmd!
 
     " Comment out lines according to filetype
-    autocmd FileType vim nnoremap <buffer> <LocalLeader>c I"<Space><Esc>
-    autocmd FileType zsh nnoremap <buffer> <LocalLeader>c I#<Space><Esc>
-    autocmd FileType tex nnoremap <buffer> <LocalLeader>c I%<Space><Esc>
-    autocmd FileType vim vnoremap <buffer> <LocalLeader>c :s/^/" / <Bar> noh<CR>
-    autocmd FileType zsh vnoremap <buffer> <LocalLeader>c :s/^/# / <Bar> noh<CR>
-    autocmd FileType tex vnoremap <buffer> <LocalLeader>c :s/^/% / <Bar> noh<CR>
+    autocmd FileType vim nnoremap <buffer> <silent> <LocalLeader>c
+        \ :call <SID>comment('"')<CR>
+    autocmd FileType vim vnoremap <buffer> <silent> <LocalLeader>c
+        \ :call <SID>comment('"')<CR>
+    autocmd FileType zsh nnoremap <buffer> <silent> <LocalLeader>c
+        \ :call <SID>comment('#')<CR>
+    autocmd FileType zsh vnoremap <buffer> <silent> <LocalLeader>c
+        \ :call <SID>comment('#')<CR>
+    autocmd FileType tex nnoremap <buffer> <silent> <LocalLeader>c
+        \ :call <SID>comment('%')<CR>
+    autocmd FileType tex vnoremap <buffer> <silent> <LocalLeader>c
+        \ :call <SID>comment('%')<CR>
 
     " Make it easier to exit the command window (from @lervag's `vimrc`)
     autocmd CmdwinEnter * nnoremap <buffer> q <C-C><C-C>
@@ -292,6 +298,15 @@ augroup nvimrc_autocommands
     " Enter terminal mode when opening terminal
     autocmd TermOpen * startinsert
 augroup END
+
+function s:comment(char)
+    let l:patt = '^\s*' .. a:char
+    if match(getline('.'), l:patt) == 0
+        normal ^xx
+    else
+        execute 'normal I' .. a:char .. "\<Space>\<Esc>"
+    endif
+endfunction
 
 " Rebuild `.spl` files upon initialization, and then subsequently whenever a
 " buffer is loaded (or a hidden buffer is displayed) in a new window
