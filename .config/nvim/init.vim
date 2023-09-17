@@ -92,7 +92,7 @@ nnoremap <Leader>u viwUe
 " nnoremap <Leader>' vi"o<Esc>hr'gvo<Esc>lr'
 " nnoremap <Leader>" vi'o<Esc>hr"gvo<Esc>lr"
 
-" Surround word or selection with delimiters
+" {{{2 Surround word or selection with delimiters
 nnoremap <Leader>{ viw<Esc>`<i{<Esc>`>la}<Esc>%
 nnoremap <Leader>} viw<Esc>`<i{<Esc>`>la}<Esc>%
 nnoremap <Leader>[ viw<Esc>`<i[<Esc>`>la]<Esc>%
@@ -111,7 +111,6 @@ vnoremap <Leader>) <Esc>`<i(<Esc>`>la)<Esc>
 vnoremap <Leader>" <Esc>`<i"<Esc>`>la"<Esc>
 vnoremap <Leader>' <Esc>`<i'<Esc>`>la'<Esc>
 vnoremap <Leader>` <Esc>`<i`<Esc>`>la`<Esc>
-
 " Text objects for next and last objects {{{2
 
 " Sentences (can't figure out how to do 'last' sentence)
@@ -248,8 +247,10 @@ iabbrev sya             say
 iabbrev teh             the
 iabbrev fo              of
 
+" }}}1
 " {{{1 Autocommands
 
+" {{{2 Filetype defaults
 augroup nvimrc_filetype_defaults
     autocmd!
     autocmd FileType markdown           setlocal formatoptions-=l
@@ -264,6 +265,7 @@ augroup nvimrc_filetype_defaults
     autocmd FileType markdown           source ~/scripts/mdView/mdView.vim
 augroup END
 
+" {{{2 Mappings
 augroup nvrimc_key_mappings
     autocmd!
 
@@ -298,12 +300,35 @@ augroup END
 
 function s:comment(char)
     let l:patt = '^\s*' .. a:char
-    if match(getline('.'), l:patt) == 0
+    if match(getline('.'), l:patt) ==# 0
         normal ^xx
     else
         execute 'normal I' .. a:char .. "\<Space>\<Esc>"
     endif
 endfunction
+
+" {{{2 Make spell files
+" Rebuild `.spl` files upon initialization, and then subsequently whenever a
+" buffer is loaded (or a hidden buffer is displayed) in a new window
+function s:make_spell_files()
+    let l:spellfiles = split(&spellfile, ',')
+    for n in l:spellfiles
+        if filereadable(expand(n)) && !filereadable(expand(n .. '.spl'))
+                    \ || getftime(expand(n)) >=# getftime(expand(n .. '.spl'))
+            execute 'mkspell! ' .. n
+        endif
+    endfor
+    augroup nvimrc_Mkspell
+        autocmd!
+        autocmd BufWinEnter * execute &filetype ==# 'qf' ? '' : 'call <SID>make_spell_files()'
+    augroup END
+endfunction
+
+if v:vim_did_enter ==# 0
+    call s:make_spell_files()
+endif
+
+" }}}2
 
 augroup nvimrc_autocommands
     autocmd!
@@ -311,54 +336,40 @@ augroup nvimrc_autocommands
     autocmd TermOpen * startinsert
 augroup END
 
-" Rebuild `.spl` files upon initialization, and then subsequently whenever a
-" buffer is loaded (or a hidden buffer is displayed) in a new window
-function Mkspell()
-    let l:spellfiles = split(&spellfile, ',')
-    for n in l:spellfiles
-        if filereadable(expand(n)) && !filereadable(expand(n .. '.spl'))
-                    \ || getftime(expand(n)) >= getftime(expand(n .. '.spl'))
-            execute 'mkspell! ' .. n
-        endif
-    endfor
-    augroup nvimrc_Mkspell
-        autocmd!
-        autocmd BufWinEnter * execute &filetype == 'qf' ? '' : 'call Mkspell()'
-    augroup END
-endfunction
-
-if v:vim_did_enter == 0
-    call Mkspell()
-endif
-
+" }}}1
 " {{{1 Commands
 
-" Insert numbered list
+" {{{2 Insert numbered list
 
-command -range -nargs=+ Enumerate <line1>,<line2>call Enumerate(<args>)
+command -range -nargs=+ Enumerate <line1>,<line2>call <SID>enumerate(<args>)
 
 let g:enumoptions = {
             \ 'space' : "\t",
             \ 'delim' : '.',
             \ }
 
-function Enumerate(
+function s:enumerate(
             \ begin, end='',
             \ space=g:enumoptions.space,
             \ delim=g:enumoptions.delim
             \ )
-    if a:end != '' && a:firstline != a:lastline
-        if a:lastline == line('.')
-            echohl ErrorMsg
-            echom 'No range allowed'
-            echohl None
+
+    " Forbid using both a range and an `end` argument at the same time
+    if a:end !=# '' && a:firstline !=# a:lastline
+        " Although function will be executed multiple times, echo only one
+        " error message
+        if a:lastline ==# line('.')
+            echoerr 'No range allowed'
         endif
         return
-    elseif a:end != '' && a:firstline == a:lastline
+
+    " If no range is given, insert list below current line
+    elseif a:end !=# '' && a:firstline ==# a:lastline
         for i in range(a:begin, a:end)
             execute 'normal o' ..
                         \ i .. a:delim .. a:space .. "\<Esc>"
         endfor
+    " If range is given, make text in that range into a list
     else
         execute 'normal I' ..
                     \ (line('.') - a:firstline + a:begin) ..
@@ -366,30 +377,41 @@ function Enumerate(
     endif
 endfunction
 
-" Transform comma-separated or tab-separated lists into Lua table constructor
+" {{{2 Transform list of delimiter-separated values into Lua table constructor
 
 command -range=% -nargs=* Luatable
-            \ silent <line1>,<line2>call Luatable(<f-args>)
+            \ silent <line1>,<line2>call <SID>lua_table(<f-args>)
 
-function Luatable(
+function s:lua_table(
             \ operation = 'disamb',
             \ swap = 'noswap',
             \ format = 'csv'
             \ )
             \ range
-    if a:swap == 'noswap'
+
+    " Check that arguments are valid
+    if (a:operation ==# 'disamb' || a:operation ==# 'concat') &&
+                \ (a:swap ==# 'noswap' || a:swap ==# 'swap') &&
+                \ (a:format ==# 'csv' || a:format ==# 'tab')
+    else
+        echoerr 'Invalid argument'
+        return
+    endif
+
+    " Transform list to Lua table constructor
+    if a:swap ==# 'noswap'
         let l:replace_pattern = '/\["\1"\] = "\2",'
-    elseif a:swap == 'swap'
+    elseif a:swap ==# 'swap'
         let l:replace_pattern = '/\["\2"\] = "\1",'
     endif
-    if a:format == 'csv'
+    if a:format ==# 'csv'
         let l:csv_pattern1 = '^"\(.\{-}\)","\=\(.\{-}\)"\=$'
         let l:csv_pattern2 = '^\([^\[].\{-}\),"\=\(.\{-}\)"\=$'
         silent! execute a:firstline .. ',' .. a:lastline ..
                     \ 'substitute/' .. l:csv_pattern1 .. l:replace_pattern
         silent! execute a:firstline .. ',' .. a:lastline ..
                     \ 'substitute/' .. l:csv_pattern2 .. l:replace_pattern
-    elseif a:format == 'tab'
+    elseif a:format ==# 'tab'
         let l:tab_pattern = '^\(.*\)\t\(.*\)$'
         execute a:firstline .. ',' .. a:lastline ..
                     \ 'substitute/' .. l:tab_pattern .. l:replace_pattern
@@ -398,11 +420,13 @@ function Luatable(
     execute 'normal =' .. (a:lastline + 1) .. 'G'
     execute 'normal' .. (a:lastline + 1) .. "Go}\<Esc>"
     normal ==
+
     " Find duplicate keys and disambiguate or concatenate
     for i in range(a:firstline + 1, a:lastline)
         let l:key_pattern = '\["\(.*\)"\]'
         let l:key = matchstr(getline(i), l:key_pattern)
-        if a:operation == 'disamb'
+
+        if a:operation ==# 'disamb'
             let l:variant = 2
             for j in range(i + 1, a:lastline + 1)
                 let l:candidate = matchstr(getline(j), l:key_pattern)
@@ -416,7 +440,8 @@ function Luatable(
                 execute i .. 'substitute/' .. l:key_pattern ..
                             \ '/\["\1(1)"\]'
             endif
-        elseif a:operation == 'concat'
+
+        elseif a:operation ==# 'concat'
             let l:lines_del = 0
             for j in range(i + 1, a:lastline + 1)
                 silent! let l:candidate =
@@ -426,7 +451,7 @@ function Luatable(
                     let l:match =
                                 \ matchstr(getline(j - l:lines_del),
                                 \ '=\s"\zs.*\ze",')
-                    if l:match != ''
+                    if l:match !=# ''
                         execute (j - l:lines_del) .. 'delete _'
                         let l:lines_del = l:lines_del + 1
                         execute 'normal' .. i ..
@@ -436,10 +461,15 @@ function Luatable(
             endfor
         endif
     endfor
+
+    " Return to first line and enter insert mode to enter table name
     execute 'normal' .. a:firstline .. 'G^'
     startinsert
 endfunction
 
+" }}}2
+
+" }}}1
 " {{{1 Vim-plug
 
 call plug#begin('~/.config/nvim/vim-plug')
