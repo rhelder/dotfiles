@@ -1,6 +1,7 @@
 \NeedsTeXFormat{LaTeX2e}[2022/11/01]
 \ProvidesPackage{rhelder}[2023/09/13 Russell Wright Helder's style file]
 
+% {{{1 Required packages
 
 \RequirePackage{polyglossia}
 \RequirePackage[
@@ -20,7 +21,9 @@
 \RequirePackage{etoolbox}
 \AtEndOfPackage{\RequirePackage{hyperref}}
 
+% {{{1 Options
 
+% {{{2 Declare options
 \newbool{@biblatex}
 \newbool{@nomencl}
 \newbool{@doublespaced}
@@ -40,9 +43,11 @@
 
 \DeclareOption*{\PackageWarning{template}{Unknown ‘\CurrentOption’}}
 
+% {{{2 Execute options
 \ExecuteOptions{defaultlangs, defaultauthor}
 \ProcessOptions\relax
 
+% {{{3 biblatex
 \if@biblatex
     \RequirePackage[
         authordate,
@@ -56,31 +61,40 @@
         cmslos=false,
         autolang=hyphen,
     ]{biblatex-chicago}%
-    \DeclareLanguageMapping{latin}{cms-american}        % Map `cms-american.lbx` onto polyglossia language `latin'; replaces dummy `latin.lbx`
-    \input{rhelder_BibstringSet}                        % Declare group of all bibstrings
-    \DeclareBibstringSetFormat{all}{\textmainlang{#1}}  % Format the group of all bibstrings in accordance with the document's main language
-    % Patch `\footnotetext` so that the footnote-specific `ibidtracker` resets at the beginning of each footnote
+    % Map `cms-american.lbx` onto polyglossia language `latin'; replaces dummy
+    % `latin.lbx`
+    \DeclareLanguageMapping{latin}{cms-american}
+    % Declare group of all bibstrings
+    \input{rhelder_BibstringSet}
+    % Format the group of all bibstrings in accordance with the document's main
+    % language
+    \DeclareBibstringSetFormat{all}{\textmainlang{#1}}
+    % Patch `\footnotetext` so that the footnote-specific `ibidtracker` resets
+    % at the beginning of each footnote
     \NewCommandCopy{\oldfootnotetext}{\footnotetext}
     \RenewDocumentCommand{\footnotetext}{+m}{\oldfootnotetext{\mancite #1}}
 \fi
 
+% {{{3 nomencl
 \if@nomencl
     \RequirePackage{nomencl}
     \makenomenclature
     \renewcommand{\nomname}{Abbreviations}
     \if@biblatex
-        \setlength{\nomitemsep}{\bibitemsep}    % ensure uniformity with bibliography spacing
-        \addtolength{\nomitemsep}{-\parsep}     % Remove excess spacing
+        % ensure uniformity with bibliography spacing
+        \setlength{\nomitemsep}{\bibitemsep}
+        \addtolength{\nomitemsep}{-\parsep} % Remove excess spacing
     \else
-        \addtolength{\nomitemsep}{-\parsep}     % Remove excess spacing
+        \addtolength{\nomitemsep}{-\parsep} % Remove excess spacing
     \fi
 \fi
 
+% {{{3 doublespaced
 \if@doublespaced
     \RequirePackage{setspace}
     \doublespacing
     \RequirePackage[hmargin=1in]{geometry}
-    \quotingsetup{font={small,singlespace}}     % Make block quotes single-spaced
+    \quotingsetup{font={small,singlespace}} % Make block quotes single-spaced
     \if@biblatex
         \if@nomencl
             \setlength{\bibitemsep}{0pt}        % Remove excess spacing
@@ -91,12 +105,14 @@
     \fi
 \fi
 
+% {{{3 defaultauthor
 \if@defaultauthor
     \AtEndOfPackage{%
         \hypersetup{pdfauthor={Russell\ Wright\ Helder}}%
     }
 \fi
 
+% {{{3 anonymous
 \if@anonymous
     \def\@maketitle{%
         \newpage
@@ -119,6 +135,7 @@
     }
 \fi
 
+% {{{3 defaultlangs
 \if@defaultlangs
     \AtEndOfPackage{%
         \setdefaultlanguage[variant=american]{english}%
@@ -127,54 +144,39 @@
     }
 \fi
 
+% {{{3 misguided
 \if@misguided
+
     % Include punctuation within quotes
     \DeclareAutoPunct{.,}
     \renewcommand{\mktextquote}[6]{#1#2#4#5#3#6}
 \else
+
     % Use British quotation conventions when language is american english
-    \DeclareQuoteStyle[american]{english}       % Use single quotes outside, double quotes inside
+
+    % Use single quotes outside, double quotes inside
+    \DeclareQuoteStyle[american]{english}
         {\textquoteleft}{\textquoteright}
         {\textquotedblleft}{\textquotedblright}
+
     % Place punctuation outside quotes in bibliographies
     \if@biblatex
         \DefineBibliographyExtras{american}{\stdpunctuation}
     \fi
 \fi
 
+% }}}3
+% }}}2
+
+% }}}1
+% {{{1 General
 
 \setmainfont{Brill}
 
-\clubpenalty=10000      % At least two lines after paragraph break before page break
-\widowpenalty=10000     % At least two lines before paragraph break after page break
-
-\renewcommand*{\quotingfont}{\small\setlength{\itemsep}{0pt}}   % Achieve desired spacing for syllogisms in block quotes
-\SetBlockEnvironment{quoting}                                   % Set quoting environment as default block quote environment for `csquotes`
-\renewenvironment{quotation}{\begin{quoting}}{\end{quoting}}    % Replace `quotation` environment (which is used for abstracts) with `quoting` environment
-
-% Use double quotes when language is ancient Greek
-\DeclareQuoteStyle[ancient]{greek}
-    {\textquotedblleft}{\textquotedblright}
-    {\textquoteleft}{\textquoteright}
-\DeclareQuoteAlias[ancient]{greek}{greek}
-
-\setlist{listparindent=\parindent,parsep=0pt}   % Make paragraph spacing within list same as outside of list
-\setlist[itemize,2]{label=\ding{118}}
-\setlist[itemize,3]{label=\ding{66}}
-\newlist{outline}{enumerate}{5}
-\setlistdepth{5}
-\setlist[outline,1]{itemsep=2\itemsep,label=\Roman*.}
-\setlist[outline,2]{itemsep=2\itemsep,label=\Alph*.}
-\setlist[outline,3]{label=\arabic*.}
-\setlist[outline,4]{label=\alph*.}
-\setlist[outline,5]{label=\roman*.}
-% A potentially useful configuration for description
-% \setlist[description]{%
-%      style=nextline,
-%      leftmargin=0em,
-%      itemindent=!,
-%      itemsep=2\itemsep,
-% }
+% At least two lines after paragraph break before page break
+\clubpenalty=10000
+% At least two lines before paragraph break after page break
+\widowpenalty=10000
 
 \AtEndOfPackage{%
     \hypersetup{
@@ -191,12 +193,62 @@
     \urlstyle{same}%
 }
 
+% {{{1 Quotations
 
-\NewCommandCopy{\emphit}{\emph} % Define copy of `\emph` so that, even if `\emph` is redefined, the following commands italicize their arguments
+% Achieve desired spacing for syllogisms in block quotes
+\renewcommand*{\quotingfont}{\small\setlength{\itemsep}{0pt}}
+
+% Set quoting environment as default block quote environment for `csquotes`
+\SetBlockEnvironment{quoting}
+
+% Replace `quotation` environment (which is used for abstracts) with `quoting`
+% environment
+\renewenvironment{quotation}{\begin{quoting}}{\end{quoting}}
+
+% Use double quotes when language is ancient Greek
+\DeclareQuoteStyle[ancient]{greek}
+    {\textquotedblleft}{\textquotedblright}
+    {\textquoteleft}{\textquoteright}
+\DeclareQuoteAlias[ancient]{greek}{greek}
+
+% {{{1 Lists
+
+% Make paragraph spacing within list same as outside of list
+\setlist{listparindent=\parindent,parsep=0pt}
+
+% Change default bullet points for nested itemized lists
+\setlist[itemize,2]{label=\ding{118}}
+\setlist[itemize,3]{label=\ding{66}}
+
+% Define `outline` list
+\newlist{outline}{enumerate}{5}
+\setlistdepth{5}
+\setlist[outline,1]{itemsep=2\itemsep,label=\Roman*.}
+\setlist[outline,2]{itemsep=2\itemsep,label=\Alph*.}
+\setlist[outline,3]{label=\arabic*.}
+\setlist[outline,4]{label=\alph*.}
+\setlist[outline,5]{label=\roman*.}
+
+% A potentially useful configuration for description
+% \setlist[description]{%
+%      style=nextline,
+%      leftmargin=0em,
+%      itemindent=!,
+%      itemsep=2\itemsep,
+% }
+
+% {{{1 Custom commands
+
+% Define copy of `\emph` so that, even if `\emph` is redefined, the following
+% commands italicize their arguments
+\NewCommandCopy{\emphit}{\emph}
 \NewDocumentCommand{\texttitle}{m}{\emphit{#1}}
 \NewDocumentCommand{\alialingua}{O{}mm}{%
     \textlang[#1]{#2}{\emphit{#3}}%
 }
+
 \NewCommandCopy{\define}{\emph}
+
+% }}}1
 
 \endinput
