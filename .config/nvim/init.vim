@@ -88,6 +88,10 @@ nnoremap _ ddp
 " Uppercase word
 nnoremap <Leader>u viwUe
 
+" Insert unique identifier
+nnoremap <Leader>i :execute 'normal! i' ..
+            \ strftime("%Y%m%d%H%M%S") .. "\<lt>Esc>"<CR>
+
 " " Change surrounding quotes
 " nnoremap <Leader>' vi"o<Esc>hr'gvo<Esc>lr'
 " nnoremap <Leader>" vi'o<Esc>hr"gvo<Esc>lr"
