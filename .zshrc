@@ -98,6 +98,19 @@ function untar {
      tar -xf $file -C ${file%.tar*}
 }
 
+# Open new note
+function nn {
+    nvim -c 'let name = strftime("%Y%m%d%H%M%S")' \
+        -c 'cd ~/Documents/Notes' \
+        -c 'execute "edit " .. name .. ".md"' \
+        -c 'execute "normal i---\r---\<Esc>"' \
+        -c 'execute "normal Oid: " .. name .. "\rtitle: \<Esc>"'
+}
+
+# Open new journal entry
+function nj {
+}
+
 # Filter my private repo and push the filtered repo to a new remote (e.g., for
 # publishing part of my private repo as a public repo)
 function github-publish {
@@ -176,7 +189,7 @@ function zotero-storage {
 
     # Clean up empty subdirectories
     for dir in *(/); do
-        if [[ $(ls -F $dir) =~ '/$' ]]; then
+        if [[ $(ls -F $dir | rg /) ]]; then
             cd $dir
             for subdir in *(/); do
                 if [[ ! $(ls $subdir) ]]; then
@@ -210,7 +223,7 @@ function zotero-storage {
             cd $dir
             # If the directory contains files, rename the files after the
             # directory
-            if [[ $(ls -F) =~ '[^/]$' ]]; then
+            if [[ $(ls -F | rg -v /) ]]; then
                 for file in *(.); do
                     mv $file ${file/*./$dir.}
                 done
@@ -219,7 +232,7 @@ function zotero-storage {
             # If the directory contains subdirectories, and they are non-empty,
             # enter the subdirectories and rename the files after the directory
             # and the subdirectory together
-            if [[ $(ls -F) =~ '/$' ]]; then
+            if [[ $(ls -F | rg /) ]]; then
                 for subdir in *(/); do
                     if [[ $(ls $subdir) ]]; then
                         cd $subdir
