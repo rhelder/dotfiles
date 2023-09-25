@@ -1,8 +1,16 @@
+# to-do (zotero-storage)
+# * Add functionality to find and retrieve existing PDFs from Zotero storage
+#   (remember that `read -q` is the way to get yes/no input)
+# * Also: function needs to delete references that have been deleted from
+#   Zotero itself (maybe give prompt indicating that there are excess
+#   directories)
+
 # {{{1 Options and settings
 
 HISTSIZE=1200000
 SAVEHIST=1000000
 setopt extended_glob
+setopt localtraps
 setopt rcquotes
 
 # Set prompt
@@ -19,6 +27,9 @@ export GPG_TTY=$(tty)
 # Use TTY-based pinentry (rather than pinentry-mac) in most cases (glitched
 # for me)
 # export PINENTRY_USER_DATA="USE_CURSES=1"
+
+# Set up completion and keybindings for `fzf`
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # {{{1 Variables
 
@@ -47,7 +58,7 @@ alias ev="nvim $HOME/.config/nvim/init.vim"
 alias ez="nvim $HOME/.zshrc"
 alias hf='sudo nvim /etc/hosts'
 alias lqs='open -a skim "$HOME/Documents/Books/lua_quickStart.pdf"'
-alias ls='ls -aF'
+alias la='ls -aF'
 alias lua='luajit'
 alias mhd='lsof ''/Volumes/RH Media HD/iTunes/Apple Music Library/Music Library.musiclibrary/Library.musicdb''; \
      lsof ''/Volumes/RH Media HD/Apple TV/TV Library.tvlibrary/Library.tvdb'''
@@ -62,7 +73,7 @@ alias vtc="cd $HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete"
 
 # Execute `cd` and then `ls`
 function cs {
-     cd $* && ls
+     cd $* && ls -aF
 }
 
 # Find files to be removed (e.g., when uninstalling an application)
@@ -90,7 +101,7 @@ function untar {
 # Filter my private repo and push the filtered repo to a new remote (e.g., for
 # publishing part of my private repo as a public repo)
 function github-publish {
-     trap 'trap -; return' ERR
+     trap 'return 1' ERR
      if [[ ! $1 ]]; then
 	  echo Error: please enter name of target repository
 	  return 1
@@ -125,7 +136,7 @@ function github-publish {
 # Clone my `vimtex_my_complete` repository into VimTeX's completion file
 # directory
 function vmc-clone {
-     trap 'trap -; return' ERR
+     trap 'return 1' ERR
 
      echo Cloning:
      echo $HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete
@@ -156,6 +167,74 @@ function vmc-clone {
      rmdir vimtex_my_complete
 }
 
+# Create Zotero storage library and rename directories and files in accordance
+# with bibtex key
+function zotero-storage {
+    trap 'return 1' ERR
+
+    cd $HOME/Documents/Zotero/Storage
+
+    # Clean up empty subdirectories
+    for dir in *(/); do
+        if [[ $(ls -F $dir) =~ '/$' ]]; then
+            cd $dir
+            for subdir in *(/); do
+                if [[ ! $(ls $subdir) ]]; then
+                    rmdir $subdir
+                fi
+            done
+            cd ..
+        fi
+    done
+
+    # Parse `bib` file
+    for dir in $(rg '^@.+\{(.+?)\.*,$' --replace '$1' -- \
+        $HOME/Library/texmf/bibtex/bib/myLibrary.bib); do
+
+        if [[ $(pwd) != $HOME/Documents/Zotero/Storage ]]; then
+            echo 'Error: not in Zotero storage directory'
+            return 1
+        fi
+
+        # If directory corresponding to `bib` entry doesn't exist, make it
+        # (along with two default subdirectories, 'annotated' and 'clean', for
+        # convenience)
+        if [[ ! -d $dir ]]; then
+            mkdir $dir
+            mkdir $dir/clean
+            mkdir $dir/annotated
+        fi
+
+        # If the directory is non-empty, enter the directory
+        if [[ $(ls $dir) ]]; then
+            cd $dir
+            # If the directory contains files, rename the files after the
+            # directory
+            if [[ $(ls -F) =~ '[^/]$' ]]; then
+                for file in *(.); do
+                    mv $file ${file/*./$dir.}
+                done
+            fi
+
+            # If the directory contains subdirectories, and they are non-empty,
+            # enter the subdirectories and rename the files after the directory
+            # and the subdirectory together
+            if [[ $(ls -F) =~ '/$' ]]; then
+                for subdir in *(/); do
+                    if [[ $(ls $subdir) ]]; then
+                        cd $subdir
+                        for file in *(.); do
+                            mv $file ${file/*./$dir\_$subdir.}
+                        done
+                        cd ..
+                    fi
+                done
+            fi
+            cd ..
+        fi
+    done
+}
+
 # Install run-help
 if [[ $(alias -m run-help) != '' ]]
      then unalias run-help
@@ -170,3 +249,5 @@ autoload -Uz run-help-git
 #      run-help-def $*
 # }
 local HELPDIR='/usr/share/zsh/5.9/help'
+
+# }}}1
