@@ -4,6 +4,7 @@
 # * Also: function needs to delete references that have been deleted from
 #   Zotero itself (maybe give prompt indicating that there are excess
 #   directories)
+# * Use (N) instead of conditionals where we're trying to avoid glob errors
 
 # {{{1 Options and settings
 
@@ -211,7 +212,7 @@ function zotero-storage {
     done
 
     # Parse `bib` file
-    for dir in $(rg '^@.+\{(.+?)\.*,$' --replace '$1' -- \
+    for item in $(rg '^@.+\{(.+?)\.*,$' --replace '$1' -- \
         $HOME/Library/texmf/bibtex/bib/myLibrary.bib); do
 
         if [[ $(pwd) != $HOME/Documents/Zotero/Storage ]]; then
@@ -222,20 +223,20 @@ function zotero-storage {
         # If directory corresponding to `bib` entry doesn't exist, make it
         # (along with two default subdirectories, 'annotated' and 'clean', for
         # convenience)
-        if [[ ! -d $dir ]]; then
-            mkdir $dir
-            mkdir $dir/clean
-            mkdir $dir/annotated
+        if [[ ! -d $item ]]; then
+            mkdir $item
+            mkdir $item/clean
+            mkdir $item/annotated
         fi
 
         # If the directory is non-empty, enter the directory
-        if [[ $(ls $dir) ]]; then
-            cd $dir
+        if [[ $(ls $item) ]]; then
+            cd $item
             # If the directory contains files, rename the files after the
             # directory
             if [[ $(ls -F | rg -v /) ]]; then
                 for file in *(.); do
-                    mv $file ${file/*./$dir.}
+                    mv $file ${file/*./$item.}
                 done
             fi
 
@@ -247,7 +248,7 @@ function zotero-storage {
                     if [[ $(ls $subdir) ]]; then
                         cd $subdir
                         for file in *(.); do
-                            mv $file ${file/*./$dir\_$subdir.}
+                            mv $file ${file/*./$item\_$subdir.}
                         done
                         cd ..
                     fi
