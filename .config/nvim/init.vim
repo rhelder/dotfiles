@@ -241,6 +241,18 @@ vnoremap in` :<C-U>normal! f`f`vi`<CR>
 vnoremap al` :<C-U>normal! F`F`va`<CR>
 vnoremap il` :<C-U>normal! F`F`vi`<CR>
 
+" {{{2 Open new note
+nnoremap <Leader>nn <Cmd>call<SID>new_note()<CR>
+
+function s:new_note()
+    lcd ~/Documents/Notes
+    execute 'edit ' .. strftime("%Y%m%d%H%M%S") .. '.md'
+    execute "normal i---\r---\<Esc>"
+    execute "normal Okeywords: \<Esc>"
+    execute "normal Otitle: \<Esc>"
+    execute 'normal Oid: ' .. strftime("%Y%m%d%H%M%S") .. "\<Esc>"
+endfunction
+
 " }}}2
 
 " Insert mode abbreviations
