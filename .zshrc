@@ -104,11 +104,21 @@ function nn {
         -c 'cd ~/Documents/Notes' \
         -c 'execute "edit " .. name .. ".md"' \
         -c 'execute "normal i---\r---\<Esc>"' \
-        -c 'execute "normal Oid: " .. name .. "\rtitle: \<Esc>"'
+        -c 'execute "normal Okeywords: \<Esc>"' \
+        -c 'execute "normal Otitle: \<Esc>"' \
+        -c 'execute "normal Oid: " .. name .. "\<Esc>"'
 }
 
 # Open new journal entry
 function nj {
+    cd $HOME/Documents/Notes
+    if [[ -f $(date "+%F").txt ]]; then
+        nvim $(date "+%F").txt
+    else
+        nvim -c 'execute "edit " .. strftime("%F") .. ".txt"' \
+            -c 'execute "normal i" .. strftime("%A, %B %e, %Y") .. "\<Esc>"'
+    fi
+    cd - > /dev/null
 }
 
 # Filter my private repo and push the filtered repo to a new remote (e.g., for
