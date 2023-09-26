@@ -5,6 +5,8 @@
 #   Zotero itself (maybe give prompt indicating that there are excess
 #   directories)
 # * Use (N) instead of conditionals where we're trying to avoid glob errors
+# other to-do
+# * Search and replace `~` and shorten lines
 
 # {{{1 Options and settings
 
@@ -257,6 +259,17 @@ function zotero-storage {
             cd ..
         fi
     done
+
+    # Check that storage directory and Zotero library are in sync
+    if [[ $(comm -23 =(rg '^@.+\{(.+?)\.*,$' --replace '$1' -- $bib | sort) =(ls | sort)) ]]; then
+        echo 'Unknown error occured: storage directory and Zotero library not in sync'
+    else
+        local del=$(comm -13 =(rg '^@.+\{(.+?)\.*,$' --replace '$1' -- $bib | sort) =(ls | sort))
+        if [[ $del ]]; then
+            echo 'The following items are not in your Zotero library'
+            echo $del
+        fi
+    fi
 }
 
 # Install run-help
