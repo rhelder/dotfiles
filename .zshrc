@@ -1,20 +1,14 @@
 # to-do (zotero-storage)
-# * Add functionality to find and retrieve existing PDFs from Zotero storage
-#   (remember that `read -q` is the way to get yes/no input)
-# * Also: function needs to delete references that have been deleted from
-#   Zotero itself (maybe give prompt indicating that there are excess
-#   directories)
-# * Use (N) instead of conditionals where we're trying to avoid glob errors
-# other to-do
 # * Search and replace `~` and shorten lines
 
 # {{{1 Options and settings
 
 HISTSIZE=1200000
 SAVEHIST=1000000
-setopt extended_glob
+setopt extendedglob
 setopt localtraps
 setopt rcquotes
+setopt typesetsilent
 
 # Set prompt
 PS1="%F{14}%n@%m (%!) %1~ %# %f"
@@ -195,12 +189,36 @@ function vmc-clone {
 
 # Create Zotero storage library and rename directories and files in accordance
 # with bibtex key
+
+typeset -A shorttitles
+shorttitles=( \
+    [Bonitz]='bonitz 1955 Index Aristotelicus' \
+    [LSJ]='liddell Scott 1940 Greek English Lexicon' \
+    [Smyth]='smyth 1956 Greek Grammar' \
+    [TLG]='2014 TLG Home' \
+    [APo]='aristotle 1964 Analytica Posteriora' \
+    [APr]='aristotle 1964 Analytica Priora' \
+    [CGCG]='van Emde Boas 2019 Cambridge Grammar' \
+    [DA]='aristotle 1964 De Anima' \
+    [EE]='aristotle 1991 Ethica Eudemia' \
+    [EN]='aristotle 1894 Ethica Nicomachea' \
+    [MA]='aristotle 2020 De Motu Animalium' \
+    [Met]='aristotle 1957 Metaphysica' \
+    [Phys]='aristotle 1950 Physica' \
+    [Pol]='aristotle 1957 Politica' \
+    [Top]='aristotle 1958 Topica sophistici' \
+    )
+
 function zotero-storage {
     trap 'return 1' ERR
 
+    local wd=$(pwd)
     cd $HOME/Documents/Zotero/Storage
 
     # Clean up empty subdirectories
+    echo 'Cleaning up empty subdirectories...'
+    local dir
+    local subdir
     for dir in *(/); do
         if [[ $(ls -F $dir | rg /) ]]; then
             cd $dir
@@ -213,7 +231,13 @@ function zotero-storage {
         fi
     done
 
+    echo 'Making directories for new entries,' \
+        'checking for PDFs in Zotero' \
+        'storage, and renaming files...' \
+        | fmt -79
+
     # Parse `bib` file
+    local item
     for item in $(rg '^@.+\{(.+?)\.*,$' --replace '$1' -- \
         $HOME/Library/texmf/bibtex/bib/myLibrary.bib); do
 
@@ -231,11 +255,66 @@ function zotero-storage {
             mkdir $item/annotated
         fi
 
+        # Check for pdf in Zotero storage cd $HOME/Zotero/storage
+        cd $HOME/Zotero/storage
+        # If the item in question has a short title, then use the value from
+        # the `shorttitles` associative array; otherwise, split up the
+        # `biblatex` key and use that
+        if [[ $shorttitles[$item] ]]; then
+            local query=$shorttitles[$item]
+        else
+            local query=$(echo $item | \
+                sed -E 's/([0-9]{4})/ \1 /' | \
+                sed -E 's/([A-Z])/ \1/g')
+        fi
+        trap -
+        local match=$(fd --type f --strip-cwd-prefix | fzf -i -f "$query")
+        trap 'return' ERR
+        if [[ $match ]]; then
+            local REPLY
+            if (( $( (){echo $#} ${(f)match} ) > 1 )); then
+                local pdfs=(${(f)match})
+                echo ${#pdfs[@]} 'PDFs were found in Zotero''s storage:'
+                local pdf
+                for pdf in $pdfs; do
+                    echo ${pdf#*/}
+                done
+                for pdf in $pdfs; do
+                    read "?Copy '${pdf#*/}' to ~/Zotero/Storage? (y/n) "
+                    if [[ $REPLY == y || $REPLY == Y ]]; then
+                        cp $HOME/Zotero/storage/$pdf \
+                            $HOME/Documents/Zotero/Storage/$item/${pdf/\//_}
+                        echo File copied.
+                    else
+                        echo File not copied.
+                    fi
+                done
+            else
+                echo '1 PDF was found in Zotero storage:'
+                echo ${match#*/}
+                read "?Copy '${match#*/}'? (y/n) "
+                if [[ $REPLY == y || $REPLY == Y ]]; then
+                    cp $HOME/Zotero/storage/$match \
+                        $HOME/Documents/Zotero/Storage/$item/${match/\//_}
+                    echo File copied.
+                else
+                    echo File not copied.
+                fi
+            fi
+        fi
+        cd - > /dev/null
+
+        if [[ $(pwd) != $HOME/Documents/Zotero/Storage ]]; then
+            echo 'Error: not in Zotero storage directory'
+            return 1
+        fi
+
         # If the directory is non-empty, enter the directory
         if [[ $(ls $item) ]]; then
             cd $item
             # If the directory contains files, rename the files after the
             # directory
+            local file
             if [[ $(ls -F | rg -v /) ]]; then
                 for file in *(.); do
                     mv $file ${file/*./$item.}
@@ -261,15 +340,25 @@ function zotero-storage {
     done
 
     # Check that storage directory and Zotero library are in sync
-    if [[ $(comm -23 =(rg '^@.+\{(.+?)\.*,$' --replace '$1' -- $bib | sort) =(ls | sort)) ]]; then
-        echo 'Unknown error occured: storage directory and Zotero library not in sync'
-    else
-        local del=$(comm -13 =(rg '^@.+\{(.+?)\.*,$' --replace '$1' -- $bib | sort) =(ls | sort))
+    echo 'Checking that storage directory and Zotero library are in sync...'
+    if [[ $(comm -23 \
+        =(rg '^@.+\{(.+?)\.*,$' --replace '$1' -- $bib | sort) \
+        =(ls | sort)) \
+        ]]; then
+        echo 'Unknown error occured:' \
+            'storage directory and Zotero library not in sync' \
+            fmt -79
+    else local del=$(comm -13 \
+        =(rg '^@.+\{(.+?)\.*,$' --replace '$1' -- $bib | sort) \
+        =(ls | sort))
         if [[ $del ]]; then
-            echo 'The following items are not in your Zotero library'
+            echo 'The following items are not in your Zotero library:'
             echo $del
         fi
     fi
+
+    cd $wd
+    echo 'Done.'
 }
 
 # Install run-help
