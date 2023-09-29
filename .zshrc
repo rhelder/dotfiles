@@ -6,6 +6,7 @@
 HISTSIZE=1200000
 SAVEHIST=1000000
 setopt extendedglob
+setopt ignore_eof
 setopt localtraps
 setopt rcquotes
 setopt typesetsilent
