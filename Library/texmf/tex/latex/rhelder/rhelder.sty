@@ -80,6 +80,13 @@
     \RequirePackage{nomencl}
     \makenomenclature
     \renewcommand{\nomname}{Abbreviations}
+    % No inter-sentence spacing in nomenclatures (as in biblatex citations)
+    \NewCommandCopy{\defprintnomenclature}{\printnomenclature}
+    \RenewDocumentCommand{\printnomenclature}{}{%
+        \frenchspacing
+        \defprintnomenclature
+        \nonfrenchspacing
+    }
     \if@biblatex
         % ensure uniformity with bibliography spacing
         \setlength{\nomitemsep}{\bibitemsep}
