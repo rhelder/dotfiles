@@ -1,5 +1,6 @@
 # to-do (zotero-storage)
 # * Search and replace `~` and shorten lines
+# * `zotero-storage`: turn `match` and `query` into arrays
 
 # {{{1 Options and settings
 
@@ -8,6 +9,7 @@ SAVEHIST=1000000
 setopt extendedglob
 setopt ignore_eof
 setopt localtraps
+setopt rc_expand_param
 setopt rcquotes
 setopt typesetsilent
 
