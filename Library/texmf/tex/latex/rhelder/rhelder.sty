@@ -3,6 +3,7 @@
 
 % {{{1 Required packages
 
+\RequirePackage{etoolbox}
 \RequirePackage{polyglossia}
 \RequirePackage[
     autostyle,
@@ -12,14 +13,14 @@
     indentfirst=false,
     rightmargin=0in,
 ]{quoting}
-\RequirePackage{microtype}
-\RequirePackage[chicago]{xellipsis}
+\AtEndOfPackage{\RequirePackage{hyperref}}
 \RequirePackage{enumitem}
 \RequirePackage{pifont}
 \RequirePackage{array}
 \RequirePackage{ragged2e}
-\RequirePackage{etoolbox}
-\AtEndOfPackage{\RequirePackage{hyperref}}
+\RequirePackage{microtype}
+\RequirePackage[chicago]{xellipsis}
+\RequirePackage[shortcuts]{extdash}
 
 % {{{1 Options
 
@@ -114,8 +115,9 @@
 
 % {{{3 defaultauthor
 \if@defaultauthor
-    \AtEndOfPackage{%
-        \hypersetup{pdfauthor={Russell\ Wright\ Helder}}%
+    \AtEndOfPackage{
+        \author{Russell\ Wright\ Helder}
+        \hypersetup{pdfauthor={Russell\ Wright\ Helder}}
     }
 \fi
 
@@ -195,7 +197,7 @@
         pdfpagemode=UseNone,
     }%
     \AtBeginDocument{%
-        \hypersetup{pdftitle = {\@title}}
+        \hypersetup{pdftitle={\@title}}
     }%
     \urlstyle{same}%
 }
@@ -255,6 +257,14 @@
 }
 
 \NewCommandCopy{\define}{\emph}
+\NewCommandCopy{\attn}{\textbf}
+
+\NewDocumentCommand{\nous}{}{\alialingua{latin}{nous}}
+\NewDocumentCommand{\Nous}{}{\alialingua{latin}{Nous}}
+\NewDocumentCommand{\phantasia}{}{\alialingua{latin}{phantasia}}
+\NewDocumentCommand{\Phantasia}{}{\alialingua{latin}{Phantasia}}
+\NewDocumentCommand{\phantasiai}{}{\alialingua{latin}{phantasiai}}
+\NewDocumentCommand{\Phantasiai}{}{\alialingua{latin}{Phantasiai}}
 
 % }}}1
 
