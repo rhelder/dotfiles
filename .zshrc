@@ -1,6 +1,7 @@
-# to-do (zotero-storage)
+# to-do
 # * Search and replace `~` and shorten lines
 # * `zotero-storage`: turn `match` and `query` into arrays
+# * Consider adding check to `zotero-storage` if any PDFs weren't copied
 
 # {{{1 Options and settings
 
