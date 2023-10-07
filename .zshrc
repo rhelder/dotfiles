@@ -5,14 +5,20 @@
 
 # {{{1 Options and settings
 
+setopt extended_glob
+setopt ignore_eof
+setopt local_traps
+setopt rc_expand_param
+setopt rc_quotes
+setopt typeset_silent
+
+# History
+export HISTFILE="$HOME/.zsh_history"
 HISTSIZE=1200000
 SAVEHIST=1000000
-setopt extendedglob
-setopt ignore_eof
-setopt localtraps
-setopt rc_expand_param
-setopt rcquotes
-setopt typesetsilent
+setopt append_history
+setopt hist_expire_dups_first
+setopt hist_ignore_dups
 
 # Set prompt
 PS1="%F{14}%n@%m (%!) %1~ %# %f"
@@ -24,12 +30,12 @@ export MANPAGER='nvim +Man!'
 export LESSHISTFILE=-
 
 # Configure gpg-agent
-export GPG_TTY=$(tty)
+export GPG_TTY="$(tty)"
 # Use TTY-based pinentry (rather than pinentry-mac) in most cases (glitched
 # for me)
 # export PINENTRY_USER_DATA="USE_CURSES=1"
 
-# Set up completion and keybindings for `fzf`
+# Completion and keybindings for `fzf`
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # {{{1 Variables
@@ -50,8 +56,8 @@ zshrc="$HOME/.zshrc"
 
 alias bib="cd $(dirname $bib)"
 alias bt="open $db/budget_2023.xlsx"
-alias Cl="mv ^*.(((tex)|(sty)|(bib)|(txt)|(md)|(vim)))(.) $HOME/.Trash"
-alias cl="mv ^*.(((tex)|(sty)|(bib)|(txt)|(md)|(vim)|(pdf)))(.) $HOME/.Trash"
+alias Cl="mv ^*.(((tex)|(latex)|(sty)|(bib)|(txt)|(md)|(vim)))(.) $HOME/.Trash"
+alias cl="mv ^*.(((tex)|(latex)|(sty)|(bib)|(txt)|(md)|(vim)|(pdf)))(.) $HOME/.Trash"
 alias db="cd $db"
 alias ea="nvim $arist"
 alias es="nvim $rhelder"
