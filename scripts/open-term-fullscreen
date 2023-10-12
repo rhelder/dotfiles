@@ -6,7 +6,6 @@
 
 open -a 'Terminal'
 sleep 1
-osascript -e 'tell application "System Events" to tell process "Terminal"
-    to set value of attribute "AXFullScreen" of window 1 to true'
+osascript -e 'tell application "System Events" to tell process "Terminal" to set value of attribute "AXFullScreen" of window 1 to true'
 sleep 1
-open -a 'Finder'
+osascript -e 'tell application "Finder" to activate the desktop'
