@@ -29,6 +29,9 @@
 /Library/*
 !/Library/texmf/
 /Library/texmf/bibtex/
+!/Library/LaunchAgents
+/Library/LaunchAgents/*
+!/Library/LaunchAgents/local*
 
 /Dropbox
 /.zprofile*
