@@ -1,0 +1,23 @@
+#!/bin/zsh
+
+# Sets my custom key mappings, using method documented at:
+# https://developer.apple.com/library/archive/technotes/tn2450/_index.html.
+# The general idea is to mimic convenient features of ADM-3A terminal.
+# This script is run at login by the launch agent:
+# ~/Library/LaunchAgents/local.remap-keys-rhelder.plist
+
+# Remap keys in the following order:
+# Remap <Tab> to <Esc>
+# Remap <Esc> to Caps Lock
+# Remap Caps Lock to (left) CTRL
+# Remap left CTRL to <Tab>
+hidutil property --set '{"UserKeyMapping":
+    [{"HIDKeyboardModifierMappingSrc":0x70000002B,
+    "HIDKeyboardModifierMappingDst":0x700000029},
+    {"HIDKeyboardModifierMappingSrc":0x700000029,
+    "HIDKeyboardModifierMappingDst":0x700000039},
+    {"HIDKeyboardModifierMappingSrc":0x700000039,
+    "HIDKeyboardModifierMappingDst":0x7000000E0},
+    {"HIDKeyboardModifierMappingSrc":0x7000000E0,
+    "HIDKeyboardModifierMappingDst":0x70000002B}]
+}'
