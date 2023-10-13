@@ -3,8 +3,7 @@
 !/.config/
 /.config/nvim/vim-plug/
 /.config/nvim/spell/*.spl
-
-!/.github/
+/.config/zsh/.zsh_history
 
 !/.gnupg/
 /.gnupg/*
