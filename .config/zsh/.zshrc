@@ -6,6 +6,8 @@
 
 # {{{1 Options and settings
 
+# PATH
+
 setopt extended_glob
 setopt ignore_eof
 setopt local_traps
@@ -14,7 +16,7 @@ setopt rc_quotes
 setopt typeset_silent
 
 # History
-export HISTFILE="$XDG_CONFIG_HOME/zsh/.zsh_history"
+HISTFILE="$XDG_CONFIG_HOME/zsh/.zsh_history"
 HISTSIZE=1200000
 SAVEHIST=1000000
 setopt append_history
