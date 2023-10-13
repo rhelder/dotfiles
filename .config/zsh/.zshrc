@@ -14,7 +14,7 @@ setopt rc_quotes
 setopt typeset_silent
 
 # History
-export HISTFILE="$HOME/.config/zsh/.zsh_history"
+export HISTFILE="$XDG_CONFIG_HOME/zsh/.zsh_history"
 HISTSIZE=1200000
 SAVEHIST=1000000
 setopt append_history
@@ -37,31 +37,30 @@ export GPG_TTY="$(tty)"
 # export PINENTRY_USER_DATA="USE_CURSES=1"
 
 # Source `fzf` preferences
-source $HOME/.config/fzf/fzf.zsh
+source $XDG_CONFIG_HOME/fzf/fzf.zsh
 
 # {{{1 Variables
 
 arist="$(kpsewhich aristotelis.sty)"
 bib="$(kpsewhich myLibrary.bib)"
-nvimrc="$HOME/.config/nvim/init.vim"
+nvimrc="$XDG_CONFIG_HOME/nvim/init.vim"
 rhelder="$(kpsewhich rhelder.sty)"
-sp="$HOME/.config/nvim/spell"
+sp="$XDG_CONFIG_HOME/nvim/spell"
 texmf="$HOME/Library/texmf"
-ucb="$db/UCBerkeley"
-vmc="$HOME/.config/nvim/vimtex_my_complete"
-vtc="$HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete"
-zshrc="$HOME/.config/zsh/.zshrc"
+ucb="$HOME/Documents/UCBerkeley"
+vmc="$XDG_CONFIG_HOME/nvim/vimtex_my_complete"
+vtc="$XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete"
+zshrc="$XDG_CONFIG_HOME/zsh/.zshrc"
 
 # {{{1 Aliases
 
 alias bib="cd $(dirname $bib)"
-alias bt="open $db/budget_2023.xlsx"
+alias bt="open $HOME/Documents/budget_2023.xlsx"
 alias Cl="mv ^*.(((tex)|(latex)|(sty)|(bib)|(txt)|(md)|(vim)))(.) $HOME/.Trash"
 alias cl="mv ^*.(((tex)|(latex)|(sty)|(bib)|(txt)|(md)|(vim)|(pdf)))(.) $HOME/.Trash"
-alias db="cd $db"
 alias ea="nvim $arist"
 alias es="nvim $rhelder"
-alias ev="nvim $HOME/.config/nvim/init.vim"
+alias ev="nvim $XDG_CONFIG_HOME/nvim/init.vim"
 alias ez="nvim $zshrc"
 alias hf='sudo nvim /etc/hosts'
 alias lqs='open -a skim "$HOME/Documents/Books/lua_quickStart.pdf"'
@@ -69,12 +68,12 @@ alias la='ls -aF'
 alias lua='luajit'
 alias mhd='lsof ''/Volumes/RH Media HD/iTunes/Apple Music Library/Music Library.musiclibrary/Library.musicdb''; \
      lsof ''/Volumes/RH Media HD/Apple TV/TV Library.tvlibrary/Library.tvdb'''
-alias sp="cd $HOME/.config/nvim/spell"
+alias sp="cd $XDG_CONFIG_HOME/nvim/spell"
 alias sz="source $zshrc"
-alias ucb="cd $db/UCBerkeley"
+alias ucb="cd $HOME/Documents/UCBerkeley"
 alias vcc="trash $HOME/.cache/vimtex/pkgcomplete.json"
-alias vmc="cd $HOME/.config/nvim/vimtex_my_complete"
-alias vtc="cd $HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete"
+alias vmc="cd $XDG_CONFIG_HOME/nvim/vimtex_my_complete"
+alias vtc="cd $XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete"
 
 # {{{1 Functions
 
@@ -152,7 +151,7 @@ function github-publish {
 	       because you are in the wrong directory
 	  return 1
      fi
-     git filter-repo --paths-from-file $HOME/.config/git/filter-repo/$1
+     git filter-repo --paths-from-file $XDG_CONFIG_HOME/git/filter-repo/$1
 
      echo Pushing:
      git remote add origin https://github.com/rhelder/$1.git
@@ -169,14 +168,12 @@ function vmc-clone {
      trap 'return 1' ERR
 
      echo Cloning:
-     echo $HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete
-     cd $HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete
-     ls
+     cd $XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete
      git clone https://github.com/rhelder/vimtex_my_complete.git
      cd vimtex_my_complete
 
      echo Filtering:
-     if [[ $(pwd) != $HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete/vimtex_my_complete ]]; then
+     if [[ $(pwd) != $XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete/vimtex_my_complete ]]; then
           echo Error: proceeding might rewrite the history of another repository \
                because you are in the wrong directory
           return 1
@@ -185,12 +182,12 @@ function vmc-clone {
 
      echo Unpacking:
      cd ..
-     if [[ $(pwd) != $HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete ]]; then
+     if [[ $(pwd) != $XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete ]]; then
           echo Error: obsolete .git directory cannot be deleted and replaced \
                because you are in the wrong directory
           return 1
      fi
-     sudo rm -r .git
+     [[ -d .git ]] && sudo rm -r .git
      mv vimtex_my_complete/(.*|*) .
 
      echo Cleaning up:

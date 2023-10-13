@@ -1,7 +1,6 @@
 /.*/
 
 !/.config/
-/.config/nvim/vim-plug/
 /.config/nvim/spell/*.spl
 /.config/zsh/.zsh_history
 
@@ -10,9 +9,10 @@
 !/.gnupg/gpg-agent.conf
 
 !/.local/
-/.local/state/
-/.local/share/nvim/.netrwhist
-/.local/share/nvim/site/autoload/
+/.local/*
+!/.local/share/
+/.local/share/*
+!/.local/share/pandoc
 
 
 /Desktop/
@@ -23,7 +23,6 @@
 /Pictures/
 /Public/
 /Sites/
-/Zotero/
 
 /Library/*
 !/Library/texmf/
