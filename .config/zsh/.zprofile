@@ -1,4 +1,4 @@
-
+# Set homebrew environment variables
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # Setting PATH for Python 3.11
