@@ -2,6 +2,7 @@
 # * Search and replace `~` and shorten lines
 # * `zotero-storage`: turn `match` and `query` into arrays
 # * Consider adding check to `zotero-storage` if any PDFs weren't copied
+# * Add aliases to help with dotfile relocation
 
 # {{{1 Options and settings
 
@@ -13,7 +14,7 @@ setopt rc_quotes
 setopt typeset_silent
 
 # History
-export HISTFILE="$HOME/.zsh_history"
+export HISTFILE="$HOME/.config/zsh/.zsh_history"
 HISTSIZE=1200000
 SAVEHIST=1000000
 setopt append_history
@@ -35,14 +36,13 @@ export GPG_TTY="$(tty)"
 # for me)
 # export PINENTRY_USER_DATA="USE_CURSES=1"
 
-# Completion and keybindings for `fzf`
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# Source `fzf` preferences
+source $HOME/.config/fzf/fzf.zsh
 
 # {{{1 Variables
 
 arist="$(kpsewhich aristotelis.sty)"
 bib="$(kpsewhich myLibrary.bib)"
-db="$HOME/Library/CloudStorage/Dropbox"
 nvimrc="$HOME/.config/nvim/init.vim"
 rhelder="$(kpsewhich rhelder.sty)"
 sp="$HOME/.config/nvim/spell"
@@ -50,7 +50,7 @@ texmf="$HOME/Library/texmf"
 ucb="$db/UCBerkeley"
 vmc="$HOME/.config/nvim/vimtex_my_complete"
 vtc="$HOME/.config/nvim/vim-plug/vimtex/autoload/vimtex/complete"
-zshrc="$HOME/.zshrc"
+zshrc="$HOME/.config/zsh/.zshrc"
 
 # {{{1 Aliases
 
@@ -62,7 +62,7 @@ alias db="cd $db"
 alias ea="nvim $arist"
 alias es="nvim $rhelder"
 alias ev="nvim $HOME/.config/nvim/init.vim"
-alias ez="nvim $HOME/.zshrc"
+alias ez="nvim $zshrc"
 alias hf='sudo nvim /etc/hosts'
 alias lqs='open -a skim "$HOME/Documents/Books/lua_quickStart.pdf"'
 alias la='ls -aF'
@@ -152,7 +152,7 @@ function github-publish {
 	       because you are in the wrong directory
 	  return 1
      fi
-     git filter-repo --paths-from-file $HOME/.github/$1
+     git filter-repo --paths-from-file $HOME/.config/git/filter-repo/$1
 
      echo Pushing:
      git remote add origin https://github.com/rhelder/$1.git
