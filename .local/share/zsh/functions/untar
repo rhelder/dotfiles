@@ -1,0 +1,6 @@
+# Extract a `tar` file into a directory of the same name in the parent
+# directory
+
+file=${*:?Tarball must be specified.}
+mkdir ${file%.tar*}
+tar -xf $file -C ${file%.tar*}

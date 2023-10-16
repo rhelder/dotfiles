@@ -1,0 +1,3 @@
+# Search Vim help from the command line
+
+nvim -c "help $*" -c "only"
