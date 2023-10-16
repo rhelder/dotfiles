@@ -1,0 +1,3 @@
+# Change directories and then view files in the new directory
+
+cd $* && ls -aF

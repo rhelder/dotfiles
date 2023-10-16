@@ -1,0 +1,35 @@
+#
+# Before aliasing, check whether or not name is already defined as a command or
+# an alias before aliasing. Otherwise, let `alias` act as normal.
+
+local flags=()
+while getopts 'fgmsrL' flag; do
+    case $flag in
+        (f)     local force=1;;
+        (g)     flags+='-g';;
+        (+g)    flags+='+g';;
+        (m)     local mopt=1; flags+='-m';;
+        (+m)    local mopt=1; flags+='+m';;
+        (s)     flags+='-s';;
+        (+s)    flags+='+s';;
+        (r)     flags+='-r';;
+        (+r)    flags+='+r';;
+        (L)     flags=+'-L';;
+        (+L)    flags=+'+L';;
+    esac
+done
+shift $(( OPTIND - 1 ))
+# If no argument is provided, the `{+|-}m` flag is present, or the `-f`
+# flag is present, run the `alias` builtin like normal
+if [[ ! $1 || $mopt -eq 1 || $force -eq 1 ]]; then
+    builtin alias $flags $1
+else
+    # Otherwise, check to see if there is another command or alias by the
+    # same name before defining the alias
+    if [[ $(whence "${1%%=*}") ]]; then
+        echo ${1%%=*} 'already defined' >&2
+        return 1
+    else
+        builtin alias $flags $1
+    fi
+fi
