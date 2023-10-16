@@ -3,10 +3,10 @@
 # * `zotero-storage`: turn `match` and `query` into arrays
 # * Consider adding check to `zotero-storage` if any PDFs weren't copied
 # * Add aliases to help with dotfile relocation
+# * Add more tar- and gpg-related functions
+# * Turn remaining functions into scripts
 
 # {{{1 Options and settings
-
-# PATH
 
 setopt extended_glob
 setopt ignore_eof
@@ -16,7 +16,6 @@ setopt rc_quotes
 setopt typeset_silent
 
 # History
-HISTFILE="$XDG_CONFIG_HOME/zsh/.zsh_history"
 HISTSIZE=1200000
 SAVEHIST=1000000
 setopt append_history
@@ -34,77 +33,52 @@ export LESSHISTFILE=-
 
 # Configure gpg-agent
 export GPG_TTY="$(tty)"
-# Use TTY-based pinentry (rather than pinentry-mac) in most cases (glitched
-# for me)
-# export PINENTRY_USER_DATA="USE_CURSES=1"
 
 # Source `fzf` preferences
 source $XDG_CONFIG_HOME/fzf/fzf.zsh
 
-# {{{1 Variables
+# {{{1 Functions
 
-arist="$(kpsewhich aristotelis.sty)"
-bib="$(kpsewhich myLibrary.bib)"
-nvimrc="$XDG_CONFIG_HOME/nvim/init.vim"
-rhelder="$(kpsewhich rhelder.sty)"
-sp="$XDG_CONFIG_HOME/nvim/spell"
-texmf="$HOME/Library/texmf"
-ucb="$HOME/Documents/UCBerkeley"
-vmc="$XDG_CONFIG_HOME/nvim/vimtex_my_complete"
-vtc="$XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete"
-zshrc="$XDG_CONFIG_HOME/zsh/.zshrc"
+autoload $XDG_DATA_HOME/zsh/functions/[^_]*(:t)
 
 # {{{1 Aliases
 
-alias bib="cd $(dirname $bib)"
-alias bt="open $HOME/Documents/budget_2023.xlsx"
-alias Cl="mv ^*.(((tex)|(latex)|(sty)|(bib)|(txt)|(md)|(vim)))(.) $HOME/.Trash"
-alias cl="mv ^*.(((tex)|(latex)|(sty)|(bib)|(txt)|(md)|(vim)|(pdf)))(.) $HOME/.Trash"
-alias ea="nvim $arist"
-alias es="nvim $rhelder"
+alias Cl="trash ^*.(((tex)|(latex)|(sty)|(bib)|(txt)|(md)|(vim)))(.)"
+alias cl="trash ^*.(((tex)|(latex)|(sty)|(bib)|(txt)|(md)|(vim)|(pdf)))(.)"
+alias doc="cd $HOME/Documents"
+alias ea="nvim $(kpsewhich aristotelis.sty)"
+alias ebgt="open $HOME/Documents/budget_2023.xlsx"
+alias ebib="nvim $(kpsewhich myLibrary.bib)"
+alias edf="nvim $XDG_CONFIG_HOME/git/filter-repo/dotfiles"
+alias efzf="nvim $XDG_CONFIG_HOME/fzf/fzf.zsh"
+alias egc="nvim $XDG_CONFIG_HOME/git/config"
+alias egi="nvim $XDG_CONFIG_HOME/git/ignore"
+alias eh='sudo nvim /etc/hosts'
+alias elmk="nvim $XDG_CONFIG_HOME/latexmk/latexmkrc"
+alias es="nvim $(kpsewhich rhelder.sty)"
+alias espd="nvim $XDG_CONFIG_HOME/nvim/spell/en.utf-8.add"
+alias espe="nvim $XDG_CONFIG_HOME/nvim/spell/en.utf-8.add"
 alias ev="nvim $XDG_CONFIG_HOME/nvim/init.vim"
-alias ez="nvim $zshrc"
-alias hf='sudo nvim /etc/hosts'
-alias lqs='open -a skim "$HOME/Documents/Books/lua_quickStart.pdf"'
+alias ez="nvim $XDG_CONFIG_HOME/zsh/.zshrc"
+alias ezh="nvim $HISTFILE"
+alias ezp="nvim $XDG_CONFIG_HOME/zsh/.zprofile"
 alias la='ls -aF'
 alias lua='luajit'
-alias mhd='lsof ''/Volumes/RH Media HD/iTunes/Apple Music Library/Music Library.musiclibrary/Library.musicdb''; \
-     lsof ''/Volumes/RH Media HD/Apple TV/TV Library.tvlibrary/Library.tvdb'''
-alias sp="cd $XDG_CONFIG_HOME/nvim/spell"
-alias sz="source $zshrc"
+alias pd="cd $XDG_DATA_HOME/pandoc"
+alias pdd="cd $XDG_DATA_HOME/pandoc/defaults"
+alias pdt="cd $XDG_DATA_HOME/pandoc/templates"
+alias sz="source $XDG_CONFIG_HOME/zsh/.zshrc"
+alias szp="source $XDG_CONFIG_HOME/zsh/.zprofile"
 alias ucb="cd $HOME/Documents/UCBerkeley"
 alias vcc="trash $HOME/.cache/vimtex/pkgcomplete.json"
 alias vmc="cd $XDG_CONFIG_HOME/nvim/vimtex_my_complete"
 alias vtc="cd $XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete"
+alias xch="cd $XDG_CONFIG_HOME"
+alias xdh="cd $XDG_DATA_HOME"
+alias zf="cd $XDG_DATA_HOME/zsh/functions"
+alias zs="cd $XDG_DATA_HOME/zotero/storage"
 
 # {{{1 Functions
-
-# Execute `cd` and then `ls`
-function cs {
-     cd $* && ls -aF
-}
-
-# Find files to be removed (e.g., when uninstalling an application)
-function ffr {
-     sudo find / ${*:?Expression required.} -print 2>/dev/null > $HOME/rm_files.txt
-}
-
-# Search NeoVim help files from command line
-function nvimh {
-     nvim -c "help $*" -c "only"
-}
-
-# Move a file to Trash
-function trash {
-     mv ${*:?What you want to move to Trash needs to be specified.} $HOME/.Trash
-}
-
-# Extract a `tar` file into a directory of the same name in the parent directory
-function untar {
-     file=${*:?Tarball must be specified.}
-     mkdir ${file%.tar*}
-     tar -xf $file -C ${file%.tar*}
-}
 
 # Open new note
 function nn {
