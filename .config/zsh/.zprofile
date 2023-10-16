@@ -17,6 +17,10 @@
 # Prepend Python 3.11 directory to path
 PATH="/Library/Frameworks/Python.framework/Versions/3.11/bin:${PATH}"
 
-# Set Homebrew environment variables and prepend Homebrew directories to `PATH`,
-# `MANPATH`, and `INFOPATH`
+# Set Homebrew environment variables and prepend Homebrew directories to
+# `PATH`, `MANPATH`, and `INFOPATH`
 eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# Add user function directory to fpath
+export fpath=( $XDG_DATA_HOME/zsh/functions $fpath )
+export FPATH
