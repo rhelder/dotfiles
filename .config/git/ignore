@@ -1,20 +1,10 @@
-/.*/
-
-!/.config/
-/.config/nvim/spell/*.spl
-/.config/zsh/.zsh_history
-
-!/.gnupg/
-/.gnupg/*
-!/.gnupg/gpg-agent.conf
-
-!/.local/
-/.local/*
-!/.local/share/
-/.local/share/*
-!/.local/share/pandoc
-
-
+.CFUserTextEncoding
+.DS_Store
+/.Trash
+/.cache
+/.cups
+/.gnupg_*
+/.ssh
 /Desktop/
 /Documents/
 /Downloads/
@@ -24,6 +14,18 @@
 /Public/
 /Sites/
 
+/.config/nvim/spell/*.spl
+/.config/zsh/.zsh_history
+
+/.gnupg/*
+!/.gnupg/gpg-agent.conf
+
+/.local/*
+!/.local/share/
+/.local/share/*
+!/.local/share/pandoc
+!/.local/share/zsh
+
 /Library/*
 !/Library/texmf/
 /Library/texmf/bibtex/
@@ -31,9 +33,3 @@
 /Library/LaunchAgents/*
 !/Library/LaunchAgents/local*
 
-/Dropbox
-/.zprofile*
-/.zsh_*
-
-.DS_Store
-.CFUserTextEncoding
