@@ -27,7 +27,17 @@ else
     # Otherwise, check to see if there is another command or alias by the
     # same name before defining the alias
     if [[ $(whence "${1%%=*}") ]]; then
-        echo ${1%%=*} 'already defined' >&2
+        # Format argument to match format of output of `alias` command
+        if [[ $1 =~ ' ' ]]; then
+            local pattern=$(echo $1 |
+                sed 's/''/''''/g' |
+                sed -E 's/=(.*)/=''\1''/')
+        else
+            local pattern=$1
+        fi
+        if [[ ! $(alias | grep -F $pattern) ]]; then
+            echo ${1%%=*} 'already defined' >&2
+        fi
         return 1
     else
         builtin alias $flags $1
