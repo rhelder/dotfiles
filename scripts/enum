@@ -1,10 +1,11 @@
 #!/bin/zsh
 
 # Counts number of occurences of each (unique) line in a file and prints the
-# number and the line to stdout
+# number and the line to stdout in reverse numerical order
 
 local entry
 local n
+(
 sort $* | while read; do
     if [[ $entry && $REPLY != $entry ]]; then
         echo $n $entry
@@ -14,3 +15,4 @@ sort $* | while read; do
     ((n = n + 1))
 done
 echo $n $entry
+) | sort -rn
