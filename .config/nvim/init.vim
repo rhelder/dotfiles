@@ -1,6 +1,7 @@
 " To-do
 " * Learn how to map an operator, then use that to change surrounding quotes
 "   (see `map-operator`)
+" * Make changes in accordance with changes to zshrc
 
 " {{{1 Options
 
@@ -290,9 +291,9 @@ augroup nvrimc_key_mappings
                 \ :call <SID>comment('"')<CR>
     autocmd FileType vim vnoremap <buffer> <silent> <LocalLeader>c
                 \ :call <SID>comment('"')<CR>
-    autocmd FileType zsh nnoremap <buffer> <silent> <LocalLeader>c
+    autocmd FileType zsh,conf nnoremap <buffer> <silent> <LocalLeader>c
                 \ :call <SID>comment('#')<CR>
-    autocmd FileType zsh vnoremap <buffer> <silent> <LocalLeader>c
+    autocmd FileType zsh,conf vnoremap <buffer> <silent> <LocalLeader>c
                 \ :call <SID>comment('#')<CR>
     autocmd FileType tex nnoremap <buffer> <silent> <LocalLeader>c
                 \ :call <SID>comment('%')<CR>
@@ -348,8 +349,10 @@ endif
 
 augroup nvimrc_autocommands
     autocmd!
-    " Enter terminal mode when opening terminal
+    " Enter terminal mode and turn off line numbering when opening terminal
     autocmd TermOpen * startinsert
+    autocmd TermOpen * set nonumber
+    autocmd BufRead,BufNewfile $XDG_DATA_HOME/zsh/functions/* set filetype=zsh
 augroup END
 
 " }}}1
