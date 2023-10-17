@@ -5,6 +5,7 @@
 # * Add aliases to help with dotfile relocation
 # * Add more tar- and gpg-related functions
 # * Turn remaining functions into scripts
+# * Consider completion options
 
 # {{{1 Options and settings
 
@@ -19,8 +20,6 @@ setopt typeset_silent
 HISTSIZE=1200000
 SAVEHIST=1000000
 setopt append_history
-setopt hist_expire_dups_first
-setopt hist_ignore_dups
 
 # Set prompt
 PS1="%F{14}%n@%m (%!) %1~ %# %f"
@@ -77,6 +76,16 @@ alias xch="cd $XDG_CONFIG_HOME"
 alias xdh="cd $XDG_DATA_HOME"
 alias zf="cd $XDG_DATA_HOME/zsh/functions"
 alias zs="cd $XDG_DATA_HOME/zotero/storage"
+alias ga='git add'
+alias gd='git diff'
+alias gds='git diff --staged'
+alias gum='git push -u origin main'
+alias gpm='git pull origin main'
+alias gu='git push -u origin'
+alias gp='git pull origin'
+alias restart='unset FPATH && PATH=/bin && exec -l zsh'
+alias gsu='git submodule update --remote --merge'
+alias gc='git commit'
 
 # {{{1 Functions
 
