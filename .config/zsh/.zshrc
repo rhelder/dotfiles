@@ -6,6 +6,8 @@
 # * Add more tar- and gpg-related functions
 # * Turn remaining functions into scripts
 # * Consider completion options
+# * Make shell variables corresponding to aliases (to make `git add` easier)
+# * Add more aliases depending on command usage (use `enum` on histfile)
 
 # {{{1 Options and settings
 
