@@ -1,4 +1,3 @@
-#
 # Before aliasing, check whether or not name is already defined as a command or
 # an alias before aliasing. Otherwise, let `alias` act as normal.
 
@@ -19,27 +18,47 @@ while getopts 'fgmsrL' flag; do
     esac
 done
 shift $(( OPTIND - 1 ))
+
 # If no argument is provided, the `{+|-}m` flag is present, or the `-f`
 # flag is present, run the `alias` builtin like normal
 if [[ ! $1 || $mopt -eq 1 || $force -eq 1 ]]; then
     builtin alias $flags $1
+
 else
-    # Otherwise, check to see if there is another command or alias by the
-    # same name before defining the alias
-    if [[ $(whence "${1%%=*}") ]]; then
-        # Format argument to match format of output of `alias` command
-        if [[ $1 =~ ' ' ]]; then
-            local pattern=$(echo $1 |
-                sed 's/''/''''/g' |
-                sed -E 's/=(.*)/=''\1''/')
-        else
-            local pattern=$1
-        fi
-        if [[ ! $(alias | grep -F $pattern) ]]; then
-            echo ${1%%=*} 'already defined' >&2
-        fi
-        return 1
-    else
+    # Otherwise, check to see if there is another command, function, alias,
+    # etc. by the same name before defining the alias
+    local name="${1%%=*}"
+    local result=$(whence -v $name)
+
+    # If the name is 'not found', define the alias as normal
+    if [[ $result =~ "$name not found" ]]; then
         builtin alias $flags $1
+
+    else
+        # If the result is an alias, only print an error message and return if
+        # an alias by the same name has been defined earlier in `.zshrc`.
+        # Otherwise, `alias` will throw an error for every existing alias in
+        # `.zshrc` whenever `.zshrc` is re-sourced, and it will refuse to
+        # redefine existing aliases that the user is trying to change. This
+        # way, an error only occurs if the user tries to use the same alias
+        # name twice. Right now, aliases are only defined in `.zshrc` (with the
+        # exception of `which-command`, which I don't care about), so only
+        # `.zshrc` is checked.
+        if [[ $result =~ "$name is an alias" ]]; then
+            if [[ $(cat $XDG_CONFIG_HOME/zsh/.zshrc |
+                head -$(( ${funcfiletrace[(r)*zshrc*]##*:} - 1 )) |
+                grep "alias $name=") ]]; then
+                echo $name 'already defined' >&2
+                return 1
+            else
+                builtin alias $flags $1
+            fi
+
+        else
+            # If the result is anything other than an alias, print an error
+            # message and return
+            echo $name 'already defined' >&2
+            return 1
+        fi
     fi
 fi
