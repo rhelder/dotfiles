@@ -14,15 +14,16 @@
 #   setting the path in `.zprofile`.
 
 
-# Prepend Python 3.11 directory to path
-PATH="/Library/Frameworks/Python.framework/Versions/3.11/bin:${PATH}"
+# Prepend Python 3.11 directory to `PATH`
+path=( /Library/Frameworks/Python.framework/Versions/3.11/bin $path )
 
 # Set Homebrew environment variables and prepend Homebrew directories to
 # `PATH`, `MANPATH`, and `INFOPATH`
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-# Add user function directory to fpath
-export fpath=( $XDG_DATA_HOME/zsh/functions $fpath )
+# Add user function directory to `FPATH`
+fpath=( $XDG_DATA_HOME/zsh/functions $fpath )
 export FPATH
 
+# Prepend user executable directory to `PATH`
 path=( $HOME/.local/bin $path )
