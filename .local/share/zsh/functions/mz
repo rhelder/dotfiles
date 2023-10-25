@@ -1,3 +1,5 @@
+# Without arguments, open `zshall`; with argument, open `zsh<arg>`
+
 if [[ $1 ]]; then
     man zsh$1
 else
