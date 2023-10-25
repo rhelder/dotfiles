@@ -1,7 +1,10 @@
 # Move files to Trash
 
 # Before proceeding, check that arguments were passed
-[[ ! $* ]] && echo 'Error: argument required' >&2
+if [[ ! $* ]]; then
+    echo 'Error: argument required' >&2
+    return 1
+fi
 
 # Since `rc`-style parameter expansion is crucial but is not the `zsh` default,
 # make sure it is set for this function
