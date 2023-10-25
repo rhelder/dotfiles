@@ -24,3 +24,5 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 # Add user function directory to fpath
 export fpath=( $XDG_DATA_HOME/zsh/functions $fpath )
 export FPATH
+
+path=( $HOME/.local/bin $path )
