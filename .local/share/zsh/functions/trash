@@ -1,0 +1,17 @@
+# Move files to Trash
+
+# Before proceeding, check that arguments were passed
+[[ ! $* ]] && echo 'Error: argument required' >&2
+
+# Since `rc`-style parameter expansion is crucial but is not the `zsh` default,
+# make sure it is set for this function
+setopt local_options
+setopt rc_expand_param
+
+# Format arguments for use as POSIX file objects in AppleScript
+local files=( POSIX\ file\ \"${*:a}\" )
+
+# Run AppleScript, joining `files` array into string, with elements separated
+# by commas and spaces
+osascript -e \
+    "tell application \"Finder\" to delete (${(j:, :)files})" > /dev/null
