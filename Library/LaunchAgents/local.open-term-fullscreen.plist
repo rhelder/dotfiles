@@ -5,7 +5,7 @@
         <key>Label</key>
         <string>local.open-term-fullscreen</string>
         <key>Program</key>
-        <string>/Users/rhelder/scripts/open-term-fullscreen</string>
+        <string>/Users/rhelder/.local/bin/open-term-fullscreen</string>
         <key>RunAtLoad</key>
         <true/>
     </dict>
