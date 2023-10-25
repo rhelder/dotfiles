@@ -263,6 +263,7 @@ iabbrev nd              and
 iabbrev sya             say
 iabbrev teh             the
 iabbrev fo              of
+iabbrev wrold           world
 
 " }}}1
 " {{{1 Autocommands
@@ -352,7 +353,8 @@ augroup nvimrc_autocommands
     " Enter terminal mode and turn off line numbering when opening terminal
     autocmd TermOpen * startinsert
     autocmd TermOpen * set nonumber
-    autocmd BufRead,BufNewfile $XDG_DATA_HOME/zsh/functions/* set filetype=zsh
+    autocmd BufReadPost,BufNewFile $XDG_DATA_HOME/zsh/functions/*   set filetype=zsh
+    autocmd BufReadPost,BufNewFile $XDG_DATA_HOME/bin/*             set filetype=zsh
 augroup END
 
 " }}}1
