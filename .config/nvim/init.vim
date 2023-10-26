@@ -280,7 +280,7 @@ augroup nvimrc_filetype_defaults
     autocmd BufWinEnter COMMIT_EDITMSG  setlocal nosmartindent textwidth=72
     autocmd FileType text,markdown,tex  setlocal nosmartindent
     autocmd FileType zsh                setlocal iskeyword+=-
-    autocmd FileType markdown           source ~/scripts/mdView/mdView.vim
+    " autocmd FileType markdown           source ~/scripts/mdView/mdView.vim
 augroup END
 
 " {{{2 Mappings
