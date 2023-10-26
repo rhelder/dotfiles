@@ -6,34 +6,31 @@
 set -e
 
 if [[ ! $1 ]]; then
-    echo Error: please enter name of target repository
+    echo 'Error: please enter name of target repository' >&2
     exit 1
 elif [[ ! -f $XDG_CONFIG_HOME/git/filter-repo/$1 ]]; then
-    echo Error: $XDG_CONFIG_HOME/git/filter-repo/$1 does not exist
+    echo "Error: $XDG_CONFIG_HOME/git/filter-repo/$1 does not exist" >&2
     exit 1
 fi
 
-echo Cloning...
-cd $HOME/Documents # Exit the scope of the home repository
+echo 'Cloning...'
 git clone https://github.com/rhelder/rhelder.git --recurse-submodules
 cd rhelder
 
-echo Filtering...
-if [[ $(git rev-parse --show-toplevel) == /Users/rhelder \
-    || $(pwd) != $HOME/Documents/rhelder ]]; then
-    echo Error: proceeding might rewrite the history of another repository \
-        because you are in the wrong directory |
-        fmt -79
+echo 'Filtering...'
+# Make sure that we are *not* in the home repository
+if [[ $(git rev-parse --show-toplevel) == /Users/rhelder ]]; then
+    echo 'Error: proceeding will rewrite history of home repository' >&2
     exit 1
 fi
 # Exclude selected files
 git filter-repo --invert-paths --paths-from-file \
     $XDG_CONFIG_HOME/git/filter-repo/$1
 
-echo Pushing...
+echo 'Pushing...'
 git remote add origin https://github.com/rhelder/$1.git
 git push origin main
 
-echo Cleaning up...
+echo 'Cleaning up...'
 cd ..
 sudo rm -r rhelder
