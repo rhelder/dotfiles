@@ -47,6 +47,7 @@ autoload untar
 
 # {{{1 Aliases
 
+alias bin="cd $HOME/.local/bin"
 alias Cl="ts ^*.(((tex)|(latex)|(sty)|(bib)|(txt)|(md)|(vim)))(.)"
 alias cl="ts ^*.(((tex)|(latex)|(sty)|(bib)|(txt)|(md)|(vim)|(pdf)))(.)"
 alias doc="cd $HOME/Documents"
@@ -107,6 +108,7 @@ alias zf="cd $XDG_DATA_HOME/zsh/functions"
 # {{{1 Shell variables
 
 a=$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty
+bin=$HOME/.local/bin
 df=$XDG_CONFIG_HOME/git/filter-repo/dotfiles
 doc=$HOME/Documents
 fzf=$XDG_CONFIG_HOME/fzf/fzf.zsh
