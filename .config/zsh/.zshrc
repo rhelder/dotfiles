@@ -72,6 +72,8 @@ alias gbD='git branch -D'
 alias gc='git commit'
 alias gd='git diff'
 alias gds='git diff --staged'
+alias gl='git log --pretty=short'
+alias gll='git log'
 alias gpo='git pull origin'
 alias gpom='git pull origin main'
 alias gpuo='git push -u origin'
@@ -106,6 +108,7 @@ alias zf="cd $XDG_DATA_HOME/zsh/functions"
 
 a=$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty
 df=$XDG_CONFIG_HOME/git/filter-repo/dotfiles
+doc=$HOME/Documents
 fzf=$XDG_CONFIG_HOME/fzf/fzf.zsh
 gc=$XDG_CONFIG_HOME/git/config
 gi=$XDG_CONFIG_HOME/git/ignore
