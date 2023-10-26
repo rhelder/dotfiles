@@ -152,41 +152,6 @@ function nj {
     cd - > /dev/null
 }
 
-# Filter my private repo and push the filtered repo to a new remote (e.g., for
-# publishing part of my private repo as a public repo)
-function github-publish {
-     trap 'return 1' ERR
-     if [[ ! $1 ]]; then
-	  echo Error: please enter name of target repository
-	  return 1
-     elif [[ ! -a $HOME/.github/$1 ]]; then
-	  echo Error: $HOME/.github/$1 does not exist
-	  return 1
-     fi
-
-     echo Cloning:
-     local dir=$(pwd)
-     git clone https://github.com/rhelder/rhelder.git --recurse-submodules
-     cd rhelder
-
-     echo Filtering:
-     if [[ $(git rev-parse --show-toplevel) == /Users/rhelder \
-	  || $(pwd) != $dir/rhelder ]]; then
-	  echo Error: proceeding might rewrite the history of another repository \
-	       because you are in the wrong directory
-	  return 1
-     fi
-     git filter-repo --paths-from-file $XDG_CONFIG_HOME/git/filter-repo/$1
-
-     echo Pushing:
-     git remote add origin https://github.com/rhelder/$1.git
-     git push origin main $2
-
-     echo Cleaning up
-     cd ..
-     sudo rm -r rhelder
-}
-
 # Clone my `vimtex_my_complete` repository into VimTeX's completion file
 # directory
 function vmc-clone {
