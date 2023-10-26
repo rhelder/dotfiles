@@ -1,9 +1,9 @@
 .CFUserTextEncoding
 .DS_Store
-/.Trash
-/.cache
-/.cups
-/.gnupg_*
+/.Trash/
+/.cache/
+/.cups/
+/.gnupg_*/
 /.ssh
 /Desktop/
 /Documents/
@@ -32,4 +32,3 @@
 !/Library/LaunchAgents
 /Library/LaunchAgents/*
 !/Library/LaunchAgents/local*
-
