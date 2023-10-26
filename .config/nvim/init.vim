@@ -354,7 +354,7 @@ augroup nvimrc_autocommands
     autocmd TermOpen * startinsert
     autocmd TermOpen * set nonumber
     autocmd BufReadPost,BufNewFile $XDG_DATA_HOME/zsh/functions/*   set filetype=zsh
-    autocmd BufReadPost,BufNewFile $XDG_DATA_HOME/bin/*             set filetype=zsh
+    autocmd BufReadPost,BufNewFile $HOME/.local/bin/*               set filetype=zsh
 augroup END
 
 " }}}1
