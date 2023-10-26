@@ -1,4 +1,4 @@
 # dotfiles
 
-This repository contains my personal configuration files, as well as some very
-basic scripts.
+This repository contains my personal configuration files, data files, and
+scripts.
