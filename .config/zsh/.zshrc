@@ -36,7 +36,14 @@ source $XDG_CONFIG_HOME/fzf/fzf.zsh
 
 # {{{1 Functions
 
-autoload $XDG_DATA_HOME/zsh/functions/[^_]*(:t)
+autoload alias
+autoload cs
+autoload mktar
+autoload mz
+autoload nvim-help
+autoload trash
+autoload untar
+
 
 # {{{1 Aliases
 
