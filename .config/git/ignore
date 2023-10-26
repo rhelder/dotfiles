@@ -21,6 +21,7 @@
 !/.gnupg/gpg-agent.conf
 
 /.local/*
+!/.local/bin/
 !/.local/share/
 /.local/share/*
 !/.local/share/pandoc
