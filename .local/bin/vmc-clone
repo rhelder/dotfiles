@@ -1,0 +1,37 @@
+#!/bin/zsh
+
+# Clone my `vimtex_my_complete` repository into VimTeX's completion file
+# directory
+
+set -e
+vtc=$XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete
+
+echo Cloning...
+cd $vtc
+git clone https://github.com/rhelder/vimtex_my_complete.git
+cd vimtex_my_complete
+
+echo Filtering...
+# Make sure that we are in the right directory
+if [[ $(git rev-parse --show-toplevel) != $vtc/vimtex_my_complete ]]; then
+    echo 'Error: proceeding will rewrite history of another repository' >&2
+    exit 1
+fi
+# Exclude selected files
+git filter-repo --invert-paths --paths-from-file \
+    $XDG_CONFIG_HOME/git/filter-repo/vmc-clone
+
+echo Unpacking...
+cd ..
+# Make sure that we are in the right directory
+if [[ $(pwd) != $vtc ]]; then
+    echo 'Error: proceeding will delete history of another repository' >&2
+    exit 1
+fi
+[[ -d .git ]] && sudo rm -r .git # Delete `.git` before replacing
+mv vimtex_my_complete/(.*|*) .
+
+echo Cleaning up...
+rmdir vimtex_my_complete
+
+echo Done.
