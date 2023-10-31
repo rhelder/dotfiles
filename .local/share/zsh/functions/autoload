@@ -1,0 +1,90 @@
+# Before autoloading, check whether or not name is already defined as a
+# command, function, alias, etc. before. If not, let `autoload` act as normal.
+# Also undefine function before loading so that changes to the function can be
+# loaded whenever user sources `.zshrc`.
+
+local flags=()
+while getopts 'fRTUXdkmrtWz' flag; do
+    case $flag in
+        (f)     local force=1;;
+        (R)     flags+='-R';;
+        (+R)    flags+='+R';;
+        (T)     flags+='-T';;
+        (+T)    flags+='+T';;
+        (U)     flags+='-U';;
+        (+U)    flags+='+U';;
+        (X)     flags+='-X';;
+        (+X)    flags+='+X';;
+        (d)     flags+='-d';;
+        (+d)    flags+='+d';;
+        (k)     flags+='-k';;
+        (+k)    flags+='+k';;
+        (m)     flags+='-m';;
+        (+m)    flags+='+m';;
+        (r)     flags+='-r';;
+        (+r)    flags+='+r';;
+        (t)     flags+='-t';;
+        (+t)    flags+='+t';;
+        (W)     flags+='-W';;
+        (+W)    flags+='+W';;
+        (z)     flags+='-z';;
+        (+z)    flags+='+z';;
+    esac
+done
+shift $(( OPTIND - 1 ))
+
+# If no argument is provided, or the `-f` flag is present, run the `autoload`
+# builtin like normal.
+if [[ ! $1 ]]; then
+    builtin autoload $flags $*
+elif (( force == 1 )); then
+    # If the `-f` flag is present, also undefine the function first, so that
+    # any changes can be loaded whenever `.zshrc` is sourced.
+    unfunction $* 2>/dev/null
+    builtin autoload $flags $*
+
+else
+    local name
+    local result
+    for name in $*; do
+        # Check to see if there is another command, function, alias, etc. by
+        # the same name before defining the alias
+        result=$(whence -w $name)
+
+        # If the name is 'not found', autoload the function as normal
+        if [[ ${result##*: }  == 'none' ]]; then
+            builtin autoload $flags $name
+        else
+            # If the result is a function, search `fpath`. If `name` matches
+            # more than one item, then we are giving the function we are trying
+            # to autoload the same name as another function; therefore, print
+            # an error and return. If `name` matches only one item, then it
+            # must be the function we are trying to autoload, so autoload the
+            # function as normal. (If zero items are matched, that's an error,
+            # so run `autoload` as normal to handle the error). In order that
+            # any changes can be loaded whenever `.zshrc` is sourced, undefine
+            # the function before autoloading.
+            if [[ ${result##*: } == 'function' ]]; then
+                num=$(
+                for dir in $fpath; do
+                    find $dir -name $name -print 2>/dev/null
+                done | wc -l
+                )
+                if (( num > 1 )); then
+                    echo $name 'already defined' >&2
+                    return 1
+                elif (( num == 1 )); then
+                    unfunction $name
+                    builtin autoload $flags $name
+                elif (( num == 0 )); then
+                    builtin autoload $flags $name
+                fi
+            else
+                # If the result is anything else, print an error message and
+                # return
+                echo $name 'already defined' >&2
+                return 1
+            fi
+        fi
+    done
+fi
