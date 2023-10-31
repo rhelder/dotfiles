@@ -1,7 +1,5 @@
 # to-do
-# * `zotero-storage`: turn `match` and `query` into arrays
-# * Consider adding check to `zotero-storage` if any PDFs weren't copied
-# * Add more tar- and gpg-related functions
+# * Add gpg-related functions
 # * Turn remaining functions into scripts
 # * Consider completion options
 
@@ -36,7 +34,20 @@ source $XDG_CONFIG_HOME/fzf/fzf.zsh
 
 # {{{1 Functions
 
-autoload alias
+# Redefine `autoload` and `alias`
+
+# If `autoload` has already been redefined, use `-f` flag so that any changes
+# made by user are loaded
+if [[ ${"$(whence -w autoload)"##*: } == 'function' ]]; then
+    autoload -f autoload
+else
+    # Otherwise, load function definition
+    autoload autoload
+fi
+
+autoload -f alias
+
+# Load other user functions
 autoload cs
 autoload mktar
 autoload mz
@@ -44,8 +55,21 @@ autoload nvim-help
 autoload trash
 autoload untar
 
+# Install run-help
+[[ ${"$(whence -w run-help)"##*: } == 'alias' ]] && unalias run-help
+autoload -Uz run-help
+autoload -Uz run-help-git
+export HELPDIR='/usr/share/zsh/5.9/help'
+
+dummy() {
+    echo $funcfiletrace
+}
 
 # {{{1 Aliases
+
+# Define/clear `zshrc_aliases` array used by `alias` function to make sure that
+# the same alias name is not used twice
+zshrc_aliases=()
 
 alias bin="cd $HOME/.local/bin"
 alias Cl="ts ^*.(((tex)|(latex)|(sty)|(bib)|(txt)|(md)|(vim)))(.)"
@@ -121,6 +145,8 @@ s=$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty
 spd=$XDG_CONFIG_HOME/nvim/spell/de.utf-8.add
 spe=$XDG_CONFIG_HOME/nvim/spell/en.utf-8.add
 v=$XDG_CONFIG_HOME/nvim/init.vim
+vmc=$XDG_CONFIG_HOME/nvim/vimtex_my_complete
+vtc=$XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete
 xch=$XDG_CONFIG_HOME
 xdh=$XDG_DATA_HOME
 z=$XDG_CONFIG_HOME/zsh/.zshrc
@@ -151,52 +177,5 @@ function nj {
     fi
     cd - > /dev/null
 }
-
-# Clone my `vimtex_my_complete` repository into VimTeX's completion file
-# directory
-function vmc-clone {
-     trap 'return 1' ERR
-
-     echo Cloning:
-     cd $XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete
-     git clone https://github.com/rhelder/vimtex_my_complete.git
-     cd vimtex_my_complete
-
-     echo Filtering:
-     if [[ $(pwd) != $XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete/vimtex_my_complete ]]; then
-          echo Error: proceeding might rewrite the history of another repository \
-               because you are in the wrong directory
-          return 1
-     fi
-     git filter-repo --invert-paths --path README.md --path texstudio_my_cwls
-
-     echo Unpacking:
-     cd ..
-     if [[ $(pwd) != $XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete ]]; then
-          echo Error: obsolete .git directory cannot be deleted and replaced \
-               because you are in the wrong directory
-          return 1
-     fi
-     [[ -d .git ]] && sudo rm -r .git
-     mv vimtex_my_complete/(.*|*) .
-
-     echo Cleaning up:
-     rmdir vimtex_my_complete
-}
-
-# Install run-help
-if [[ $(alias -m run-help) != '' ]]
-     then unalias run-help
-fi
-autoload -Uz run-help
-autoload -Uz run-help-git
-# Set Neovim as pager for run-help
-# functions -c run-help run-help-def
-# function run-help {
-#      local HELPDIR='/usr/share/zsh/5.9/help'
-#      local PAGER='nvim +silent!Man!'
-#      run-help-def $*
-# }
-local HELPDIR='/usr/share/zsh/5.9/help'
 
 # }}}1
