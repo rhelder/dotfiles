@@ -72,8 +72,8 @@ dummy() {
 zshrc_aliases=()
 
 alias bin="cd $HOME/.local/bin"
-alias Cl="ts ^*.(((tex)|(latex)|(sty)|(bib)|(txt)|(md)|(vim)))(.)"
-alias cl="ts ^*.(((tex)|(latex)|(sty)|(bib)|(txt)|(md)|(vim)|(pdf)))(.)"
+alias Cl="ts ^*.(((tex)|(latex)|(sty)|(dtx)|(bib)|(txt)|(md)|(vim)))(.)"
+alias cl="ts ^*.(((tex)|(latex)|(sty)|(dtx)|(bib)|(txt)|(md)|(vim)|(pdf)))(.)"
 alias doc="cd $HOME/Documents"
 alias ea="nvim $HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
 alias ebib="nvim $(kpsewhich myLibrary.bib)"
@@ -84,6 +84,7 @@ alias egc="nvim $XDG_CONFIG_HOME/git/config"
 alias egi="nvim $XDG_CONFIG_HOME/git/ignore"
 alias eh='sudo nvim /etc/hosts'
 alias elmk="nvim $XDG_CONFIG_HOME/latexmk/latexmkrc"
+alias erhc="nv $HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
 alias es="nvim $HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
 alias espd="nvim $XDG_CONFIG_HOME/nvim/spell/de.utf-8.add"
 alias espe="nvim $XDG_CONFIG_HOME/nvim/spell/en.utf-8.add"
@@ -92,8 +93,8 @@ alias ez="nvim $XDG_CONFIG_HOME/zsh/.zshrc"
 alias ezh="nvim $HISTFILE"
 alias ezp="nvim $XDG_CONFIG_HOME/zsh/.zprofile"
 alias ga='git add'
-alias gbd='git branch -d'
 alias gbD='git branch -D'
+alias gbd='git branch -d'
 alias gc='git commit'
 alias gd='git diff'
 alias gds='git diff --staged'
@@ -120,6 +121,7 @@ alias pdt="cd $XDG_DATA_HOME/pandoc/templates"
 alias restart='unset FPATH && PATH=/bin && exec -l zsh'
 alias sz="source $XDG_CONFIG_HOME/zsh/.zshrc"
 alias szp="source $XDG_CONFIG_HOME/zsh/.zprofile"
+alias td='texdoc'
 alias ts='trash'
 alias ucb="cd $HOME/Documents/UCBerkeley"
 alias vcc="ts $XDG_CACHE_HOME/vimtex/pkgcomplete.json"
@@ -128,6 +130,7 @@ alias vtc="cd $XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete"
 alias xch="cd $XDG_CONFIG_HOME"
 alias xdh="cd $XDG_DATA_HOME"
 alias zf="cd $XDG_DATA_HOME/zsh/functions"
+alias tdc="nv $HOME/Library/texmf/texdoc/texdoc.cnf"
 
 # {{{1 Shell variables
 
@@ -141,9 +144,11 @@ gi=$XDG_CONFIG_HOME/git/ignore
 lmk=$XDG_CONFIG_HOME/latexmk/latexmkrc
 pdd=$XDG_DATA_HOME/pandoc/defaults
 pdt=$XDG_DATA_HOME/pandoc/templates
+rhc=$HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls
 s=$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty
 spd=$XDG_CONFIG_HOME/nvim/spell/de.utf-8.add
 spe=$XDG_CONFIG_HOME/nvim/spell/en.utf-8.add
+ucb=$HOME/Documents/UCBerkeley
 v=$XDG_CONFIG_HOME/nvim/init.vim
 vmc=$XDG_CONFIG_HOME/nvim/vimtex_my_complete
 vtc=$XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete
@@ -152,6 +157,7 @@ xdh=$XDG_DATA_HOME
 z=$XDG_CONFIG_HOME/zsh/.zshrc
 zf=$XDG_DATA_HOME/zsh/functions
 zp=$XDG_CONFIG_HOME/zsh/.zprofile
+tdc=$HOME/Library/texmf/texdoc/texdoc.cnf
 
 # {{{1 Functions
 
