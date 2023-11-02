@@ -71,6 +71,10 @@ nnoremap <Leader>t <Cmd>vsplit<CR><Cmd>terminal<CR>
 " Switch off search highlighting
 nnoremap <silent> <Leader><Esc> <Cmd>noh<CR>
 
+" Toggle `colorcolumn` on and off
+nnoremap <buffer><expr> <Leader>w &colorcolumn ==# '' ?
+            \ "<Cmd>set colorcolumn=+1<CR>" : "<Cmd>set colorcolumn=<CR>"
+
 " Spell check
 nnoremap <Leader>sl         :set spelllang=<C-R>=&spelllang<CR>
 nnoremap <Leader>sp         <Cmd>set spell!<CR>
@@ -104,6 +108,8 @@ nnoremap <Leader>[ viw<Esc>`<i[<Esc>`>la]<Esc>%
 nnoremap <Leader>] viw<Esc>`<i[<Esc>`>la]<Esc>%
 nnoremap <Leader>( viw<Esc>`<i(<Esc>`>la)<Esc>
 nnoremap <Leader>) viw<Esc>`<i(<Esc>`>la)<Esc>
+nnoremap <Leader>< viw<Esc>`<i<<Esc>`>la><Esc>%
+nnoremap <Leader>> viw<Esc>`<i<<Esc>`>la><Esc>%
 nnoremap <Leader>" viw<Esc>`<i"<Esc>`>la"<Esc>
 nnoremap <Leader>' viw<Esc>`<i'<Esc>`>la'<Esc>
 nnoremap <Leader>` viw<Esc>`<i`<Esc>`>la`<Esc>
@@ -113,6 +119,8 @@ vnoremap <Leader>[ <Esc>`<i[<Esc>`>la]<Esc>%
 vnoremap <Leader>] <Esc>`<i[<Esc>`>la]<Esc>%
 vnoremap <Leader>( <Esc>`<i(<Esc>`>la)<Esc>
 vnoremap <Leader>) <Esc>`<i(<Esc>`>la)<Esc>
+vnoremap <Leader>< <Esc>`<i<<Esc>`>la><Esc>%
+vnoremap <Leader>> <Esc>`<i<<Esc>`>la><Esc>%
 vnoremap <Leader>" <Esc>`<i"<Esc>`>la"<Esc>
 vnoremap <Leader>' <Esc>`<i'<Esc>`>la'<Esc>
 vnoremap <Leader>` <Esc>`<i`<Esc>`>la`<Esc>
@@ -273,8 +281,8 @@ augroup nvimrc_filetype_defaults
     autocmd!
     autocmd FileType markdown           setlocal formatoptions-=l
     autocmd FileType csv                setlocal formatoptions-=tc
-    autocmd FileType tex                setlocal formatoptions-=tc
-    autocmd FileType tex                setlocal formatoptions+=l
+    autocmd FileType tex                setlocal formatoptions-=t
+    autocmd FileType tex                setlocal formatoptions+=orl
     autocmd FileType text,markdown      setlocal nonumber textwidth=78
     autocmd FileType text,markdown,tex  setlocal linebreak
     autocmd BufWinEnter COMMIT_EDITMSG  setlocal nosmartindent textwidth=72
@@ -530,6 +538,12 @@ let g:vimtex_indent_lists = [
             \ 'enumerate',
             \ 'thebibliography',
             \ 'outline',
+            \ 'education',
+            \ 'research',
+            \ 'papers',
+            \ 'talks',
+            \ 'awards',
+            \ 'service',
             \]
 
 " Make Vim regain focus after inverse search
