@@ -513,7 +513,6 @@ call plug#end()
 let g:vimtex_compiler_latexmk_engines = {'_' : '-xelatex'}
 let g:vimtex_complete_close_braces = 1
 let g:vimtex_view_method = 'skim'
-let g:vimtex_view_skim_sync = 1
 let g:vimtex_view_skim_reading_bar = 1
 
 " Indent after `[` and `]`, not just `{` and `}`
