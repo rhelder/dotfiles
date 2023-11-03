@@ -22,6 +22,68 @@
 \RequirePackage[chicago]{xellipsis}
 \RequirePackage[shortcuts]{extdash}
 
+% {{{2 geometry
+
+% Under usual circumstances (i.e., if the class is one of the standard classes,
+% and the layout is one-sided and in one column, and the paper size is letter),
+% load `geometry` with margins depending on the font size
+
+% If one of the standard classes is loaded, set `@standardclass` flag to true
+\newbool{@standardclass}
+\@ifclassloaded{article}{
+    \booltrue{@standardclass}
+}{
+    \@ifclassloaded{report}{
+        \booltrue{@standardclass}
+    }{
+        \@ifclassloaded{book}{
+            \booltrue{@standardclass}
+        }{}
+    }
+}
+
+% Set standard lengths against which to compare the actual paper width and
+% height
+\newlength{\letterheight}
+\setlength{\letterheight}{11in}
+\newlength{\letterwidth}
+\setlength{\letterwidth}{8.5in}
+
+\if@standardclass
+    \ifdim \paperheight=\letterheight
+        \ifdim \paperwidth=\letterwidth
+            \if@twoside
+            \else
+                \if@twocolumn
+                \else
+                    \ifx \f@size \@xiipt
+                        \RequirePackage[
+                            vmarginratio=9:10,
+                            hmargin=1.55in,
+                        ]{geometry}
+                    \else
+                        \ifx \f@size \@xipt
+                            \RequirePackage[
+                                vmarginratio=9:10,
+                                hmargin=1.78in,
+                            ]{geometry}
+                        \else
+                            \ifx \f@size \@xpt
+                                \RequirePackage[
+                                    vmarginratio=9:10,
+                                    hmargin=2in,
+                                ]{geometry}
+                            \fi
+                        \fi
+                    \fi
+                \fi
+            \fi
+        \fi
+    \fi
+\fi
+
+% }}}2
+
 % {{{1 Options
 
 % {{{2 Declare options
@@ -264,5 +326,3 @@
 \NewDocumentCommand{\Phantasiai}{}{\alialingua{latin}{Phantasiai}}
 
 % }}}1
-
-\endinput
