@@ -1,0 +1,13 @@
+#!/bin/zsh
+
+# Open new journal entry, or today's journal entry, if it already exists. If
+# the journal entry is new, name the file after today's date, and put today's
+# date at the first line of the file.
+
+cd $HOME/Documents/Notes
+if [[ -f $(date "+%F").txt ]]; then
+    nvim $(date "+%F").txt
+else
+    nvim -c 'execute "edit " .. strftime("%F") .. ".txt"' \
+        -c 'execute "normal i" .. strftime("%A, %B %e, %Y") .. "\<Esc>"'
+fi
