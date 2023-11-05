@@ -1,7 +1,7 @@
 #!/bin/zsh
 
-# Filter my private repo and push the filtered repo to a new remote (e.g., for
-# publishing part of my private repo as a public repo)
+# Filter my home repository and push the filtered repository to a new remote
+# (e.g., for publishing part of my home repository as a public repository)
 
 set -e
 

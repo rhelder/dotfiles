@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-# Counts number of occurences of each (unique) line in a file and prints the
+# Count number of occurences of each (unique) line in a file and print the
 # number and the line to stdout in reverse numerical order
 
 local entry
