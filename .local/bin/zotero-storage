@@ -1,7 +1,13 @@
 #!/bin/zsh
 
-# Create Zotero storage library and rename directories and files in accordance
-# with bibtex key
+# Create and maintain local Zotero storage library. If they do not already
+# exist, create a directory for every item in `myLibrary.bib`, which contains
+# my entire Zotero library. Name the directories after the BibLaTeX keys. Name
+# any files in the directories after the directories (and any files in
+# subdirectories after both the directory and the subdirectory). In this way,
+# automatically rename every file in local storage with a unique name and
+# according to a standard naming convention.
+
 # To-do: replace rg with grep
 # To-do: build associative array by parsing `bib` file
 

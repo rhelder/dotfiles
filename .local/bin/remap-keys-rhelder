@@ -1,9 +1,9 @@
 #!/bin/zsh
 
-# Sets my custom key mappings, using method documented at:
+# Set custom key mappings, using the method documented at:
 # https://developer.apple.com/library/archive/technotes/tn2450/_index.html.
-# The general idea is to mimic convenient features of ADM-3A terminal.
-# This script is run at login by the launch agent:
+# The general idea is to mimic convenient features of ADM-3A terminal. To be
+# run at login by the launch agent:
 # ~/Library/LaunchAgents/local.remap-keys-rhelder.plist
 
 # Remap keys in the following order:
