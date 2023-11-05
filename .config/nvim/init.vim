@@ -72,8 +72,10 @@ nnoremap <Leader>t <Cmd>vsplit<CR><Cmd>terminal<CR>
 nnoremap <silent> <Leader><Esc> <Cmd>noh<CR>
 
 " Toggle `colorcolumn` on and off
-nnoremap <buffer><expr> <Leader>w &colorcolumn ==# '' ?
-            \ "<Cmd>set colorcolumn=+1<CR>" : "<Cmd>set colorcolumn=<CR>"
+nnoremap <expr> <Leader>w
+            \ &colorcolumn ==# '' ?
+            \ "<Cmd>setlocal colorcolumn=+1<CR>" :
+            \ "<Cmd>setlocal colorcolumn=<CR>"
 
 " Spell check
 nnoremap <Leader>sl         :set spelllang=<C-R>=&spelllang<CR>
