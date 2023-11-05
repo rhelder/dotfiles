@@ -1,6 +1,5 @@
 # to-do
 # * Add gpg-related functions
-# * Turn remaining functions into scripts
 # * Consider completion options
 
 # {{{1 Options and settings
@@ -112,6 +111,8 @@ alias gswc='git switch -c'
 alias la='ls -aF'
 alias lua='luajit'
 alias m='man'
+alias nj='new-journal'
+alias nn='new-note'
 alias nv='nvim'
 alias nvh='nvim-help'
 alias o='open'
@@ -122,6 +123,7 @@ alias restart='unset FPATH && PATH=/bin && exec -l zsh'
 alias sz="source $XDG_CONFIG_HOME/zsh/.zshrc"
 alias szp="source $XDG_CONFIG_HOME/zsh/.zprofile"
 alias td='texdoc'
+alias tdc="nv $HOME/Library/texmf/texdoc/texdoc.cnf"
 alias ts='trash'
 alias ucb="cd $HOME/Documents/UCBerkeley"
 alias vcc="ts $XDG_CACHE_HOME/vimtex/pkgcomplete.json"
@@ -130,7 +132,6 @@ alias vtc="cd $XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete"
 alias xch="cd $XDG_CONFIG_HOME"
 alias xdh="cd $XDG_DATA_HOME"
 alias zf="cd $XDG_DATA_HOME/zsh/functions"
-alias tdc="nv $HOME/Library/texmf/texdoc/texdoc.cnf"
 
 # {{{1 Shell variables
 
@@ -159,29 +160,5 @@ zf=$XDG_DATA_HOME/zsh/functions
 zp=$XDG_CONFIG_HOME/zsh/.zprofile
 tdc=$HOME/Library/texmf/texdoc/texdoc.cnf
 
-# {{{1 Functions
-
-# Open new note
-function nn {
-    nvim -c 'let name = strftime("%Y%m%d%H%M%S")' \
-        -c 'cd ~/Documents/Notes' \
-        -c 'execute "edit " .. name .. ".md"' \
-        -c 'execute "normal i---\r---\<Esc>"' \
-        -c 'execute "normal Okeywords: \<Esc>"' \
-        -c 'execute "normal Otitle: \<Esc>"' \
-        -c 'execute "normal Oid: " .. name .. "\<Esc>"'
-}
-
-# Open new journal entry
-function nj {
-    cd $HOME/Documents/Notes
-    if [[ -f $(date "+%F").txt ]]; then
-        nvim $(date "+%F").txt
-    else
-        nvim -c 'execute "edit " .. strftime("%F") .. ".txt"' \
-            -c 'execute "normal i" .. strftime("%A, %B %e, %Y") .. "\<Esc>"'
-    fi
-    cd - > /dev/null
-}
 
 # }}}1
