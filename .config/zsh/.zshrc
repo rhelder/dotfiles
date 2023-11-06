@@ -33,17 +33,19 @@ source $XDG_CONFIG_HOME/fzf/fzf.zsh
 
 # {{{1 Functions
 
-# Redefine `autoload` and `alias`
+# Use `autoload` and `alias` functions instead of builtins
 
-# If `autoload` has already been redefined, use `-f` flag so that any changes
-# made by user are loaded
+# If `autoload` has already been loaded, use `-f` flag so that any subsequent
+# changes made to the function itself are loaded
 if [[ ${"$(whence -w autoload)"##*: } == 'function' ]]; then
     autoload -f autoload
 else
+
     # Otherwise, load function definition
     autoload autoload
 fi
 
+alias_zshrc_aliases=() # See `alias` function definition
 autoload -f alias
 
 # Load other user functions
@@ -60,15 +62,7 @@ autoload -Uz run-help
 autoload -Uz run-help-git
 export HELPDIR='/usr/share/zsh/5.9/help'
 
-dummy() {
-    echo $funcfiletrace
-}
-
 # {{{1 Aliases
-
-# Define/clear `zshrc_aliases` array used by `alias` function to make sure that
-# the same alias name is not used twice
-zshrc_aliases=()
 
 alias bin="cd $HOME/.local/bin"
 alias Cl="ts ^*.(((tex)|(latex)|(sty)|(dtx)|(bib)|(txt)|(md)|(vim)))(.)"
@@ -159,6 +153,5 @@ z=$XDG_CONFIG_HOME/zsh/.zshrc
 zf=$XDG_DATA_HOME/zsh/functions
 zp=$XDG_CONFIG_HOME/zsh/.zprofile
 tdc=$HOME/Library/texmf/texdoc/texdoc.cnf
-
 
 # }}}1
