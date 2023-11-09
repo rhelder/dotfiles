@@ -79,7 +79,7 @@ nnoremap <expr> <Leader>w
 
 " Spell check
 nnoremap <Leader>sl         :set spelllang=<C-R>=&spelllang<CR>
-nnoremap <Leader>sp         <Cmd>set spell!<CR>
+nnoremap <Leader>sp         <Cmd>setlocal spell!<CR>
 nnoremap <expr> <Leader>sn  &spell ? "]sz=" : "<Leader>sn"
 nnoremap <expr> <Leader>sN  &spell ? "[sz=" : "<Leader>sN"
 
@@ -267,6 +267,8 @@ endfunction
 " }}}2
 
 " Insert mode abbreviations
+iabbrev assortnment     assortment
+iabbrev snd             and
 iabbrev perseverence    perseverance
 iabbrev ot              to
 iabbrev nd              and
