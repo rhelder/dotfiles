@@ -35,13 +35,10 @@ source $XDG_CONFIG_HOME/fzf/fzf.zsh
 
 # Use `autoload` and `alias` functions instead of builtins
 
-# If `autoload` has already been loaded, use `-f` flag so that any subsequent
-# changes made to the function itself are loaded
-if [[ ${"$(whence -w autoload)"##*: } == 'function' ]]; then
+declare -gi autoload_zshrc_sourced=0
+if [[ $(whence -w autoload) == 'autoload: function' ]]; then
     autoload -f autoload
 else
-
-    # Otherwise, load function definition
     autoload autoload
 fi
 
@@ -114,7 +111,7 @@ alias o='open'
 alias pd="cd $XDG_DATA_HOME/pandoc"
 alias pdd="cd $XDG_DATA_HOME/pandoc/defaults"
 alias pdt="cd $XDG_DATA_HOME/pandoc/templates"
-alias restart='unset FPATH && PATH=/bin && exec -l zsh'
+alias restart='[[ $(jobs) ]] && unset FPATH && PATH=/bin && exec -l zsh'
 alias sz="source $XDG_CONFIG_HOME/zsh/.zshrc"
 alias szp="source $XDG_CONFIG_HOME/zsh/.zprofile"
 alias td='texdoc'
