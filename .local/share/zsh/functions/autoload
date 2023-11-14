@@ -59,12 +59,12 @@ elif (( force == 1 )); then
 
 else
     # If `autoload` is being called in `.zshrc`, and `autoload_zshrc_sourced`
-    # is zero or is not set, then that means `.zshrc` is being sourced at
-    # startup or re-sourced by the user. To prevent an error being thrown for
-    # every function autoloaded in `.zshrc` when `.zshrc` is re-sourced, and so
-    # that any changes made to a function can be loaded the next time the
-    # function is called after `.zshrc` is re-sourced, undefine all functions
-    # in `.zshrc`. Clear the `autoload_zshrc_functions` array so that it can be
+    # is zero, then that means `.zshrc` is being sourced at startup or
+    # re-sourced by the user. To prevent an error being thrown for every
+    # function autoloaded in `.zshrc` when `.zshrc` is re-sourced, and so that
+    # any changes made to a function can be loaded the next time the function
+    # is called after `.zshrc` is re-sourced, undefine all functions in
+    # `.zshrc`. Clear the `autoload_zshrc_functions` array so that it can be
     # rebuilt as `.zshrc` is sourced.
     if (( autoload_zshrc_sourced == 0 )); then
         if [[ $funcfiletrace[(r)$XDG_CONFIG_HOME/zsh/.zshrc*] ]]; then
