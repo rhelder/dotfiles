@@ -1,5 +1,7 @@
 # Extract a `tar` file into a directory of the same name in the parent
 # directory; optionally, trash the `tar` file
+#
+# to-do: more sensible handling of multiple args
 
 if [[ $1 == '--trash' || $1 == '-t' ]]; then
     topt=1

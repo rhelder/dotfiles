@@ -1,5 +1,7 @@
 # Create compressed tarball by the same name as the original file; optionally,
 # trash the original file when done
+#
+# to-do: More sensible handling of multiple args
 
 if [[ $1 == '--trash' || $1 == '-t' ]]; then
     local -i topt=1
