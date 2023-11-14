@@ -1,90 +1,63 @@
 # Before aliasing, check whether or not name is already defined as a command,
 # function, alias, etc. If not, let `alias` act as normal builtin `alias`.
 #
-# Include a line in `.zshrc` clearing the `alias_zshrc_aliases` array before
-# defining any aliases, so that the `alias` function won't throw an error for
-# every alias defined the last time `.zshrc` was sourced. (It is possible to
-# have `alias` check e.g. whether or not it is being called for the first time
-# in `.zshrc`, and if so to clear `alias_zshrc_aliases`, but leaving out this
-# check allows `alias` to run significantly faster).
+# To use this function, include the following line in your `.zshrc` before
+# autoloading:
+#
+# declare -gi alias_zshrc_sourced=0
 
 local flags=()
 while getopts 'fgmsrL' flag; do
     case $flag in
-        (f)     local force=1;;
-        (g)     flags+=( -g );;
-        (+g)    flags+=( +g );;
-        (m)     local mopt=1; flags+=( -m );;
-        (+m)    local mopt=1; flags+=( +m );;
-        (s)     flags+=( -s );;
-        (+s)    flags+=( +s );;
-        (r)     flags+=( -r );;
-        (+r)    flags+=( +r );;
-        (L)     flags+=( -L );;
-        (+L)    flags+=( +L );;
+        (f)     local -i force=1;;
+        (g)     flags+=( '-g' );;
+        (+g)    flags+=( '+g' );;
+        (m)     local -i mopt=1; flags+=( '-m' );;
+        (+m)    local -i mopt=1; flags+=( '+m' );;
+        (s)     flags+=( '-s' );;
+        (+s)    flags+=( '+s' );;
+        (r)     flags+=( '-r' );;
+        (+r)    flags+=( '+r' );;
+        (L)     flags+=( '-L' );;
+        (+L)    flags+=( '+L' );;
     esac
 done
 shift $(( OPTIND - 1 ))
-
-# Set `zshrc_line` equal to the line number at which `alias` is being called in
-# `.zshrc` (empty if called outside `.zshrc`)
-local zshrc_line=$funcfiletrace[(r)$XDG_CONFIG_HOME/zsh/.zshrc*]
 
 # If no argument is provided, the `{+|-}m` flag is present, or the `-f` flag is
 # present, run the `alias` builtin like normal
 if [[ ! $* || $mopt -eq 1 || $force -eq 1 ]]; then
     builtin alias $flags $*
 
-    # If `alias` was called in `.zshrc`, add arguments to `alias_zshrc_aliases`
-    # array, so that new alias names can be checked specifically against alias
-    # names already used in `.zshrc`
-    if [[ $zshrc_line ]]; then
-        alias_zshrc_aliases+=( $* )
+else
+    # If `alias` is being called in `.zshrc` and `alias_zshrc_sourced` is zero
+    # then that means `.zshrc` is being sourced at startup or re-sourced by the
+    # user. To prevent an error being thrown for every alias defined in
+    # `.zshrc` when `.zshrc` is re-sourced, unalias all aliases in `.zshrc`.
+    # Clear the `alias_zshrc_aliases` array so that it can be rebuilt as
+    # `.zshrc` is sourced.
+    if (( alias_zshrc_sourced == 0 )); then
+        if [[ $funcfiletrace[(r)$XDG_CONFIG_HOME/zsh/.zshrc*] ]]; then
+            if [[ $alias_zshrc_aliases ]]; then
+                unalias $alias_zshrc_aliases
+            fi
+            declare -ga alias_zshrc_aliases=()
+            alias_zshrc_sourced=1
+        fi
     fi
 
-else
-    # Otherwise, check to see if there is another command, function, alias,
-    # etc. by the same name before defining the alias
+    # Check to see if there is another command, function, alias, etc. by the
+    # same name before defining the alias
     local name
-    local result
     for arg in $*; do
         name="${arg%%=*}"
-        result=$(whence -v $name)
-
-        # If the name is 'not found', define the alias as normal
-        if [[ $result =~ "$name not found" ]]; then
-            builtin alias $flags $arg
-
-            # If `alias` was called in `.zshrc`, add argument to
-            # `alias_zshrc_aliases` array
-            if [[ $zshrc_line ]]; then
-                alias_zshrc_aliases+=( $arg )
-            fi
-
+        if [[ $(whence $name) ]]; then
+            echo 'alias:' $name 'already defined' >&2
+            return 1
         else
-            # If the result is an alias, only print an error message and return
-            # if an alias by the same name has already been defined in
-            # `.zshrc`. If it has, the name will be contained in a value in the
-            # array `alias_zshrc_aliases`, so reverse index this array.
-            if [[ $result =~ "$name is an alias" ]]; then
-                if [[ ${alias_zshrc_aliases[(r)$name=*]} ]]; then
-                    echo $name 'already defined' >&2
-                    return 1
-                else
-                    builtin alias $flags $arg
-
-                    # If `alias` was called in `.zshrc`, add argument to
-                    # `alias_zshrc_aliases` array
-                    if [[ $zshrc_line ]]; then
-                        alias_zshrc_aliases+=( $arg )
-                    fi
-                fi
-
-            else
-                # If the result is anything other than an alias, print an error
-                # message and return
-                echo $name 'already defined' >&2
-                return 1
+            builtin alias $flags $arg
+            if [[ $funcfiletrace[(r)$XDG_CONFIG_HOME/zsh/.zshrc*] ]]; then
+                alias_zshrc_aliases+=( $name )
             fi
         fi
     done
