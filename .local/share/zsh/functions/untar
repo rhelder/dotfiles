@@ -1,22 +1,20 @@
 # Extract a `tar` file into a directory of the same name in the parent
-# directory
+# directory; optionally, trash the `tar` file
 
-# Before proceeding, check that arguments were passed
-if [[ ! $* ]]; then
-    echo 'Error: argument required' >&2
-    return 1
-fi
-
-# Check for option
 if [[ $1 == '--trash' || $1 == '-t' ]]; then
     topt=1
     shift
 fi
 
-for file in $*; do
-    mkdir ${file%.tar*}
-    tar -xf $file --cd ${file%.tar*}
-done
+if [[ $* ]]; then
+    for file in $*; do
+        mkdir ${file%.tar*}
+        tar -xf $file --cd ${file%.tar*}
+    done
 
-# If option was passed, trash files
-(( topt == 1 )) && trash $*
+    (( topt == 1 )) && trash $*
+
+else
+    echo 'tar: no files or directories specified' >&2
+    return 1
+fi
