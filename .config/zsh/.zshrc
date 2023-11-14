@@ -42,7 +42,7 @@ else
     autoload autoload
 fi
 
-alias_zshrc_aliases=() # See `alias` function definition
+declare -gi alias_zshrc_sourced=0
 autoload -f alias
 
 # Load other user functions
