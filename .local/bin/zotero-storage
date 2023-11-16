@@ -11,15 +11,13 @@
 # To-do: replace rg with grep
 # To-do: build associative array by parsing `bib` file
 
-set -e
-
 # {{{1 Clean up empty subdirectories
 
-cd $HOME/Documents/Zotero/Storage
+cd $HOME/Documents/Zotero/Storage || exit 1
 
 echo 'Cleaning up empty subdirectories...'
-local dir
-local subdir
+declare dir
+declare subdir
 for dir in *(NF); do
     cd $dir
     for subdir in *(N/^F); do
@@ -31,13 +29,12 @@ done
 #{{{1 Parse `bib` file
 
 echo 'Parsing BibLaTeX file...'
-local item
-local -a lib=( $(rg '^@.+\{(.+?)\.*,$' --replace '$1' -- \
-    $HOME/Library/texmf/bibtex/bib/myLibrary.bib) )
+declare item
+declare -a lib=( ${(f)"$(rg '^@.+\{(.+?)\.*,$' --replace '$1' -- \
+    $HOME/Library/texmf/bibtex/bib/myLibrary.bib)"} )
 
-#{{{1 If directory corresponding to `bib` entry doesn't exist, make it
-# (along with two default subdirectories, 'annotated' and 'clean', for
-# convenience)
+#{{{1 If directory corresponding to `bib` entry doesn't exist, make it (along
+#with two default subdirectories, 'annotated' and 'clean', for convenience)
 
 echo 'Making directories for new entries...'
 for item in $lib; do
@@ -50,13 +47,11 @@ done
 
 #{{{1  Check for attachments in Zotero cloud storage
 
-cd $XDG_DATA_HOME/zotero/storage
+cd $XDG_DATA_HOME/zotero/storage || exit 1
 
 echo 'Checking for attachments in Zotero cloud storage...'
 
-local query
-local -a match
-local -A shorttitles
+declare -A shorttitles
 shorttitles=( \
     [Bonitz]='bonitz 1955 Index Aristotelicus' \
     [LSJ]='liddell Scott 1940 Greek English Lexicon' \
@@ -76,11 +71,14 @@ shorttitles=( \
     [Top]='aristotle 1958 Topica sophistici' \
 )
 
-for item in $lib; do
+declare query
+declare -a match
+declare attch
 
-    # If the item in question has a short title, then use the value from
-    # the `shorttitles` associative array; otherwise, split up the
-    # `biblatex` key and use that
+for item in $lib; do
+    # If the item in question has a short title, then use the value from the
+    # `shorttitles` associative array; otherwise, split up the `biblatex` key
+    # and use that
     if [[ $shorttitles[$item] ]]; then
         query=$shorttitles[$item]
     else
@@ -88,9 +86,7 @@ for item in $lib; do
             sed -E 's/([0-9]{4})/ \1 /' | \
             sed -E 's/([A-Z])/ \1/g')
     fi
-    set +e
     match=( ${(f)"$(fd --type f --strip-cwd-prefix | fzf -i -f $query)"} )
-    set -e
 
     if (( $#match > 1 )); then
         echo $#match "attachments were found in Zotero's cloud storage:"
@@ -100,9 +96,9 @@ for item in $lib; do
             if [[ $REPLY == y || $REPLY == Y ]]; then
                 cp $attch \
                     $HOME/Documents/Zotero/Storage/$item/${attch/\//_}
-                echo File copied.
+                echo 'File copied.'
             else
-                echo File not copied.
+                echo 'File not copied.'
             fi
         done
     elif (( $#match == 1 )); then
@@ -112,9 +108,9 @@ for item in $lib; do
         if [[ $REPLY == y || $REPLY == Y ]]; then
             cp $match \
                 $HOME/Documents/Zotero/Storage/$item/${match/\//_}
-            echo File copied.
+            echo 'File copied.'
         else
-            echo File not copied.
+            echo 'File not copied.'
         fi
     fi
 done
@@ -124,18 +120,20 @@ done
 cd $HOME/Documents/Zotero/Storage
 
 echo 'Renaming files in local Zotero storage...'
-local file
+declare file
 for item in $lib; do
     cd $item
+
     # Rename any files after the directory it is in (which is the name of the
     # item)
     for file in *(N.); do
         mv $file ${file/*./$item.}
     done
-    for subdir in *(N/); do
+
+    for subdir in *(NF); do
         cd $subdir
         # Rename any files after the directory and the subdirectory
-        for file in *(N.); do
+        for file in *(.); do
             mv $file ${file/*./$item\_$subdir.}
         done
         cd ..
@@ -147,11 +145,11 @@ done
 
 echo 'Checking that storage directory and Zotero library are in sync...'
 if [[ $(comm -23 =(print -l $lib | sort) =(ls | sort)) ]]; then
-    echo 'Unknown error occured:' \
-        'storage directory and Zotero library not in sync' |
-        fmt -79
+    echo 'zotero-storage: unknown error'
+    exit 1
 elif [[ $(comm -13 =(print -l $lib | sort) =(ls | sort)) ]]; then
     echo 'The following items are not in your Zotero library:'
     echo $(comm -13 =(print -l $lib | sort) =(ls | sort))
 fi
+
 echo 'Done.'
