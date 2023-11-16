@@ -37,8 +37,10 @@ git filter-repo --invert-paths --paths-from-file \
 
 echo 'Pushing...'
 git remote add origin https://github.com/rhelder/$1.git
-git push origin main
+git push --force origin main
 
 echo 'Cleaning up...'
 cd ..
 sudo rm -r rhelder
+
+echo 'Done.'
