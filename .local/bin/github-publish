@@ -3,27 +3,35 @@
 # Filter my home repository and push the filtered repository to a new remote
 # (e.g., for publishing part of my home repository as a public repository)
 
-set -e
-
-if [[ ! $1 ]]; then
-    echo 'Error: please enter name of target repository' >&2
-    exit 1
-elif [[ ! -f $XDG_CONFIG_HOME/git/filter-repo/$1 ]]; then
-    echo "Error: $XDG_CONFIG_HOME/git/filter-repo/$1 does not exist" >&2
+if [[ ! $* ]]; then
+    echo 'github-publish: no target repository specified'
     exit 1
 fi
+
+if [[ $2 ]]; then
+    echo 'github-publish: too many arguments' >&2
+    exit 1
+fi
+
+if [[ ! -f $XDG_CONFIG_HOME/git/filter-repo/$1 ]]; then
+    echo "github-publish: $XDG_CONFIG_HOME/git/filter-repo/$1 not found" >&2
+    exit 1
+fi
+
+setopt err_exit
 
 echo 'Cloning...'
 git clone https://github.com/rhelder/rhelder.git --recurse-submodules
 cd rhelder
 
 echo 'Filtering...'
+
 # Make sure that we are *not* in the home repository
 if [[ $(git rev-parse --show-toplevel) == /Users/rhelder ]]; then
-    echo 'Error: proceeding will rewrite history of home repository' >&2
+    echo 'github-publish: in home repository' >&2
     exit 1
 fi
-# Exclude selected files
+
 git filter-repo --invert-paths --paths-from-file \
     $XDG_CONFIG_HOME/git/filter-repo/$1
 

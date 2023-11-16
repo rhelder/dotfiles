@@ -2,8 +2,9 @@
 
 # Use `nvim` to open new note with YAML header ready to go
 
+cd $HOME/Documents/Notes || exit 1
+
 nvim -c 'let name = strftime("%Y%m%d%H%M%S")' \
-    -c 'cd ~/Documents/Notes' \
     -c 'execute "edit " .. name .. ".md"' \
     -c 'execute "normal i---\r---\<Esc>"' \
     -c 'execute "normal Okeywords: \<Esc>"' \

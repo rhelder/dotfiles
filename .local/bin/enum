@@ -3,16 +3,22 @@
 # Count number of occurences of each (unique) line in a file and print the
 # number and the line to stdout in reverse numerical order
 
+if [[ ! $* ]]; then
+   echo 'enum: no file specified' >&2
+   exit 1
+fi
+
 local entry
-local n
+local -i n
+
 (
-sort $* | while read; do
-    if [[ $entry && $REPLY != $entry ]]; then
-        echo $n $entry
-        n=0
-    fi
-    entry=$REPLY
-    ((n = n + 1))
-done
-echo $n $entry
+    sort $* | while read; do
+        if [[ $entry && $REPLY != $entry ]]; then
+            echo $n $entry
+            n=0
+        fi
+        entry=$REPLY
+        ((n = n + 1))
+    done
+    echo $n $entry
 ) | sort -rn

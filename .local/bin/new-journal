@@ -4,9 +4,11 @@
 # the journal entry is new, name the file after today's date, and put today's
 # date at the first line of the file.
 
-cd $HOME/Documents/Notes
+cd $HOME/Documents/Notes || exit 1
+
 if [[ -f $(date "+%F").txt ]]; then
     nvim $(date "+%F").txt
+
 else
     nvim -c 'execute "edit " .. strftime("%F") .. ".txt"' \
         -c 'execute "normal i" .. strftime("%A, %B %e, %Y") .. "\<Esc>"'
