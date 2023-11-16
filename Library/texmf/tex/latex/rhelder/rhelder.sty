@@ -311,18 +311,18 @@
 % commands italicize their arguments
 \NewCommandCopy{\emphit}{\emph}
 \NewDocumentCommand{\texttitle}{m}{\emphit{#1}}
-\NewDocumentCommand{\alialingua}{O{}mm}{%
+\NewDocumentCommand{\alialingua}{O{}O{latin}m}{%
     \textlang[#1]{#2}{\emphit{#3}}%
 }
 
 \NewCommandCopy{\define}{\emph}
 \NewCommandCopy{\attn}{\textbf}
 
-\NewDocumentCommand{\nous}{}{\alialingua{latin}{nous}}
-\NewDocumentCommand{\Nous}{}{\alialingua{latin}{Nous}}
-\NewDocumentCommand{\phantasia}{}{\alialingua{latin}{phantasia}}
-\NewDocumentCommand{\Phantasia}{}{\alialingua{latin}{Phantasia}}
-\NewDocumentCommand{\phantasiai}{}{\alialingua{latin}{phantasiai}}
-\NewDocumentCommand{\Phantasiai}{}{\alialingua{latin}{Phantasiai}}
+\NewDocumentCommand{\nous}{}{\alialingua{nous}}
+\NewDocumentCommand{\Nous}{}{\alialingua{Nous}}
+\NewDocumentCommand{\phantasia}{}{\alialingua{phantasia}}
+\NewDocumentCommand{\Phantasia}{}{\alialingua{Phantasia}}
+\NewDocumentCommand{\phantasiai}{}{\alialingua{phantasiai}}
+\NewDocumentCommand{\Phantasiai}{}{\alialingua{Phantasiai}}
 
 % }}}1
