@@ -4,7 +4,7 @@
 # (e.g., for publishing part of my home repository as a public repository)
 
 if [[ ! $* ]]; then
-    echo 'github-publish: no target repository specified'
+    echo 'github-publish: no target repository specified' >&2
     exit 1
 fi
 

@@ -145,7 +145,7 @@ done
 
 echo 'Checking that storage directory and Zotero library are in sync...'
 if [[ $(comm -23 =(print -l $lib | sort) =(ls | sort)) ]]; then
-    echo 'zotero-storage: unknown error'
+    echo 'zotero-storage: unknown error' >&2
     exit 1
 elif [[ $(comm -13 =(print -l $lib | sort) =(ls | sort)) ]]; then
     echo 'The following items are not in your Zotero library:'
