@@ -11,6 +11,8 @@ if git clone https://github.com/rhelder/vimtex_my_complete.git; then
     trap 'echo "Cleaning up.";
         sudo rm -r $vtc/vimtex_my_complete;
         exit 1' ZERR
+else
+    exit 1
 fi
 cd vimtex_my_complete
 
@@ -29,7 +31,7 @@ echo 'Unpacking...'
 cd ..
 
 # Delete old files
-local -a old_files=( ${(f)"$(comm -23 =(print -l *) =(sort .gitignore))"} )
+local -a old_files=( ${(f)"$(git ls-files .)"} )
 rm $old_files
 [[ -d .git ]] && sudo rm -r .git
 
