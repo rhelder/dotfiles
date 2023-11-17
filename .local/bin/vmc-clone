@@ -3,12 +3,15 @@
 # Clone my `vimtex_my_complete` repository into VimTeX's completion file
 # directory
 
-setopt err_exit
 declare vtc=$XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete
 
 echo 'Cloning...'
-cd $vtc
-git clone https://github.com/rhelder/vimtex_my_complete.git
+cd $vtc || exit 1
+if git clone https://github.com/rhelder/vimtex_my_complete.git; then
+    trap 'echo "Cleaning up.";
+        sudo rm -r $vtc/vimtex_my_complete;
+        exit 1' ZERR
+fi
 cd vimtex_my_complete
 
 echo 'Filtering...'
@@ -24,7 +27,12 @@ git filter-repo --invert-paths --paths-from-file \
 
 echo 'Unpacking...'
 cd ..
+
+# Delete old files
+local -a old_files=( ${(f)"$(comm -23 =(print -l *) =(sort .gitignore))"} )
+rm $old_files
 [[ -d .git ]] && sudo rm -r .git
+
 mv vimtex_my_complete/(.*|*) .
 
 echo 'Cleaning up...'
