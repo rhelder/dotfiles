@@ -6,10 +6,8 @@
 
 setopt extended_glob
 setopt ignore_eof
-setopt local_traps
 setopt rc_expand_param
 setopt rc_quotes
-setopt typeset_silent
 
 # History
 HISTSIZE=1200000
