@@ -1,0 +1,42 @@
+#!/bin/zsh
+
+cd $HOME/Documents/Notes || exit 1
+
+build_index_get() {
+    local grep_regex='^'$1': .*$'
+    local sed_regex='s/^'$1': //'
+    if ! grep $grep_regex $2; then
+        echo 'build-index: no' $1 'found in' $2
+    fi | sed $sed_regex
+}
+
+# Build the index file
+
+declare -Ua keywords
+declare file
+
+for file in *.md; do
+    keywords+=( ${(s:, :)"$(build_index_get keywords $file)"} )
+done
+
+print -l $keywords | sort -i > index.txt
+
+# For every keyword in the index file, build another index file for that
+# keyword
+
+declare keyword
+declare regex
+declare -a files
+declare title
+declare link
+
+for keyword in ${(f)"$(<index.txt)"}; do
+    regex='^keywords: .*'$keyword'.*$'
+    files=( ${(f)"$(grep -l $regex *.md)"} )
+
+    for file in $files; do
+        title=$(build_index_get title $file)
+        link='['$title']['$file']'
+        echo $link >> $keyword.txt
+    done
+done
