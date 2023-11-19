@@ -3,11 +3,27 @@
 cd $HOME/Documents/Notes || exit 1
 
 build_index_get() {
-    local grep_regex='^'$1': .*$'
-    local sed_regex='s/^'$1': //'
-    if ! grep $grep_regex $2; then
-        echo 'build-index: no' $1 'found in' $2
-    fi | sed $sed_regex
+    if [[ $1 == yaml ]]; then
+        local -a lines=( ${(f)"$(grep -n -e '^---$' $2 | cut -d: -f1)"} )
+
+        if [[ $#lines != 2 ]]; then
+            echo 'build-index: cannot get YAML header for' $2
+            return 1
+        fi
+
+        local -i header_end=$lines[2]
+        local -i header_length=$((lines[2] - lines[1] + 1))
+
+        cat $2 | head -$header_end | tail -$header_length
+
+    else
+        local grep_regex='^'$1': .*$'
+        local sed_regex='s/^'$1': //'
+
+        if ! grep $grep_regex $2; then
+            echo 'build-index: no' $1 'found in' $2
+        fi | sed $sed_regex
+    fi
 }
 
 # Build the index file
@@ -15,28 +31,48 @@ build_index_get() {
 declare -Ua keywords
 declare file
 
-for file in *.md; do
+setopt extended_glob
+
+for file in [[:digit:]](#c14).md; do
     keywords+=( ${(s:, :)"$(build_index_get keywords $file)"} )
 done
 
-print -l $keywords | sort -i > index.txt
+print -l $keywords | sort --ignore-case > index.txt
 
 # For every keyword in the index file, build another index file for that
 # keyword
 
 declare keyword
+declare index_file
+declare -a header
 declare regex
 declare -a files
+declare -a index_keywords
 declare title
 declare link
 
 for keyword in ${(f)"$(<index.txt)"}; do
+    index_file=${keyword:gs/ /_}_index.md
+
+    if [[ -f $index_file ]]; then
+        header=( ${(f)"$(build_index_get yaml $index_file)":gs/\-/\\-} )
+    else
+        header=(
+            '\-\-\-'
+            'id: '${index_file%.md}
+            'title: '$keyword
+            'keywords: '
+            '\-\-\-'
+        )
+    fi
+    print -l $header > $index_file
+
     regex='^keywords: .*'$keyword'.*$'
     files=( ${(f)"$(grep -l $regex *.md)"} )
 
     for file in $files; do
         title=$(build_index_get title $file)
         link='['$title']['$file']'
-        echo $link >> $keyword.txt
+        echo $link >> $index_file
     done
 done
