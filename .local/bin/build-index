@@ -4,7 +4,7 @@ cd $HOME/Documents/Notes || exit 1
 
 build_index_get() {
     if [[ $1 == yaml ]]; then
-        local -a lines=( ${(f)"$(grep -n -e '^---$' $2 | cut -d: -f1)"} )
+        local -a lines=( ${(f)"$(grep -n -e '^---$' $2 | cut -d : -f 1)"} )
 
         if [[ $#lines != 2 ]]; then
             echo 'build-index: cannot get YAML header for' $2
@@ -65,7 +65,7 @@ for keyword in ${(f)"$(<index.txt)"}; do
             '\-\-\-'
         )
     fi
-    print -l $header > $index_file
+    print -l $header'\n' > $index_file
 
     regex='^keywords: .*'$keyword'.*$'
     files=( ${(f)"$(grep -l $regex *.md)"} )
