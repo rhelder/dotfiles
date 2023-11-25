@@ -276,6 +276,7 @@ iabbrev sya             say
 iabbrev teh             the
 iabbrev fo              of
 iabbrev wrold           world
+iabbrev iwll            will
 
 " }}}1
 " {{{1 Autocommands
