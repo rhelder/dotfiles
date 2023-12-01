@@ -1,78 +1,253 @@
 #!/bin/zsh
 
-cd $HOME/Documents/Notes || exit 1
+# {{{1 _build_index_rg()
 
-build_index_get() {
-    if [[ $1 == yaml ]]; then
-        local -a lines=( ${(f)"$(grep -n -e '^---$' $2 | cut -d : -f 1)"} )
-
-        if [[ $#lines != 2 ]]; then
-            echo 'build-index: cannot get YAML header for' $2
-            return 1
+_build_index_rg() {
+    if [[ $3 ]]; then
+        if [[ $1 == '-c' ]]; then
+            echo $3 | rg --only-matching $1 $2
+        else
+            echo $3 | rg --only-matching $1 --replace $2
         fi
-
-        local -i header_end=$lines[2]
-        local -i header_length=$((lines[2] - lines[1] + 1))
-
-        cat $2 | head -$header_end | tail -$header_length
-
     else
-        local grep_regex='^'$1': .*$'
-        local sed_regex='s/^'$1': //'
-
-        if ! grep $grep_regex $2; then
-            echo 'build-index: no' $1 'found in' $2
-        fi | sed $sed_regex
+        echo $2 | rg --only-matching $1
     fi
 }
 
-# Build the index file
+# {{{1 _build_index_get()
 
-declare -Ua keywords
-declare file
+_build_index_get() {
+    # {{{2 Get YAML block from file and store in array (only one block allowed)
+
+    if [[ $blocks[$2] ]]; then
+        block=( ${(s,:,)$blocks[$2]} )
+    else
+        local -a line_numbers
+        line_numbers=( ${(f)"$(rg --line-number '^---$' $2 | cut -d : -f 1)"} )
+
+        if (( $#line_numbers < 2 )); then
+            echo 'build-index: cannot get YAML block for' $2 >&2
+            return 1
+        fi
+
+        local -i block_end=$(( line_numbers[2] - 1 ))
+        local -i block_length=$(( line_numbers[2] - line_numbers[1] - 1 ))
+        declare -ga block
+        block=( ${(f)"$(cat $2 | head -$block_end | tail -$block_length)"} )
+    fi
+
+    # {{{2 Get values from YAML metadata block
+
+    # Define search patterns for lines that contain an (unindented) key/value
+    # pair, lines that start with a dash, and lines that start with
+    # indentation.
+    local kv_regex='^([^-:\s]+[^:]*):\s*(.*)$'
+    local dash_regex='^\s*-\s+(.+)$'
+    local indent_regex='^\s+([^-].*)$'
+
+    local key
+    local value
+    local -A metadata
+
+    # Define flags:
+    # * If `string` is equal to 1, then `value` is treated as a continuation of
+    #   previous values corresponding to the same key (i.e., as a continuation
+    #   of `metadata[$key]`).
+    # * If `list` is equal to 1, then `value` is treated as a continuation of
+    #   the most recent item in a list (i.e., as a continuation of the last
+    #   member of a comma-separated list to which `metadata[$key]` expands).
+    local -i string=0
+    local -i list=0
+
+    local line
+    for line in $block; do
+        if [[ $(_build_index_rg $kv_regex $line) ]]; then
+            key="$(_build_index_rg $kv_regex '$1' $line)"
+            value="$(_build_index_rg $kv_regex '$2' $line)"
+
+            # If there is a value on the same line as the key, subsequent lines
+            # might be treated as a continuation of that value; so set `string`
+            # to 1. If there is not a value on the same line as the key,
+            # subsequent lines are definitely not a continuation of any value
+            # (because there is no value yet); so set `string` to 0.
+            if [[ ! $value == '' ]]; then
+                metadata[$key]=$value
+                local -xi string=1
+            else
+                local -xi string=0
+            fi
+
+            # Export `key` so that it can be used in subsequent iterations of
+            # the loop
+            local -x key=$key
+
+        elif (( string == 0 )); then
+            if value="$(_build_index_rg $dash_regex '$1' $line)"; then
+                if [[ $1 == 'title' ]]; then
+                    continue
+                else
+                    if [[ $metadata[$key] ]]; then
+                        metadata[$key]="$metadata[$key], $value"
+                    else
+                        metadata[$key]=$value
+
+                        # Set `list` to 1 so that subsequent indented lines are
+                        # appended to the value of this list item
+                        local -xi list=1
+                    fi
+                fi
+
+            elif value="$(_build_index_rg $indent_regex '$1' $line)"; then
+                if (( list == 1 )); then
+                    metadata[$key]="$metadata[$key] $value"
+                else
+                    if [[ $metadata[$key] ]]; then
+                        metadata[$key]="$metadata[$key] $value"
+                    else
+                        metadata[$key]=$value
+                    fi
+
+                    # Following an indented line, subsequent indented lines
+                    # might be treated as a continuation of `value`; so set
+                    # string to 1.
+                    local -xi string=1
+                fi
+            fi
+
+        elif (( string == 1 )); then
+            local indent_regex='^\s+(.+)$'
+            if value="$(_build_index_rg $indent_regex '$1' $line)"; then
+                metadata[$key]="$metadata[$key] $value"
+            else
+                # According to YAML rules, this line, as a continuation of
+                # another line, must be indented. If it is not indented, YAML
+                # will fail to parse not only this line but also the lines of
+                # which it is supposed to be a continuation; therefore, if it
+                # is not indented, throw out not only `value` but also all of
+                # `metadata[$key]`.
+                unset "metadata[$key]"
+            fi
+        fi
+    done
+
+    # {{{2 Process metadata values
+
+    if [[ ! $metadata[$1] ]]; then
+        echo 'build-index: no value found for key' $1 'in' $2 >&2
+        return 1
+
+    elif [[ ${metadata[$1][1]} == '[' ]]; then
+        value=${${metadata[$1]%']'}#'['}
+    else
+        value=$metadata[$1]
+    fi
+
+    if [[ $1 == 'title' ]]; then
+        local -a values=( $value )
+    else
+        local -a values=( ${(s:, :)value} )
+    fi
+
+    local -i i=1
+    for value in $values; do
+        # If entire value is quoted, strip off surrounding quotes; otherwise,
+        # check for colons or '@' (which would be allowed if the entire value
+        # is quoted)
+
+        if [[ $value =~ '^''.*''\s*$' ]]; then
+            # Remove surrounding quotes from value. Substitute escaped interior
+            # quotes (`''`) with just one single quote. No need to deal with
+            # any backslashes, because they will not be printed by `print` at
+            # the end.
+            value=${${${value#\'}%\'}:gs/\'\'/\'}
+            values[$i]=$value
+
+        elif [[ $value =~ '^".*"\s*$' ]]; then
+            # Remove surrounding quotes from value
+            value=${${value#\"}%\"}
+            values[$i]=$value
+
+        else
+            # Throw out nested key/value pairs (whether legal or illegal by
+            # YAML parsing rules; I don't use nested key/value pairs right now,
+            # so this script does not parse them)
+            if [[ $value =~ ':' ]]; then
+                echo 'build-index: value in' $2 'contains nested mapping' >&2
+                unset "values[$i]"
+            fi
+
+            # Throw out values that start with '@'; YAML will refuse to parse
+            # these.
+            if [[ $value =~ '^@' ]]; then
+                echo 'build-index: value in' $2 'begins with ''@''' >&2
+                unset "values[$i]"
+            fi
+        fi
+
+        (( i = i + 1 ))
+    done
+
+    if [[ ! $values ]]; then
+        echo 'build-index: no value found for key' $1 >&2
+        return 1
+    fi
+
+    # }}}2
+
+    print -l $values
+}
+
+# {{{1 Build an index file for every keyword found in notes
+
+cd $HOME/Documents/Notes || exit 1
 
 setopt extended_glob
 
-for file in [[:digit:]](#c14).md; do
-    keywords+=( ${(s:, :)"$(build_index_get keywords $file)"} )
+declare -T keywords_scalar keywords_array
+declare -Ua all_keywords
+declare -A keywords
+declare -A blocks
+declare -T block_scalar block
+
+declare file
+for file in *.md; do
+    keywords_array=( ${(f)"$(_build_index_get keywords $file)"} )
+    all_keywords+=( $keywords_array )
+    keywords[$file]=$keywords_scalar
+    blocks[$file]=$block_scalar
 done
 
-print -l $keywords | sort --ignore-case > index.txt
-
-# For every keyword in the index file, build another index file for that
-# keyword
-
-declare keyword
 declare index_file
-declare -a header
-declare regex
+declare -a block
 declare -a files
-declare -a index_keywords
 declare title
 declare link
 
-for keyword in ${(f)"$(<index.txt)"}; do
+declare keyword
+for keyword in $all_keywords; do
     index_file=${keyword:gs/ /_}_index.md
 
     if [[ -f $index_file ]]; then
-        header=( ${(f)"$(build_index_get yaml $index_file)":gs/\-/\\-} )
+        block=( '\-\-\-' ${(s.:.)$blocks[$index_file]} '\-\-\-\n' )
     else
-        header=(
+        block=(
             '\-\-\-'
             'id: '${index_file%.md}
             'title: '$keyword
             'keywords: '
-            '\-\-\-'
+            '\-\-\-\n'
         )
     fi
-    print -l $header'\n' > $index_file
 
-    regex='^keywords: .*'$keyword'.*$'
-    files=( ${(f)"$(grep -l $regex *.md)"} )
+    print -l $block > $index_file
+
+    files=( ${(k)keywords[(R)(*$keyword:*)|(*:$keyword*)]} )
 
     for file in $files; do
-        title=$(build_index_get title $file)
+        title="$(_build_index_get title $file)"
         link='['$title']['$file']'
-        echo $link >> $index_file
-    done
+        echo $link
+    done | sort --ignore-case >> $index_file
 done
+
+# }}}1
