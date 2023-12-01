@@ -277,6 +277,7 @@ iabbrev teh             the
 iabbrev fo              of
 iabbrev wrold           world
 iabbrev iwll            will
+iabbrev delcare         declare
 
 " }}}1
 " {{{1 Autocommands
