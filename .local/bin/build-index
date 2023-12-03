@@ -1,5 +1,12 @@
 #!/bin/zsh
 
+# * Only allow '[' after key or after indent; in general, when there is a '[]'
+#   expression, there will only be one element in `values`
+# * If a line begins with a quote and doesn't end with one, then treat the next
+#   line as a continuation. Consider whether or not to check for '@'s and ':'s
+#   when checking for quotes
+# * Update comments
+
 # {{{1 _build_index_rg()
 
 _build_index_rg() {
@@ -15,6 +22,8 @@ _build_index_rg() {
 }
 
 # {{{1 _build_index_get()
+
+declare -A blocks
 
 _build_index_get() {
     # {{{2 Get YAML block from file and store in array (only one block allowed)
@@ -38,16 +47,22 @@ _build_index_get() {
 
     # {{{2 Get values from YAML metadata block
 
+    local -i first_line_num=$block[(i)$1:*]
+    local -a block_slice=( $block[$first_line_num,-1] )
+
     # Define search patterns for lines that contain an (unindented) key/value
     # pair, lines that start with a dash, and lines that start with
     # indentation.
-    local kv_regex='^([^-:\s]+[^:]*):\s*(.*)$'
-    local dash_regex='^\s*-\s+(.+)$'
+    local kv_regex='^[^-:\s]+[^:]*:\s*(.*)$'
+    local kv_regex_posix=${kv_regex/\\s/[:space:]}
+    kv_regex_posix=${${kv_regex_posix//\\s/[[:space:]]}//[\(\)]/}
+    local dash_regex='^\s*(-\s+(.+))$'
+    local dash_regex_posix=${${dash_regex//\\s/[[:space:]]}//[\(\)]/}
     local indent_regex='^\s+([^-].*)$'
+    local indent_regex_posix=${${indent_regex//\\s/[[:space:]]}//[\(\)]/}
 
-    local key
+    local -a values
     local value
-    local -A metadata
 
     # Define flags:
     # * If `string` is equal to 1, then `value` is treated as a continuation of
@@ -56,105 +71,85 @@ _build_index_get() {
     # * If `list` is equal to 1, then `value` is treated as a continuation of
     #   the most recent item in a list (i.e., as a continuation of the last
     #   member of a comma-separated list to which `metadata[$key]` expands).
-    local -i string=0
-    local -i list=0
+    local -i cont=0
+    local -i switch=0
 
     local line
-    for line in $block; do
-        if [[ $(_build_index_rg $kv_regex $line) ]]; then
-            key="$(_build_index_rg $kv_regex '$1' $line)"
-            value="$(_build_index_rg $kv_regex '$2' $line)"
+    for line in $block_slice; do
+        if [[ $line =~ $kv_regex_posix ]]; then
+            if (( switch == 0 )); then
+                values=( "$(_build_index_rg $kv_regex '$1' $line)" )
 
-            # If there is a value on the same line as the key, subsequent lines
-            # might be treated as a continuation of that value; so set `string`
-            # to 1. If there is not a value on the same line as the key,
-            # subsequent lines are definitely not a continuation of any value
-            # (because there is no value yet); so set `string` to 0.
-            if [[ ! $value == '' ]]; then
-                metadata[$key]=$value
-                local -xi string=1
+                # If there is a value on the same line as the key, subsequent
+                # lines might be treated as a continuation of that value; so
+                # set `string` to 1.
+                [[ $values[-1] ]] && cont=1
+                switch=1
             else
-                local -xi string=0
+                break
             fi
 
-            # Export `key` so that it can be used in subsequent iterations of
-            # the loop
-            local -x key=$key
+        elif [[ $line =~ $dash_regex_posix ]]; then
 
-        elif (( string == 0 )); then
-            if value="$(_build_index_rg $dash_regex '$1' $line)"; then
-                if [[ $1 == 'title' ]]; then
-                    continue
+            if (( cont == 0 )); then
+                if [[ $1 == title ]]; then
+                    unset values
+                    return 1
                 else
-                    if [[ $metadata[$key] ]]; then
-                        metadata[$key]="$metadata[$key], $value"
-                    else
-                        metadata[$key]=$value
-
-                        # Set `list` to 1 so that subsequent indented lines are
-                        # appended to the value of this list item
-                        local -xi list=1
-                    fi
+                    value="$(_build_index_rg $dash_regex '$2' $line)"
+                    values+=( $value )
                 fi
-
-            elif value="$(_build_index_rg $indent_regex '$1' $line)"; then
-                if (( list == 1 )); then
-                    metadata[$key]="$metadata[$key] $value"
-                else
-                    if [[ $metadata[$key] ]]; then
-                        metadata[$key]="$metadata[$key] $value"
-                    else
-                        metadata[$key]=$value
-                    fi
-
-                    # Following an indented line, subsequent indented lines
-                    # might be treated as a continuation of `value`; so set
-                    # string to 1.
-                    local -xi string=1
-                fi
-            fi
-
-        elif (( string == 1 )); then
-            local indent_regex='^\s+(.+)$'
-            if value="$(_build_index_rg $indent_regex '$1' $line)"; then
-                metadata[$key]="$metadata[$key] $value"
             else
-                # According to YAML rules, this line, as a continuation of
-                # another line, must be indented. If it is not indented, YAML
-                # will fail to parse not only this line but also the lines of
-                # which it is supposed to be a continuation; therefore, if it
-                # is not indented, throw out not only `value` but also all of
-                # `metadata[$key]`.
-                unset "metadata[$key]"
+                value="$(_build_index_rg $dash_regex '$1' $line)"
+                values[-1]="$values[-1] $value"
             fi
+
+        elif [[ $line =~ $indent_regex_posix ]]; then
+            value="$(_build_index_rg $indent_regex '$1' $line)"
+
+            if [[ $values[-1] ]]; then
+                values[-1]="$values[-1] $value"
+            else
+                values[-1]=$value
+            fi
+
+            # Following an indented line, subsequent indented lines might be
+            # treated as a continuation of `value`; so set string to 1.
+            cont=1
+
+        else
+            unset values
+            return 1
         fi
     done
 
     # {{{2 Process metadata values
 
-    if [[ ! $metadata[$1] ]]; then
+    if [[ ! $values ]]; then
         echo 'build-index: no value found for key' $1 'in' $2 >&2
         return 1
-
-    elif [[ ${metadata[$1][1]} == '[' ]]; then
-        value=${${metadata[$1]%']'}#'['}
-    else
-        value=$metadata[$1]
     fi
 
-    if [[ $1 == 'title' ]]; then
-        local -a values=( $value )
-    else
-        local -a values=( ${(s:, :)value} )
+    if [[ ${values[1][1]} == '[' ]]; then
+        if [[ $1 = 'title' ]]; then
+            unset values
+            return 1
+        else
+            values=( ${(s:, :)${${values#'['}%']'}} )
+        fi
+    elif [[ $1 == 'keywords' ]]; then
+        values=( ${(s:, :)${(j:, :)values}} )
     fi
 
+    # Maybe get rid of quotes at the beginning or end of arrays, or the
+    # beginning or end of array elements
     local -i i=1
     for value in $values; do
         # If entire value is quoted, strip off surrounding quotes; otherwise,
         # check for colons or '@' (which would be allowed if the entire value
         # is quoted)
 
-        if [[ $value =~ '^''.*''\s*$' ]]; then
+        if [[ $value =~ '^''.*''[[:space:]]*$' ]]; then
             # Remove surrounding quotes from value. Substitute escaped interior
             # quotes (`''`) with just one single quote. No need to deal with
             # any backslashes, because they will not be printed by `print` at
@@ -162,7 +157,7 @@ _build_index_get() {
             value=${${${value#\'}%\'}:gs/\'\'/\'}
             values[$i]=$value
 
-        elif [[ $value =~ '^".*"\s*$' ]]; then
+        elif [[ $value =~ '^".*"[[:space:]]*$' ]]; then
             # Remove surrounding quotes from value
             value=${${value#\"}%\"}
             values[$i]=$value
@@ -180,7 +175,8 @@ _build_index_get() {
             # these.
             if [[ $value =~ '^@' ]]; then
                 echo 'build-index: value in' $2 'begins with ''@''' >&2
-                unset "values[$i]"
+                unset values
+                return 1
             fi
         fi
 
@@ -206,7 +202,6 @@ setopt extended_glob
 declare -T keywords_scalar keywords_array
 declare -Ua all_keywords
 declare -A keywords
-declare -A blocks
 declare -T block_scalar block
 
 declare file
@@ -218,7 +213,6 @@ for file in *.md; do
 done
 
 declare index_file
-declare -a block
 declare -a files
 declare title
 declare link
