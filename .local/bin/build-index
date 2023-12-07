@@ -141,51 +141,102 @@ _build_index_get() {
         values=( ${(s:, :)${(j:, :)values}} )
     fi
 
-    # Maybe get rid of quotes at the beginning or end of arrays, or the
-    # beginning or end of array elements
-    local -i i=1
+    local -i single_quote=0
+    local -i double_quote=0
+    local -i index=1
+    local -i next=1
+    local quote="'"
+    local dquote='"'
+
+    local value
     for value in $values; do
-        # If entire value is quoted, strip off surrounding quotes; otherwise,
-        # check for colons or '@' (which would be allowed if the entire value
-        # is quoted)
-
-        if [[ $value =~ '^''.*''[[:space:]]*$' ]]; then
-            # Remove surrounding quotes from value. Substitute escaped interior
-            # quotes (`''`) with just one single quote. No need to deal with
-            # any backslashes, because they will not be printed by `print` at
-            # the end.
-            value=${${${value#\'}%\'}:gs/\'\'/\'}
-            values[$i]=$value
-
-        elif [[ $value =~ '^".*"[[:space:]]*$' ]]; then
-            # Remove surrounding quotes from value
-            value=${${value#\"}%\"}
-            values[$i]=$value
-
-        else
-            # Throw out nested key/value pairs (whether legal or illegal by
-            # YAML parsing rules; I don't use nested key/value pairs right now,
-            # so this script does not parse them)
-            if [[ $value =~ ':' ]]; then
-                echo 'build-index: value in' $2 'contains nested mapping' >&2
-                unset "values[$i]"
+        if (( single_quote == 0 )); then
+            if [[ $value[1] == "'" && ! $double_quote -eq 1 ]]; then
+                value=${value#\'}
+                values[$index]=$value
+                single_quote=1
+            else
+                value=${value//\'/++}
+                values[$index]=$value
             fi
+        fi
 
-            # Throw out values that start with '@'; YAML will refuse to parse
-            # these.
+        if (( double_quote == 0 )); then
+            if [[ $value[1] == '"' && ! $single_quote -eq 1 ]]; then
+                value=${value#\"}
+                values[$index]=$value
+                double_quote=1
+            else
+                value=${value//\"/\=\=}
+                values[$index]=$value
+            fi
+        fi
+
+        if (( single_quote == 0 && double_quote == 0 )); then
             if [[ $value =~ '^@' ]]; then
                 echo 'build-index: value in' $2 'begins with ''@''' >&2
+                unset values
+                return 1
+            elif [[ $value =~ ':' ]]; then
+                echo 'build-index: value in' $2 'contains nested mapping' >&2
                 unset values
                 return 1
             fi
         fi
 
-        (( i = i + 1 ))
+        if (( single_quote == 1 )); then
+            next=${values[(ib:index:)*$quote*]}
+            if (( index != next )); then
+                index=$(( index + 1 ))
+                continue
+            fi
+
+            value=${value//\\\'/++}
+            value=${value//\'\'/++}
+            values[$index]=$value
+
+            if [[ $value[-1] == "'" ]]; then
+                value=${value%\'}
+                values[$index]=$value
+                single_quote=0
+            fi
+        fi
+
+        if (( double_quote == 1 )); then
+            next=${values[(ib:index:)*${dquote}*]}
+            if (( index != next )); then
+                index=$(( index + 1 ))
+                continue
+            fi
+
+            value=${value//\\\"/\=\=}
+            values[$index]=$value
+
+            if [[ $value[-1] == '"' ]]; then
+                value=${value%\"}
+                values[$index]=$value
+                double_quote=0
+            fi
+        fi
+
+        index=$(( index + 1 ))
     done
 
-    if [[ ! $values ]]; then
-        echo 'build-index: no value found for key' $1 >&2
+    if (( single_quote == 1 )); then
+        echo 'build-index: ending quote not found' >&2
         return 1
+    elif (( ${values[(i)*$quote*]} <= $#values )); then
+        echo 'build-index: unescaped single quotes found' >&2
+        return 1
+    elif (( double_quote == 1 )); then
+        echo 'build-index: ending quote not found' >&2
+        return 1
+    elif (( "${values[(i)*${dquote}*]}" <= $#values )); then
+        echo 'build-index: unescaped double quotes found' >&2
+        return 1
+    else
+        values=( ${values//++/\'} )
+        values=( ${values//\=\=/\"} )
     fi
 
     # }}}2
