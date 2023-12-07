@@ -2,9 +2,6 @@
 
 # * Only allow '[' after key or after indent; in general, when there is a '[]'
 #   expression, there will only be one element in `values`
-# * If a line begins with a quote and doesn't end with one, then treat the next
-#   line as a continuation. Consider whether or not to check for '@'s and ':'s
-#   when checking for quotes
 # * Update comments
 
 # {{{1 _build_index_rg()
@@ -141,6 +138,7 @@ _build_index_get() {
         values=( ${(s:, :)${(j:, :)values}} )
     fi
 
+    local -i start
     local -i single_quote=0
     local -i double_quote=0
     local -i index=1
@@ -148,12 +146,11 @@ _build_index_get() {
     local quote="'"
     local dquote='"'
 
-    local value
     for value in $values; do
         if (( single_quote == 0 )); then
             if [[ $value[1] == "'" && ! $double_quote -eq 1 ]]; then
                 value=${value#\'}
-                values[$index]=$value
+                start=$index
                 single_quote=1
             else
                 value=${value//\'/++}
@@ -164,7 +161,7 @@ _build_index_get() {
         if (( double_quote == 0 )); then
             if [[ $value[1] == '"' && ! $single_quote -eq 1 ]]; then
                 value=${value#\"}
-                values[$index]=$value
+                start=$index
                 double_quote=1
             else
                 value=${value//\"/\=\=}
@@ -193,16 +190,20 @@ _build_index_get() {
 
             value=${value//\\\'/++}
             value=${value//\'\'/++}
-            values[$index]=$value
 
             if [[ $value[-1] == "'" ]]; then
                 value=${value%\'}
-                values[$index]=$value
                 single_quote=0
             fi
-        fi
 
-        if (( double_quote == 1 )); then
+            if (( index == start )); then
+                values[$index]=$value
+            else
+                unset "values[$index]"
+                values[$index-1]="$values[$index-1] $value"
+            fi
+
+        elif (( double_quote == 1 )); then
             next=${values[(ib:index:)*${dquote}*]}
             if (( index != next )); then
                 index=$(( index + 1 ))
@@ -210,12 +211,17 @@ _build_index_get() {
             fi
 
             value=${value//\\\"/\=\=}
-            values[$index]=$value
 
             if [[ $value[-1] == '"' ]]; then
                 value=${value%\"}
-                values[$index]=$value
                 double_quote=0
+            fi
+
+            if (( index == start )); then
+                values[$index]=$value
+            else
+                unset "values[$index]"
+                values[$index-1]="$values[$index-1] $value"
             fi
         fi
 
