@@ -1,8 +1,10 @@
 #!/bin/zsh
 
-# * Only allow '[' after key or after indent; in general, when there is a '[]'
-#   expression, there will only be one element in `values`
+# * Rewrite to parse lines on the basis of their indentation
 # * Update comments
+# * Add errors for missing argumens
+# * Compose error messages
+# Current draft takes 0.600 s to run
 
 # {{{1 _build_index_rg()
 
@@ -18,45 +20,53 @@ _build_index_rg() {
     fi
 }
 
-# {{{1 _build_index_get()
+# {{{1 _build_index_get_block()
 
 declare -A blocks
 
-_build_index_get() {
-    # {{{2 Get YAML block from file and store in array (only one block allowed)
+_build_index_get_block() {
 
-    if [[ $blocks[$2] ]]; then
-        block=( ${(s,:,)$blocks[$2]} )
+    if [[ $blocks[$1] ]]; then
+        block=( ${(s,:,)$blocks[$1]} )
     else
         local -a line_numbers
-        line_numbers=( ${(f)"$(rg --line-number '^---$' $2 | cut -d : -f 1)"} )
+        line_numbers=( ${(f)"$(rg --line-number '^---$' $1 | cut -d : -f 1)"} )
 
         if (( $#line_numbers < 2 )); then
-            echo 'build-index: cannot get YAML block for' $2 >&2
+            echo 'build-index: cannot get YAML block for' $1 >&2
             return 1
         fi
 
         local -i block_end=$(( line_numbers[2] - 1 ))
         local -i block_length=$(( line_numbers[2] - line_numbers[1] - 1 ))
-        declare -ga block
-        block=( ${(f)"$(cat $2 | head -$block_end | tail -$block_length)"} )
+        local -a block
+        block=( ${(f)"$(cat $1 | head -$block_end | tail -$block_length)"} )
+        blocks[$1]=${(j:+:)block}
     fi
+}
 
+# {{{1 _build_index_get()
+
+_build_index_get() {
     # {{{2 Get values from YAML metadata block
 
+    local -a block=( ${(s:+:)blocks[$2]} )
     local -i first_line_num=$block[(i)$1:*]
     local -a block_slice=( $block[$first_line_num,-1] )
 
     # Define search patterns for lines that contain an (unindented) key/value
     # pair, lines that start with a dash, and lines that start with
     # indentation.
-    local kv_regex='^[^-:\s]+[^:]*:\s*(.*)$'
+    local kv_regex='^[^-:\s]+[^:]*:\s*(.*?)\s*$'
     local kv_regex_posix=${kv_regex/\\s/[:space:]}
-    kv_regex_posix=${${kv_regex_posix//\\s/[[:space:]]}//[\(\)]/}
-    local dash_regex='^\s*(-\s+(.+))$'
-    local dash_regex_posix=${${dash_regex//\\s/[[:space:]]}//[\(\)]/}
-    local indent_regex='^\s+([^-].*)$'
-    local indent_regex_posix=${${indent_regex//\\s/[[:space:]]}//[\(\)]/}
+    kv_regex_posix=${kv_regex_posix//\\s/[[:space:]]}
+    kv_regex_posix=${kv_regex_posix//\?/}
+    local dash_regex='^\s*(-\s+(-\s+)*(.+?))\s*$'
+    local dash_regex_posix=${dash_regex//\\s/[[:space:]]}
+    dash_regex_posix=${dash_regex_posix//\?/}
+    local indent_regex='^\s+([^-].*?)\s*$'
+    local indent_regex_posix=${indent_regex//\\s/[[:space:]]}
+    indent_regex_posix=${indent_regex_posix//\?/}
 
     local -a values
     local value
@@ -68,6 +78,7 @@ _build_index_get() {
     # * If `list` is equal to 1, then `value` is treated as a continuation of
     #   the most recent item in a list (i.e., as a continuation of the last
     #   member of a comma-separated list to which `metadata[$key]` expands).
+    local -i bracket=0
     local -i cont=0
     local -i switch=0
 
@@ -75,34 +86,82 @@ _build_index_get() {
     for line in $block_slice; do
         if [[ $line =~ $kv_regex_posix ]]; then
             if (( switch == 0 )); then
-                values=( "$(_build_index_rg $kv_regex '$1' $line)" )
+                value="$(_build_index_rg $kv_regex '$1' $line)"
+
+                [[ $value[1] == '[' ]] && bracket=1
+                if (( bracket == 1 )); then
+                    if [[ $value[-1] == ']' ]]; then
+                        bracket=2
+                    elif [[ $value =~ ']' ]]; then
+                        echo 'build-index: values after bracketed list' >&2
+                        unset values
+                        return 1
+                    fi
+                fi
+
+                values+=( $value )
 
                 # If there is a value on the same line as the key, subsequent
                 # lines might be treated as a continuation of that value; so
                 # set `string` to 1.
-                [[ $values[-1] ]] && cont=1
+                [[ $values ]] && cont=1
                 switch=1
             else
+                if (( bracket == 1 )); then
+                    echo 'build-index: closing bracket not found' >&2
+                    unset values
+                    return 1
+                fi
+
                 break
             fi
 
-        elif [[ $line =~ $dash_regex_posix ]]; then
+        elif (( bracket == 2 )); then
+            echo 'build-index: values after bracketed list' >&2
+            unset values
+            return 1
 
+        elif [[ $line =~ $dash_regex_posix ]]; then
             if (( cont == 0 )); then
                 if [[ $1 == title ]]; then
+                    echo 'list in title' >&2
                     unset values
                     return 1
+
                 else
-                    value="$(_build_index_rg $dash_regex '$2' $line)"
-                    values+=( $value )
+                    value="$(_build_index_rg $dash_regex '$3' $line)"
+
+                    if [[ $value[1] == '[' ]]; then
+                        echo 'build-index: list within list' >&2
+                        unset values
+                        return 1
+
+                    else
+                        values+=( $value )
+                    fi
                 fi
+
             else
                 value="$(_build_index_rg $dash_regex '$1' $line)"
+
+                [[ $value[-1] == ']' ]] && bracket=2
+
                 values[-1]="$values[-1] $value"
             fi
 
         elif [[ $line =~ $indent_regex_posix ]]; then
             value="$(_build_index_rg $indent_regex '$1' $line)"
+
+            [[ $value[1] == '[' ]] && bracket=1
+            if (( bracket == 1 )); then
+                if [[ $value[-1] == ']' ]]; then
+                    bracket=2
+                elif [[ $value =~ ']' ]]; then
+                    echo 'build-index: values after bracketed list' >&2
+                    unset values
+                    return 1
+                fi
+            fi
 
             if [[ $values[-1] ]]; then
                 values[-1]="$values[-1] $value"
@@ -127,15 +186,14 @@ _build_index_get() {
         return 1
     fi
 
-    if [[ ${values[1][1]} == '[' ]]; then
-        if [[ $1 = 'title' ]]; then
+    if (( bracket == 2 )); then
+        if [[ $1 == 'title' ]]; then
+            echo 'Not allowed' >&2
             unset values
             return 1
         else
-            values=( ${(s:, :)${${values#'['}%']'}} )
+            values=( ${(s:,:)${${values#'['}%']'}} )
         fi
-    elif [[ $1 == 'keywords' ]]; then
-        values=( ${(s:, :)${(j:, :)values}} )
     fi
 
     local -i start
@@ -147,6 +205,17 @@ _build_index_get() {
     local dquote='"'
 
     for value in $values; do
+        value=${${value##[[:space:]]#}%%[[:space:]]#}
+        values[$index]=$value
+
+        if (( bracket == 2 )); then
+            if [[ $value[1] == '-' ]]; then
+                echo 'No dash allowed' >&2
+                unset values
+                return 1
+            fi
+        fi
+
         if (( single_quote == 0 )); then
             if [[ $value[1] == "'" && ! $double_quote -eq 1 ]]; then
                 value=${value#\'}
@@ -245,9 +314,19 @@ _build_index_get() {
         values=( ${values//\=\=/\"} )
     fi
 
+    if [[ $1 == 'keywords' ]]; then
+        values=( ${(s:,:)${(j:,:)values}} )
+        index=1
+        for value in $values; do
+            value=${${value##[[:space:]]#}%%[[:space:]]#}
+            values[$index]=$value
+            index=$(( index + 1 ))
+        done
+    fi
+
     # }}}2
 
-    print -l $values
+    print -l -- ${values//[[:space:]]##/ }
 }
 
 # {{{1 Build an index file for every keyword found in notes
@@ -259,14 +338,14 @@ setopt extended_glob
 declare -T keywords_scalar keywords_array
 declare -Ua all_keywords
 declare -A keywords
-declare -T block_scalar block
 
 declare file
+
 for file in *.md; do
+    _build_index_get_block $file
     keywords_array=( ${(f)"$(_build_index_get keywords $file)"} )
     all_keywords+=( $keywords_array )
     keywords[$file]=$keywords_scalar
-    blocks[$file]=$block_scalar
 done
 
 declare index_file
@@ -279,7 +358,7 @@ for keyword in $all_keywords; do
     index_file=${keyword:gs/ /_}_index.md
 
     if [[ -f $index_file ]]; then
-        block=( '\-\-\-' ${(s.:.)$blocks[$index_file]} '\-\-\-\n' )
+        block=( '\-\-\-' ${(s:+:)blocks[$index_file]} '\-\-\-\n' )
     else
         block=(
             '\-\-\-'
@@ -292,7 +371,7 @@ for keyword in $all_keywords; do
 
     print -l $block > $index_file
 
-    files=( ${(k)keywords[(R)(*$keyword:*)|(*:$keyword*)]} )
+    files=( ${(k)keywords[(R)(*$keyword:*)|(*:$keyword*)|($keyword)]} )
 
     for file in $files; do
         title="$(_build_index_get title $file)"
