@@ -2,11 +2,11 @@
 
 # To-do:
 # * Add errors for missing argumens
-# Last draft took 0.600 s to run
+# * Add formatting to index files
 
-# {{{1 get_block()
+# {{{1 _get_block()
 
-get_block() {
+_get_block() {
     local -a line_numbers
     line_numbers=( ${(f)"$(rg --line-number '^---$' $1 | cut -d : -f 1)"} )
 
@@ -21,10 +21,10 @@ get_block() {
     block=( ${(f)"$(cat $1 | head -$block_end | tail -$block_length)"} )
 
     # Cache `block` in an associative array
-    blocks[$1]=${(j:+:)block}
+    blocks[$1]=${(j:++:)block}
 }
 
-# {{{1 Utility functions for `parse_block`
+# {{{1 Utility functions for `_parse_block`
 
 # {{{2 __check_quotes()
 
@@ -177,9 +177,9 @@ __bracket_double_quotes() {
 
 # }}}2
 
-# {{{1 parse_block()
+# {{{1 _parse_block()
 
-parse_block() {
+_parse_block() {
     # {{{2 Get values from first line
 
     # Find the line in the block with the key we're looking for; disregard
@@ -308,12 +308,6 @@ __check_quotes
     done
 
 # {{{2 Process values
-
-    if [[ ! -n $values ]]; then
-        echo 'build-index: for key' $1 'in' $2',' \
-            'no value found' >&2
-        return 1
-    fi
 
     single_quote=0
     double_quote=0
@@ -458,7 +452,6 @@ __check_quotes
 # }}}2
 }
 
-# }}}1
 # {{{1 Build an index file for every keyword found in notes
 
 cd $HOME/Documents/Notes || exit 1
@@ -466,20 +459,20 @@ cd $HOME/Documents/Notes || exit 1
 setopt extended_glob
 
 declare -A blocks
-declare -T keywords_scalar keywords_array
+declare -a file_keywords
 declare -Ua all_keywords
 declare -A keywords
 
 declare file
-
 for file in *.md; do
-    get_block $file
-    keywords_array=( ${(f)"$(parse_block keywords $file)"} )
-    all_keywords+=( $keywords_array )
-    keywords[$file]=$keywords_scalar
+    _get_block $file
+    file_keywords=( ${(f)"$(_parse_block keywords $file)"} )
+    all_keywords+=( $file_keywords )
+    keywords[$file]=${(j:++:)file_keywords}
 done
 
 declare index_file
+declare -a block
 declare -a files
 declare title
 declare link
@@ -489,23 +482,23 @@ for keyword in $all_keywords; do
     index_file=${keyword:gs/ /_}_index.md
 
     if [[ -f $index_file ]]; then
-        block=( '\-\-\-' ${(s:+:)blocks[$index_file]} '\-\-\-\n' )
+        block=( '\-\-\-' ${(s:++:)blocks[$index_file]} '\-\-\-\n' )
     else
         block=(
             '\-\-\-'
             'id: '${index_file%.md}
             'title: '$keyword
-            'keywords: '
+            'keywords:'
             '\-\-\-\n'
         )
     fi
 
     print -l $block > $index_file
 
-    files=( ${(k)keywords[(R)(*$keyword:*)|(*:$keyword*)|($keyword)]} )
+    files=( ${(k)keywords[(R)(*$keyword++*)|(*++$keyword*)|($keyword)]} )
 
     for file in $files; do
-        title="$(parse_block title $file)"
+        title="$(_parse_block title $file)"
         link='['$title']['$file']'
         echo $link
     done | sort --ignore-case >> $index_file
