@@ -1,6 +1,11 @@
 # to-do
 # * Add gpg-related functions
 # * Consider completion options
+# * Consider changing aliases related to the following that don't make good Vim
+#   mappings:
+#   - ez
+#   - pd
+#   - d
 
 # {{{1 Options and settings
 
@@ -113,7 +118,7 @@ alias restart='[[ $(jobs) ]] && unset FPATH && PATH=/bin && exec -l zsh'
 alias sz="source $XDG_CONFIG_HOME/zsh/.zshrc"
 alias szp="source $XDG_CONFIG_HOME/zsh/.zprofile"
 alias td='texdoc'
-alias tdc="nv $HOME/Library/texmf/texdoc/texdoc.cnf"
+alias tdc="nvim $HOME/Library/texmf/texdoc/texdoc.cnf"
 alias ts='trash'
 alias ucb="cd $HOME/Documents/Past/2019-2024_UCBerkeley"
 alias vcc="ts $XDG_CACHE_HOME/vimtex/pkgcomplete.json"
