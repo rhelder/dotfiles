@@ -34,18 +34,6 @@ set splitbelow
 set splitright
 set textwidth=79
 
-" {{{1 Variables
-
-let arist = '~/Library/texmf/tex/latex/aristotelis/aristotelis.sty'
-let db = '~/Library/CloudStorage/Dropbox'
-let nvimrc = '~/.config/nvim/init.vim'
-let rhelder = '~/Library/texmf/tex/latex/rhelder/rhelder.sty'
-let texmf = '~/Library/texmf'
-let ucb = '~/Documents/UCBerkeley'
-let vmc = '~/.config/nvim/vimtex_my_complete'
-let vtc = '~/.local/share/nvim/plugged/vimtex/autoload/vimtex/complete'
-let zshrc = '~/.config/zsh/.zshrc'
-
 " {{{1 Mappings
 
 " Use `<Space>` as leader key
@@ -53,11 +41,8 @@ nnoremap <Space> <NOP>
 let mapleader = "\<Space>"
 let maplocalleader = "\<Space>"
 
-" Open/load files
-nnoremap <Leader>ea <Cmd>execute 'vsplit ' .. arist<CR>
-nnoremap <Leader>es <Cmd>execute 'vsplit ' .. rhelder<CR>
-nnoremap <Leader>ev <Cmd>vsplit $MYVIMRC<CR>
-nnoremap <Leader>ez <Cmd>execute 'vsplit ' .. zshrc<CR>
+" Source `.zshrc` mappings and shell variablse
+source $XDG_CONFIG_HOME/nvim/zshrc.vim
 nnoremap <Leader>sv <Cmd>source $MYVIMRC<CR>
 
 " Open help
@@ -369,6 +354,7 @@ augroup nvimrc_autocommands
     autocmd TermOpen * set nonumber
     autocmd BufReadPost,BufNewFile $XDG_DATA_HOME/zsh/functions/*   set filetype=zsh
     autocmd BufReadPost,BufNewFile $HOME/.local/bin/*               set filetype=zsh
+    autocmd ExitPre $XDG_CONFIG_HOME/zsh/.zshrc                     !sync-vz
 augroup END
 
 " }}}1
