@@ -1,0 +1,50 @@
+#!/bin/zsh
+
+# Convert `.zshrc` aliases starting with `cd` or `nvim` and make into Vim
+# mappings, and take `.zshrc` shell variables and make into Vim variables.
+# Write results to `zshrc.vim`, to be sourced in `init.vim`.
+
+setopt rc_quotes
+setopt extended_glob
+
+declare -i first_alias=0
+declare -i first_var=0
+declare lhs
+declare rhs
+declare var
+declare val
+
+while read line; do
+    if [[ $line[1,5] == 'alias' ]]; then
+        if (( first_alias == 0 )); then
+            if (( first_var == 1 )); then
+                echo
+            fi
+            echo '" Mappings (corresponding to aliases in `.zshrc`)\n'
+            first_alias=1
+        fi
+
+        if [[ $line =~ '=(''|")?(cd|nvim )' ]]; then
+            lhs=${${line#alias[[:space:]]##}%%=*}
+            rhs=${line#alias[[:space:]]##$lhs=}
+            rhs=${${rhs#(\'|\")}%(\'|\")}
+            map="nnoremap <Leader>$lhs <Cmd>$rhs<CR>"
+            map=${map/'<Cmd>cd'/'<Cmd>lcd\n            \'}
+            map=${map/'<Cmd>nvim'/'<Cmd>vs\n            \'}
+            echo $map
+        fi
+
+    elif [[ $line =~ '^[[:lower:]][^[:space:]]*=' ]]; then
+        if (( first_var == 0 )); then
+            if (( first_alias == 1 )); then
+                echo
+            fi
+            echo '" Variables (corresponding to shell variables in `.zshrc`)\n'
+            first_var=1
+        fi
+
+        var=${line%%=*}
+        val=${line#$var=}
+        echo 'let' $var '=' \"$val\"
+    fi
+done < $XDG_CONFIG_HOME/zsh/.zshrc > $XDG_CONFIG_HOME/nvim/zshrc.vim
