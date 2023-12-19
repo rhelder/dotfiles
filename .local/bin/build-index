@@ -483,6 +483,8 @@ declare sub_keyword
 declare -Ua sub_keyword_files
 declare -a both_keyword_files
 declare -Ua used_keyword_files
+declare -Ua unused_keyword_files
+declare ref
 
 for keyword in $all_keywords; do
     index_file=${keyword// /_}_index.md
@@ -514,8 +516,9 @@ for keyword in $all_keywords; do
 
     for sub_index_file in ${(i)sub_index_files}; do
         title="$(_parse_block title $sub_index_file)"
-        link='['$title']['$sub_index_file']'
+        link='## ['$title']['$sub_index_file']'
         echo $link
+        echo
 
         sub_keyword=${${sub_index_file%_index.md}//_/ }
         [[ $sub_keyword[1] == ' ' ]] && sub_keyword=${sub_keyword/ /@}
@@ -538,12 +541,20 @@ for keyword in $all_keywords; do
     done >> $index_file
 
     used_keyword_files+=( $sub_index_files )
-    keyword_files=( ${keyword_files:|used_keyword_files} )
+    unused_keyword_files=( ${keyword_files:|used_keyword_files} )
 
-    for file in ${(nO)keyword_files}; do
-        title="$(_parse_block title $file)"
-        link='['$title']['$file']'
-        echo $link
+    {
+        for file in ${(nO)unused_keyword_files}; do
+            title="$(_parse_block title $file)"
+            link='| ['$title']['$file']'
+            echo $link
+        done
+        echo
+    } >> $index_file
+
+    for file in ${(o)keyword_files}; do
+        ref=${file/.md/.html}
+        echo '['$file']:' $ref
     done >> $index_file
 
     used_keyword_files=()
