@@ -1,8 +1,6 @@
 #!/bin/zsh
-
-# To-do:
-# * Cache titles to minimize running `_parse_block`
-# * Add references to links
+#
+# To-do: write comments for last section
 
 # {{{1 _get_block()
 
@@ -462,6 +460,7 @@ declare -A blocks
 declare -a file_keywords
 declare -Ua all_keywords
 declare -A keywords
+declare -A titles
 
 declare file
 for file in *.md; do
@@ -469,6 +468,7 @@ for file in *.md; do
     file_keywords=( ${(f)"$(_parse_block keywords $file)"} )
     all_keywords+=( $file_keywords )
     keywords[$file]=${(j:++:)file_keywords}
+    titles[$file]="$(_parse_block title $file)"
 done
 
 declare index_file
@@ -519,7 +519,7 @@ for keyword in $all_keywords; do
     sub_index_files=( ${keyword_files:#[[:digit:]]*} )
 
     for sub_index_file in ${(i)sub_index_files}; do
-        title="$(_parse_block title $sub_index_file)"
+        title=$titles[$sub_index_file]
         link='## ['$title']['$sub_index_file']'
         echo $link
         echo
@@ -535,7 +535,7 @@ for keyword in $all_keywords; do
         both_keyword_files=( ${both_keyword_files:|sub_index_files} )
 
         for file in ${(nO)both_keyword_files}; do
-            title="$(_parse_block title $file)"
+            title=$titles[$file]
             link='['$title']['$file']'
             echo '*  ' $link
         done
@@ -549,7 +549,7 @@ for keyword in $all_keywords; do
 
     {
         for file in ${(nO)unused_keyword_files}; do
-            title="$(_parse_block title $file)"
+            title=$titles[$file]
             link='| ['$title']['$file']'
             echo $link
         done
