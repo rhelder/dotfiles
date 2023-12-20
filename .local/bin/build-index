@@ -473,11 +473,11 @@ done
 
 declare index_file
 declare -a block
+declare title
 declare -a index_files
 declare -Ua keyword_files
 declare -a sub_index_files
 declare sub_index_file
-declare title
 declare link
 declare sub_keyword
 declare -Ua sub_keyword_files
@@ -488,8 +488,13 @@ declare ref
 
 for keyword in $all_keywords; do
     index_file=${keyword// /_}_index.md
-    [[ $index_file[1] == '@' ]] && index_file=${index_file/@/_}
-    [[ $keyword[1] == '@' ]] && keyword=${keyword/@/\\@}
+
+    if [[ $keyword[1] == '@' ]]; then
+        index_file=${index_file/@/_}
+        title=${keyword/@/\\@}
+    else
+        title=$keyword
+    fi
 
     if [[ -f $index_file ]]; then
         block=( '---' ${(s:++:)blocks[$index_file]} '---'$'\n' )
@@ -497,7 +502,7 @@ for keyword in $all_keywords; do
         block=(
             '---'
             'id: '${index_file%.md}
-            'title: '$keyword
+            'title: '$title
             'keywords:'
             '---'$'\n'
         )
@@ -507,7 +512,6 @@ for keyword in $all_keywords; do
 
     index_files+=( $index_file )
 
-    [[ $keyword[1,2] == '\@' ]] && keyword=${keyword/\\@/@}
     keyword_files=( ${(k)keywords[(R)*$keyword++*]} )
     keyword_files+=( ${(k)keywords[(R)*++$keyword*]} )
     keyword_files+=( ${(k)keywords[(R)$keyword]} )
@@ -563,6 +567,7 @@ done
 declare old_files="$(
     comm -13 =(print -l $index_files | sort) =(print -l *index* | sort)
 )"
+
 if [[ -n $old_files ]]; then
     echo 'The following index files do not correspond to any keywords:'
     print -l ${(f)old_files}
