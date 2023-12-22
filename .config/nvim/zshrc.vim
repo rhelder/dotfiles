@@ -20,6 +20,8 @@ nnoremap <Leader>egi <Cmd>vs
             \ $XDG_CONFIG_HOME/git/ignore<CR>
 nnoremap <Leader>elmk <Cmd>vs
             \ $XDG_CONFIG_HOME/latexmk/latexmkrc<CR>
+nnoremap <Leader>emd <Cmd>vs
+            \ $XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdView.vim<CR>
 nnoremap <Leader>es <Cmd>vs
             \ $HOME/Library/texmf/tex/latex/rhelder/rhelder.sty<CR>
 nnoremap <Leader>espd <Cmd>vs
@@ -34,6 +36,8 @@ nnoremap <Leader>ezh <Cmd>vs
             \ $HISTFILE<CR>
 nnoremap <Leader>ezp <Cmd>vs
             \ $XDG_CONFIG_HOME/zsh/.zprofile<CR>
+nnoremap <Leader>on <Cmd>lcd
+            \ $HOME/Documents/Notes<CR>
 nnoremap <Leader>pd <Cmd>lcd
             \ $XDG_DATA_HOME/pandoc<CR>
 nnoremap <Leader>pdd <Cmd>lcd
@@ -67,6 +71,7 @@ let fzf = "$XDG_CONFIG_HOME/fzf/fzf.zsh"
 let gc = "$XDG_CONFIG_HOME/git/config"
 let gi = "$XDG_CONFIG_HOME/git/ignore"
 let lmk = "$XDG_CONFIG_HOME/latexmk/latexmkrc"
+let md = "$XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdView.vim"
 let pdd = "$XDG_DATA_HOME/pandoc/defaults"
 let pdt = "$XDG_DATA_HOME/pandoc/templates"
 let rhc = "$HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
@@ -75,6 +80,7 @@ let spd = "$XDG_CONFIG_HOME/nvim/spell/de.utf-8.add"
 let spe = "$XDG_CONFIG_HOME/nvim/spell/en.utf-8.add"
 let tdc = "$HOME/Library/texmf/texdoc/texdoc.cnf"
 let ucb = "$HOME/Documents/Past/2019-2024_UCBerkeley"
+let n = "$HOME/Documents/Notes"
 let v = "$XDG_CONFIG_HOME/nvim/init.vim"
 let vmc = "$XDG_CONFIG_HOME/nvim/vimtex_my_complete"
 let vtc = "$XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete"
