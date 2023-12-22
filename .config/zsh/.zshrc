@@ -6,6 +6,7 @@
 #   - ez
 #   - pd
 #   - d
+# * Turn `Cl` and `cl` into functions with error messages
 
 # {{{1 Options and settings
 
@@ -78,6 +79,7 @@ alias egc="nvim $XDG_CONFIG_HOME/git/config"
 alias egi="nvim $XDG_CONFIG_HOME/git/ignore"
 alias eh='sudo nvim /etc/hosts'
 alias elmk="nvim $XDG_CONFIG_HOME/latexmk/latexmkrc"
+alias emd="nvim $XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdView.vim"
 alias erhc="nv $HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
 alias es="nvim $HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
 alias espd="nvim $XDG_CONFIG_HOME/nvim/spell/de.utf-8.add"
@@ -111,6 +113,7 @@ alias nn='new-note'
 alias nv='nvim'
 alias nvh='nvim-help'
 alias o='open'
+alias on="cd $HOME/Documents/Notes"
 alias pd="cd $XDG_DATA_HOME/pandoc"
 alias pdd="cd $XDG_DATA_HOME/pandoc/defaults"
 alias pdt="cd $XDG_DATA_HOME/pandoc/templates"
@@ -140,6 +143,7 @@ fzf=$XDG_CONFIG_HOME/fzf/fzf.zsh
 gc=$XDG_CONFIG_HOME/git/config
 gi=$XDG_CONFIG_HOME/git/ignore
 lmk=$XDG_CONFIG_HOME/latexmk/latexmkrc
+md=$XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdView.vim
 pdd=$XDG_DATA_HOME/pandoc/defaults
 pdt=$XDG_DATA_HOME/pandoc/templates
 rhc=$HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls
@@ -148,6 +152,7 @@ spd=$XDG_CONFIG_HOME/nvim/spell/de.utf-8.add
 spe=$XDG_CONFIG_HOME/nvim/spell/en.utf-8.add
 tdc=$HOME/Library/texmf/texdoc/texdoc.cnf
 ucb=$HOME/Documents/Past/2019-2024_UCBerkeley
+n=$HOME/Documents/Notes
 v=$XDG_CONFIG_HOME/nvim/init.vim
 vmc=$XDG_CONFIG_HOME/nvim/vimtex_my_complete
 vtc=$XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete
