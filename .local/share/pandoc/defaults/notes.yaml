@@ -1,0 +1,10 @@
+---
+defaults: github.yaml
+standalone: true
+citeproc: true
+metadata:
+  bibliography: /Users/rhelder/Library/texmf/bibtex/bib/myLibrary.bib
+  reference-section-title:
+variables:
+  notes: true
+...
