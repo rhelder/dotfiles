@@ -20,12 +20,11 @@
 /.gnupg/*
 !/.gnupg/gpg-agent.conf
 
-/.local/*
-!/.local/bin/
-!/.local/share/
-/.local/share/*
-!/.local/share/pandoc
-!/.local/share/zsh
+/.local/state/
+/.local/share/zotero/
+/.local/share/nvim/.netrwhist
+/.local/share/nvim/plugged/
+/.local/share/nvim/site/autoload/plug.vim
 
 /Library/*
 !/Library/texmf/
