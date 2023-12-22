@@ -279,7 +279,6 @@ augroup nvimrc_filetype_defaults
     autocmd BufWinEnter COMMIT_EDITMSG  setlocal nosmartindent textwidth=72
     autocmd FileType text,markdown,tex  setlocal nosmartindent
     autocmd FileType zsh                setlocal iskeyword+=-
-    " autocmd FileType markdown           source ~/scripts/mdView/mdView.vim
 augroup END
 
 " {{{2 Mappings
@@ -355,6 +354,8 @@ augroup nvimrc_autocommands
     autocmd BufReadPost,BufNewFile $XDG_DATA_HOME/zsh/functions/*   set filetype=zsh
     autocmd BufReadPost,BufNewFile $HOME/.local/bin/*               set filetype=zsh
     autocmd ExitPre $XDG_CONFIG_HOME/zsh/.zshrc                     !sync-vz
+    autocmd ExitPre $HOME/Documents/Notes/*.md                      MdviewConvert
+    autocmd ExitPre $HOME/Documents/Notes/*.md                      !build-index
 augroup END
 
 " }}}1
