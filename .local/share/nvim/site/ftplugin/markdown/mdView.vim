@@ -1,14 +1,16 @@
 " to-do
 " *  Define key bindings
 
-" {{{1 s:_silent()
+function! s:_silent(commands) abort " {{{1
+    " Prevent external commands from triggering 'hit enter' prompt, while still
+    " capturing stderr (technically, this function captures both stdout and
+    " stderr, but `pandoc`, with the `--output` option, and `open` do not write
+    " anything to stdout))
 
-" Prevent external commands from triggering 'hit enter' prompt, while still
-" capturing stderr (technically, this function captures both stdout and stderr,
-" but `pandoc`, with the `--output` option, and `open` do not write anything to
-" stdout))
-function! s:_silent(commands) abort
     silent let b:stderr = system(a:commands)
+    " Remove null character
+    let b:stderr = substitute(b:stderr, '\%x00', '', 'g')
+
     if v:shell_error > 0
         echoerr b:stderr
     else
@@ -16,57 +18,57 @@ function! s:_silent(commands) abort
     endif
 endfunction
 
-command! -buffer -nargs=1 Silent call s:_silent(<f-args>)
+function! s:_print_message(message) abort " {{{1
+    " Print 'completed' and 'stopped' messages after the style of VimTeX's
+    " 'compilation completed' and 'compilation stopped' messages
 
-" {{{1 s:_print_message
-
-" Print 'completed' and 'stopped' messages after the style of VimTeX's
-" 'compilation completed' and 'compilation stopped' messages
-
-highlight MdViewMessage cterm=bold
-function! s:_print_message(message) abort
+    highlight MdViewMessage cterm=bold
     echohl Type
     echo 'mdView: '
     echohl MdViewMessage
     echon a:message
     echohl None
+    highlight clear MdViewMessage
 endfunction
 
-" {{{1 s:convert
+" {{{1 Define filename variables
 
-function! s:convert() abort
-    let l:input = expand("%")
-    let l:output = substitute(input, '_', ' ', 'g')
-    if matchstr(l:output, '^ ')
-        let l:output = substitute(l:output, '^ ', '@')
-    endif
-    let l:output = substitute(l:output, '.md$', '.html', '')
-    let $INPUT_FILE = l:input
-    let $OUTPUT_FILE = l:output
+let s:input = expand("%")
+let s:output = substitute(s:input, '_', ' ', 'g')
+if matchstr(s:output, '^ ')
+    let s:output = substitute(s:output, '^ ', '@')
+endif
+let s:output = substitute(s:output, '.md$', '.html', '')
 
-    Silent pandoc --defaults=notes --output $OUTPUT_FILE $INPUT_FILE
+function! s:convert() abort " {{{1
+    call s:_silent([
+                \ 'pandoc',
+                \ '--defaults=notes',
+                \ '--output',
+                \ expand(s:output),
+                \ expand(s:input)
+                \ ])
 
     if v:shell_error == 0
         call s:_print_message('Completed')
     endif
 endfunction
 
-" {{{1 s:md_view
-
-function! s:_convert_and_open() abort
-    call s:convert()
-    Silent open -g $OUTPUT_FILE
+function! s:open() abort " {{{1
+    call s:_silent([
+                \ 'open',
+                \ '-g',
+                \ expand(s:output)
+                \ ])
 endfunction
 
-" If b:viewed is off, call s:_convert_and_open(), define autocommand that calls
-" s:_convert_and_open whenever the buffer is written, and switch `b:viewed` on.
-" When `b:viewed` is on, delete the autocommand, print a message that mdView
-" has stopped, and switch b:viewed back off.
+function! s:_convert_and_open() abort " {{{1
+    call s:convert()
+    call s:open()
+endfunction
 
-let b:viewed = 0
-
-function! s:md_view() abort
-    if b:viewed == 0
+function! s:md_view() abort " {{{1
+    if !exists('b:viewed') || b:viewed == 0
         call s:_convert_and_open()
         augroup md_view_convert_and_open
             autocmd!
@@ -87,16 +89,6 @@ endfunction
 
 command! -buffer Mdview call s:md_view()
 command! -buffer MdviewConvert call s:convert()
-command! -buffer MdviewOpen Silent open -g $OUTPUT_FILE
-
-" {{{1 Clean up
-
-augroup md_view_cleanup
-    autocmd!
-    autocmd BufWinLeave *.md highlight clear MdViewMessage
-augroup END
-
-unlet $INPUT_FILE
-unlet $OUTPUT_FILE
+command! -buffer MdviewOpen call s:open()
 
 " }}}1
