@@ -1,0 +1,32 @@
+#!/bin/zsh
+
+# 1.    Run initial search with ripgrep
+# 2.    Press ctrl-f to switch to fzf and start filtering every line in the
+#       files matched by the initial ripgrep search.
+# 3.    Press ctrl-e to filter the matched lines again with a new query
+
+rm /tmp/rf_list /tmp/rf_list_tmp
+rg_args=(
+    'rg'
+    '--color=always'
+    '--with-filename'
+    '--line-number'
+    '--no-heading'
+    '--smart-case'
+    '--field-match-separator=:'
+    '--field-context-separator=:'
+)
+file_path=( ${*[2,-1]:-} )
+initial_query=${1:-}
+
+: | fzf --ansi --disabled --query "$initial_query" \
+    --bind="start:reload:$rg_args {q} $file_path" \
+    --bind="change:reload:sleep 0.1; $rg_args {q} $file_path || true" \
+    --bind="ctrl-f:unbind(change,ctrl-f)+execute-silent(rg --files-with-matches --null {q} $file_path | xargs -0 $rg_args --passthru > /tmp/rf_list)+reload(cat /tmp/rf_list)+enable-search+clear-query" \
+    --bind="ctrl-e:execute-silent(cat /tmp/rf_list | fzf --filter={q} > /tmp/rf_list_tmp)+reload(cat /tmp/rf_list_tmp)+execute-silent(cat /tmp/rf_list_tmp > /tmp/rf_list)+clear-query" \
+    --color="hl:-1:underline,hl+:-1:underline:reverse" \
+    --delimiter=: \
+    --preview='bat --color=always {1} --highlight-line {2}' \
+    --preview-window='up,60%,border-bottom,+{2}+3/3,~3' \
+    --bind='enter:become(nvim {1} +{2})'
+
