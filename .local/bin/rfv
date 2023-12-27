@@ -1,9 +1,11 @@
 #!/bin/zsh
 
 # 1.    Run initial search with ripgrep
-# 2.    Press ctrl-t to switch to fzf and start filtering every line in the
+# 2.    Press ctrl-f to switch to fzf and start filtering every line in the
 #       files matched by the initial ripgrep search.
-# 3.    Press ctrl-f to filter the matched lines again with a new query
+# 3.    Press ctrl-e to filter the lines again with a new ripgrep query, and
+#       press ctrl-w to filter the lines again with a new fzf query. You can do
+#       this an arbitrary number of times, in any order
 
 rm /tmp/rf_*
 
@@ -21,12 +23,24 @@ rg_args=(
 file_path=( ${*[2,-1]:-} )
 
 rg_search=(
+    '[[ -f /tmp/rf_rg ]]'
+    '&&'
+    'cat /tmp/rf_rg'
+    '|'
+    'rg'
+    '--color=always'
+    '--no-filename'
+    '--no-line-number'
+    '--no-heading'
+    '--smart-case'
+    '{q}'
+    '||'
     $rg_args
     '{q}'
     $file_path
 )
 
-rg_collect=(
+rg_get_all_lines=(
     'rg'
     '--files-with-matches'
     '--null'
@@ -41,11 +55,57 @@ rg_collect=(
 )
 
 fzf_filter=(
+    '[[ -f /tmp/rf_rg ]]'
+    '&&'
+    '{'
+    'cat /tmp/rf_rg'
+    '|'
+    'rg'
+    '--color=always'
+    '--no-filename'
+    '--no-line-number'
+    '--no-heading'
+    '--smart-case'
+    '{q}'
+    '> /tmp/rf_fzf;'
+    'rm /tmp/rf_rg'
+    '}'
+    '||'
+    '{'
     'cat /tmp/rf_fzf'
     '|'
     'fzf --filter={q}'
+    '> /tmp/rf_fzf_tmp;'
+    'cat /tmp/rf_fzf_tmp'
+    '> /tmp/rf_fzf'
+    '}'
+)
+
+rg_filter=(
+    '[[ -f /tmp/rf_fzf ]]'
+    '&&'
+    '{'
+    'cat /tmp/rf_fzf'
     '|'
-    'tee /tmp/rf_fzf'
+    'fzf --filter={q}'
+    '> /tmp/rf_rg;'
+    'rm /tmp/rf_fzf'
+    '}'
+    '||'
+    '{'
+    'cat /tmp/rf_rg'
+    '|'
+    'rg'
+    '--color=always'
+    '--no-filename'
+    '--no-line-number'
+    '--no-heading'
+    '--smart-case'
+    '{q}'
+    '> /tmp/rf_rg_tmp;'
+    'cat /tmp/rf_rg_tmp'
+    '> /tmp/rf_rg'
+    '}'
 )
 
 initial_query=${1:-}
@@ -53,10 +113,11 @@ initial_query=${1:-}
 : | fzf --ansi --disabled --query "$initial_query" \
     --bind="start:reload:$rg_search" \
     --bind="change:reload:sleep 0.1; $rg_search || true" \
-    --bind="ctrl-t:unbind(change,ctrl-t)+\
-execute-silent($rg_collect > /tmp/rf_{initial,rg,fzf})+\
+    --bind="ctrl-f:unbind(change,ctrl-f)+\
+execute-silent($rg_get_all_lines > /tmp/rf_{initial,fzf})+\
 reload(cat /tmp/rf_initial)+enable-search+clear-query" \
-    --bind="ctrl-f:reload($fzf_filter)+clear-query" \
+    --bind="ctrl-w:unbind(change)+execute-silent($fzf_filter)+reload(cat /tmp/rf_fzf)+enable-search+clear-query" \
+    --bind="ctrl-e:disable-search+execute-silent($rg_filter)+reload(cat /tmp/rf_rg)+rebind(change)+clear-query" \
     --color="hl:-1:underline,hl+:-1:underline:reverse" \
     --delimiter=: \
     --preview='bat --color=always {1} --highlight-line {2}' \
