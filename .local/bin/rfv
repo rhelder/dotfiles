@@ -1,15 +1,17 @@
 #!/bin/zsh
 
 # 1.    Run initial search with ripgrep
-# 2.    Press ctrl-f to switch to fzf and start filtering every line in the
-#       files matched by the initial ripgrep search.
-# 3.    Press ctrl-e to filter the lines again with a new ripgrep query, and
-#       press ctrl-w to filter the lines again with a new fzf query. You can do
-#       this an arbitrary number of times, in any order
+# 2.    After initial search, press ctrl-t or ctrl-r to start filtering every
+#       line in the files matched by the initial rg search. To filter with fzf,
+#       use ctrl-t; to filter with rg, use ctrl-r.
+# 3.    Press ctrl-f at any time to  switch to fzf (if not already in fzf mode)
+#       and filter with additional query
+# 4.    Press ctrl-e at any time to switch to rg (if not already in rg mode)
+#       and filter with additional query
 
 rm /tmp/rf_*
 
-rg_args=(
+rg_search_args=(
     'rg'
     '--color=always'
     '--with-filename'
@@ -20,6 +22,15 @@ rg_args=(
     '--field-context-separator=:'
 )
 
+rg_filter_args=(
+    'rg'
+    '--color=always'
+    '--no-filename'
+    '--no-line-number'
+    '--no-heading'
+    '--smart-case'
+)
+
 file_path=( ${*[2,-1]:-} )
 
 rg_search=(
@@ -27,15 +38,10 @@ rg_search=(
     '&&'
     'cat /tmp/rf_rg'
     '|'
-    'rg'
-    '--color=always'
-    '--no-filename'
-    '--no-line-number'
-    '--no-heading'
-    '--smart-case'
+    $rg_filter_args
     '{q}'
     '||'
-    $rg_args
+    $rg_search_args
     '{q}'
     $file_path
 )
@@ -49,7 +55,7 @@ rg_get_all_lines=(
     '|'
     'xargs'
     '--null'
-    $rg_args
+    $rg_search_args
     '--passthru'
     '{q}'
 )
@@ -60,17 +66,15 @@ fzf_filter=(
     '{'
     'cat /tmp/rf_rg'
     '|'
-    'rg'
-    '--color=always'
-    '--no-filename'
-    '--no-line-number'
-    '--no-heading'
-    '--smart-case'
+    $rg_filter_args
     '{q}'
     '> /tmp/rf_fzf;'
     'rm /tmp/rf_rg'
     '}'
     '||'
+    '{'
+    '[[ -f /tmp/rf_fzf ]]'
+    '&&'
     '{'
     'cat /tmp/rf_fzf'
     '|'
@@ -78,6 +82,13 @@ fzf_filter=(
     '> /tmp/rf_fzf_tmp;'
     'cat /tmp/rf_fzf_tmp'
     '> /tmp/rf_fzf'
+    '}'
+    '||'
+    '{'
+    $rg_search
+    '> /tmp/rf_fzf;'
+    'echo {q} > /tmp/rf_initial_query'
+    '}'
     '}'
 )
 
@@ -93,32 +104,81 @@ rg_filter=(
     '}'
     '||'
     '{'
+    '[[ -f /tmp/rf_rg ]]'
+    '&&'
+    '{'
     'cat /tmp/rf_rg'
     '|'
-    'rg'
-    '--color=always'
-    '--no-filename'
-    '--no-line-number'
-    '--no-heading'
-    '--smart-case'
+    $rg_filter_args
     '{q}'
     '> /tmp/rf_rg_tmp;'
     'cat /tmp/rf_rg_tmp'
     '> /tmp/rf_rg'
     '}'
+    '||'
+    '{'
+    $rg_search
+    '> /tmp/rf_rg;'
+    'echo {q} > /tmp/rf_initial_query'
+    '}'
+    '}'
 )
+
+step_prompt_num=(
+    'cat /tmp/rf_prompt_num > /tmp/rf_prompt_num_tmp;'
+    'echo $(( $(</tmp/rf_prompt_num_tmp) + 1 )) > /tmp/rf_prompt_num;'
+)
+
+prompt_fzf='echo "$(</tmp/rf_prompt_num). fzf> "'
+
+prompt_rg='echo "$(</tmp/rf_prompt_num). rg> "'
+
+header_search_files="/ CTRL-T (search files with fzf) \
+/ CTRL-R (search files with rg) /"
+
+header_filter="/ CTRL-F (filter again with fzf) \
+/ CTRL-E (filter again with rg) /"
+
+header_return='/ CTRL-B (return to initial rg query) /'
+
+echo '1' > /tmp/rf_prompt_num
 
 initial_query=${1:-}
 
 : | fzf --ansi --disabled --query "$initial_query" \
-    --bind="start:reload:$rg_search" \
+    --prompt='1. rg> ' \
+    --bind="start:unbind(ctrl-b)+reload:$rg_search" \
     --bind="change:reload:sleep 0.1; $rg_search || true" \
-    --bind="ctrl-f:unbind(change,ctrl-f)+\
-execute-silent($rg_get_all_lines > /tmp/rf_{initial,fzf})+\
-reload(cat /tmp/rf_initial)+enable-search+clear-query" \
-    --bind="ctrl-w:unbind(change)+execute-silent($fzf_filter)+reload(cat /tmp/rf_fzf)+enable-search+clear-query" \
-    --bind="ctrl-e:disable-search+execute-silent($rg_filter)+reload(cat /tmp/rf_rg)+rebind(change)+clear-query" \
+    --bind="ctrl-t:unbind(change,ctrl-t,ctrl-r)+rebind(ctrl-b)+\
+transform-header(echo \"${header_filter}\n$header_return\")+\
+execute-silent($step_prompt_num)+transform-prompt($prompt_fzf)+\
+execute-silent($rg_get_all_lines > /tmp/rf_fzf)+reload(cat /tmp/rf_fzf)+\
+execute-silent(echo {q} > /tmp/rf_initial_query)+clear-query+enable-search" \
+    --bind="ctrl-r:unbind(ctrl-r,ctrl-t)+rebind(ctrl-b)+\
+transform-header(echo \"${header_filter}\n$header_return\")+\
+execute-silent($step_prompt_num)+transform-prompt($prompt_rg)+\
+execute-silent($rg_get_all_lines > /tmp/rf_rg)+reload(cat /tmp/rf_rg)+\
+execute-silent(echo {q} > /tmp/rf_initial_query)+clear-query" \
+    --bind="ctrl-f:unbind(change,ctrl-t,ctrl-r)+rebind(ctrl-b)+\
+transform-header(echo \"${header_filter}\n$header_return\")+\
+execute-silent($step_prompt_num)+transform-prompt($prompt_fzf)+\
+execute-silent($fzf_filter)+reload(cat /tmp/rf_fzf)+\
+clear-query+enable-search" \
+    --bind="ctrl-e:unbind(ctrl-r,ctrl-t)+rebind(ctrl-b)+\
+transform-header(echo \"${header_filter}\n$header_return\")+\
+execute-silent($step_prompt_num)+transform-prompt($prompt_rg)+\
+execute-silent($rg_filter)+reload(cat /tmp/rf_rg)+\
+clear-query+disable-search+rebind(change)" \
+    --bind="ctrl-b:unbind(ctrl-b)+rebind(ctrl-t,ctrl-r)+\
+transform-header(echo \"${header_search_files}\n$header_filter\")+\
+execute-silent(echo '1' > /tmp/rf_prompt_num)+transform-prompt($prompt_rg)+\
+transform-query(cat /tmp/rf_initial_query)+\
+execute-silent(rm /tmp/rf_*)+\
+reload($rg_search || true)+\
+disable-search+rebind(change)" \
     --color="hl:-1:underline,hl+:-1:underline:reverse" \
+    --header="$header_search_files
+$header_filter" \
     --delimiter=: \
     --preview='bat --color=always {1} --highlight-line {2}' \
     --preview-window='up,60%,border-bottom,+{2}+3/3,~3' \
