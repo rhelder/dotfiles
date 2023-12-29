@@ -355,7 +355,8 @@ augroup nvimrc_autocommands
     autocmd BufReadPost,BufNewFile $HOME/.local/bin/*               set filetype=zsh
     autocmd ExitPre $XDG_CONFIG_HOME/zsh/.zshrc                     !sync-vz
     autocmd ExitPre $HOME/Documents/Notes/*.md                      silent MdviewConvert
-    autocmd ExitPre $HOME/Documents/Notes/*.md                      silent !build-index
+    autocmd ExitPre $HOME/Documents/Notes/*.md                      echo 'Running build-index...' | silent !build-index
+
 augroup END
 
 " }}}1
