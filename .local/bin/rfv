@@ -42,30 +42,29 @@ rg_filter_args=(
 file_path=( ${*[2,-1]:-} )
 
 rg_search=(
-    '[[ -f /tmp/rfv_rg ]]' '&&'
-        'cat /tmp/rfv_rg' '|' $rg_filter_args '--' '{q}'
+    '[[ -f /tmp/rfv_rg ]] &&'
+        'cat /tmp/rfv_rg |' $rg_filter_args '-- {q}'
     '||'
-        $rg_search_args '--' '{q}' $file_path
+        $rg_search_args '-- {q}' $file_path
 )
 
 rg_get_all_lines=(
-    'rg' '--files-with-matches' '--null' '--' '{q}' $file_path '|'
-        'xargs' '--null' $rg_search_args '--passthru' '--' '{q}'
+    'rg --files-with-matches --null -- {q}' $file_path '|'
+        'xargs --null' $rg_search_args '--passthru -- {q}'
 )
 
 fzf_filter=(
-    '[[ -f /tmp/rfv_rg ]]' '&&'
+    '[[ -f /tmp/rfv_rg ]] &&'
         '{'
-            'cat /tmp/rfv_rg' '|' $rg_filter_args '--' '{q}' '> /tmp/rfv_fzf;'
+            'cat /tmp/rfv_rg |' $rg_filter_args '-- {q} > /tmp/rfv_fzf;'
             'rm /tmp/rfv_rg'
         '}'
     '||'
         '{'
-            '[[ -f /tmp/rfv_fzf ]]' '&&'
+            '[[ -f /tmp/rfv_fzf ]] &&'
                 '{'
-                    'cat /tmp/rfv_fzf' '|' 'fzf --filter={q}'
-                        '> /tmp/rfv_fzf_tmp;'
-                    'cat /tmp/rfv_fzf_tmp' '> /tmp/rfv_fzf'
+                    'cat /tmp/rfv_fzf | fzf --filter={q} > /tmp/rfv_fzf_tmp;'
+                    'cat /tmp/rfv_fzf_tmp > /tmp/rfv_fzf'
                 '}'
             '||'
                 '{'
@@ -76,18 +75,18 @@ fzf_filter=(
 )
 
 rg_filter=(
-    '[[ -f /tmp/rfv_fzf ]]' '&&'
+    '[[ -f /tmp/rfv_fzf ]] &&'
         '{'
-            'cat /tmp/rfv_fzf' '|' 'fzf --filter={q}' '> /tmp/rfv_rg;'
+            'cat /tmp/rfv_fzf | fzf --filter={q} > /tmp/rfv_rg;'
             'rm /tmp/rfv_fzf'
         '}'
     '||'
         '{'
-            '[[ -f /tmp/rfv_rg ]]' '&&'
+            '[[ -f /tmp/rfv_rg ]] &&'
                 '{'
-                    'cat /tmp/rfv_rg' '|' $rg_filter_args '--' '{q}'
+                    'cat /tmp/rfv_rg |' $rg_filter_args '-- {q}'
                         '> /tmp/rfv_rg_tmp;'
-                    'cat /tmp/rfv_rg_tmp' '> /tmp/rfv_rg'
+                    'cat /tmp/rfv_rg_tmp > /tmp/rfv_rg'
                 '}'
             '||'
                 '{'
