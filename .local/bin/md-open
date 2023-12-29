@@ -1,0 +1,11 @@
+#!/bin/zsh
+
+# Opens html file corresponding to Markdown file, if one exists
+
+if [[ ! -f "$*" ]]; then
+    echo 'md-open:' "$*" 'not found'
+elif [[ ! -f "${*%.md}.html" ]]; then
+    echo 'md-open:' "${*%.md}.html" 'not found'
+fi
+
+open "${*%.md}.html"
