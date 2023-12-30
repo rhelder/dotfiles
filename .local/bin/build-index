@@ -1,6 +1,4 @@
 #!/bin/zsh
-#
-# To-do: write comments for last section
 
 # {{{1 _get_block()
 
@@ -462,6 +460,8 @@ declare -Ua all_keywords
 declare -A keywords
 declare -A titles
 
+# Cache every file's metadata block, title, and keywords, and create a list of
+# all keywords
 declare file
 for file in *.md; do
     _get_block $file
@@ -496,6 +496,8 @@ for keyword in $all_keywords; do
         title=$keyword
     fi
 
+    # If the index file exists, use its existing metadata block; otherwise, use
+    # a default metadata block
     if [[ -f $index_file ]]; then
         block=( '---' ${(s:++:)blocks[$index_file]} '---'$'\n' )
     else
@@ -512,10 +514,12 @@ for keyword in $all_keywords; do
 
     index_files+=( $index_file )
 
+    # Create a list of all files that have the keyword `keyword`
     keyword_files=( ${(k)keywords[(R)*$keyword++*]} )
     keyword_files+=( ${(k)keywords[(R)*++$keyword*]} )
     keyword_files+=( ${(k)keywords[(R)$keyword]} )
 
+    # Create a list of all index files that have the keyword `keyword`
     sub_index_files=( ${keyword_files:#[[:digit:]]*} )
 
     for sub_index_file in ${(i)sub_index_files}; do
@@ -524,13 +528,17 @@ for keyword in $all_keywords; do
         echo $link
         echo
 
+        # Get the keyword corresponding to the sub-index file
         sub_keyword=${${sub_index_file%_index.md}//_/ }
         [[ $sub_keyword[1] == ' ' ]] && sub_keyword=${sub_keyword/ /@}
 
+        # Create a list of all files that have the keyword `sub_keyword`
         sub_keyword_files=( ${(k)keywords[(R)*$sub_keyword++*]} )
         sub_keyword_files+=( ${(k)keywords[(R)*++$sub_keyword*]} )
         sub_keyword_files+=( ${(k)keywords[(R)$sub_keyword]} )
 
+        # Create a list of all files that have both the keyword `keyword` and
+        # the keyword `sub_keyword`
         both_keyword_files=( ${sub_keyword_files:*keyword_files} )
         both_keyword_files=( ${both_keyword_files:|sub_index_files} )
 
@@ -544,9 +552,10 @@ for keyword in $all_keywords; do
         used_keyword_files+=( $both_keyword_files )
     done >> $index_file
 
+    # Now that the loop is complete, append links to only those files that have
+    # not already been linked to
     used_keyword_files+=( $sub_index_files )
     unused_keyword_files=( ${keyword_files:|used_keyword_files} )
-
     {
         for file in ${(nO)unused_keyword_files}; do
             title=$titles[$file]
@@ -556,6 +565,7 @@ for keyword in $all_keywords; do
         echo
     } >> $index_file
 
+    # We have been using reference-style links, so add references
     for file in ${(o)keyword_files}; do
         ref=${file//_/%20}
         if [[ $ref[1,3] == '%20' ]]; then
@@ -568,6 +578,8 @@ for keyword in $all_keywords; do
     used_keyword_files=()
 done
 
+# Check if there are any index files that correspond to keywords that are no
+# longer used
 declare old_files="$(
     comm -13 =(print -l $index_files | sort) =(print -l *index*.md | sort)
 )"
