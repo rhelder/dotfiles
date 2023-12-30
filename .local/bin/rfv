@@ -1,20 +1,23 @@
 #!/bin/zsh
 
+# Integrate fzf with ripgrep
 # 1.    Run initial search with ripgrep
-# 2.    After initial search, press ctrl-t or ctrl-r to start filtering every
-#       line in the files matched by the initial rg search. To filter with fzf,
-#       use ctrl-t; to filter with rg, use ctrl-r.
-# 3.    Press ctrl-f at any time to  switch to fzf (if not already in fzf mode)
-#       and filter with additional query
-# 4.    Press ctrl-e at any time to switch to rg (if not already in rg mode)
-#       and filter with additional query
-#       (change rf_ to rfv_)
+# 2.    After initial search, press `CTRL-T` or `CTRL-R` to start filtering
+#       every line in the files matched by the initial ripgrep search. To
+#       filter with fzf, use `CTRL-T`; to filter with ripgrep, use `CTRL-R`.
+# 3.    Press `CTRL-F` at any time to  switch to fzf (if not already in fzf
+#       mode) and filter with additional query
+# 4.    Press `CTRL-E` at any time to switch to ripgrep (if not already in
+#       ripgrep mode) and filter with additional query
 
-rm /tmp/rfv_*(N) 2>/dev/null
+# The general approach is that we use temporary files both to store
+# narrowed-down results and to keep track of what mode we are in. If
+# `/tmp/rf_fzf` exixsts, we are in fzf mode. If `/tmp_rf_rg` exists, we are in
+# ripgrep mode. If neither exist, then we are still at the initial query, and
+# therefore in ripgrep mode.
 
 # {{{1 Handle additional arguments
 
-setopt extended_glob
 declare -a additional_args=()
 while [[ $1 == --* ]]; do
     if [[ $1 == '--' ]]; then
@@ -26,8 +29,6 @@ while [[ $1 == --* ]]; do
 done
 
 # {{{1 `rg` and `fzf` expressions
-
-initial_query=${1:-}
 
 rg_search_args=(
     'rg' '--color=always' '--with-filename' '--line-number' '--no-heading'
@@ -41,6 +42,17 @@ rg_filter_args=(
 
 file_path=( ${*[2,-1]:-} )
 
+# The following arrays all represent single lines of code. They are put into
+# array form for convenience, because they are really long, and dividing them
+# into array elements makes it possible to visually represent them in a way
+# that's easier to read (e.g., with indentation). How the code is split into
+# elements doesn't matter, because the arguments of fzf's `execute()` and
+# `reload()` are fed to `zsh -c` as one word (i.e., as if `zsh -c "$args"`). So
+# all of these arrays will eventually be joined into one word anyway.
+
+# We use `rg_search` both for the initial ripgrep query and for subsequent
+# filtering with `rg`. In the former case, search files directly, and in the
+# latter case, filter the results stored in `/tmp/rfv_rg`
 rg_search=(
     '[[ -f /tmp/rfv_rg ]] &&'
         'cat /tmp/rfv_rg |' $rg_filter_args '-- {q}'
@@ -53,11 +65,31 @@ rg_get_all_lines=(
         'xargs --null' $rg_search_args '--passthru -- {q}'
 )
 
+# With `fzf_filter` and `rg_filter`, what we are trying to accomplish is to
+# recreate what's already happened in the interactive search, and to store the
+# results in a temporary file. How we do this depends on what mode we're in. If
+# we are at the initial query, search files directly with the current query and
+# store the results in a temporary file. If we are past the initial query, the
+# results of the last search will be stored in a temporary file. If we are in
+# ripgrep mode, filter the temporary file with the current query and ripgrep.
+# If we are in fzf mode, filter the temporary file with the current query and
+# `fzf --filter`. Store the output in a temporary file; this output will be the
+# same as the narrowed-down results that the user sees in the interactive
+# interface.
+
+# A known issue is that `fzf --filter` will sometimes pick up results that
+# `fzf` does not pick up on in the interactive interface, namely when `fzf
+# --filter` is matching ANSI color codes. This could be prevented by using `fzf
+# --filter --ansi`, but this eliminates all the colors from the results.
+# Because the colors are pretty useful, and because this behavior seems pretty
+# rare, I think it's better to not use the `--ansi` option and to accept the
+# current behavior. Cf. https://github.com/junegunn/fzf/issues/977
+
 fzf_filter=(
-    '[[ -f /tmp/rfv_rg ]] &&'
+    '[[ -f /tmp/rfv_rg ]] &&' # i.e., if we're in ripgrep mode
         '{'
             'cat /tmp/rfv_rg |' $rg_filter_args '-- {q} > /tmp/rfv_fzf;'
-            'rm /tmp/rfv_rg'
+            'rm /tmp/rfv_rg' # i.e., now we're in fzf mode
         '}'
     '||'
         '{'
@@ -119,10 +151,25 @@ header_filter="/ CTRL-F (filter again with fzf) \
 
 header_return='/ CTRL-B (return to initial rg query) /'
 
-# }}}1
+# {{{1 fzf command
 
-: | fzf --ansi --disabled --query "$initial_query" \
-    --prompt='1. rg> ' \
+# https://github.com/junegunn/fzf/blob/master/ADVANCED.md#ripgrep-integration:
+# 1.    Wherever `rg_search` is bound to `reload`, append `|| true` so that
+#       `rg` doesn't output a verbose error message if a match is not found
+# 2.    Where `reload` is bound to `change`, include `sleep 0.1` in the command
+#       bound to `reload` to minimize number of intermediate ripgrep processes
+# 3.    To switch to fzf, unbind `change` and enable search
+# 4.    To switch to ripgrep, rebind `change` and disable search
+# 5.    The `--color`, `--delimiter`, `--preview`, `--preview-window`, and
+#       final `--bind` lines are copied from @junegunn's scripts
+
+rm /tmp/rfv_*(N) 2>/dev/null
+
+initial_query=${1:-}
+
+: | fzf --ansi --disabled --query=$initial_query --prompt='1. rg> ' \
+    --header="$header_search_files
+$header_filter" \
     --bind="start:unbind(ctrl-b)+reload:$rg_search || true" \
     --bind="change:reload:sleep 0.1; $rg_search || true" \
     --bind="ctrl-t:unbind(change,ctrl-t,ctrl-r)+rebind(ctrl-b)+\
@@ -153,10 +200,10 @@ execute-silent(echo '1' > /tmp/rfv_prompt_num)+transform-prompt($prompt_rg)+\
 reload($rg_search || true)+\
 disable-search+rebind(change)" \
     --color="hl:-1:underline,hl+:-1:underline:reverse" \
-    --header="$header_search_files
-$header_filter" \
     --delimiter=: \
     --preview='bat --color=always {1} --highlight-line {2}' \
     --preview-window='up,60%,border-bottom,+{2}+3/3,~3' \
     --bind='enter:become(nvim {1} +{2})' \
     $additional_args
+
+# }}}1
