@@ -2,22 +2,29 @@
 
 # Integrate fzf with ripgrep
 # 1.    Run initial search with ripgrep
-# 2.    After initial search, press `CTRL-T` or `CTRL-R` to start filtering
-#       every line in the files matched by the initial ripgrep search. To
-#       filter with fzf, use `CTRL-T`; to filter with ripgrep, use `CTRL-R`.
-# 3.    Press `CTRL-F` at any time to  switch to fzf (if not already in fzf
-#       mode) and filter with additional query
-# 4.    Press `CTRL-E` at any time to switch to ripgrep (if not already in
-#       ripgrep mode) and filter with additional query
+# 2.    Filter the results again with new queries as many times as desired with
+#       ripgrep (with `CTRL-E`) or with fzf (with `CTRL-F`), in any order
+# 3.    After initial search(es), press `CTRL-T` or `CTRL-R` to start filtering
+#       every line in every file matched by the initial search(es). To filter
+#       with fzf, use `CTRL-T`; to filter with ripgrep, use `CTRL-R`.
+# 4.    Again, filter the results again with new queries as many times as
+#       desired with ripgrep (with `CTRL-E`) or with fzf (with `CTRL-F`), in
+#       any order
+# 5.    Press `CTRL-B` to return to the initial ripgrep query
 
-# The general approach is that we use temporary files both to store
-# narrowed-down results and to keep track of what mode we are in. If
-# `/tmp/rf_fzf` exixsts, we are in fzf mode. If `/tmp_rf_rg` exists, we are in
-# ripgrep mode. If neither exist, then we are still at the initial query, and
-# therefore in ripgrep mode.
+# The general approach is to use temporary files both to store search results
+# and to keep track of what mode we are in. If `/tmp/rf_fzf` exixsts, we are in
+# fzf mode. If `/tmp_rf_rg` exists, we are in ripgrep mode. If neither exist,
+# then we are still at the initial query, and therefore in ripgrep mode.
 
-# {{{1 Handle additional arguments
+rm /tmp/rfv_*(N) 2>/dev/null
 
+# {{{1 Code to be inserted into fzf command
+
+# {{{2 Additional arguments to `fzf`
+
+# A possible use case for this is to append a `--bind` option that overrides a
+# previous `--bind` option in this script
 declare -a additional_args=()
 while [[ $1 == --* ]]; do
     if [[ $1 == '--' ]]; then
@@ -28,7 +35,7 @@ while [[ $1 == --* ]]; do
     shift
 done
 
-# {{{1 `rg` and `fzf` expressions
+# {{{2 Arguments to `rg`
 
 rg_search_args=(
     'rg' '--color=always' '--with-filename' '--line-number' '--no-heading'
@@ -42,13 +49,21 @@ rg_filter_args=(
 
 file_path=( ${*[2,-1]:-} )
 
-# The following arrays all represent single lines of code. They are put into
-# array form for convenience, because they are really long, and dividing them
-# into array elements makes it possible to visually represent them in a way
-# that's easier to read (e.g., with indentation). How the code is split into
-# elements doesn't matter, because the arguments of fzf's `execute()` and
-# `reload()` are fed to `zsh -c` as one word (i.e., as if `zsh -c "$args"`). So
-# all of these arrays will eventually be joined into one word anyway.
+# }}} 2
+
+# The following arrays all represent single lines of code. There are
+# placeholders for the appropriate temporary files (i.e., depending on what
+# mode the user is switching into), to avoid having to duplicate the exact same
+# code but with different filenames. These lines of code are put into array
+# form for convenience, because they are really long, and dividing them into
+# array elements makes it possible to visually represent them in a way that's
+# easier to read (e.g., with indentation and with comments). How the code is
+# split into elements doesn't matter, because the arguments of fzf's
+# `execute()`, `reload()`, etc. are fed to `zsh -c` as one word (i.e., as if
+# `zsh -c "$args"`). So all of these arrays will eventually be joined into one
+# word anyway.
+
+# {{{2 rg_search
 
 # We use `rg_search` both for the initial ripgrep query and for subsequent
 # filtering with `rg`. In the former case, search files directly, and in the
@@ -60,77 +75,148 @@ rg_search=(
         $rg_search_args '-- {q}' $file_path
 )
 
-rg_get_all_lines=(
-    'rg --files-with-matches --null -- {q}' $file_path '|'
-        'xargs --null' $rg_search_args '--passthru -- {q}'
-)
+# {{{2 filter
 
-# With `fzf_filter` and `rg_filter`, what we are trying to accomplish is to
-# recreate what's already happened in the interactive search, and to store the
-# results in a temporary file. How we do this depends on what mode we're in. If
-# we are at the initial query, search files directly with the current query and
-# store the results in a temporary file. If we are past the initial query, the
-# results of the last search will be stored in a temporary file. If we are in
-# ripgrep mode, filter the temporary file with the current query and ripgrep.
-# If we are in fzf mode, filter the temporary file with the current query and
-# `fzf --filter`. Store the output in a temporary file; this output will be the
-# same as the narrowed-down results that the user sees in the interactive
-# interface.
+# With `filter_to_fzf` and `filter_to_rg`, what we are trying to accomplish is
+# to recreate what's already happened in the interactive search, and to store
+# the results in a temporary file. How we do this depends on what mode we're
+# in. If we are at the initial query, search files directly with the current
+# query and store the results in a temporary file. If we are past the initial
+# query, the results of the last search will have been stored in a temporary
+# file. If we are in ripgrep mode, filter the temporary file with the current
+# query and ripgrep. If we are in fzf mode, filter the temporary file with the
+# current query and `fzf --filter`. Store the output in a temporary file; this
+# output will be the same as the filtered results that the user sees in the
+# interactive interface.
 
 # A known issue is that `fzf --filter` will sometimes pick up results that
 # `fzf` does not pick up on in the interactive interface, namely when `fzf
-# --filter` is matching ANSI color codes. This could be prevented by using `fzf
-# --filter --ansi`, but this eliminates all the colors from the results.
-# Because the colors are pretty useful, and because this behavior seems pretty
-# rare, I think it's better to not use the `--ansi` option and to accept the
-# current behavior. Cf. https://github.com/junegunn/fzf/issues/977
+# --filter` is matching ANSI color codes (ripgrep can also inadvertently match
+# ANSI color codes, though obviously more rarely). This could be prevented by
+# using `fzf --filter --ansi`, but this eliminates all the colors from the
+# results. Because the colors are useful, and because this behavior seems rare,
+# I think it's better to not use the `--ansi` option and to accept the current
+# behavior. Cf. https://github.com/junegunn/fzf/issues/977
 
-fzf_filter=(
-    '[[ -f /tmp/rfv_rg ]] &&' # i.e., if we're in ripgrep mode
+filter_schema=(
+    '[[ -f /tmp/rfv_fzf ]] &&' # i.e., if we are in fzf mode
         '{'
-            'cat /tmp/rfv_rg |' $rg_filter_args '-- {q} > /tmp/rfv_fzf;'
-            'rm /tmp/rfv_rg' # i.e., now we're in fzf mode
+            'cat /tmp/rfv_fzf | fzf --filter={q} > <file>_tmp;'
+            'cat <file>_tmp > <file>'
         '}'
     '||'
         '{'
-            '[[ -f /tmp/rfv_fzf ]] &&'
+            '[[ -f /tmp/rfv_rg ]] &&' # i.e., if we are in ripgrep mode
                 '{'
-                    'cat /tmp/rfv_fzf | fzf --filter={q} > /tmp/rfv_fzf_tmp;'
-                    'cat /tmp/rfv_fzf_tmp > /tmp/rfv_fzf'
+                    'cat /tmp/rfv_rg |' $rg_filter_args '-- {q} > <file>_tmp;'
+                    'cat <file>_tmp > <file>'
                 '}'
-            '||'
+            '||' # i.e., if we are at the initial query
                 '{'
-                    $rg_search '> /tmp/rfv_fzf;'
+                    $rg_search_args '-- {q}' $file_path '> <file>;'
                     'echo {q} > /tmp/rfv_initial_query'
-                '}'
-        '}'
+                '};'
+                'echo {q} >> /tmp/rfv_prev_rg_queries'
+        '};'
 )
 
-rg_filter=(
+# Store the results in `tmp/rfv_fzf`, to show that we're in fzf mode.
+filter_to_fzf=( ${filter_schema//<file>/\/tmp\/rfv_fzf} )
+# Now delete `/tmp/rfv_rg`, if it exists, to show that we're in fzf mode
+filter_to_fzf+=( '[[ -f /tmp/rfv_rg ]] && rm /tmp/rfv_rg' )
+
+filter_to_rg=( ${filter_schema//<file>/\/tmp\/rfv_rg} )
+filter_to_rg+=( '[[ -f /tmp/rfv_fzf ]] && rm /tmp/rfv_fzf' )
+
+# {{{2 passthru
+
+# Run `rg --passthru` an additional time for every previous ripgrep query
+# stored in `/tmp/rfv_prev_rg_queries` so that the previous queries are
+# displayed in color as matches
+color_prev_rg_matches=(
+    '[[ -f /tmp/rfv_prev_rg_queries ]] &&'
+        'while read; do'
+            'cat <file> |' $rg_filter_args '--passthru -- $REPLY > <file>_tmp;'
+            'cat <file>_tmp > <file>;'
+        'done < /tmp/rfv_prev_rg_queries'
+)
+
+# `passthru_to_fzf` and `passthru_to_rg` use `rg --passthru` to get every line
+# of every file matched by the last search
+
+passthru_schema=(
     '[[ -f /tmp/rfv_fzf ]] &&'
         '{'
-            'cat /tmp/rfv_fzf | fzf --filter={q} > /tmp/rfv_rg;'
-            'rm /tmp/rfv_fzf'
+            # If we're in fzf mode, `/tmp/rfv_fzf` will already have been
+            # filtered by the `passthru_if_from_fzf` code below. So we can just
+            # pipe `/tmp/rfv_fzf` into the `while` loop directly
+            'cat /tmp/rfv_fzf | while read; do'
+                # Cut all fields but the filename
+                'echo $REPLY | cut -d : -f 1 |'
+                # Get rid of ANSI color codes
+                "sed -E 's/\x1b\[[0-9;]+m//g';"
+            "done | sort | uniq | tr '\n' '\0' |"
+                'xargs --null' $rg_search_args '--passthru -- {q}'
+                    '> <file>_tmp;'
+            'cat <file>_tmp > <file>;'
+            '{'
+                $color_prev_rg_matches
+            '}'
         '}'
     '||'
         '{'
             '[[ -f /tmp/rfv_rg ]] &&'
                 '{'
-                    'cat /tmp/rfv_rg |' $rg_filter_args '-- {q}'
-                        '> /tmp/rfv_rg_tmp;'
-                    'cat /tmp/rfv_rg_tmp > /tmp/rfv_rg'
+                    'cat /tmp/rfv_rg |' $rg_filter_args '-- {q} > <file>_tmp;'
+                    'cat <file>_tmp | while read; do'
+                        'echo $REPLY | cut -d : -f 1 |'
+                        "sed -E 's/\x1b\[[0-9;]+m//g';"
+                    "done | sort | uniq | tr '\n' '\0' |"
+                        'xargs --null' $rg_search_args '--passthru -- {q}'
+                            '> <file>;'
+                    '{'
+                        $color_prev_rg_matches
+                    '}'
                 '}'
             '||'
                 '{'
-                    $rg_search '> /tmp/rfv_rg;'
+                    'rg --files-with-matches --null -- {q}' $file_path '|'
+                        'xargs --null' $rg_search_args '--passthru -- {q}'
+                            '> <file>;'
                     'echo {q} > /tmp/rfv_initial_query'
-                '}'
-        '}'
+                '};'
+                'echo {q} >> /tmp/rfv_prev_rg_queries'
+        '};'
+    # Create a temporary file that we will use when defining headers
+    'touch /tmp/rfv_passthru_disabled;'
 )
 
-# {{{1 Prompts
+passthru_to_fzf=( ${passthru_schema//<file>/\/tmp\/rfv_fzf} )
+passthru_to_fzf+=( '[[ -f /tmp/rfv_rg ]] && rm /tmp/rfv_rg' )
 
-step_prompt_num=(
+passthru_to_rg=( ${passthru_schema//<file>/\/tmp\/rfv_rg} )
+passthru_to_rg+=( '[[ -f /tmp/rfv_fzf ]] && rm /tmp/rfv_fzf' )
+
+# {{{2 passthru_if_from_fzf
+
+if_fzf_clear_query=(
+    '[[ -f /tmp/rfv_fzf ]] &&'
+        "echo '' > /tmp/rfv_passthru_query"
+    '||'
+        'echo {q} > /tmp/rfv_passthru_query;'
+    'cat /tmp/rfv_passthru_query'
+)
+
+passthru_if_from_fzf="\
+execute-silent(${filter_to_fzf[1,5]})+\
+transform-query($if_fzf_clear_query)"
+
+# {{{2 Prompts
+
+# Each time we start a new search, we increment the prompt number by 1. By
+# storing the number in a temporary file, we can do this an arbitrary number of
+# times, just like we can do an arbitrary number of searches
+increment_prompt_num=(
     'cat /tmp/rfv_prompt_num > /tmp/rfv_prompt_num_tmp;'
     'echo $(( $(</tmp/rfv_prompt_num_tmp) + 1 )) > /tmp/rfv_prompt_num'
 )
@@ -140,8 +226,7 @@ echo '1' > /tmp/rfv_prompt_num
 prompt_fzf='echo "$(</tmp/rfv_prompt_num). fzf> "'
 prompt_rg='echo "$(</tmp/rfv_prompt_num). rg> "'
 
-
-# {{{1 Headers
+# {{{2 Headers
 
 header_search_files="/ CTRL-T (search files with fzf) \
 / CTRL-R (search files with rg) /"
@@ -151,9 +236,23 @@ header_filter="/ CTRL-F (filter again with fzf) \
 
 header_return='/ CTRL-B (return to initial rg query) /'
 
+# After we've pressed `CTRL-F` or `CTRL-E`, `CTRL-T` and `CTRL-R` may or may
+# not be bound. If `/tmp/rfv_passthru_disabled` exists, we know that either
+# `CTRL-T` or CTRL-R` has been pressed, and that therefore they have been
+# unbound; so we omit them from the header.
+header_filter_or_search=(
+    '[[ -f /tmp/rfv_passthru_disabled ]] &&'
+        "echo \"${header_filter}\n$header_return\""
+    '||'
+        "echo \"${header_search_files}\n${header_filter}\n$header_return\""
+)
+
+# }}}2
+
 # {{{1 fzf command
 
-# https://github.com/junegunn/fzf/blob/master/ADVANCED.md#ripgrep-integration:
+# Here are some notes on the following code, but see also:
+# https://github.com/junegunn/fzf/blob/master/ADVANCED.md#ripgrep-integration
 # 1.    Wherever `rg_search` is bound to `reload`, append `|| true` so that
 #       `rg` doesn't output a verbose error message if a match is not found
 # 2.    Where `reload` is bound to `change`, include `sleep 0.1` in the command
@@ -162,8 +261,6 @@ header_return='/ CTRL-B (return to initial rg query) /'
 # 4.    To switch to ripgrep, rebind `change` and disable search
 # 5.    The `--color`, `--delimiter`, `--preview`, `--preview-window`, and
 #       final `--bind` lines are copied from @junegunn's scripts
-
-rm /tmp/rfv_*(N) 2>/dev/null
 
 initial_query=${1:-}
 
@@ -174,23 +271,27 @@ $header_filter" \
     --bind="change:reload:sleep 0.1; $rg_search || true" \
     --bind="ctrl-t:unbind(change,ctrl-t,ctrl-r)+rebind(ctrl-b)+\
 transform-header(echo \"${header_filter}\n$header_return\")+\
-execute-silent($step_prompt_num)+transform-prompt($prompt_fzf)+\
-execute-silent($rg_get_all_lines > /tmp/rfv_fzf)+reload(cat /tmp/rfv_fzf)+\
-execute-silent(echo {q} > /tmp/rfv_initial_query)+clear-query+enable-search" \
+execute-silent($increment_prompt_num)+transform-prompt($prompt_fzf)+\
+${passthru_if_from_fzf}+execute-silent($passthru_to_fzf)+\
+reload(cat /tmp/rfv_fzf)+\
+clear-query+enable-search" \
     --bind="ctrl-r:unbind(ctrl-r,ctrl-t)+rebind(ctrl-b)+\
 transform-header(echo \"${header_filter}\n$header_return\")+\
-execute-silent($step_prompt_num)+transform-prompt($prompt_rg)+\
-execute-silent($rg_get_all_lines > /tmp/rfv_rg)+reload(cat /tmp/rfv_rg)+\
-execute-silent(echo {q} > /tmp/rfv_initial_query)+clear-query" \
-    --bind="ctrl-f:unbind(change,ctrl-t,ctrl-r)+rebind(ctrl-b)+\
-transform-header(echo \"${header_filter}\n$header_return\")+\
-execute-silent($step_prompt_num)+transform-prompt($prompt_fzf)+\
-execute-silent($fzf_filter)+reload(cat /tmp/rfv_fzf)+\
+execute-silent($increment_prompt_num)+transform-prompt($prompt_rg)+\
+${passthru_if_from_fzf}+execute-silent($passthru_to_rg)+\
+reload(cat /tmp/rfv_rg)+\
+clear-query+disable-search+rebind(change)" \
+    --bind="ctrl-f:unbind(change)+rebind(ctrl-b)+\
+transform-header($header_filter_or_search)+\
+execute-silent($increment_prompt_num)+transform-prompt($prompt_fzf)+\
+execute-silent($filter_to_fzf)+\
+reload(cat /tmp/rfv_fzf)+\
 clear-query+enable-search" \
-    --bind="ctrl-e:unbind(ctrl-r,ctrl-t)+rebind(ctrl-b)+\
-transform-header(echo \"${header_filter}\n$header_return\")+\
-execute-silent($step_prompt_num)+transform-prompt($prompt_rg)+\
-execute-silent($rg_filter)+reload(cat /tmp/rfv_rg)+\
+    --bind="ctrl-e:rebind(ctrl-b)+\
+transform-header($header_filter_or_search)+\
+execute-silent($increment_prompt_num)+transform-prompt($prompt_rg)+\
+execute-silent($filter_to_rg)+\
+reload(cat /tmp/rfv_rg)+\
 clear-query+disable-search+rebind(change)" \
     --bind="ctrl-b:unbind(ctrl-b)+rebind(ctrl-t,ctrl-r)+\
 transform-header(echo \"${header_search_files}\n$header_filter\")+\
