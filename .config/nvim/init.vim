@@ -1,8 +1,3 @@
-" To-do
-" * Learn how to map an operator, then use that to change surrounding quotes
-"   (see `map-operator`)
-" * Make changes in accordance with changes to zshrc
-
 " {{{1 Options
 
 let &formatlistpat = '^\s*\(\d\|\*\|+\|-\)\+[\]:.)}\t ]\s*'
@@ -68,11 +63,6 @@ nnoremap <Leader>sp         <Cmd>setlocal spell!<CR>
 nnoremap <expr> <Leader>sn  &spell ? "]sz=" : "<Leader>sn"
 nnoremap <expr> <Leader>sN  &spell ? "[sz=" : "<Leader>sN"
 
-" Navigation
-noremap H       ^
-noremap L       $
-inoremap <BS>   <Nop>
-
 " Move lines up or down
 nnoremap - ddkP
 nnoremap _ ddp
@@ -80,37 +70,6 @@ nnoremap _ ddp
 " Uppercase word
 nnoremap <Leader>u viwUe
 
-" Insert unique identifier
-nnoremap <Leader>i :execute 'normal! i' ..
-            \ strftime("%Y%m%d%H%M%S") .. "\<lt>Esc>"<CR>
-
-" " Change surrounding quotes
-" nnoremap <Leader>' vi"o<Esc>hr'gvo<Esc>lr'
-" nnoremap <Leader>" vi'o<Esc>hr"gvo<Esc>lr"
-
-" {{{2 Surround word or selection with delimiters
-nnoremap <Leader>{ viw<Esc>`<i{<Esc>`>la}<Esc>%
-nnoremap <Leader>} viw<Esc>`<i{<Esc>`>la}<Esc>%
-nnoremap <Leader>[ viw<Esc>`<i[<Esc>`>la]<Esc>%
-nnoremap <Leader>] viw<Esc>`<i[<Esc>`>la]<Esc>%
-nnoremap <Leader>( viw<Esc>`<i(<Esc>`>la)<Esc>
-nnoremap <Leader>) viw<Esc>`<i(<Esc>`>la)<Esc>
-nnoremap <Leader>< viw<Esc>`<i<<Esc>`>la><Esc>%
-nnoremap <Leader>> viw<Esc>`<i<<Esc>`>la><Esc>%
-nnoremap <Leader>" viw<Esc>`<i"<Esc>`>la"<Esc>
-nnoremap <Leader>' viw<Esc>`<i'<Esc>`>la'<Esc>
-nnoremap <Leader>` viw<Esc>`<i`<Esc>`>la`<Esc>
-vnoremap <Leader>{ <Esc>`<i{<Esc>`>la}<Esc>%
-vnoremap <Leader>} <Esc>`<i{<Esc>`>la}<Esc>%
-vnoremap <Leader>[ <Esc>`<i[<Esc>`>la]<Esc>%
-vnoremap <Leader>] <Esc>`<i[<Esc>`>la]<Esc>%
-vnoremap <Leader>( <Esc>`<i(<Esc>`>la)<Esc>
-vnoremap <Leader>) <Esc>`<i(<Esc>`>la)<Esc>
-vnoremap <Leader>< <Esc>`<i<<Esc>`>la><Esc>%
-vnoremap <Leader>> <Esc>`<i<<Esc>`>la><Esc>%
-vnoremap <Leader>" <Esc>`<i"<Esc>`>la"<Esc>
-vnoremap <Leader>' <Esc>`<i'<Esc>`>la'<Esc>
-vnoremap <Leader>` <Esc>`<i`<Esc>`>la`<Esc>
 " Text objects for next and last objects {{{2
 
 " Sentences (can't figure out how to do 'last' sentence)
@@ -500,6 +459,8 @@ call plug#begin()
     Plug 'roxma/nvim-yarp'
     Plug 'ncm2/ncm2'
     Plug 'jamessan/vim-gnupg'
+    Plug '/opt/homebrew/opt/fzf'
+    Plug 'machakann/vim-sandwich'
 call plug#end()
 
 " {{{1 VimTeX settings
