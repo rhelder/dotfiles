@@ -455,12 +455,13 @@ endfunction
 " {{{1 Vim-plug
 
 call plug#begin()
-    Plug 'lervag/vimtex'
-    Plug 'roxma/nvim-yarp'
-    Plug 'ncm2/ncm2'
-    Plug 'jamessan/vim-gnupg'
     Plug '/opt/homebrew/opt/fzf'
+    Plug 'ncm2/ncm2'
+    Plug 'roxma/nvim-yarp'
+    Plug 'jamessan/vim-gnupg'
+    Plug 'junegunn/vim-plug'
     Plug 'machakann/vim-sandwich'
+    Plug 'lervag/vimtex'
 call plug#end()
 
 " {{{1 VimTeX settings
