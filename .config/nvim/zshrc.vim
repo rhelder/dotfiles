@@ -22,6 +22,10 @@ nnoremap <Leader>elmk <Cmd>vs
             \ $XDG_CONFIG_HOME/latexmk/latexmkrc<CR>
 nnoremap <Leader>emd <Cmd>vs
             \ $XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdView.vim<CR>
+nnoremap <Leader>erhc <Cmd>vs
+            \ $HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls<CR>
+nnoremap <Leader>erfv <Cmd>vs
+            \ $XDG_DATA_HOME/nvim/site/plugin/rfv.vim<CR>
 nnoremap <Leader>es <Cmd>vs
             \ $HOME/Library/texmf/tex/latex/rhelder/rhelder.sty<CR>
 nnoremap <Leader>espd <Cmd>vs
@@ -74,6 +78,7 @@ let lmk = "$XDG_CONFIG_HOME/latexmk/latexmkrc"
 let md = "$XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdView.vim"
 let pdd = "$XDG_DATA_HOME/pandoc/defaults"
 let pdt = "$XDG_DATA_HOME/pandoc/templates"
+let rfv = "$XDG_DATA_HOME/nvim/site/plugin/rfv.vim"
 let rhc = "$HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
 let s = "$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
 let spd = "$XDG_CONFIG_HOME/nvim/spell/de.utf-8.add"
