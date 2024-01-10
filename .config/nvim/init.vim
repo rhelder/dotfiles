@@ -17,7 +17,6 @@ set ignorecase
 set list
 set mouse=
 set noruler
-set number
 set report=0
 set scrolloff=3
 set shiftwidth=4
@@ -229,6 +228,7 @@ iabbrev delcare         declare
 " {{{2 Filetype defaults
 augroup nvimrc_filetype_defaults
     autocmd!
+    autocmd FileType *                  setlocal number
     autocmd FileType markdown           setlocal formatoptions-=l
     autocmd FileType csv                setlocal formatoptions-=tc
     autocmd FileType tex                setlocal formatoptions-=t
@@ -452,7 +452,7 @@ endfunction
 " }}}2
 
 " }}}1
-" {{{1 Vim-plug
+" {{{1 vim-plug
 
 call plug#begin()
     Plug '/opt/homebrew/opt/fzf'
@@ -531,5 +531,13 @@ augroup END
 " {{{1 vim-gnupg configuration
 
 let g:GPGExecutable = "PINENTRY_USER_DATA='' gpg --trust-model always"
+
+" {{{1 rfv configuration
+"
+let g:rfv_action = {
+            \ 'ctrl-v': 'vertical split',
+            \ 'ctrl-x': 'split',
+            \ 'ctrl-o': 'silent !md-open',
+            \ }
 
 " }}}1
