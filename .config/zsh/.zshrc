@@ -35,6 +35,9 @@ export GPG_TTY="$(tty)"
 # Source `fzf` preferences
 source $XDG_CONFIG_HOME/fzf/fzf.zsh
 
+# Configure `rfv`
+export RFV_DEFAULT_BIND='--bind=enter:become(nvim {1} +{2})'
+
 # {{{1 Functions
 
 # Use `autoload` and `alias` functions instead of builtins
