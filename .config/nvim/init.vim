@@ -233,6 +233,7 @@ augroup nvimrc_filetype_defaults
     autocmd FileType csv                setlocal formatoptions-=tc
     autocmd FileType tex                setlocal formatoptions-=t
     autocmd FileType tex                setlocal formatoptions+=orl
+    autocmd FileType help,man           setlocal nonumber
     autocmd FileType text,markdown      setlocal nonumber textwidth=78
     autocmd FileType text,markdown,tex  setlocal linebreak
     autocmd BufWinEnter COMMIT_EDITMSG  setlocal nosmartindent textwidth=72
