@@ -1,11 +1,22 @@
 #!/bin/zsh
 
-# Opens html file corresponding to Markdown file, if one exists
+# Opens html file corresponding to Markdown file, if one exists, following the
+# naming convention that I use for my notes
 
-if [[ ! -f "$*" ]]; then
+declare file=$*
+
+if [[ ! -f $file ]]; then
     echo 'md-open:' "$*" 'not found'
-elif [[ ! -f "${*%.md}.html" ]]; then
-    echo 'md-open:' "${*%.md}.html" 'not found'
 fi
 
-open "${*%.md}.html"
+if [[ $file[1] == '_' ]]; then
+    file=${file/_/@}
+fi
+file=${file//_/ }
+file="${file%.md}.html"
+
+if [[ ! -f $file ]]; then
+    echo 'md-open:' "$file" 'not found'
+fi
+
+open $file
