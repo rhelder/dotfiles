@@ -37,19 +37,20 @@ source $XDG_CONFIG_HOME/fzf/fzf.zsh
 
 # Configure `rfv`
 export RFV_DEFAULT_BIND='--bind=enter:become(nvim {1} +{2})'
+export RFV_DEFAULT_ADDITIONAL_OPTIONS='--bind=ctrl-o:become(md-open {1})'
 
 # {{{1 Functions
 
 # Use `autoload` and `alias` functions instead of builtins
 
-declare -gi autoload_zshrc_sourced=0
+integer autoload_zshrc_sourced=0
 if [[ $(whence -w autoload) == 'autoload: function' ]]; then
     autoload -f autoload
 else
     autoload autoload
 fi
 
-declare -gi alias_zshrc_sourced=0
+integer alias_zshrc_sourced=0
 autoload -f alias
 
 # Load other user functions
@@ -69,8 +70,8 @@ export HELPDIR='/usr/share/zsh/5.9/help'
 # {{{1 Aliases
 
 alias bin="cd $HOME/.local/bin"
-alias Cl="ts ^*.(((tex)|(latex)|(sty)|(dtx)|(bib)|(txt)|(md)|(vim)))(.)"
-alias cl="ts ^*.(((tex)|(latex)|(sty)|(dtx)|(bib)|(txt)|(md)|(vim)|(pdf)))(.)"
+# alias Cl="ts ^*.(((tex)|(latex)|(sty)|(dtx)|(bib)|(txt)|(md)|(vim)))(.)"
+# alias cl="ts ^*.(((tex)|(latex)|(sty)|(dtx)|(bib)|(txt)|(md)|(vim)|(pdf)))(.)"
 alias d="cd $HOME/Documents"
 alias dg="cd $HOME/Documents/Git"
 alias ea="nvim $HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
@@ -137,34 +138,34 @@ alias zf="cd $XDG_DATA_HOME/zsh/functions"
 
 # {{{1 Shell variables
 
-a=$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty
-bib=$HOME/Library/texmf/bibtex/bib/myLibrary.bib
-bin=$HOME/.local/bin
-d=$HOME/Documents
-df=$XDG_CONFIG_HOME/git/filter-repo/dotfiles
-dg=$HOME/Documents/Git
-fzf=$XDG_CONFIG_HOME/fzf/fzf.zsh
-gc=$XDG_CONFIG_HOME/git/config
-gi=$XDG_CONFIG_HOME/git/ignore
-lmk=$XDG_CONFIG_HOME/latexmk/latexmkrc
-md=$XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdView.vim
-pdd=$XDG_DATA_HOME/pandoc/defaults
-pdt=$XDG_DATA_HOME/pandoc/templates
-rfv=$XDG_DATA_HOME/nvim/site/plugin/rfv.vim
-rhc=$HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls
-s=$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty
-spd=$XDG_CONFIG_HOME/nvim/spell/de.utf-8.add
-spe=$XDG_CONFIG_HOME/nvim/spell/en.utf-8.add
-tdc=$HOME/Library/texmf/texdoc/texdoc.cnf
-ucb=$HOME/Documents/Past/2019-2024_UCBerkeley
-n=$HOME/Documents/Notes
-v=$XDG_CONFIG_HOME/nvim/init.vim
-vmc=$XDG_CONFIG_HOME/nvim/vimtex_my_complete
-vtc=$XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete
-xch=$XDG_CONFIG_HOME
-xdh=$XDG_DATA_HOME
-z=$XDG_CONFIG_HOME/zsh/.zshrc
-zf=$XDG_DATA_HOME/zsh/functions
-zp=$XDG_CONFIG_HOME/zsh/.zprofile
+declare a="$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
+declare bib="$HOME/Library/texmf/bibtex/bib/myLibrary.bib"
+declare bin="$HOME/.local/bin"
+declare d="$HOME/Documents"
+declare df="$XDG_CONFIG_HOME/git/filter-repo/dotfiles"
+declare dg="$HOME/Documents/Git"
+declare fzf="$XDG_CONFIG_HOME/fzf/fzf.zsh"
+declare gc="$XDG_CONFIG_HOME/git/config"
+declare gi="$XDG_CONFIG_HOME/git/ignore"
+declare lmk="$XDG_CONFIG_HOME/latexmk/latexmkrc"
+declare md="$XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdView.vim"
+declare pdd="$XDG_DATA_HOME/pandoc/defaults"
+declare pdt="$XDG_DATA_HOME/pandoc/templates"
+declare rfv="$XDG_DATA_HOME/nvim/site/plugin/rfv.vim"
+declare rhc="$HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
+declare s="$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
+declare spd="$XDG_CONFIG_HOME/nvim/spell/de.utf-8.add"
+declare spe="$XDG_CONFIG_HOME/nvim/spell/en.utf-8.add"
+declare tdc="$HOME/Library/texmf/texdoc/texdoc.cnf"
+declare ucb="$HOME/Documents/Past/2019-2024_UCBerkeley"
+declare n="$HOME/Documents/Notes"
+declare v="$XDG_CONFIG_HOME/nvim/init.vim"
+declare vmc="$XDG_CONFIG_HOME/nvim/vimtex_my_complete"
+declare vtc="$XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete"
+declare xch="$XDG_CONFIG_HOME"
+declare xdh="$XDG_DATA_HOME"
+declare z="$XDG_CONFIG_HOME/zsh/.zshrc"
+declare zf="$XDG_DATA_HOME/zsh/functions"
+declare zp="$XDG_CONFIG_HOME/zsh/.zprofile"
 
 # }}}1
