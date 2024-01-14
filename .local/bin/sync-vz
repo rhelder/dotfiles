@@ -8,16 +8,16 @@ setopt rc_quotes
 setopt extended_glob
 
 declare -i first_alias=0
-declare -i first_var=0
+declare -i first_variable=0
 declare lhs
 declare rhs
-declare var
-declare val
+declare variable
+declare value
 
 while read line; do
     if [[ $line[1,5] == 'alias' ]]; then
         if (( first_alias == 0 )); then
-            if (( first_var == 1 )); then
+            if (( first_variable == 1 )); then
                 echo
             fi
             echo '" Mappings (corresponding to aliases in `.zshrc`)\n'
@@ -34,17 +34,17 @@ while read line; do
             echo $map
         fi
 
-    elif [[ $line =~ '^[[:lower:]][^[:space:]]*=' ]]; then
-        if (( first_var == 0 )); then
+    elif [[ $line[1,7] == 'declare' ]]; then
+        if (( first_variable == 0 )); then
             if (( first_alias == 1 )); then
                 echo
             fi
             echo '" Variables (corresponding to shell variables in `.zshrc`)\n'
-            first_var=1
+            first_variable=1
         fi
 
-        var=${line%%=*}
-        val=${line#$var=}
-        echo 'let' $var '=' \"$val\"
+        variable=${${line%%=*}#declare }
+        value=${line#declare $variable=}
+        echo 'let' $variable '=' $value
     fi
 done < $XDG_CONFIG_HOME/zsh/.zshrc > $XDG_CONFIG_HOME/nvim/zshrc.vim
