@@ -1,18 +1,144 @@
 #!/bin/zsh
 
+# {{{1 Utility functions for `_get_block()`
+
+__get_lines() {
+    # Takes an array of line numbers as its argument. Eliminate all line
+    # numbers prior to the possible beginning of a YAML block. It's possible
+    # for a `...` line to appear in the document before the YAML block does.
+    # So, if the first parameter is the line number of a `...` line, remove
+    # that parameter from the array. Repeat until the first parameter is the
+    # line number of a `---` line. If the `---` line is followed by a blank
+    # line, it cannot be initiating a valid YAML block, so remove its line
+    # number from the array. Finally, if the `---` is not the first line of the
+    # document and is not preceded by a blank line, it cannot be initiating a
+    # valid YAML block, so remove its line number from the array.
+    while [[
+        ! $file[$1] == ---[[:space:]]# ||
+        $file[$1+1] == [[:space:]]# ||
+        (! $1 -eq 1 && ! $file[$1-1] == [[:space:]]#)
+    ]]; do
+        shift
+        # If there are less than two parameters left, then there is no valid
+        # YAML block in this document
+        if (( $# < 2 )); then
+            return 1
+        fi
+    done
+
+    print -l $*
+}
+
+__check_lines() {
+    # Takes an array of line numbers as its argument. Determine whether or not
+    # line `$1` really is the beginning of a YAML block. If line `$2` is a
+    # `...` line, then the lines between line `$1` and line `$2` will be
+    # treated as a YAML block by Pandoc. Otherwise, the lines will only be
+    # treated as a YAML block by Pandoc if the line after line `$1` contains a
+    # key. If neither of these conditions is met, remove the first parameter
+    # from the array.
+    if  [[
+        ! $file[$2] == ...[[:space:]]# &&
+        ! $file[$1+1] == [[:space:]]#[^-]##:*
+    ]]; then
+        shift
+        print -l $*
+        return 1
+    else
+        print -l $*
+        return 0
+    fi
+}
+
+# __get_lines_debug() {
+    # echo 'at start of __get_lines line numbers are' $*
+    # while [[
+        # ! $file[$1] == ---[[:space:]]# ||
+        # $file[$1+1] == [[:space:]]# ||
+        # (! $1 -eq 1 && ! $file[$1-1] == [[:space:]]#)
+    # ]]; do
+        # echo 'at start of while loop line numbers are' $*
+        # shift
+        # echo 'after shift, line numbers are' $*
+        # if (( $# < 2 )); then
+            # return 1
+        # fi
+    # done
+# 
+    # print -l $*
+# }
+
+# __check_lines_debug() {
+    # echo 'at start of __check_lines line numbers are' $*
+    # if  [[
+        # ! $file[$2] == ...[[:space:]]# &&
+        # ! $file[$1+1] == [[:space:]]#[^-]##:*
+    # ]]; then
+        # shift
+        # print -l $*
+        # echo 'return status is 1'
+        # return 1
+    # else
+        # print -l $*
+        # echo 'return status is 0'
+        # return 0
+    # fi
+# }
+
 # {{{1 _get_block()
 
 _get_block() {
-    local -a line_numbers
-    line_numbers=( ${(f)"$(rg --line-number '^---$' $1 | cut -d : -f 1)"} )
+    # Store contents of file in array; this will make is easier to get lines by
+    # line number
+    local -a file=( "${(@f)$(cat $1)}" )
 
-    if (( $#line_numbers < 2 )); then
+    # Scan the document for all lines that might validly open or close a YAML
+    # block, and store line numbers in an array
+    local -a line_numbers=(
+        ${(f)"$(rg --line-number '^(---|\.\.\.)\s*$' $1 | cut -d : -f 1)"}
+    )
+
+    # Pass `line_numbers` to `__get_lines`
+    # __get_lines_debug $line_numbers
+    if ! line_numbers=( ${(f)"$(__get_lines $line_numbers)"} ); then
         echo 'build-index: cannot get YAML block for' $1 >&2
         return 1
     fi
 
-    local -i block_end=$(( line_numbers[2] - 1 ))
-    local -i block_length=$(( line_numbers[2] - line_numbers[1] - 1 ))
+    while true; do
+        # Pass `line_numbers` to `__check_lines`. If `check_lines` returns `0`,
+        # then the first number in `line_numbers` really is the number of a
+        # line that initiates a YAML block
+        # __check_lines_debug $line_numbers
+        if line_numbers=( ${(f)"$(__check_lines $line_numbers)"} ); then
+            break
+        else
+            # If `__check_lines` returns `1`, that could mean two things.
+            # Either we've filtered `line_numbers` down to less than two
+            # elements, in which case there must not be a valid YAML block, or
+            # the first number in `line_numbers` is not really the number of a
+            # line that initiates a YAML block, in which case we need to pass
+            # `line_numbers` back to `__get_lines` to filter `line_numbers`
+            # again until we have another possible line number (if there is
+            # one) for a line initiating a YAML block. Then, at the beginning
+            # of the next iteration of the `while` loop, we pass `line_numbers`
+            # to `__check_lines` again. We repeat this until there are less
+            # than two elements left in `line_numbers` or we've found the
+            # number of a line that initiates a YAML block.
+            if (( $#line_numbers < 2 )); then
+                echo 'build-index: cannot get YAML block for' $1 >&2
+                return 1
+            else
+                # __get_lines_debug $line_numbers
+                line_numbers=( ${(f)"$(__get_lines $line_numbers)"} )
+            fi
+        fi
+    done
+
+    local -i m=$line_numbers[1] # Line number of the start of the YAML block
+    local -i n=${line_numbers[2]} # Line number of the end of the YAML block
+    local -i block_end=$(( n - 1 ))
+    local -i block_length=$(( n - m - 1 ))
     local -a block
     block=( ${(f)"$(cat $1 | head -$block_end | tail -$block_length)"} )
 
