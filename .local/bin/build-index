@@ -50,41 +50,6 @@ __check_lines() {
     fi
 }
 
-# __get_lines_debug() {
-    # echo 'at start of __get_lines line numbers are' $*
-    # while [[
-        # ! $file[$1] == ---[[:space:]]# ||
-        # $file[$1+1] == [[:space:]]# ||
-        # (! $1 -eq 1 && ! $file[$1-1] == [[:space:]]#)
-    # ]]; do
-        # echo 'at start of while loop line numbers are' $*
-        # shift
-        # echo 'after shift, line numbers are' $*
-        # if (( $# < 2 )); then
-            # return 1
-        # fi
-    # done
-# 
-    # print -l $*
-# }
-
-# __check_lines_debug() {
-    # echo 'at start of __check_lines line numbers are' $*
-    # if  [[
-        # ! $file[$2] == ...[[:space:]]# &&
-        # ! $file[$1+1] == [[:space:]]#[^-]##:*
-    # ]]; then
-        # shift
-        # print -l $*
-        # echo 'return status is 1'
-        # return 1
-    # else
-        # print -l $*
-        # echo 'return status is 0'
-        # return 0
-    # fi
-# }
-
 # {{{1 _get_block()
 
 _get_block() {
@@ -98,49 +63,68 @@ _get_block() {
         ${(f)"$(rg --line-number '^(---|\.\.\.)\s*$' $1 | cut -d : -f 1)"}
     )
 
-    # Pass `line_numbers` to `__get_lines`
-    # __get_lines_debug $line_numbers
-    if ! line_numbers=( ${(f)"$(__get_lines $line_numbers)"} ); then
+    if (( $#line_numbers < 2 )); then
         echo 'build-index: cannot get YAML block for' $1 >&2
         return 1
     fi
 
-    while true; do
-        # Pass `line_numbers` to `__check_lines`. If `check_lines` returns `0`,
-        # then the first number in `line_numbers` really is the number of a
-        # line that initiates a YAML block
-        # __check_lines_debug $line_numbers
-        if line_numbers=( ${(f)"$(__check_lines $line_numbers)"} ); then
-            break
-        else
-            # If `__check_lines` returns `1`, that could mean two things.
-            # Either we've filtered `line_numbers` down to less than two
-            # elements, in which case there must not be a valid YAML block, or
-            # the first number in `line_numbers` is not really the number of a
-            # line that initiates a YAML block, in which case we need to pass
-            # `line_numbers` back to `__get_lines` to filter `line_numbers`
-            # again until we have another possible line number (if there is
-            # one) for a line initiating a YAML block. Then, at the beginning
-            # of the next iteration of the `while` loop, we pass `line_numbers`
-            # to `__check_lines` again. We repeat this until there are less
-            # than two elements left in `line_numbers` or we've found the
-            # number of a line that initiates a YAML block.
-            if (( $#line_numbers < 2 )); then
+    local -i m=$line_numbers[1]
+    local -i n=$line_numbers[2]
+    local -a block=()
+
+    while (( $#line_numbers > 0 )); do
+        # Pass `line_numbers` to `__get_lines`
+        if ! line_numbers=( ${(f)"$(__get_lines $line_numbers)"} ); then
+            # Only throw an error if a YAML block wasn't found on previous
+            # iterations of the loop
+            if (( $#block == 0 )); then
                 echo 'build-index: cannot get YAML block for' $1 >&2
                 return 1
-            else
-                # __get_lines_debug $line_numbers
-                line_numbers=( ${(f)"$(__get_lines $line_numbers)"} )
             fi
         fi
-    done
 
-    local -i m=$line_numbers[1] # Line number of the start of the YAML block
-    local -i n=${line_numbers[2]} # Line number of the end of the YAML block
-    local -i block_end=$(( n - 1 ))
-    local -i block_length=$(( n - m - 1 ))
-    local -a block
-    block=( ${(f)"$(cat $1 | head -$block_end | tail -$block_length)"} )
+        while (( $#line_numbers > 1 )); do
+            # Pass `line_numbers` to `__check_lines`. If `check_lines` returns
+            # `0`, then the first number in `line_numbers` really is the number
+            # of a line that initiates a YAML block
+            if line_numbers=( ${(f)"$(__check_lines $line_numbers)"} ); then
+                break
+            else
+                # If `__check_lines` returns `1`, that could mean two things.
+                # Either we've filtered `line_numbers` down to less than two
+                # elements, in which case there must not be a valid YAML block,
+                # or the first number in `line_numbers` is not really the
+                # number of a line that initiates a YAML block, in which case
+                # we need to pass `line_numbers` back to `__get_lines` to
+                # filter `line_numbers` again until we have another possible
+                # line number (if there is one) for a line initiating a YAML
+                # block. Then, at the beginning of the next iteration of the
+                # `while` loop, we pass `line_numbers` to `__check_lines`
+                # again. We repeat this until there are less than two elements
+                # left in `line_numbers` or we've found the number of a line
+                # that initiates a YAML block.
+                if (( $#line_numbers < 2 )); then
+                    if (( $#block == 0 )); then
+                        echo 'build-index: cannot get YAML block for' $1 >&2
+                        return 1
+                    fi
+                else
+                    line_numbers=( ${(f)"$(__get_lines $line_numbers)"} )
+                fi
+            fi
+        done
+
+        if (( $#line_numbers < 2 )); then
+            line_numbers=( $line_numbers[2,-1] )
+            break
+        fi
+
+        m=$line_numbers[1] # Line number of the start of the YAML block
+        n=$line_numbers[2] # Line number of the end of the YAML block
+        block+=( $file[m+1,n-1] )
+
+        line_numbers=( $line_numbers[3,-1] )
+    done
 
     # Cache `block` in an associative array
     blocks[$1]=${(j:++:)block}
@@ -307,7 +291,7 @@ _parse_block() {
     # Find the line in the block with the key we're looking for; disregard
     # any lines before this
     local -a block=( ${(s:+:)blocks[$2]} )
-    local -i first_line_num=$block[(i)[[:space:]]#$1:([[:space:]]##*)#]
+    local -i first_line_num=$block[(I)[[:space:]]#$1:([[:space:]]##*)#]
 
     if (( $first_line_num > $#block )); then
         echo 'build-index: for key' $1 'in' $2',' \
