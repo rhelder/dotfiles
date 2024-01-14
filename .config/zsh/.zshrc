@@ -37,7 +37,10 @@ source $XDG_CONFIG_HOME/fzf/fzf.zsh
 
 # Configure `rfv`
 export RFV_DEFAULT_BIND='--bind=enter:become(nvim {1} +{2})'
-export RFV_DEFAULT_ADDITIONAL_OPTIONS='--bind=ctrl-o:become(md-open {1})'
+export -T RFV_DEFAULT_ADDITIONAL_OPTIONS rfv_default_additional_options '@'
+rfv_default_additional_options=(
+    --bind='ctrl-o:become(md-open {1})'
+)
 
 # {{{1 Functions
 
