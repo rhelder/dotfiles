@@ -10,8 +10,6 @@ set cursorlineopt=line
 set expandtab
 set foldlevelstart=0
 set foldmethod=marker
-set formatoptions+=n
-set gdefault
 set guicursor=
 set ignorecase
 set list
@@ -21,12 +19,20 @@ set report=0
 set scrolloff=3
 set shiftwidth=4
 set smartcase
-set smartindent
 set softtabstop=4
 set spelllang=en_us
 set splitbelow
 set splitright
-set textwidth=79
+
+" Only set options that are also set by `FileType` autocommands the first time
+" `init.vim` is sourced, so that the filetype-specific options are not
+" overridden if `init.vim` is sourced again
+if !exists('g:sourced_nvimrc')
+    set formatoptions+=n
+    set number
+    set smartindent
+    set textwidth=79
+endif
 
 " {{{1 Mappings
 
@@ -228,17 +234,14 @@ iabbrev delcare         declare
 " {{{2 Filetype defaults
 augroup nvimrc_filetype_defaults
     autocmd!
-    autocmd FileType *                  setlocal number
     autocmd FileType markdown           setlocal formatoptions-=l
     autocmd FileType csv                setlocal formatoptions-=tc
     autocmd FileType tex                setlocal formatoptions-=t
     autocmd FileType tex                setlocal formatoptions+=orl
-    autocmd FileType help,man           setlocal nonumber
     autocmd FileType text,markdown      setlocal nonumber textwidth=78
     autocmd FileType text,markdown,tex  setlocal linebreak
     autocmd BufWinEnter COMMIT_EDITMSG  setlocal nosmartindent textwidth=72
     autocmd FileType text,markdown,tex  setlocal nosmartindent
-    autocmd FileType zsh                setlocal iskeyword+=-
 augroup END
 
 " {{{2 Mappings
@@ -542,3 +545,5 @@ let g:rfv_action = {
             \ }
 
 " }}}1
+
+let g:sourced_nvimrc = 1
