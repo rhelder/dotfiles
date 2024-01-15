@@ -309,17 +309,30 @@ endif
 
 " }}}2
 
+function! s:run_md_view_convert()
+    echon 'Running MdviewConvert...'
+    silent MdviewConvert
+    redraw
+    echo ''
+endfunction
+
+function! s:run_build_index()
+    echo 'Running build-index...'
+    silent !build-index
+    redraw
+    echo ''
+endfunction
+
 augroup nvimrc_autocommands
     autocmd!
+    autocmd BufReadPost,BufNewFile $XDG_DATA_HOME/zsh/functions/*   set filetype=zsh
+    autocmd BufReadPost,BufNewFile $HOME/.local/bin/*               set filetype=zsh
+    autocmd BufWinLeave $XDG_CONFIG_HOME/zsh/.zshrc                 !sync-vz
+    autocmd BufWinLeave $HOME/Documents/Notes/*.md                  call s:run_md_view_convert()
+    autocmd BufWinLeave $HOME/Documents/Notes/*.md                  call s:run_build_index()
     " Enter terminal mode and turn off line numbering when opening terminal
     autocmd TermOpen * startinsert
     autocmd TermOpen * set nonumber
-    autocmd BufReadPost,BufNewFile $XDG_DATA_HOME/zsh/functions/*   set filetype=zsh
-    autocmd BufReadPost,BufNewFile $HOME/.local/bin/*               set filetype=zsh
-    autocmd ExitPre $XDG_CONFIG_HOME/zsh/.zshrc                     !sync-vz
-    autocmd ExitPre $HOME/Documents/Notes/*.md                      silent MdviewConvert
-    autocmd ExitPre $HOME/Documents/Notes/*.md                      echo 'Running build-index...' | silent !build-index
-
 augroup END
 
 " }}}1
