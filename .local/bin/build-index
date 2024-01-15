@@ -581,6 +581,8 @@ for file in *.md; do
     titles[$file]="$(_parse_block title $file)"
 done
 
+declare html_file
+declare -a html_files=()
 declare index_file
 declare -a block
 declare title
@@ -595,10 +597,14 @@ declare -a both_keyword_files
 declare -Ua used_keyword_files
 declare -Ua unused_keyword_files
 declare ref
+declare -a input_files=()
+declare -a output_files=()
 
 for keyword in $all_keywords; do
-    index_file=${keyword// /_}_index.md
+    html_file="$keyword index.html"
+    html_files+=( $html_file )
 
+    index_file=${keyword// /_}_index.md
     if [[ $keyword[1] == '@' ]]; then
         index_file=${index_file/@/_}
         title=${keyword/@/\\@}
@@ -619,6 +625,15 @@ for keyword in $all_keywords; do
             '---'$'\n'
         )
     fi
+
+    # Before the index file is (re-)created, create a temporary copy of the
+    # index file so that we can check later if there were any changes
+    if [[ -f $index_file ]]; then
+        cp $index_file /tmp/build_index.md
+    else
+        touch /tmp/build_index.md
+    fi
+    trap '[[ -f /tmp/build_index.md ]] && rm /tmp/build_index.md' EXIT
 
     print -lr -- $block > $index_file
 
@@ -686,13 +701,35 @@ for keyword in $all_keywords; do
     done >> $index_file
 
     used_keyword_files=()
+
+    # Compare to temporary file; if they are different, add the index file to
+    # the list of files to be converted to html by Pandoc
+    if [[ -n "$(diff $index_file /tmp/build_index.md)" ]]; then
+        input_files+=( $index_file )
+        output_files+=( $html_file )
+    fi
+done
+
+# Also convert index files to html
+for input_file output_file in ${input_files:^output_files}; do
+    pandoc -d notes -o $output_file $input_file
 done
 
 # Check if there are any index files that correspond to keywords that are no
 # longer used
-declare old_files="$(
-    comm -13 =(print -l $index_files | sort) =(print -l *index*.md | sort)
-)"
+declare -a old_md_files=(
+    ${(f)"$(comm -13 \
+        =(print -l $index_files | sort) \
+        =(print -l *index.md | sort))"}
+)
+
+declare -a old_html_files=(
+    ${(f)"$(comm -13 \
+        =(print -l $html_files | sort) \
+        =(print -l *index.html | sort))"}
+)
+
+declare -a old_files=( $old_md_files $old_html_files )
 
 if [[ -n $old_files ]]; then
     echo 'The following index files do not correspond to any keywords:'
