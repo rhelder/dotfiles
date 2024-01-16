@@ -53,6 +53,9 @@ nnoremap <Leader>h  :help
 " Open terminal
 nnoremap <Leader>t <Cmd>vsplit<CR><Cmd>terminal<CR>
 
+" Open previous buffer
+nnoremap <Leader>pr <Cmd>execute 'leftabove vsplit' .. bufname('#')<CR>
+
 " Switch off search highlighting
 nnoremap <silent> <Leader><Esc> <Cmd>noh<CR>
 
