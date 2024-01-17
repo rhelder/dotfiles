@@ -1,0 +1,9 @@
+#!/bin/zsh
+
+cd $HOME/Documents/Notes || exit 1
+
+fd '[A-z].*\.md' |
+    fzf --preview='bat --color=always {}' \
+        --preview-window='+{2}+3/2,~3' \
+        --bind='enter:become(nvim {})' \
+        --bind='ctrl-o:become(md-open {})'
