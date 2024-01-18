@@ -553,11 +553,28 @@ augroup END
 let g:GPGExecutable = "PINENTRY_USER_DATA='' gpg --trust-model always"
 
 " {{{1 rfv configuration
-"
+
+function! s:insert_link(file) abort
+    execute 'normal! a[' .. a:file .. "]\<Esc>"
+    let l:url = substitute(a:file, '.md$', '.html', '')
+    let l:cursor_position = getpos('.')
+    if getline('$') =~ '^\[.*\]: .*'
+        execute 'normal! Go[' .. a:file .. ']: ' .. l:url .. "\<Esc>"
+    else
+        execute "normal! Go\<CR>[" .. a:file .. ']: ' .. l:url .. "\<Esc>"
+    endif
+    call setpos('.', l:cursor_position)
+endfunction
+
+if !exists(':InsertLink')
+    command -nargs=1 InsertLink call s:insert_link(<f-args>)
+endif
+
 let g:rfv_action = {
             \ 'ctrl-v': 'vertical split',
             \ 'ctrl-x': 'split',
             \ 'ctrl-o': 'silent !md-open',
+            \ 'ctrl-]': 'InsertLink',
             \ }
 
 " }}}1
