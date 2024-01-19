@@ -566,15 +566,11 @@ function! s:insert_link(file) abort
     call setpos('.', l:cursor_position)
 endfunction
 
-if !exists(':InsertLink')
-    command -nargs=1 InsertLink call s:insert_link(<f-args>)
-endif
-
 let g:rfv_action = {
             \ 'ctrl-v': 'vertical split',
             \ 'ctrl-x': 'split',
             \ 'ctrl-o': 'silent !md-open',
-            \ 'ctrl-]': 'InsertLink',
+            \ 'ctrl-]': function('s:insert_link'),
             \ }
 
 " }}}1
