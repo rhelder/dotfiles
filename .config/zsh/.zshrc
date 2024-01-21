@@ -1,12 +1,9 @@
 # to-do
 # * Add gpg-related functions
 # * Consider completion options
-# * Consider changing aliases related to the following that don't make good Vim
-#   mappings:
-#   - ez
-#   - pd
-#   - d
 # * Turn `Cl` and `cl` into functions with error messages
+# alias Cl="ts ^*.(((tex)|(latex)|(sty)|(dtx)|(bib)|(txt)|(md)|(vim)))(.)"
+# alias cl="ts ^*.(((tex)|(latex)|(sty)|(dtx)|(bib)|(txt)|(md)|(vim)|(pdf)))(.)"
 
 # {{{1 Options and settings
 
@@ -72,30 +69,43 @@ export HELPDIR='/usr/share/zsh/5.9/help'
 
 # {{{1 Aliases
 
-alias bin="cd $HOME/.local/bin"
-# alias Cl="ts ^*.(((tex)|(latex)|(sty)|(dtx)|(bib)|(txt)|(md)|(vim)))(.)"
-# alias cl="ts ^*.(((tex)|(latex)|(sty)|(dtx)|(bib)|(txt)|(md)|(vim)|(pdf)))(.)"
-alias d="cd $HOME/Documents"
-alias dg="cd $HOME/Documents/Git"
-alias ea="nvim $HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
+# {{{2 Edit
+alias eas="nvim $HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
 alias ebib="nvim $HOME/Library/texmf/bibtex/bib/myLibrary.bib"
 alias ebt="open $HOME/Documents/budget_2023.xlsx"
+alias ecv="nvim $HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
 alias edf="nvim $XDG_CONFIG_HOME/git/filter-repo/dotfiles"
 alias efzf="nvim $XDG_CONFIG_HOME/fzf/fzf.zsh"
 alias egc="nvim $XDG_CONFIG_HOME/git/config"
 alias egi="nvim $XDG_CONFIG_HOME/git/ignore"
-alias eh='sudo nvim /etc/hosts'
+alias ehf="nvim $HISTFILE"
 alias elmk="nvim $XDG_CONFIG_HOME/latexmk/latexmkrc"
 alias emd="nvim $XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdView.vim"
-alias erhc="nvim $HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
+alias epr="nvim $XDG_CONFIG_HOME/zsh/.zprofile"
 alias erfv="nvim $XDG_DATA_HOME/nvim/site/plugin/rfv.vim"
 alias es="nvim $HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
-alias espd="nvim $XDG_CONFIG_HOME/nvim/spell/de.utf-8.add"
-alias espe="nvim $XDG_CONFIG_HOME/nvim/spell/en.utf-8.add"
+alias etd="nvim $HOME/Library/texmf/texdoc/texdoc.cnf"
 alias ev="nvim $XDG_CONFIG_HOME/nvim/init.vim"
+alias ewld="nvim $XDG_CONFIG_HOME/nvim/spell/de.utf-8.add"
+alias ewle="nvim $XDG_CONFIG_HOME/nvim/spell/en.utf-8.add"
 alias ez="nvim $XDG_CONFIG_HOME/zsh/.zshrc"
-alias ezh="nvim $HISTFILE"
-alias ezp="nvim $XDG_CONFIG_HOME/zsh/.zprofile"
+
+# {{{2 Navigate
+alias b="cd $HOME/.local/bin"
+alias doc="cd $HOME/Documents"
+alias docg="cd $HOME/Documents/Git"
+alias nt="cd $HOME/Documents/Notes"
+alias pdd="cd $XDG_DATA_HOME/pandoc/defaults"
+alias pdt="cd $XDG_DATA_HOME/pandoc/templates"
+alias ucb="cd $HOME/Documents/Past/2019-2024_UCBerkeley"
+alias vcc="ts $XDG_CACHE_HOME/vimtex/pkgcomplete.json"
+alias vmc="cd $XDG_CONFIG_HOME/nvim/vimtex_my_complete"
+alias vtc="cd $XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete"
+alias xch="cd $XDG_CONFIG_HOME"
+alias xdh="cd $XDG_DATA_HOME"
+alias zf="cd $XDG_DATA_HOME/zsh/functions"
+
+# {{{2 Git
 alias ga='git add'
 alias gbD='git branch -D'
 alias gbd='git branch -d'
@@ -113,62 +123,55 @@ alias gs='git status'
 alias gsmu='git submodule update --remote --merge'
 alias gsw='git switch'
 alias gswc='git switch -c'
+
+# {{{2 Abbreviate
 alias la='ls -aF'
 alias lua='luajit'
 alias m='man'
+alias ni='browse-index'
 alias nj='new-journal'
 alias nn='new-note'
+alias ns='search-notes'
 alias nv='nvim'
 alias nvh='nvim-help'
 alias o='open'
-alias on="cd $HOME/Documents/Notes"
-alias pd="cd $XDG_DATA_HOME/pandoc"
-alias pdd="cd $XDG_DATA_HOME/pandoc/defaults"
-alias pdt="cd $XDG_DATA_HOME/pandoc/templates"
 alias restart='[[ $(jobs) ]] && unset FPATH && PATH=/bin && exec -l zsh'
+alias spr="source $XDG_CONFIG_HOME/zsh/.zprofile"
 alias sz="source $XDG_CONFIG_HOME/zsh/.zshrc"
-alias szp="source $XDG_CONFIG_HOME/zsh/.zprofile"
 alias td='texdoc'
-alias tdc="nvim $HOME/Library/texmf/texdoc/texdoc.cnf"
 alias ts='trash'
-alias ucb="cd $HOME/Documents/Past/2019-2024_UCBerkeley"
-alias vcc="ts $XDG_CACHE_HOME/vimtex/pkgcomplete.json"
-alias vmc="cd $XDG_CONFIG_HOME/nvim/vimtex_my_complete"
-alias vtc="cd $XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete"
-alias xch="cd $XDG_CONFIG_HOME"
-alias xdh="cd $XDG_DATA_HOME"
-alias zf="cd $XDG_DATA_HOME/zsh/functions"
+# }}}2
 
 # {{{1 Shell variables
 
-declare a="$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
+declare as="$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
+declare b="$HOME/.local/bin"
 declare bib="$HOME/Library/texmf/bibtex/bib/myLibrary.bib"
-declare bin="$HOME/.local/bin"
-declare d="$HOME/Documents"
+declare cv="$HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
 declare df="$XDG_CONFIG_HOME/git/filter-repo/dotfiles"
-declare dg="$HOME/Documents/Git"
+declare doc="$HOME/Documents"
+declare docg="$HOME/Documents/Git"
 declare fzf="$XDG_CONFIG_HOME/fzf/fzf.zsh"
 declare gc="$XDG_CONFIG_HOME/git/config"
 declare gi="$XDG_CONFIG_HOME/git/ignore"
 declare lmk="$XDG_CONFIG_HOME/latexmk/latexmkrc"
 declare md="$XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdView.vim"
+declare nt="$HOME/Documents/Notes"
 declare pdd="$XDG_DATA_HOME/pandoc/defaults"
 declare pdt="$XDG_DATA_HOME/pandoc/templates"
+declare pr="$XDG_CONFIG_HOME/zsh/.zprofile"
 declare rfv="$XDG_DATA_HOME/nvim/site/plugin/rfv.vim"
-declare rhc="$HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
 declare s="$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
-declare spd="$XDG_CONFIG_HOME/nvim/spell/de.utf-8.add"
-declare spe="$XDG_CONFIG_HOME/nvim/spell/en.utf-8.add"
-declare tdc="$HOME/Library/texmf/texdoc/texdoc.cnf"
+declare td="$HOME/Library/texmf/texdoc/texdoc.cnf"
 declare ucb="$HOME/Documents/Past/2019-2024_UCBerkeley"
-declare n="$HOME/Documents/Notes"
 declare v="$XDG_CONFIG_HOME/nvim/init.vim"
 declare vmc="$XDG_CONFIG_HOME/nvim/vimtex_my_complete"
 declare vtc="$XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete"
+declare wld="$XDG_CONFIG_HOME/nvim/spell/de.utf-8.add"
+declare wle="$XDG_CONFIG_HOME/nvim/spell/en.utf-8.add"
 declare xch="$XDG_CONFIG_HOME"
 declare xdh="$XDG_DATA_HOME"
 declare z="$XDG_CONFIG_HOME/zsh/.zshrc"
 declare zf="$XDG_DATA_HOME/zsh/functions"
-declare zp="$XDG_CONFIG_HOME/zsh/.zprofile"
 
 # }}}1

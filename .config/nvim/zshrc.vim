@@ -1,15 +1,11 @@
 " Mappings (corresponding to aliases in `.zshrc`)
 
-nnoremap <Leader>bin <Cmd>lcd
-            \ $HOME/.local/bin<CR>
-nnoremap <Leader>d <Cmd>lcd
-            \ $HOME/Documents<CR>
-nnoremap <Leader>dg <Cmd>lcd
-            \ $HOME/Documents/Git<CR>
-nnoremap <Leader>ea <Cmd>vs
+nnoremap <Leader>eas <Cmd>vs
             \ $HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty<CR>
 nnoremap <Leader>ebib <Cmd>vs
             \ $HOME/Library/texmf/bibtex/bib/myLibrary.bib<CR>
+nnoremap <Leader>ecv <Cmd>vs
+            \ $HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls<CR>
 nnoremap <Leader>edf <Cmd>vs
             \ $XDG_CONFIG_HOME/git/filter-repo/dotfiles<CR>
 nnoremap <Leader>efzf <Cmd>vs
@@ -18,38 +14,40 @@ nnoremap <Leader>egc <Cmd>vs
             \ $XDG_CONFIG_HOME/git/config<CR>
 nnoremap <Leader>egi <Cmd>vs
             \ $XDG_CONFIG_HOME/git/ignore<CR>
+nnoremap <Leader>ehf <Cmd>vs
+            \ $HISTFILE<CR>
 nnoremap <Leader>elmk <Cmd>vs
             \ $XDG_CONFIG_HOME/latexmk/latexmkrc<CR>
 nnoremap <Leader>emd <Cmd>vs
             \ $XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdView.vim<CR>
-nnoremap <Leader>erhc <Cmd>vs
-            \ $HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls<CR>
+nnoremap <Leader>epr <Cmd>vs
+            \ $XDG_CONFIG_HOME/zsh/.zprofile<CR>
 nnoremap <Leader>erfv <Cmd>vs
             \ $XDG_DATA_HOME/nvim/site/plugin/rfv.vim<CR>
 nnoremap <Leader>es <Cmd>vs
             \ $HOME/Library/texmf/tex/latex/rhelder/rhelder.sty<CR>
-nnoremap <Leader>espd <Cmd>vs
-            \ $XDG_CONFIG_HOME/nvim/spell/de.utf-8.add<CR>
-nnoremap <Leader>espe <Cmd>vs
-            \ $XDG_CONFIG_HOME/nvim/spell/en.utf-8.add<CR>
+nnoremap <Leader>etd <Cmd>vs
+            \ $HOME/Library/texmf/texdoc/texdoc.cnf<CR>
 nnoremap <Leader>ev <Cmd>vs
             \ $XDG_CONFIG_HOME/nvim/init.vim<CR>
+nnoremap <Leader>ewld <Cmd>vs
+            \ $XDG_CONFIG_HOME/nvim/spell/de.utf-8.add<CR>
+nnoremap <Leader>ewle <Cmd>vs
+            \ $XDG_CONFIG_HOME/nvim/spell/en.utf-8.add<CR>
 nnoremap <Leader>ez <Cmd>vs
             \ $XDG_CONFIG_HOME/zsh/.zshrc<CR>
-nnoremap <Leader>ezh <Cmd>vs
-            \ $HISTFILE<CR>
-nnoremap <Leader>ezp <Cmd>vs
-            \ $XDG_CONFIG_HOME/zsh/.zprofile<CR>
-nnoremap <Leader>on <Cmd>lcd
+nnoremap <Leader>b <Cmd>lcd
+            \ $HOME/.local/bin<CR>
+nnoremap <Leader>doc <Cmd>lcd
+            \ $HOME/Documents<CR>
+nnoremap <Leader>docg <Cmd>lcd
+            \ $HOME/Documents/Git<CR>
+nnoremap <Leader>nt <Cmd>lcd
             \ $HOME/Documents/Notes<CR>
-nnoremap <Leader>pd <Cmd>lcd
-            \ $XDG_DATA_HOME/pandoc<CR>
 nnoremap <Leader>pdd <Cmd>lcd
             \ $XDG_DATA_HOME/pandoc/defaults<CR>
 nnoremap <Leader>pdt <Cmd>lcd
             \ $XDG_DATA_HOME/pandoc/templates<CR>
-nnoremap <Leader>tdc <Cmd>vs
-            \ $HOME/Library/texmf/texdoc/texdoc.cnf<CR>
 nnoremap <Leader>ucb <Cmd>lcd
             \ $HOME/Documents/Past/2019-2024_UCBerkeley<CR>
 nnoremap <Leader>vmc <Cmd>lcd
@@ -65,32 +63,32 @@ nnoremap <Leader>zf <Cmd>lcd
 
 " Variables (corresponding to shell variables in `.zshrc`)
 
-let a = "$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
+let as = "$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
+let b = "$HOME/.local/bin"
 let bib = "$HOME/Library/texmf/bibtex/bib/myLibrary.bib"
-let bin = "$HOME/.local/bin"
-let d = "$HOME/Documents"
+let cv = "$HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
 let df = "$XDG_CONFIG_HOME/git/filter-repo/dotfiles"
-let dg = "$HOME/Documents/Git"
+let doc = "$HOME/Documents"
+let docg = "$HOME/Documents/Git"
 let fzf = "$XDG_CONFIG_HOME/fzf/fzf.zsh"
 let gc = "$XDG_CONFIG_HOME/git/config"
 let gi = "$XDG_CONFIG_HOME/git/ignore"
 let lmk = "$XDG_CONFIG_HOME/latexmk/latexmkrc"
 let md = "$XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdView.vim"
+let nt = "$HOME/Documents/Notes"
 let pdd = "$XDG_DATA_HOME/pandoc/defaults"
 let pdt = "$XDG_DATA_HOME/pandoc/templates"
+let pr = "$XDG_CONFIG_HOME/zsh/.zprofile"
 let rfv = "$XDG_DATA_HOME/nvim/site/plugin/rfv.vim"
-let rhc = "$HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
 let s = "$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
-let spd = "$XDG_CONFIG_HOME/nvim/spell/de.utf-8.add"
-let spe = "$XDG_CONFIG_HOME/nvim/spell/en.utf-8.add"
-let tdc = "$HOME/Library/texmf/texdoc/texdoc.cnf"
+let td = "$HOME/Library/texmf/texdoc/texdoc.cnf"
 let ucb = "$HOME/Documents/Past/2019-2024_UCBerkeley"
-let n = "$HOME/Documents/Notes"
 let v = "$XDG_CONFIG_HOME/nvim/init.vim"
 let vmc = "$XDG_CONFIG_HOME/nvim/vimtex_my_complete"
 let vtc = "$XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete"
+let wld = "$XDG_CONFIG_HOME/nvim/spell/de.utf-8.add"
+let wle = "$XDG_CONFIG_HOME/nvim/spell/en.utf-8.add"
 let xch = "$XDG_CONFIG_HOME"
 let xdh = "$XDG_DATA_HOME"
 let z = "$XDG_CONFIG_HOME/zsh/.zshrc"
 let zf = "$XDG_DATA_HOME/zsh/functions"
-let zp = "$XDG_CONFIG_HOME/zsh/.zprofile"
