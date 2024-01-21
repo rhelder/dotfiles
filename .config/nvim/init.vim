@@ -301,23 +301,17 @@ endfunction
 " {{{2 Make spell files
 " Rebuild `.spl` files upon initialization, and then subsequently whenever a
 " buffer is loaded (or a hidden buffer is displayed) in a new window
-function s:make_spell_files()
-    let l:spellfiles = split(&spellfile, ',')
-    for n in l:spellfiles
-        if filereadable(expand(n)) && !filereadable(expand(n .. '.spl'))
-                    \ || getftime(expand(n)) >=# getftime(expand(n .. '.spl'))
-            execute 'mkspell! ' .. n
+function! s:make_spell_files() abort
+    for file in glob('$XDG_CONFIG_HOME/nvim/spell/*.add', 0, 1)
+        if (filereadable(expand(file)) &&
+                    \ !filereadable(expand(file) .. '.spl'))
+                    \ ||
+                    \ (getftime(expand(file)) >=
+                    \ getftime(expand(file) .. '.spl'))
+            execute 'mkspell! ' .. file
         endif
     endfor
-    augroup nvimrc_Mkspell
-        autocmd!
-        autocmd BufWinEnter * execute &filetype ==# 'qf' ? '' : 'call <SID>make_spell_files()'
-    augroup END
 endfunction
-
-if v:vim_did_enter ==# 0
-    call s:make_spell_files()
-endif
 
 " }}}2
 
@@ -352,6 +346,7 @@ augroup nvimrc_autocommands
     autocmd BufWinLeave $XDG_CONFIG_HOME/zsh/.zshrc                 !sync-vz
     autocmd BufWinLeave $HOME/Documents/Notes/*.md                  call s:run_md_view_convert()
     autocmd BufWinLeave $HOME/Documents/Notes/*.md                  call s:run_build_index()
+    autocmd BufEnter * silent call s:make_spell_files()
     " Enter terminal mode and turn off line numbering when opening terminal
     autocmd TermOpen * startinsert
     autocmd TermOpen * set nonumber
