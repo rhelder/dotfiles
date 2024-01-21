@@ -1,8 +1,6 @@
 " {{{1 Options
 
 let &formatlistpat = '^\s*\(\d\|\*\|+\|-\)\+[\]:.)}\t ]\s*'
-set spellfile=~/.config/nvim/spell/en.utf-8.add,
-            \~/.config/nvim/spell/de.utf-8.add
 let g:python3_host_prog = '/usr/local/bin/python3'
 set belloff=
 set cursorline
@@ -20,17 +18,17 @@ set scrolloff=3
 set shiftwidth=4
 set smartcase
 set softtabstop=4
-set spelllang=en_us
 set splitbelow
 set splitright
 
-" Only set options that are also set by `FileType` autocommands the first time
-" `init.vim` is sourced, so that the filetype-specific options are not
-" overridden if `init.vim` is sourced again
+" Only set options that are also set by `FileType` autocommands (or
+" `spelllang`) the first time `init.vim` is sourced, so that the options are
+" not overridden if `init.vim` is sourced again
 if !exists('g:sourced_nvimrc')
     set formatoptions+=n
     set number
     set smartindent
+    set spelllang=en_us
     set textwidth=79
 endif
 
@@ -41,7 +39,7 @@ nnoremap <Space> <NOP>
 let mapleader = "\<Space>"
 let maplocalleader = "\<Space>"
 
-" Source `.zshrc` mappings and shell variablse
+" Source `.zshrc` mappings and shell variables
 source $XDG_CONFIG_HOME/nvim/zshrc.vim
 nnoremap <Leader>sv <Cmd>source $MYVIMRC<CR>
 
@@ -90,8 +88,8 @@ nnoremap <expr> <Leader>w
             \ "<Cmd>setlocal colorcolumn=<CR>"
 
 " Spell check
-nnoremap <Leader>sl         :set spelllang=<C-R>=&spelllang<CR>
-nnoremap <Leader>sp         <Cmd>setlocal spell!<CR>
+nnoremap <Leader>sl :setlocal spelllang=
+nnoremap <Leader>sp <Cmd>setlocal spell!<CR>
 nnoremap <expr> <Leader>sn  &spell ? "]sz=" : "<Leader>sn"
 nnoremap <expr> <Leader>sN  &spell ? "[sz=" : "<Leader>sN"
 
@@ -243,7 +241,6 @@ iabbrev wrold           world
 iabbrev iwll            will
 iabbrev delcare         declare
 
-" }}}1
 " {{{1 Autocommands
 
 " {{{2 Filetype defaults
