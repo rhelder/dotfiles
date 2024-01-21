@@ -11,5 +11,6 @@ if [[ -f $(date "+%F").txt ]]; then
 
 else
     nvim -c 'execute "edit " .. strftime("%F") .. ".txt"' \
-        -c 'execute "normal i" .. strftime("%A, %B %e, %Y") .. "\<Esc>"'
+        -c 'execute "normal i" .. strftime("%A, %B %e, %Y") .. "\<Esc>"' \
+        -c 'execute "normal 2o\<Esc>"'
 fi
