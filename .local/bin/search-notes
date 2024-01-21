@@ -1,0 +1,6 @@
+#!/bin/zsh
+
+# Run `rfv` on all note files (not index files)
+
+cd $HOME/Documents/Notes || exit
+rfv [[:digit:]]*.md
