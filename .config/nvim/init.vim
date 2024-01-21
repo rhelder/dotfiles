@@ -45,6 +45,30 @@ let maplocalleader = "\<Space>"
 source $XDG_CONFIG_HOME/nvim/zshrc.vim
 nnoremap <Leader>sv <Cmd>source $MYVIMRC<CR>
 
+" {{{2 Notes
+function! s:new_note() abort
+    lcd ~/Documents/Notes
+    execute 'edit ' .. strftime("%Y%m%d%H%M%S") .. '.md'
+    execute "normal i---\r---\<Esc>"
+    execute "normal Okeywords: \<Esc>"
+    execute "normal Otitle: \<Esc>"
+    execute 'normal Oid: ' .. strftime("%Y%m%d%H%M%S") .. "\<Esc>"
+endfunction
+
+function! s:new_journal() abort
+    lcd $HOME/Documents/Notes
+    execute 'edit ' .. strftime('%F') .. '.txt'
+    if !filereadable(strftime('%F') .. '.txt')
+        execute 'normal i' .. strftime('%A, %B %e, %Y') .. "\<Esc>"
+        execute "normal 2o\<Esc>"
+    endif
+endfunction
+
+nnoremap <Leader>nj <Cmd>call <SID>new_journal()<CR>
+nnoremap <Leader>nn <Cmd>call <SID>new_note()<CR>
+nnoremap <Leader>ns <Cmd>lcd ~/Documents/Notes <Bar> Rfv [[:digit:]]*.md<CR>
+" }}}2
+
 " Open help
 nnoremap \          <Cmd>vert help<CR>:help 
 nnoremap <BS>       <Cmd>help<CR>:help 
@@ -78,7 +102,7 @@ nnoremap _ ddp
 " Uppercase word
 nnoremap <Leader>u viwUe
 
-" Text objects for next and last objects {{{2
+" {{{2 Text objects for next and last objects
 
 " Sentences (can't figure out how to do 'last' sentence)
 onoremap ans :<C-U>normal! )vas<CR>
@@ -204,18 +228,6 @@ vnoremap in` :<C-U>normal! f`f`vi`<CR>
 vnoremap al` :<C-U>normal! F`F`va`<CR>
 vnoremap il` :<C-U>normal! F`F`vi`<CR>
 
-" {{{2 Open new note
-nnoremap <Leader>nn <Cmd>call<SID>new_note()<CR>
-
-function s:new_note()
-    lcd ~/Documents/Notes
-    execute 'edit ' .. strftime("%Y%m%d%H%M%S") .. '.md'
-    execute "normal i---\r---\<Esc>"
-    execute "normal Okeywords: \<Esc>"
-    execute "normal Otitle: \<Esc>"
-    execute 'normal Oid: ' .. strftime("%Y%m%d%H%M%S") .. "\<Esc>"
-endfunction
-
 " }}}2
 
 " Insert mode abbreviations
@@ -313,17 +325,27 @@ endif
 " }}}2
 
 function! s:run_md_view_convert()
-    echon 'Running MdviewConvert...'
-    silent MdviewConvert
-    redraw
-    echo ''
+    if filereadable(expand('%'))
+        echon 'Running MdviewConvert...'
+        silent MdviewConvert
+        redraw
+        echo ''
+    endif
 endfunction
 
 function! s:run_build_index()
-    echo 'Running build-index...'
-    silent !build-index
-    redraw
-    echo ''
+    if filereadable(expand('%'))
+        echo 'Running build-index...'
+        let l:output = system('build-index')
+        redraw
+        echo ''
+        if len(l:output) > 0
+            echo l:output
+            echohl Type
+            call input("\nPress ENTER to continue")
+            echohl None
+        endif
+    endif
 endfunction
 
 augroup nvimrc_autocommands
