@@ -77,11 +77,12 @@ nnoremap <Leader>ns             <Cmd>call <SID>search_notes()<CR>
 
 function! s:new_note() abort " {{{2
     lcd ~/Documents/Notes
-    execute 'edit ' .. strftime("%Y%m%d%H%M%S") .. '.md'
+    let l:name = strftime("%Y%m%d%H%M%S")
+    execute 'edit ' .. l:name .. '.md'
     execute "normal i---\r---\<Esc>"
     execute "normal Okeywords: \<Esc>"
     execute "normal Otitle: \<Esc>"
-    execute 'normal Oid: ' .. strftime("%Y%m%d%H%M%S") .. "\<Esc>"
+    execute 'normal Oid: ' .. l:name .. "\<Esc>"
 endfunction
 
 function! s:new_journal() abort " {{{2
