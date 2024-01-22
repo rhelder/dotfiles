@@ -109,6 +109,7 @@ alias zf="cd $XDG_DATA_HOME/zsh/functions"
 alias ga='git add'
 alias gbD='git branch -D'
 alias gbd='git branch -d'
+alias gbl='git branch --list'
 alias gc='git commit'
 alias gd='git diff'
 alias gds='git diff --staged'
