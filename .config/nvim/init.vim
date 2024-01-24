@@ -269,6 +269,8 @@ augroup nvimrc_autocommands
     autocmd TermOpen * set nonumber
 augroup END
 
+let s:exiting = 0
+
 function! s:exit_note() abort " {{{2
     try
         call s:run_md_view_convert()
@@ -287,6 +289,12 @@ function! s:exit_note() abort " {{{2
     endtry
 
     execute s:run_build_index()
+    if s:exiting == 1
+        echohl Type
+        call input("\nPress ENTER or type command to continue")
+        echohl None
+    endif
+
 endfunction
 
 function! s:run_md_view_convert() abort " {{{2
@@ -304,12 +312,6 @@ function! s:run_build_index() abort " {{{2
         if len(l:filtered_stderr) > 0
             let l:stderr = split(l:filtered_stderr, '\n')
 
-            if s:exiting == 1
-                echohl Type
-                call input("\nPress ENTER or type command to continue")
-                echohl None
-            endif
-
             return 'echohl WarningMsg | for line in ' .. string(l:stderr) ..
                         \ ' | echomsg line | endfor | echohl None'
         else
@@ -318,8 +320,6 @@ function! s:run_build_index() abort " {{{2
         return ''
     endif
 endfunction
-
-let s:exiting = 0
 
 function! s:make_spell_files() abort " {{{2
     for file in glob('$XDG_CONFIG_HOME/nvim/spell/*.add', 0, 1)
