@@ -21,6 +21,13 @@ set softtabstop=4
 set splitbelow
 set splitright
 
+" Undo files
+set undofile
+set undodir=$HOME/.cache/vim/undo
+if !isdirectory(&undodir)
+  call mkdir(&undodir, 'p')
+endif
+
 " Only set options that are also set by FileType autocommands (or spelllang)
 " the first time init.vim is sourced, so that the options are not overridden if
 " init.vim is sourced again
