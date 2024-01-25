@@ -1,3 +1,4 @@
+" Enclose _run_build_index in try conditional
 " Options {{{1
 
 let &formatlistpat = '^\s*\(\d\|\*\|+\|-\)\+[\]:.)}\t ]\s*'
@@ -264,7 +265,9 @@ augroup nvimrc_autocommands
 
     " Run MdviewConvert and build-index when exiting a note
     autocmd BufWinLeave $HOME/Documents/Notes/*.md call s:exit_note()
-    autocmd BufModifiedSet $HOME/Documents/Notes/*.md ++once let s:modified = 1
+    autocmd BufReadPost,BufNewFile $HOME/Documents/Notes/*.md
+                \ autocmd BufModifiedSet $HOME/Documents/Notes/*.md ++once
+                              \ let b:modified = 1
     " Set flag so that s:run_build_index can force 'hit enter' prompt before
     " quitting
     autocmd ExitPre $HOME/Documents/Notes/*.md let s:exiting = 1
@@ -278,30 +281,37 @@ augroup nvimrc_autocommands
 augroup END
 
 function! s:exit_note() abort " {{{2
-    if filereadable(expand('%')) && exists('s:modified')
-        try
-            echo 'Running MdviewConvert...'
-            MdviewConvert
+    " Use <afile> instead of %, and getbufvar with <afile> and 'modified'
+    " instead of b:modified, because the latter will be wrong in some cases
+    " when executing a BufWinleave autocommand (e.g., as when exiting Vim with
+    " multiple windows open)
+    if !filereadable(expand('<afile>')) ||
+                \ !getbufvar(expand('<afile>'), 'modified', 0)
+        return
+    endif
 
-        catch /^Vim(echoerr):/
-            echohl ErrorMsg
-            for line in split(v:errmsg, '\n')
-                echomsg line
-            endfor
-            echohl Type
-            call input("\nPress ENTER or type command to continue")
+    try
+        echo 'Running MdviewConvert...'
+        MdviewConvert
 
-        finally
-            echohl None
-            redraw
-        endtry
+    catch /^Vim(echoerr):/
+        echohl ErrorMsg
+        for line in split(v:errmsg, '\n')
+            echomsg line
+        endfor
+        echohl Type
+        call input("\nPress ENTER or type command to continue")
 
-        execute s:_run_build_index()
-        if exists('s:exiting')
-            echohl Type
-            call input("\nPress ENTER or type command to continue")
-            echohl None
-        endif
+    finally
+        echohl None
+        redraw
+    endtry
+
+    execute s:_run_build_index()
+    if exists('s:exiting')
+        echohl Type
+        call input("\nPress ENTER or type command to continue")
+        echohl None
     endif
 endfunction
 
