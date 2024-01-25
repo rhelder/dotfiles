@@ -24,7 +24,7 @@ set splitright
 " Only set options that are also set by FileType autocommands (or spelllang)
 " the first time init.vim is sourced, so that the options are not overridden if
 " init.vim is sourced again
-if !exists('g:sourced_nvimrc')
+if !exists('s:sourced')
     set formatoptions+=n
     set number
     set smartindent
@@ -257,6 +257,7 @@ augroup nvimrc_autocommands
 
     " Run MdviewConvert and build-index when exiting a note
     autocmd BufWinLeave $HOME/Documents/Notes/*.md call s:exit_note()
+    autocmd BufModifiedSet $HOME/Documents/Notes/*.md ++once let s:modified = 1
     " Set flag so that s:run_build_index can force 'hit enter' prompt before
     " quitting
     autocmd ExitPre $HOME/Documents/Notes/*.md let s:exiting = 1
@@ -269,56 +270,47 @@ augroup nvimrc_autocommands
     autocmd TermOpen * set nonumber
 augroup END
 
-let s:exiting = 0
-
 function! s:exit_note() abort " {{{2
-    try
-        call s:run_md_view_convert()
+    if filereadable(expand('%')) && exists('s:modified')
+        try
+            echo 'Running MdviewConvert...'
+            MdviewConvert
 
-    catch /^Vim(echoerr):/
-        echohl ErrorMsg
-        for line in split(v:errmsg, '\n')
-            echomsg line
-        endfor
-        echohl Type
-        call input("\nPress ENTER or type command to continue")
+        catch /^Vim(echoerr):/
+            echohl ErrorMsg
+            for line in split(v:errmsg, '\n')
+                echomsg line
+            endfor
+            echohl Type
+            call input("\nPress ENTER or type command to continue")
 
-    finally
-        echohl None
-        redraw
-    endtry
+        finally
+            echohl None
+            redraw
+        endtry
 
-    execute s:run_build_index()
-    if s:exiting == 1
-        echohl Type
-        call input("\nPress ENTER or type command to continue")
-        echohl None
-    endif
-
-endfunction
-
-function! s:run_md_view_convert() abort " {{{2
-    if filereadable(expand('%'))
-        echo 'Running MdviewConvert...'
-        MdviewConvert
-    endif
-endfunction
-
-function! s:run_build_index() abort " {{{2
-    if filereadable(expand('%'))
-        echo 'Running build-index...'
-
-        let l:filtered_stderr = system('build-index')
-        if len(l:filtered_stderr) > 0
-            let l:stderr = split(l:filtered_stderr, '\n')
-
-            return 'echohl WarningMsg | for line in ' .. string(l:stderr) ..
-                        \ ' | echomsg line | endfor | echohl None'
-        else
-            return ''
+        execute s:_run_build_index()
+        if exists('s:exiting')
+            echohl Type
+            call input("\nPress ENTER or type command to continue")
+            echohl None
         endif
+    endif
+endfunction
+
+function! s:_run_build_index() abort " {{{2
+    echo 'Running build-index...'
+
+    let l:filtered_stderr = system('build-index')
+    if len(l:filtered_stderr) > 0
+        let l:stderr = split(l:filtered_stderr, '\n')
+
+        return 'echohl WarningMsg | for line in ' .. string(l:stderr) ..
+                    \ ' | echomsg line | endfor | echohl None'
+    else
         return ''
     endif
+    return ''
 endfunction
 
 function! s:make_spell_files() abort " {{{2
@@ -499,4 +491,4 @@ let g:rfv_action = {
 
 " }}}1
 
-let g:sourced_nvimrc = 1
+let s:sourced = 1
