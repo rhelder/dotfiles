@@ -42,7 +42,7 @@ nnoremap <Leader>doc <Cmd>lcd
             \ $HOME/Documents<CR>
 nnoremap <Leader>docg <Cmd>lcd
             \ $HOME/Documents/Git<CR>
-nnoremap <Leader>nt <Cmd>lcd
+nnoremap <Leader>nd <Cmd>lcd
             \ $HOME/Documents/Notes<CR>
 nnoremap <Leader>pdd <Cmd>lcd
             \ $XDG_DATA_HOME/pandoc/defaults<CR>
