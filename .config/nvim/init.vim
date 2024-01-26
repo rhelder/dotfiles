@@ -1,4 +1,3 @@
-" Enclose _run_build_index in try conditional
 " Options {{{1
 
 let &formatlistpat = '^\s*\(\d\|\*\|+\|-\)\+[\]:.)}\t ]\s*'
@@ -307,12 +306,15 @@ function! s:exit_note() abort " {{{2
         redraw
     endtry
 
-    execute s:_run_build_index()
-    if exists('s:exiting')
-        echohl Type
-        call input("\nPress ENTER or type command to continue")
-        echohl None
-    endif
+    try
+        execute s:_run_build_index()
+    catch /build-index(stderr)/
+        if exists('s:exiting')
+            echohl Type
+            call input("\nPress ENTER or type command to continue")
+            echohl None
+        endif
+    endtry
 endfunction
 
 function! s:_run_build_index() abort " {{{2
@@ -321,9 +323,9 @@ function! s:_run_build_index() abort " {{{2
     let l:filtered_stderr = system('build-index')
     if len(l:filtered_stderr) > 0
         let l:stderr = split(l:filtered_stderr, '\n')
-
         return 'echohl WarningMsg | for line in ' .. string(l:stderr) ..
-                    \ ' | echomsg line | endfor | echohl None'
+                    \ ' | echomsg line | endfor | echohl None | ' ..
+                    \ 'throw "build-index(stderr)"'
     else
         return ''
     endif
