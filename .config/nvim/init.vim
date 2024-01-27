@@ -56,8 +56,8 @@ nnoremap <Leader>sv <Cmd>source $MYVIMRC<CR>
 nnoremap <Leader>t  <Cmd>vsplit<CR><Cmd>terminal<CR>
 
 " Move lines up or down
-nnoremap -          ddkP
-nnoremap _          ddp
+nnoremap -  ddkP
+nnoremap _  ddp
 
 " Help
 nnoremap \          <Cmd>vert help<CR>:help 
@@ -72,15 +72,16 @@ nnoremap <expr> <Leader>w
             \     : "<Cmd>setlocal colorcolumn=<CR>"
 
 " Spell
-nnoremap <Leader>sl             :setlocal spelllang=
-nnoremap <Leader>sp             <Cmd>setlocal spell!<CR>
-nnoremap <expr> <Leader>sn      &spell ? "]sz=" : "<Leader>sn"
-nnoremap <expr> <Leader>sN      &spell ? "[sz=" : "<Leader>sN"
+nnoremap <Leader>sl         :setlocal spelllang=
+nnoremap <Leader>sp         <Cmd>setlocal spell!<CR>
+nnoremap <expr> <Leader>sn  &spell ? "]sz=" : "<Leader>sn"
+nnoremap <expr> <Leader>sN  &spell ? "[sz=" : "<Leader>sN"
 
 " Notes
-nnoremap <Leader>nj             <Cmd>call <SID>new_journal()<CR>
-nnoremap <Leader>nn             <Cmd>call <SID>new_note()<CR>
-nnoremap <Leader>ns             <Cmd>call <SID>search_notes()<CR>
+nnoremap <Leader>nj <Cmd>call <SID>new_journal()<CR>
+nnoremap <Leader>nn <Cmd>call <SID>new_note()<CR>
+nnoremap <Leader>ns <Cmd>call <SID>search_notes()<CR>
+nnoremap <Leader>nl <Cmd>call <SID>bracket_to_hyphen_yaml_list()<CR>
 
 function! s:new_note() abort " {{{2
     lcd ~/Documents/Notes
@@ -105,6 +106,20 @@ function! s:search_notes() abort " {{{2
     lcd $HOME/Documents/Notes
     Rfv [[:digit:]]*.md
 endfunction
+
+function! s:bracket_to_hyphen_yaml_list() abort " {{{2
+    let l:unnamed_register = @"
+    normal! vi[""x
+    let l:string = substitute(@", '\n', ' ', 'g')
+    let l:list = split(l:string, ', ')
+    call setline('.', substitute(getline('.'), '\(.*:\).*', '\1', ''))
+    execute "normal o\<C-I>- " .. l:list[0] .. "\<Esc>"
+    for item in l:list[1:-1]
+        execute "normal! o- " .. item .. "\<Esc>"
+    endfor
+    let @" = l:unnamed_register
+endfunction
+" }}}2
 
 " Text objects for next and last objects {{{2
 
@@ -249,7 +264,7 @@ iabbrev delcare         declare
 
 " Autocommands {{{1
 
-augroup nvimrc_autocommands
+augroup nvimrc_autocommands " {{{2
     autocmd!
 
     " When opening a new file in ~/.local/bin or in
@@ -308,6 +323,17 @@ function! s:exit_note() abort " {{{2
 
     try
         execute s:_run_build_index()
+    catch /^Vim(echoerr):/
+        echohl ErrorMsg
+        for line in split(v:errmsg, '\n')
+            echomsg line
+        endfor
+        echohl None
+        if exists('s:exiting')
+            echohl Type
+            call input("\nPress ENTER or type command to continue")
+            echohl None
+        endif
     catch /build-index(stderr)/
         if exists('s:exiting')
             echohl Type
@@ -323,9 +349,15 @@ function! s:_run_build_index() abort " {{{2
     let l:filtered_stderr = system('build-index')
     if len(l:filtered_stderr) > 0
         let l:stderr = split(l:filtered_stderr, '\n')
-        return 'echohl WarningMsg | for line in ' .. string(l:stderr) ..
-                    \ ' | echomsg line | endfor | echohl None | ' ..
-                    \ 'throw "build-index(stderr)"'
+        if v:shell_error == 0
+            return 'echohl WarningMsg | for line in ' .. string(l:stderr) ..
+                        \ ' | echomsg line | endfor | echohl None | ' ..
+                        \ 'throw "build-index(stderr)"'
+        else
+            return 'let v:errmsg = join(' .. string(l:stderr) .. ', "\n") | ' ..
+                        \ 'for line in ' .. string(l:stderr) ..
+                        \ ' | echoerr line | endfor'
+        endif
     else
         return ''
     endif
@@ -343,11 +375,9 @@ function! s:make_spell_files() abort " {{{2
         endif
     endfor
 endfunction
-
 " }}}2
 
-" Filetype defaults {{{2
-augroup nvimrc_filetype_defaults
+augroup nvimrc_filetype_defaults " {{{2
     autocmd!
     autocmd FileType markdown           setlocal formatoptions-=l
     autocmd FileType csv                setlocal formatoptions-=tc
@@ -358,9 +388,9 @@ augroup nvimrc_filetype_defaults
     autocmd BufWinEnter COMMIT_EDITMSG  setlocal nosmartindent textwidth=72
     autocmd FileType text,markdown,tex  setlocal nosmartindent
 augroup END
+" }}}2
 
-" Mappings {{{2
-augroup nvrimc_key_mappings
+augroup nvrimc_key_mappings " {{{2
     autocmd!
 
     " Comment out lines according to filetype
@@ -392,7 +422,7 @@ augroup nvrimc_key_mappings
     autocmd TermEnter * tnoremap <buffer> <C-W>c     <C-\><C-N>
 augroup END
 
-function! s:comment(character) abort " {{{3
+function! s:comment(character) abort " {{{2
     let l:pattern = '^\s*' .. a:character
     if match(getline('.'), l:pattern) ==# 0
         normal ^xx
@@ -400,8 +430,6 @@ function! s:comment(character) abort " {{{3
         execute 'normal I' .. a:character .. "\<Space>\<Esc>"
     endif
 endfunction
-" }}}3
-
 " }}}2
 
 " vim-plug {{{1
