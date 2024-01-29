@@ -49,11 +49,16 @@ let maplocalleader = "\<Space>"
 " Source .zshrc mappings and shell variables
 source $XDG_CONFIG_HOME/nvim/zshrc.vim
 
-" Source init.vim
+" Source files
 nnoremap <Leader>sv <Cmd>source $MYVIMRC<CR>
+nnoremap <Leader>sf <Cmd>source %<CR>
 
 " Open terminal in vertical split
 nnoremap <Leader>t  <Cmd>vsplit<CR><Cmd>terminal<CR>
+
+" Always search with \v
+nnoremap / /\v
+nnoremap ? ?\v
 
 " Move lines up or down
 nnoremap -  ddkP
@@ -109,7 +114,7 @@ endfunction
 
 function! s:bracket_to_hyphen_yaml_list() abort " {{{2
     let l:unnamed_register = @"
-    normal! vi[""x
+    normal! ""di[
     let l:string = substitute(@", '\n', ' ', 'g')
     let l:list = split(l:string, ', ')
     call setline('.', substitute(getline('.'), '\(.*:\).*', '\1', ''))
