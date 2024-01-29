@@ -72,7 +72,7 @@ export HELPDIR='/usr/share/zsh/5.9/help'
 # {{{2 Edit
 alias eas="nvim $HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
 alias ebib="nvim $HOME/Library/texmf/bibtex/bib/myLibrary.bib"
-alias ebt="open $HOME/Documents/budget_2023.xlsx"
+alias ebgt="open $HOME/Documents/Personal/Finance/budget_2023.xlsx"
 alias ecv="nvim $HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
 alias edf="nvim $XDG_CONFIG_HOME/git/filter-repo/dotfiles"
 alias efzf="nvim $XDG_CONFIG_HOME/fzf/fzf.zsh"
