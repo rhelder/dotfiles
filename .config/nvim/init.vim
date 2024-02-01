@@ -87,6 +87,7 @@ nnoremap <Leader>nj <Cmd>call <SID>new_journal()<CR>
 nnoremap <Leader>nn <Cmd>call <SID>new_note()<CR>
 nnoremap <Leader>ns <Cmd>call <SID>search_notes()<CR>
 nnoremap <Leader>nl <Cmd>call <SID>bracket_to_hyphen_yaml_list()<CR>
+nnoremap <Leader>ni <Cmd>call fzf#run(fzf#wrap(<SID>browse_index()))<CR>
 
 function! s:new_note() abort " {{{2
     lcd ~/Documents/Notes
@@ -124,17 +125,61 @@ function! s:bracket_to_hyphen_yaml_list() abort " {{{2
     endfor
     let @" = l:unnamed_register
 endfunction
-" }}}2
+
+function! s:browse_index() abort " {{{2
+    let l:browse_index_spec = {
+                \ 'dir': "$HOME/Documents/Notes",
+                \ 'source': 'fd "[A-z].*\.md"',
+                \ 'left': '50',
+                \ 'options': s:fzf_expect_options(),
+                \ 'sinklist': function('s:browse_index_open_result'),
+                \ }
+
+    return l:browse_index_spec
+endfunction
+
+function! s:fzf_expect_options() abort " {{{3
+    let l:options = []
+
+    for key in keys(s:browse_index_action)
+        let l:option = '--expect=' .. key
+        call add(l:options, l:option)
+    endfor
+
+    return l:options
+endfunction
+
+let s:browse_index_action = {
+            \ 'ctrl-v': 'vertical split',
+            \ 'ctrl-x': 'split',
+            \ 'ctrl-o': 'silent !md-open',
+            \ }
+
+function! s:browse_index_open_result(lines) abort " {{{3
+    if len(a:lines) < 2
+        return
+    endif
+
+    let l:key = a:lines[0]
+    let l:result = a:lines[1]
+
+    if type(get(s:browse_index_action, l:key, 'edit')) == v:t_func
+        call s:browse_index_action[l:key](l:result)
+    else
+        execute get(s:browse_index_action, l:key, 'edit') l:result
+    endif
+endfunction
+" }}}3
 
 " Text objects for next and last objects {{{2
 
-" Sentences (can't figure out how to do 'last' sentence)
+" Sentences (can't figure out how to do 'last' sentence) {{{3
 onoremap ans :<C-U>normal! )vas<CR>
 onoremap ins :<C-U>normal! )vis<CR>
 vnoremap ans :<C-U>normal! )vas<CR>
 vnoremap ins :<C-U>normal! )vis<CR>
 
-" Square brackets
+" Square brackets {{{3
 onoremap an[ :<C-U>normal! f[va[<CR>
 onoremap in[ :<C-U>normal! f[vi[<CR>
 onoremap al[ :<C-U>normal! F]va[<CR>
@@ -152,7 +197,7 @@ vnoremap in] :<C-U>normal! f[vi]<CR>
 vnoremap al] :<C-U>normal! F]va]<CR>
 vnoremap il] :<C-U>normal! F]vi]<CR>
 
-" Parentheses
+" Parentheses {{{3
 onoremap an( :<C-U>normal! f(va(<CR>
 onoremap in( :<C-U>normal! f(vi(<CR>
 onoremap al( :<C-U>normal! F)va(<CR>
@@ -178,7 +223,7 @@ vnoremap inb :<C-U>normal! f(vib<CR>
 vnoremap alb :<C-U>normal! F)vab<CR>
 vnoremap ilb :<C-U>normal! F)vib<CR>
 
-" Angle brackets
+" Angle brackets {{{3
 onoremap an< :<C-U>normal! f<va<<CR>
 onoremap in< :<C-U>normal! f<vi<<CR>
 onoremap al< :<C-U>normal! F>va<<CR>
@@ -196,7 +241,7 @@ vnoremap in> :<C-U>normal! f<vi><CR>
 vnoremap al> :<C-U>normal! F>va><CR>
 vnoremap il> :<C-U>normal! F>vi><CR>
 
-" Curly braces
+" Curly braces {{{3
 onoremap an{ :<C-U>normal! f{va{<CR>
 onoremap in{ :<C-U>normal! f{vi{<CR>
 onoremap al{ :<C-U>normal! F}va{<CR>
@@ -222,7 +267,7 @@ vnoremap inB :<C-U>normal! f{viB<CR>
 vnoremap alB :<C-U>normal! F}vaB<CR>
 vnoremap ilB :<C-U>normal! F}viB<CR>
 
-" Double quotes
+" Double quotes {{{3
 onoremap an" :<C-U>normal! f"f"va"<CR>
 onoremap in" :<C-U>normal! f"f"vi"<CR>
 onoremap al" :<C-U>normal! F"F"va"<CR>
@@ -232,7 +277,7 @@ vnoremap in" :<C-U>normal! f"f"vi"<CR>
 vnoremap al" :<C-U>normal! F"F"va"<CR>
 vnoremap il" :<C-U>normal! F"F"vi"<CR>
 
-" Single quotes
+" Single quotes {{{3
 onoremap an' :<C-U>normal! f'f'va'<CR>
 onoremap in' :<C-U>normal! f'f'vi'<CR>
 onoremap al' :<C-U>normal! F'F'va'<CR>
@@ -242,7 +287,7 @@ vnoremap in' :<C-U>normal! f'f'vi'<CR>
 vnoremap al' :<C-U>normal! F'F'va'<CR>
 vnoremap il' :<C-U>normal! F'F'vi'<CR>
 
-" Backticks
+" Backticks {{{3
 onoremap an` :<C-U>normal! f`f`va`<CR>
 onoremap in` :<C-U>normal! f`f`vi`<CR>
 onoremap al` :<C-U>normal! F`F`va`<CR>
@@ -251,6 +296,7 @@ vnoremap an` :<C-U>normal! f`f`va`<CR>
 vnoremap in` :<C-U>normal! f`f`vi`<CR>
 vnoremap al` :<C-U>normal! F`F`va`<CR>
 vnoremap il` :<C-U>normal! F`F`vi`<CR>
+" }}}3
 
 " Insert mode abbreviations {{{2
 iabbrev assortnment     assortment
