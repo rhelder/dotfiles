@@ -541,6 +541,29 @@ let g:rfv_action = {
             \ 'ctrl-]': function('s:insert_link'),
             \ }
 
+" {{{1 mdView configuration
+
+function! s:md_view_output_file() abort dict
+    " If the input file is an index file, manipulate the filename so that the
+    " html filename is exactly equivalent to the corresponding keyword, so that
+    " it can be linked to in a Pandoc template
+    let l:input_file = self.input()
+    if match(l:input_file, '_') == 0
+        let l:file = substitute(l:input_file, '_', '@', '')
+    else
+        let l:file = l:input_file
+    endif
+    let l:file = substitute(l:file, '_', ' ', 'g')
+    let l:file = substitute(l:file, '.md$', '.html', '')
+    return l:file
+endfunction
+
+let g:md_view = {}
+let g:md_view.output = function('s:md_view_output_file')
+let g:md_view.pandoc_args = [
+            \ '--defaults=notes',
+            \ ]
+
 " }}}1
 
 let s:sourced = 1
