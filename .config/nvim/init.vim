@@ -76,6 +76,25 @@ nnoremap <expr> <Leader>w
             \     ? "<Cmd>setlocal colorcolumn=+1<CR>"
             \     : "<Cmd>setlocal colorcolumn=<CR>"
 
+" Writing docs
+nnoremap <Leader>fh <Cmd>call <SID>toggle_help_filetype()<CR>
+nnoremap <Leader>r  <Cmd>call <SID>right_align_tag()<CR>
+nnoremap <Leader>=  <Cmd>execute "normal! o\<lt>Esc>78i=\<lt>Esc>"<CR>
+
+function! s:toggle_help_filetype() abort " {{{2
+    if &filetype ==# 'text'
+        setlocal filetype=help
+    elseif &filetype ==# 'help'
+        setlocal filetype=text
+    endif
+endfunction
+
+function! s:right_align_tag() abort " {{{2
+    call cursor('.', match(getline('.'), '\*.*\*'))
+    execute "normal " .. (78 - virtcol('$') + 1) .. "i \<Esc>"
+endfunction
+" }}}2
+
 " Spell
 nnoremap <Leader>sl         :setlocal spelllang=
 nnoremap <Leader>sp         <Cmd>setlocal spell!<CR>
@@ -589,7 +608,7 @@ let g:rfv_action = {
 
 " {{{1 mdView configuration
 
-function! s:md_view_output_file() abort dict
+function! s:mdview_output_file() abort dict
     " If the input file is an index file, manipulate the filename so that the
     " html filename is exactly equivalent to the corresponding keyword, so that
     " it can be linked to in a Pandoc template
@@ -604,9 +623,9 @@ function! s:md_view_output_file() abort dict
     return l:file
 endfunction
 
-let g:md_view = {}
-let g:md_view.output = function('s:md_view_output_file')
-let g:md_view.pandoc_args = [
+let g:mdview = {}
+let g:mdview.output = function('s:mdview_output_file')
+let g:mdview.pandoc_args = [
             \ '--defaults=notes',
             \ ]
 
