@@ -78,8 +78,11 @@ nnoremap <expr> <Leader>w
 
 " Writing docs
 nnoremap <Leader>fh <Cmd>call <SID>toggle_help_filetype()<CR>
-nnoremap <Leader>r  <Cmd>call <SID>right_align_tag()<CR>
-nnoremap <Leader>=  <Cmd>execute "normal! o\<lt>Esc>78i=\<lt>Esc>"<CR>
+nnoremap <Leader>rr <Cmd>call <SID>right_align_right_column('tag')<CR>
+vnoremap <Leader>rt :call <SID>right_align_right_column('tag')<CR>
+vnoremap <Leader>rl :call <SID>right_align_right_column('link')<CR>
+nnoremap <Leader>== <Cmd>execute "normal! o\<lt>Esc>78i=\<lt>Esc>"<CR>
+nnoremap <Leader>=- <Cmd>execute "normal! o\<lt>Esc>78i-\<lt>Esc>"<CR>
 
 function! s:toggle_help_filetype() abort " {{{2
     if &filetype ==# 'text'
@@ -89,10 +92,34 @@ function! s:toggle_help_filetype() abort " {{{2
     endif
 endfunction
 
-function! s:right_align_tag() abort " {{{2
-    call cursor('.', match(getline('.'), '\*.*\*'))
+function! s:right_align_right_column(type) abort range " {{{2
+    if a:type == 'tag'
+        let l:pattern = '\v\*.*\*'
+    elseif a:type == 'link'
+        let l:pattern = '\v\|.*\|'
+    endif
+
+    let l:lengths = []
+    for line in range(a:firstline, a:lastline)
+        call add(l:lengths, len(matchstr(getline(line), l:pattern)))
+    endfor
+    let l:line_with_max = index(l:lengths, max(l:lengths)) + a:firstline
+
+    call cursor(l:line_with_max,
+                \ match(getline(l:line_with_max), l:pattern) + 1)
     execute "normal " .. (78 - virtcol('$') + 1) .. "i \<Esc>"
+    let l:col_of_max = match(getline(l:line_with_max), l:pattern)
+    for line in range(a:firstline, a:lastline)
+        if line == l:line_with_max
+            continue
+        endif
+
+        let l:col = match(getline(line), l:pattern)
+        call cursor(line, l:col)
+        execute 'normal ' .. (l:col_of_max - l:col) .. "a \<Esc>"
+    endfor
 endfunction
+
 " }}}2
 
 " Spell
