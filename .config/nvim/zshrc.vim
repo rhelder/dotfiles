@@ -18,8 +18,14 @@ nnoremap <Leader>ehf <Cmd>vs
             \ $HISTFILE<CR>
 nnoremap <Leader>elmk <Cmd>vs
             \ $XDG_CONFIG_HOME/latexmk/latexmkrc<CR>
-nnoremap <Leader>emd <Cmd>vs
-            \ $XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdView.vim<CR>
+nnoremap <Leader>emda <Cmd>vs
+            \ $XDG_DATA_HOME/nvim/site/autoload/mdview.vim<CR>
+nnoremap <Leader>emdd <Cmd>vs
+            \ $XDG_DATA_HOME/nvim/site/doc/mdview.txt<CR>
+nnoremap <Leader>emdp <Cmd>vs
+            \ $XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdview.vim<CR>
+nnoremap <Leader>emdz <Cmd>vs
+            \ $XDG_DATA_HOME/nvim/site/after/ftplugin/markdown/mdview.vim<CR>
 nnoremap <Leader>epr <Cmd>vs
             \ $XDG_CONFIG_HOME/zsh/.zprofile<CR>
 nnoremap <Leader>erfv <Cmd>vs
@@ -74,7 +80,10 @@ let fzf = "$XDG_CONFIG_HOME/fzf/fzf.zsh"
 let gc = "$XDG_CONFIG_HOME/git/config"
 let gi = "$XDG_CONFIG_HOME/git/ignore"
 let lmk = "$XDG_CONFIG_HOME/latexmk/latexmkrc"
-let md = "$XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdView.vim"
+let mda = "$XDG_DATA_HOME/nvim/site/autoload/mdview.vim"
+let mdd = "$XDG_DATA_HOME/nvim/site/doc/mdview.txt"
+let mdp = "$XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdview.vim"
+let mdz = "$XDG_DATA_HOME/nvim/site/after/ftplugin/markdown/mdview.vim"
 let nt = "$HOME/Documents/Notes"
 let pdd = "$XDG_DATA_HOME/pandoc/defaults"
 let pdt = "$XDG_DATA_HOME/pandoc/templates"
