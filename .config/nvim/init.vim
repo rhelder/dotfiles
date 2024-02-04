@@ -110,13 +110,13 @@ function! s:right_align_right_column(type) abort range " {{{2
     execute "normal " .. (78 - virtcol('$') + 1) .. "i \<Esc>"
     let l:col_of_max = match(getline(l:line_with_max), l:pattern)
     for line in range(a:firstline, a:lastline)
-        if line == l:line_with_max
+        if line == l:line_with_max || !len(matchstr(getline(line), l:pattern))
             continue
         endif
 
         let l:col = match(getline(line), l:pattern)
-        call cursor(line, l:col)
-        execute 'normal ' .. (l:col_of_max - l:col) .. "a \<Esc>"
+        call cursor(line, l:col + 1)
+        execute 'normal ' .. (l:col_of_max - l:col) .. "i \<Esc>"
     endfor
 endfunction
 
@@ -364,7 +364,7 @@ iabbrev delcare         declare
 augroup nvimrc_autocommands " {{{2
     autocmd!
 
-    " When opening a new file in ~/.local/bin or in
+    " When opening a (new) file in ~/.local/bin or in
     " ~/.local/share/zsh/functions, set the filetype to zsh
     autocmd BufReadPost,BufNewFile $HOME/.local/bin/* set filetype=zsh
     autocmd BufReadPost,BufNewFile $XDG_DATA_HOME/zsh/functions/*
