@@ -25,6 +25,7 @@
 /.local/share/nvim/.netrwhist
 /.local/share/nvim/plugged/
 /.local/share/nvim/site/autoload/plug.vim
+/.local/share/nvim/site/doc/tags
 
 /Library/*
 !/Library/texmf/
