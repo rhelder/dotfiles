@@ -56,10 +56,6 @@ nnoremap <Leader>sf <Cmd>source %<CR>
 " Open terminal in vertical split
 nnoremap <Leader>t  <Cmd>vsplit<CR><Cmd>terminal<CR>
 
-" Always search with \v
-nnoremap / /\v
-nnoremap ? ?\v
-
 " Move lines up or down
 nnoremap -  ddkP
 nnoremap _  ddp
@@ -657,5 +653,73 @@ let g:mdview.pandoc_args = [
             \ ]
 
 " }}}1
+
+function! s:bibtex_trim(index, val) abort
+    return substitute(a:val, '\v^\@.+\{(.+),$', '\1', '')
+endfunction
+function! s:complete_citations(findstart, base) abort
+    if a:findstart
+        let l:line = getline('.')
+        if match(l:line, '\v\@\zs[0-9A-Za-z.-]*') == -1
+            return -3
+        endif
+
+        let l:start = col('.') - 1
+        while l:start > 0 && l:line[l:start - 1] =~ '[0-9A-Za-z.-]'
+            let l:start -= 1
+        endwhile
+
+        if l:line[l:start - 1] ==# '@'
+            return l:start
+        else
+            return -3
+        endif
+    else
+        let l:biblatex_file = readfile(
+                    \ '/Users/rhelder/Library/texmf/bibtex/bib/my_library.bib')
+        call filter(l:biblatex_file, 'v:val =~# "^@"')
+        let l:biblatex_keys = map(l:biblatex_file, function('s:bibtex_trim'))
+        return filter(copy(l:biblatex_keys), 'v:val =~# "^" .. a:base')
+    endif
+endfunction
+
+set completefunc=function('s:complete_citations')
+
+nnoremap qq <Cmd>echo <SID>in_yaml_block()<CR>
+
+let s:yaml_key_start_chars = '[^\-?:,[\]{}#&*!|>''"%@`[:space:]]'
+let s:yaml_key_can_start_if_chars = '[?:\-]([^[:space:]])@='
+let s:yaml_key_subsequent_chars = '(\S#|:\S|[^[:space:]:#])*'
+let s:yaml_key_chars = '(' .. s:yaml_key_start_chars .. '|' ..
+            \ s:yaml_key_can_start_if_chars .. ')' ..
+            \ s:yaml_key_subsequent_chars
+let s:yaml_key_regex = '\v^\s*\zs' .. s:yaml_key_chars ..
+            \ '(\s+' .. s:yaml_key_chars .. ')*\ze\s*:(\s|$)'
+let s:yaml_quoted_key_regex = '\v^\s*\zs''([^'']|'''')*''\ze\s*:(\s|$)'
+let s:yaml_dquoted_key_regex = '\v^\s*\zs"([^"]|\\")*(\\)@<!"\ze\s*:(\s|$)'
+
+function! s:in_yaml_block()
+    let l:start = search('\v^---\s*$', 'bnW')
+    if l:start == 0
+        return
+    endif
+
+    let l:end = search('\v^(---|\.\.\.)\s*$', 'nW')
+    if l:end == 0
+        return
+    endif
+
+    if getline(l:start + 1) =~# '\v^\s*$' ||
+                \ (l:start != 1 && getline(l:start - 1) !~# '\v^\s*$') ||
+                \ (!search(s:yaml_key_regex, 'bcn', l:start) &&
+                \ !search(s:yaml_quoted_key_regex, 'bcn', l:start) &&
+                \ !search(s:yaml_dquoted_key_regex, 'bcn', l:start))
+        return
+    endif
+
+    if line('.') > l:start && line('.') < l:end
+        return 1
+    endif
+endfunction
 
 let s:sourced = 1
