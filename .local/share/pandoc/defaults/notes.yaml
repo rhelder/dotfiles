@@ -3,7 +3,7 @@ defaults: github.yaml
 standalone: true
 citeproc: true
 metadata:
-  bibliography: /Users/rhelder/Library/texmf/bibtex/bib/myLibrary.bib
+  bibliography: /Users/rhelder/Library/texmf/bibtex/bib/my_library.bib
   reference-section-title:
 variables:
   notes: true
