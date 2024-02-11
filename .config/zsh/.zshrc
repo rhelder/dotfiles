@@ -71,7 +71,7 @@ export HELPDIR='/usr/share/zsh/5.9/help'
 
 # {{{2 Edit
 alias eas="nvim $HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
-alias ebib="nvim $HOME/Library/texmf/bibtex/bib/myLibrary.bib"
+alias ebib="nvim $HOME/Library/texmf/bibtex/bib/my_library.bib"
 alias ebgt="open $HOME/Documents/Personal/Finance/budget_2023.xlsx"
 alias ecv="nvim $HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
 alias edf="nvim $XDG_CONFIG_HOME/git/filter-repo/dotfiles"
@@ -150,7 +150,7 @@ alias ts='trash'
 
 declare as="$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
 declare b="$HOME/.local/bin"
-declare bib="$HOME/Library/texmf/bibtex/bib/myLibrary.bib"
+declare bib="$HOME/Library/texmf/bibtex/bib/my_library.bib"
 declare cv="$HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
 declare df="$XDG_CONFIG_HOME/git/filter-repo/dotfiles"
 declare doc="$HOME/Documents"

@@ -3,7 +3,7 @@
 nnoremap <Leader>eas <Cmd>vs
             \ $HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty<CR>
 nnoremap <Leader>ebib <Cmd>vs
-            \ $HOME/Library/texmf/bibtex/bib/myLibrary.bib<CR>
+            \ $HOME/Library/texmf/bibtex/bib/my_library.bib<CR>
 nnoremap <Leader>ecv <Cmd>vs
             \ $HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls<CR>
 nnoremap <Leader>edf <Cmd>vs
@@ -71,7 +71,7 @@ nnoremap <Leader>zf <Cmd>lcd
 
 let as = "$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
 let b = "$HOME/.local/bin"
-let bib = "$HOME/Library/texmf/bibtex/bib/myLibrary.bib"
+let bib = "$HOME/Library/texmf/bibtex/bib/my_library.bib"
 let cv = "$HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
 let df = "$XDG_CONFIG_HOME/git/filter-repo/dotfiles"
 let doc = "$HOME/Documents"
