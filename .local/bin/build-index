@@ -75,9 +75,13 @@ declare key_can_start_if_chars='[?:\-](?=[^[:space:]])'
 declare key_subsequent_chars='(\S#|:\S|[^[:space:]:#])*'
 declare key_chars="(${key_start_chars}|${key_can_start_if_chars})\
 ${key_subsequent_chars}"
-declare key_regex='^\s*'${key_chars}'(\s+'${key_chars}')*\s*:(\s|$)'
-declare quoted_key_regex='^\s*''([^'']|'''')*''\s*:(\s|$)'
-declare dquoted_key_regex='^\s*"([^"]|\\")*(?<!\\)"\s*:(\s|$)'
+
+declare key_regex=${key_chars}'(\s+'${key_chars}')*'
+declare quoted_key_regex='''([^'']|'''')*'''
+declare dquoted_key_regex='"([^"]|\\")*(?<!\\)"'
+
+declare regex="^\s*(?(?=^')$quoted_key_regex|\
+(?(?=^\")$dquoted_key_regex|$key_regex))\s*:(\s|$)"
 
 _get_block() {
     local -a start_end_line_numbers=(
@@ -93,20 +97,9 @@ _get_block() {
 
     local -a key_line_numbers=(
         ${(f)"$(
-            pcre2grep --line-number $key_regex $1 | cut -d : -f 1
+            pcre2grep --line-number $regex $1 | cut -d : -f 1
         )"}
     )
-    key_line_numbers+=(
-        ${(f)"$(
-            pcre2grep --line-number $quoted_key_regex $1 | cut -d : -f 1
-        )"}
-    )
-    key_line_numbers+=(
-        ${(f)"$(
-            pcre2grep --line-number $dquoted_key_regex $1 | cut -d : -f 1
-        )"}
-    )
-    key_line_numbers=( ${(n)key_line_numbers} )
 
     local -a file=( "${(@f)$(cat $1)}" )
     local -i block_start
