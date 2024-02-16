@@ -710,6 +710,8 @@ function! s:in_yaml_block() abort
 
     if line('.') > l:start && line('.') < l:end
         return 1
+    else
+        return 0
     endif
 endfunction
 
@@ -722,21 +724,26 @@ function! s:in_keywords() abort
 
     if matchstr(l:key_line, s:yaml_key_regex) !=# 'keywords'
         return 0
-    else
-        if line('.') == l:key_line_number
-            if l:key_line[0:col('.')-2] =~# '\v^\s*keywords\s*:\s+'
-                return 1
-            else
-                return 0
-            endif
-        else
+    endif
+
+    let l:start = col('.') - 1
+    if line('.') == l:key_line_number
+        if l:start > 0 && l:key_line[:l:start-1] =~# '\v^\s*keywords\s*:\s+'
             return 1
+        else
+            return 0
+        endif
+    else
+        if l:start > 0 && getline('.')[:l:start-1] =~# '\v^\s*-\s+'
+            return 1
+        else
+            return 0
         endif
     endif
 endfunction
 
-function! s:bibtex_trim(index, val) abort
-    return substitute(a:val, '\v^\@.+\{(.+),$', '@\1', '')
+function! s:biblatex_trim(index, val) abort
+    return substitute(a:val, '\v^\@.+\{(.+),$', '\1', '')
 endfunction
 
 function! s:complete_keywords(findstart, base) abort
@@ -744,32 +751,38 @@ function! s:complete_keywords(findstart, base) abort
         if !s:in_keywords() | return -3 | endif
 
         let l:line = getline('.')
-        if match(l:line, '\v^\s*(keywords:|-)\s+') == -1
-            return -3
-        endif
 
         " Subtract by one to align with index of l:line
         let l:start = col('.') - 1
 
+        let l:pattern = '\v^\s*(keywords:|-)\s+\[=(.*,\s+)*$'
+
         " Start search even one position less than that, because the cursor is
         " one column ahead of the text to be completed
-        while l:start > 0 && l:line[:l:start-1] !~# '\v^\s*(keywords:|-)\s+\[=(.*,\s+)*$'
+        while l:start > 0 && l:line[:l:start-1] !~# l:pattern
             let l:start -= 1
         endwhile
 
         return l:start
 
     else
-        if a:base[0] == '\'
-            let l:biblatex_file = readfile(
-                        \ '/Users/rhelder/Library/texmf/bibtex/bib/my_library.bib')
+        echomsg a:base
+        if a:base[0:1] == '\@'
+            let l:biblatex_file_path =
+                        \ $HOME .. '/Library/texmf/bibtex/bib/my_library.bib'
+            let l:biblatex_file = readfile(l:biblatex_file_path)
             call filter(l:biblatex_file, 'v:val =~# "^@"')
-            let l:biblatex_keys = map(l:biblatex_file, function('s:bibtex_trim'))
-            return filter(copy(l:biblatex_keys), 'v:val =~# "^" .. a:base[1:]')
+            let l:biblatex_keys = map(l:biblatex_file, function('s:biblatex_trim'))
+            call filter(l:biblatex_keys, 'v:val =~# "^" .. a:base[2:]')
+            call map(l:biblatex_keys, '{
+                        \            "word": "\\@" .. v:val,
+                        \            "abbr": v:val,
+                        \            }')
+            return l:biblatex_keys
         else
             let l:keywords = readfile('/Users/rhelder/Documents/Notes/index.txt')
             call filter(l:keywords, 'v:val !~# "^@"')
-            return filter(copy(l:keywords), 'v:val =~# "^" .. a:base')
+            return filter(l:keywords, 'v:val =~# "^" .. a:base')
     endif
 endfunction
 
