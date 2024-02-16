@@ -683,9 +683,7 @@ function! s:complete_citations(findstart, base) abort
     endif
 endfunction
 
-set completefunc=function('s:complete_citations')
-
-nnoremap qq <Cmd>echo <SID>in_yaml_block()<CR>
+nnoremap qq <Cmd>echomsg <SID>in_keywords()<CR>
 
 let s:yaml_key_start_chars = '[^\-?:,[\]{}#&*!|>''"%@`[:space:]]'
 let s:yaml_key_can_start_if_chars = '[?:\-]([^[:space:]])@='
@@ -698,28 +696,83 @@ let s:yaml_key_regex = '\v^\s*\zs' .. s:yaml_key_chars ..
 let s:yaml_quoted_key_regex = '\v^\s*\zs''([^'']|'''')*''\ze\s*:(\s|$)'
 let s:yaml_dquoted_key_regex = '\v^\s*\zs"([^"]|\\")*(\\)@<!"\ze\s*:(\s|$)'
 
-function! s:in_yaml_block()
+function! s:in_yaml_block() abort
     let l:start = search('\v^---\s*$', 'bnW')
-    if l:start == 0
-        return
-    endif
+    if !l:start | return 0 | endif
 
     let l:end = search('\v^(---|\.\.\.)\s*$', 'nW')
-    if l:end == 0
-        return
-    endif
+    if !l:end | return 0 | endif
 
     if getline(l:start + 1) =~# '\v^\s*$' ||
-                \ (l:start != 1 && getline(l:start - 1) !~# '\v^\s*$') ||
-                \ (!search(s:yaml_key_regex, 'bcn', l:start) &&
-                \ !search(s:yaml_quoted_key_regex, 'bcn', l:start) &&
-                \ !search(s:yaml_dquoted_key_regex, 'bcn', l:start))
-        return
+                \ (l:start != 1 && getline(l:start - 1) !~# '\v^\s*$')
+        return 0
     endif
 
     if line('.') > l:start && line('.') < l:end
         return 1
     endif
 endfunction
+
+function! s:in_keywords() abort
+    if !s:in_yaml_block() | return 0 | endif
+
+    let l:key_line_number = search(s:yaml_key_regex, 'bnW')
+    if !l:key_line_number | return 0 | endif
+    let l:key_line = getline(l:key_line_number)
+
+    if matchstr(l:key_line, s:yaml_key_regex) !=# 'keywords'
+        return 0
+    else
+        if line('.') == l:key_line_number
+            if l:key_line[0:col('.')-2] =~# '\v^\s*keywords\s*:\s+'
+                return 1
+            else
+                return 0
+            endif
+        else
+            return 1
+        endif
+    endif
+endfunction
+
+function! s:bibtex_trim(index, val) abort
+    return substitute(a:val, '\v^\@.+\{(.+),$', '@\1', '')
+endfunction
+
+function! s:complete_keywords(findstart, base) abort
+    if a:findstart
+        if !s:in_keywords() | return -3 | endif
+
+        let l:line = getline('.')
+        if match(l:line, '\v^\s*(keywords:|-)\s+') == -1
+            return -3
+        endif
+
+        " Subtract by one to align with index of l:line
+        let l:start = col('.') - 1
+
+        " Start search even one position less than that, because the cursor is
+        " one column ahead of the text to be completed
+        while l:start > 0 && l:line[:l:start-1] !~# '\v^\s*(keywords:|-)\s+\[=(.*,\s+)*$'
+            let l:start -= 1
+        endwhile
+
+        return l:start
+
+    else
+        if a:base[0] == '\'
+            let l:biblatex_file = readfile(
+                        \ '/Users/rhelder/Library/texmf/bibtex/bib/my_library.bib')
+            call filter(l:biblatex_file, 'v:val =~# "^@"')
+            let l:biblatex_keys = map(l:biblatex_file, function('s:bibtex_trim'))
+            return filter(copy(l:biblatex_keys), 'v:val =~# "^" .. a:base[1:]')
+        else
+            let l:keywords = readfile('/Users/rhelder/Documents/Notes/index.txt')
+            call filter(l:keywords, 'v:val !~# "^@"')
+            return filter(copy(l:keywords), 'v:val =~# "^" .. a:base')
+    endif
+endfunction
+
+set completefunc=function('s:complete_keywords')
 
 let s:sourced = 1
