@@ -50,6 +50,8 @@ nnoremap <Leader>docg <Cmd>lcd
             \ $HOME/Documents/Git<CR>
 nnoremap <Leader>nd <Cmd>lcd
             \ $HOME/Documents/Notes<CR>
+nnoremap <Leader>ndh <Cmd>lcd
+            \ $XDG_DATA_HOME/nvim/site<CR>
 nnoremap <Leader>pdd <Cmd>lcd
             \ $XDG_DATA_HOME/pandoc/defaults<CR>
 nnoremap <Leader>pdt <Cmd>lcd
@@ -84,6 +86,7 @@ let mda = "$XDG_DATA_HOME/nvim/site/autoload/mdview.vim"
 let mdd = "$XDG_DATA_HOME/nvim/site/doc/mdview.txt"
 let mdp = "$XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdview.vim"
 let mdz = "$XDG_DATA_HOME/nvim/site/after/ftplugin/markdown/mdview.vim"
+let ndh = "$XDG_DATA_HOME/nvim/site"
 let nt = "$HOME/Documents/Notes"
 let pdd = "$XDG_DATA_HOME/pandoc/defaults"
 let pdt = "$XDG_DATA_HOME/pandoc/templates"
