@@ -370,6 +370,8 @@ augroup nvimrc_autocommands " {{{2
     " mappings and variables when exiting .zshrc
     autocmd BufWinLeave $XDG_CONFIG_HOME/zsh/.zshrc !sync-vz
 
+    autocmd BufReadPost,BufNewFile $HOME/Documents/Notes/*.md
+                \ setlocal completefunc=s:notes_complete
     " Run MdviewConvert and build-index when exiting a note
     autocmd BufWinLeave $HOME/Documents/Notes/*.md call s:exit_note()
     autocmd BufReadPost,BufNewFile $HOME/Documents/Notes/*.md
@@ -386,6 +388,93 @@ augroup nvimrc_autocommands " {{{2
     autocmd TermOpen * startinsert
     autocmd TermOpen * set nonumber
 augroup END
+
+function! s:notes_complete(findstart, base) abort " {{{2
+    if !s:in_keywords()
+        return mdcomplete#biblatex_keys(a:findstart, a:base)
+    endif
+
+    if a:findstart
+        let l:line = getline('.')
+
+        " Subtract by one to align with index of l:line
+        let l:start = col('.') - 1
+
+        let l:pattern = '\v^\s*(keywords:|-)\s+\[=(.*,\s+)*$'
+
+        " Start search even one position less than that, because the cursor is
+        " one column ahead of the text to be completed
+        while l:start > 0 && l:line[:l:start-1] !~# l:pattern
+            let l:start -= 1
+        endwhile
+
+        return l:start
+
+    else
+        if a:base[0:1] == '\@'
+            return mdcomplete#citation_list(a:base)
+        else
+            let l:keywords = readfile('/Users/rhelder/Documents/Notes/index.txt')
+            call filter(l:keywords, 'v:val !~# "^@"')
+            return filter(l:keywords, 'v:val =~# "^" .. a:base')
+        endif
+    endif
+endfunction
+
+function! s:in_keywords() abort " {{{2
+    if !s:in_yaml_block() | return 0 | endif
+
+    let l:key_line_number = search(s:yaml_key_regex, 'bnW')
+    if !l:key_line_number | return 0 | endif
+    let l:key_line = getline(l:key_line_number)
+
+    if matchstr(l:key_line, s:yaml_key_regex) !=# 'keywords'
+        return 0
+    endif
+
+    let l:start = col('.') - 1
+    if line('.') == l:key_line_number
+        if l:start > 0 && l:key_line[:l:start-1] =~# '\v^\s*keywords\s*:\s+'
+            return 1
+        else
+            return 0
+        endif
+    else
+        if l:start > 0 && getline('.')[:l:start-1] =~# '\v^\s*-\s+'
+            return 1
+        else
+            return 0
+        endif
+    endif
+endfunction
+
+let s:yaml_key_start_chars = '[^\-?:,[\]{}#&*!|>''"%@`[:space:]]'
+let s:yaml_key_can_start_if_chars = '[?:\-]([^[:space:]])@='
+let s:yaml_key_subsequent_chars = '(\S#|:\S|[^[:space:]:#])*'
+let s:yaml_key_chars = '(' .. s:yaml_key_start_chars .. '|' ..
+            \ s:yaml_key_can_start_if_chars .. ')' ..
+            \ s:yaml_key_subsequent_chars
+let s:yaml_key_regex = '\v^\s*\zs' .. s:yaml_key_chars ..
+            \ '(\s+' .. s:yaml_key_chars .. ')*\ze\s*:(\s|$)'
+
+function! s:in_yaml_block() abort " {{{2
+    let l:start = search('\v^---\s*$', 'bnW')
+    if !l:start | return 0 | endif
+
+    let l:end = search('\v^(---|\.\.\.)\s*$', 'nW')
+    if !l:end | return 0 | endif
+
+    if getline(l:start + 1) =~# '\v^\s*$' ||
+                \ (l:start != 1 && getline(l:start - 1) !~# '\v^\s*$')
+        return 0
+    endif
+
+    if line('.') > l:start && line('.') < l:end
+        return 1
+    else
+        return 0
+    endif
+endfunction
 
 function! s:exit_note() abort " {{{2
     " Use <afile> instead of %, and getbufvar with <afile> and 'modified'
@@ -653,139 +742,5 @@ let g:mdview.pandoc_args = [
             \ ]
 
 " }}}1
-
-function! s:bibtex_trim(index, val) abort
-    return substitute(a:val, '\v^\@.+\{(.+),$', '\1', '')
-endfunction
-function! s:complete_citations(findstart, base) abort
-    if a:findstart
-        let l:line = getline('.')
-        if match(l:line, '\v\@\zs[0-9A-Za-z.-]*') == -1
-            return -3
-        endif
-
-        let l:start = col('.') - 1
-        while l:start > 0 && l:line[l:start - 1] =~ '[0-9A-Za-z.-]'
-            let l:start -= 1
-        endwhile
-
-        if l:line[l:start - 1] ==# '@'
-            return l:start
-        else
-            return -3
-        endif
-    else
-        let l:biblatex_file = readfile(
-                    \ '/Users/rhelder/Library/texmf/bibtex/bib/my_library.bib')
-        call filter(l:biblatex_file, 'v:val =~# "^@"')
-        let l:biblatex_keys = map(l:biblatex_file, function('s:bibtex_trim'))
-        return filter(copy(l:biblatex_keys), 'v:val =~# "^" .. a:base')
-    endif
-endfunction
-
-nnoremap qq <Cmd>echomsg <SID>in_keywords()<CR>
-
-let s:yaml_key_start_chars = '[^\-?:,[\]{}#&*!|>''"%@`[:space:]]'
-let s:yaml_key_can_start_if_chars = '[?:\-]([^[:space:]])@='
-let s:yaml_key_subsequent_chars = '(\S#|:\S|[^[:space:]:#])*'
-let s:yaml_key_chars = '(' .. s:yaml_key_start_chars .. '|' ..
-            \ s:yaml_key_can_start_if_chars .. ')' ..
-            \ s:yaml_key_subsequent_chars
-let s:yaml_key_regex = '\v^\s*\zs' .. s:yaml_key_chars ..
-            \ '(\s+' .. s:yaml_key_chars .. ')*\ze\s*:(\s|$)'
-let s:yaml_quoted_key_regex = '\v^\s*\zs''([^'']|'''')*''\ze\s*:(\s|$)'
-let s:yaml_dquoted_key_regex = '\v^\s*\zs"([^"]|\\")*(\\)@<!"\ze\s*:(\s|$)'
-
-function! s:in_yaml_block() abort
-    let l:start = search('\v^---\s*$', 'bnW')
-    if !l:start | return 0 | endif
-
-    let l:end = search('\v^(---|\.\.\.)\s*$', 'nW')
-    if !l:end | return 0 | endif
-
-    if getline(l:start + 1) =~# '\v^\s*$' ||
-                \ (l:start != 1 && getline(l:start - 1) !~# '\v^\s*$')
-        return 0
-    endif
-
-    if line('.') > l:start && line('.') < l:end
-        return 1
-    else
-        return 0
-    endif
-endfunction
-
-function! s:in_keywords() abort
-    if !s:in_yaml_block() | return 0 | endif
-
-    let l:key_line_number = search(s:yaml_key_regex, 'bnW')
-    if !l:key_line_number | return 0 | endif
-    let l:key_line = getline(l:key_line_number)
-
-    if matchstr(l:key_line, s:yaml_key_regex) !=# 'keywords'
-        return 0
-    endif
-
-    let l:start = col('.') - 1
-    if line('.') == l:key_line_number
-        if l:start > 0 && l:key_line[:l:start-1] =~# '\v^\s*keywords\s*:\s+'
-            return 1
-        else
-            return 0
-        endif
-    else
-        if l:start > 0 && getline('.')[:l:start-1] =~# '\v^\s*-\s+'
-            return 1
-        else
-            return 0
-        endif
-    endif
-endfunction
-
-function! s:biblatex_trim(index, val) abort
-    return substitute(a:val, '\v^\@.+\{(.+),$', '\1', '')
-endfunction
-
-function! s:complete_keywords(findstart, base) abort
-    if a:findstart
-        if !s:in_keywords() | return -3 | endif
-
-        let l:line = getline('.')
-
-        " Subtract by one to align with index of l:line
-        let l:start = col('.') - 1
-
-        let l:pattern = '\v^\s*(keywords:|-)\s+\[=(.*,\s+)*$'
-
-        " Start search even one position less than that, because the cursor is
-        " one column ahead of the text to be completed
-        while l:start > 0 && l:line[:l:start-1] !~# l:pattern
-            let l:start -= 1
-        endwhile
-
-        return l:start
-
-    else
-        echomsg a:base
-        if a:base[0:1] == '\@'
-            let l:biblatex_file_path =
-                        \ $HOME .. '/Library/texmf/bibtex/bib/my_library.bib'
-            let l:biblatex_file = readfile(l:biblatex_file_path)
-            call filter(l:biblatex_file, 'v:val =~# "^@"')
-            let l:biblatex_keys = map(l:biblatex_file, function('s:biblatex_trim'))
-            call filter(l:biblatex_keys, 'v:val =~# "^" .. a:base[2:]')
-            call map(l:biblatex_keys, '{
-                        \            "word": "\\@" .. v:val,
-                        \            "abbr": v:val,
-                        \            }')
-            return l:biblatex_keys
-        else
-            let l:keywords = readfile('/Users/rhelder/Documents/Notes/index.txt')
-            call filter(l:keywords, 'v:val !~# "^@"')
-            return filter(l:keywords, 'v:val =~# "^" .. a:base')
-    endif
-endfunction
-
-set completefunc=function('s:complete_keywords')
 
 let s:sourced = 1
