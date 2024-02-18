@@ -22,6 +22,10 @@ nnoremap <Leader>emca <Cmd>vs
             \ $XDG_DATA_HOME/nvim/site/autoload/mdcomplete.vim<CR>
 nnoremap <Leader>emcz <Cmd>vs
             \ $XDG_DATA_HOME/nvim/site/after/ftplugin/markdown/complete.vim<CR>
+nnoremap <Leader>emnf <Cmd>vs
+            \ $XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdnotes.vim<CR>
+nnoremap <Leader>emnp <Cmd>vs
+            \ $XDG_DATA_HOME/nvim/site/plugin/mdnotes.vim<CR>
 nnoremap <Leader>emva <Cmd>vs
             \ $XDG_DATA_HOME/nvim/site/autoload/mdview.vim<CR>
 nnoremap <Leader>emvd <Cmd>vs
@@ -88,6 +92,8 @@ let gi = "$XDG_CONFIG_HOME/git/ignore"
 let lmk = "$XDG_CONFIG_HOME/latexmk/latexmkrc"
 let mca = "$XDG_DATA_HOME/nvim/site/autoload/mdcomplete.vim"
 let mcz = "$XDG_DATA_HOME/nvim/site/after/ftplugin/markdown/complete.vim"
+let mnf = "$XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdnotes.vim"
+let mnp = "$XDG_DATA_HOME/nvim/site/plugin/mdnotes.vim"
 let mva = "$XDG_DATA_HOME/nvim/site/autoload/mdview.vim"
 let mvd = "$XDG_DATA_HOME/nvim/site/doc/mdview.txt"
 let mvp = "$XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdview.vim"
@@ -102,6 +108,7 @@ let s = "$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
 let td = "$HOME/Library/texmf/texdoc/texdoc.cnf"
 let ucb = "$HOME/Documents/Past/2019-2024_UCBerkeley"
 let v = "$XDG_CONFIG_HOME/nvim/init.vim"
+let vz = "$XDG_CONFIG_HOME/nvim/zshrc.vim"
 let vmc = "$XDG_CONFIG_HOME/nvim/vimtex_my_complete"
 let vtc = "$XDG_DATA_HOME/nvim/plugged/vimtex/autoload/vimtex/complete"
 let wld = "$XDG_CONFIG_HOME/nvim/spell/de.utf-8.add"
