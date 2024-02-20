@@ -720,7 +720,7 @@ for keyword in $all_keywords; do
     # Create a file containing a list of keywords for Vim completion
     echo $keyword
 done > index_tmp.txt
-sort index_tmp.txt > index.txt
+sort --ignore-case index_tmp.txt > index.txt
 rm index_tmp.txt
 
 # Also convert index files to html
