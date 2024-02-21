@@ -159,20 +159,6 @@ __get_indent() {
     echo ${#${1}%%[^[:space:]]*}
 }
 
-# {{{2 __append_to_array()
-
-__append_to_array() {
-    if [[ $value[1] == "'" ]]; then
-        single_quote=1
-    elif [[ $value[1] == '"' ]]; then
-        double_quote=1
-    elif [[ $value[1] == '[' ]]; then
-        bracket=1
-    fi
-
-    values+=( $value )
-}
-
 # {{{2 __append_to_string()
 
 __append_to_string() {
@@ -181,105 +167,6 @@ __append_to_string() {
     else
         values[-1]=$value
     fi
-}
-
-# {{{2 __parse_dashed()
-
-__parse_dashed() {
-    trap "trap 'unset list_indent' EXIT" EXIT
-
-    # If `list_indent` has not been defined, then this is the first list item.
-    # Therefore, set `list_indent` to whatever the `line_indent` of this line
-    # is.
-    if [[ ! -n $list_indent ]]; then
-        declare -gi list_indent=$line_indent
-        value=${value##-[[:space:]]##}
-
-        if [[ $value[1] == '[' ]]; then
-            echo 'build-index: for key' $1 'in' $2',' \
-                'list not allowed within list' >&2
-            return 1
-        fi
-
-        __append_to_array
-
-    elif (( line_indent < list_indent )); then
-        echo 'build-index: for key' $1 'in' $2',' \
-            'line outside scope of list' >&2
-        return 1
-
-    elif (( line_indent == list_indent )); then
-        value=${value##-[[:space:]]##}
-
-        if [[ $value[1] == '[' ]]; then
-            echo 'build-index: for key' $1 'in' $2',' \
-                'list not allowed within list' >&2
-            return 1
-        fi
-
-        __append_to_array
-
-    elif (( line_indent > list_indent )); then
-        __append_to_string
-    fi
-}
-
-# {{{2 __bracket_single_quotes()
-
-__bracket_single_quotes() {
-    value=${value//\'\'/++}
-
-    if [[ $value[-1] == "'" ]]; then
-        value=${value%\'}
-        single_quote=0
-    fi
-
-    # Because the starting and ending quotes (if there were any on this line)
-    # have been stripped, and because escaped quotes have been substituted with
-    # something else, if there are any quotes left, that means either that
-    # there's no closing quote or that there's an unescaped quote
-    if [[ $value =~ "'" ]]; then
-        if (( single_quote == 1 )); then
-            echo 'build-index: for key' $1 'in' $2',' \
-                'closing quote not found' >&2
-            return 1
-        elif (( single_quote == 0 )); then
-            echo 'build-index: for key' $1 'in' $2',' \
-                'unescaped single quotes found' >&2
-            return 1
-        fi
-    fi
-
-    value=${value//++/\'}
-}
-
-# {{{2 __bracket_double_quotes()
-
-__bracket_double_quotes() {
-    value=${value//\\\"/++}
-
-    if [[ $value[-1] == '"' ]]; then
-        value=${value%\"}
-        double_quote=0
-    fi
-
-    # Because the starting and ending quotes (if there were any on this line)
-    # have been stripped, and because escaped quotes have been substituted with
-    # something else, if there are any quotes left, that means either that
-    # there's no closing quote or that there's an unescaped quote
-    if [[ $value =~ '"' ]]; then
-        if (( double_quote == 1 )); then
-            echo 'build-index: for key' $1 'in' $2',' \
-                'closing quote not found' >&2
-            return 1
-        elif (( double_quote == 0 )); then
-            echo 'build-index: for key' $1 'in' $2',' \
-                'unescaped double quotes found' >&2
-            return 1
-        fi
-    fi
-
-    value=${value//++/\"}
 }
 
 # }}}2
@@ -292,7 +179,7 @@ _parse_block() {
     # Find the line in the block with the key we're looking for; disregard
     # any lines before this
     local -a block=( ${(s:+:)blocks[$2]} )
-    local -i first_line_num=$block[(I)[[:space:]]#$1:([[:space:]]##*)#]
+    local -i first_line_num=$block[(I)[[:space:]]#${1}:([[:space:]]##*)#]
 
     if (( $first_line_num > $#block )); then
         echo 'build-index: for key' $1 'in' $2',' \
@@ -302,12 +189,12 @@ _parse_block() {
 
     # Get indent of the line containing the key; every subsequent line is going
     # to have to be indented at least as much as this line, unless it's part of
-    # a properly quoted or bracketed string
+    # a properly quoted or bracketed value
     local -i key_indent=$(__get_indent $block[$first_line_num] )
 
     # Get value (if there is one) and trim whitespace from both ends
-    local value=${block[$first_line_num]##[[:space:]]#${1}:([[:space:]]##)#}
-    value=${value%%[[:space:]]#}
+    local value=${block[$first_line_num]##[[:space:]]#${1}:}
+    value=${${value##[[:space:]]#}%%[[:space:]]#}
     local -a values
     values+=( $value )
 
@@ -322,8 +209,7 @@ _parse_block() {
     local -i single_quote=0
     local -i double_quote=0
     local -i bracket=0
-
-__check_quotes
+    __check_quotes
 
     # {{{2 Get values from subsequent lines
 
@@ -334,14 +220,13 @@ __check_quotes
         line_indent=$(__get_indent $line)
 
         # Trim whitespace from both ends
-        value=${line#[[:space:]](#c$line_indent)}
-        value=${value%%[[:space:]]#}
+        value=${${line##[[:space:]]#}%%[[:space:]]#}
 
         if [[
             no_list -eq 0 &&
-            (single_quote -eq 0) &&
-            (double_quote -eq 0) &&
-            (bracket -eq 0) &&
+            single_quote -eq 0 &&
+            double_quote -eq 0 &&
+            bracket -eq 0 &&
             $value[1,2] == '- '
         ]]; then
 
@@ -355,11 +240,31 @@ __check_quotes
                     'line outside scope of key' >&2
                 return 1
 
-            elif (( line_indent == key_indent )); then
-                __parse_dashed $1 $2 || return 1
+            elif (( line_indent >= key_indent )); then
+                # If `list_indent` has not been defined, then this is the first list item.
+                # Therefore, set `list_indent` to whatever the `line_indent` of this line
+                # is.
+                if [[ ! -n $list_indent ]]; then
+                    local -i list_indent=$line_indent
+                fi
 
-            elif (( line_indent > key_indent )); then
-                __parse_dashed $1 $2 || return 1
+                if (( line_indent < list_indent )); then
+                    echo 'build-index: for key' $1 'in' $2',' \
+                        'line outside scope of list' >&2
+                    return 1
+
+                elif (( line_indent >= list_indent )); then
+                    value=${value##-[[:space:]]##}
+
+                    if [[ $value[1] == '[' ]]; then
+                        echo 'build-index: for key' $1 'in' $2',' \
+                            'list not allowed within list' >&2
+                        return 1
+                    fi
+
+                    values+=( $value )
+                    __check_quotes
+                fi
             fi
 
         else
@@ -383,7 +288,7 @@ __check_quotes
                 # either has to be a list item beginning with '- ', which we've
                 # already handled, or another key/value pair (in which case
                 # we're done parsing)
-                if [[ ! -n ${line##[^[\'][^:]#:*} ]]; then
+                if echo $value | pcre2grep $key_regex >/dev/null; then
                     break
                 else
                     echo 'build-index: for key' $1 'in' $2',' \
@@ -406,7 +311,6 @@ __check_quotes
                     # If ever there is an indented line with a value before
                     # there is a list, no list can follow
                     no_list=1
-
                 fi
             fi
         fi
@@ -415,9 +319,6 @@ __check_quotes
     done
 
 # {{{2 Process values
-
-    single_quote=0
-    double_quote=0
 
     # {{{3 Process values with brackets
 
@@ -445,101 +346,77 @@ __check_quotes
                 echo 'build-index: for key' $1 'in' $2',' \
                     'list not allowed within list' >&2
                 return 1
-
-            elif [[ $value[1] == "'" && $single_quote -eq 0 ]]; then
-                single_quote=1
-                value=${value#\'}
-                __bracket_single_quotes $1 $2 || return 1
-
-            elif (( single_quote == 1 )); then
-                __bracket_single_quotes $1 $2 || return 1
-
-            elif [[ $value[1] == '"' && $double_quote -eq 0 ]]; then
-                double_quote=1
-                value=${value#\"}
-                __bracket_double_quotes $1 $2 || return 1
-
-            elif (( double_quote == 1 )); then
-                __bracket_double_quotes $1 $2 || return 1
             fi
 
             values[$index]=$value
             index=$(( index + 1 ))
         done
-
-        if (( single_quote == 1 || double_quote == 1 )); then
-            echo 'build-index: for key' $1 'in' $2',' \
-                'closing quote not found' >&2
-            return 1
-        fi
+    fi
 
     # {{{3 Process values with quotes
-    else
-        # Given the way that values have been collected, any value that starts
-        # with a quote but does not end with a quote is breaking YAML parsing
-        # rules. If there is both a starting and ending quote, strip off the
-        # outside quotes and substitute properly escaped interior quotes with
-        # '++'. Then, if any quotes remain, that means that there are unescaped
-        # quotes.
-        index=1
-        for value in $values; do
-            if [[ $value[1] == "'" ]]; then
-                if [[ $value[-1] == "'" ]]; then
-                    value=${${value#\'}%\'}
-                    value=${value//\'\'/++}
+    # Given the way that values have been collected, any value that starts with
+    # a quote but does not end with a quote is breaking YAML parsing rules. If
+    # there is both a starting and ending quote, strip off the outside quotes
+    # and substitute properly escaped interior quotes with '++'. Then, if any
+    # quotes remain, that means that there are unescaped quotes.
+    index=1
+    for value in $values; do
+        if [[ $value[1] == "'" ]]; then
+            if [[ $value[-1] == "'" ]]; then
+                value=${${value#\'}%\'}
+                value=${value//\'\'/++}
 
-                    if [[ $value =~ "'" ]]; then
-                        echo 'build-index: for key' $1 'in' $2',' \
-                            'unescaped single quotes found' >&2
-                        return 1
-                    fi
-
-                    value=${value//++/\'}
-                    values[$index]=$value
-
-                else
+                if [[ $value =~ "'" ]]; then
                     echo 'build-index: for key' $1 'in' $2',' \
-                        'closing quote not found' >&2
+                        'unescaped single quotes found' >&2
                     return 1
                 fi
 
-            elif [[ $value[1] == '"' ]]; then
-                value=${value//\\\"/++}
-                if [[ $value[-1] == '"' ]]; then
-                    value=${${value#\"}%\"}
-
-                    if [[ $value =~ '"' ]]; then
-                        echo 'build-index: for key' $1 'in' $2',' \
-                            'unescaped double quotes found' >&2
-                        return 1
-                    fi
-
-                    value=${value//++/\"}
-                    values[$index]=$value
-
-                else
-                    echo 'build-index: for key' $1 'in' $2',' \
-                        'closing quote not found' >&2
-                    return 1
-                fi
+                value=${value//++/\'}
+                values[$index]=$value
 
             else
-                # If the value isn't quoted, it can't start with a '@' or
-                # contain a ':'
-                if [[ $value[1] == '@' ]]; then
-                    echo 'build-index: for key' $1 'in' $2',' \
-                        "value begins with '@'" >&2
-                    return 1
-                elif [[ $value =~ ':' ]]; then
-                    echo 'build-index: for key' $1 'in' $2',' \
-                        'value contains nested key/value pair' >&2
-                    return 1
-                fi
+                echo 'build-index: for key' $1 'in' $2',' \
+                    'closing quote not found' >&2
+                return 1
             fi
 
-            index=$(( index + 1 ))
-        done
-    fi
+        elif [[ $value[1] == '"' ]]; then
+            value=${value//\\\"/++}
+            if [[ $value[-1] == '"' ]]; then
+                value=${${value#\"}%\"}
+
+                if [[ $value =~ '"' ]]; then
+                    echo 'build-index: for key' $1 'in' $2',' \
+                        'unescaped double quotes found' >&2
+                    return 1
+                fi
+
+                value=${value//++/\"}
+                values[$index]=$value
+
+            else
+                echo 'build-index: for key' $1 'in' $2',' \
+                    'closing quote not found' >&2
+                return 1
+            fi
+
+        else
+            # If the value isn't quoted, it can't start with a '@' or
+            # contain a ':'
+            if [[ $value[1] == '@' ]]; then
+                echo 'build-index: for key' $1 'in' $2',' \
+                    "value begins with '@'" >&2
+                return 1
+            elif [[ $value =~ ':' ]]; then
+                echo 'build-index: for key' $1 'in' $2',' \
+                    'value contains nested key/value pair' >&2
+                return 1
+            fi
+        fi
+
+        index=$(( index + 1 ))
+    done
 
     # }}}3
 
@@ -558,6 +435,8 @@ __check_quotes
 
 # }}}2
 }
+
+# }}}1
 
 # {{{1 Build an index file for every keyword found in notes
 
