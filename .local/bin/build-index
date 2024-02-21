@@ -1,12 +1,79 @@
 #!/bin/zsh
 
-# Utility functions for _get_block {{{1
+# Get keywords from the YAML metadata blocks of all Markdown files in
+# $HOME/Documents/Notes. For each keyword, build an index file containing links
+# to all the files that have that keyword, including other index files.
+# Hierarchically organize the file so that links to other index files with that
+# keyword are formatted as headings, and so that links to files containing both
+# that keyword and the keyword corresponding to the other index file are listed
+# under that heading. Then list links to any stragglers at the end.
+
+# Define key_regex {{{1
+
+setopt rc_quotes
+
+declare key_start_chars='[^\-?:,[\]{}#&*!|>''"%@`[:space:]]'
+declare key_can_start_if_chars='[?:\-](?=[^[:space:]])'
+declare key_chars="(${key_start_chars}|${key_can_start_if_chars})"
+declare key_subsequent_chars='(\S#|:\S|[^[:space:]:#])*'
+key_chars="${key_chars}${key_subsequent_chars}"
+
+declare unquoted_key_regex="${key_chars}(\s+${key_chars})*"
+declare quoted_key_regex="'([^']|'')*'"
+declare dquoted_key_regex='"([^"]|\\")*(?<!\\)"'
+declare key_regex="^\s*(?(?=^')${quoted_key_regex}|"
+key_regex="${key_regex}(?(?=^\")${dquoted_key_regex}|"
+key_regex="${key_regex}${unquoted_key_regex}))\s*:(\s|$)"
+
+_get_yaml_block() { # {{{1
+    local -a start_end_line_numbers=(
+        ${(f)"$(
+            pcre2grep --line-number '^(---|\.\.\.)\s*$' $1 | cut -d : -f 1
+        )"}
+    )
+
+    if (( $#start_end_line_numbers < 2 )); then
+        echo 'build-index: cannot get YAML block for' $1 >&2
+        return 1
+    fi
+
+    local -a key_line_numbers=(
+        ${(f)"$(
+            pcre2grep --line-number $key_regex $1 | cut -d : -f 1
+        )"}
+    )
+
+    local -a file=( "${(@f)$(cat $1)}" )
+    local -a block=()
+
+    while __start_found $start_end_line_numbers; do
+        local -i block_start=$start_end_line_numbers[1]
+        local -i block_end=$start_end_line_numbers[2]
+        if (( block_end - block_start == 1 )); then
+            [[ ! -n $got_empty_block ]] && local -i got_empty_block=1
+        else
+            block+=( $file[block_start+1,block_end-1] )
+        fi
+
+        # Remove the starting and ending line numbers from the array
+        start_end_line_numbers=( $start_end_line_numbers[3,-1] )
+        if [[ ! -n $start_end_line_numbers ]]; then
+            break
+        fi
+    done
+
+    if [[ ! -n $block && ! -n $got_empty_block ]]; then
+        echo 'build-index: cannot get YAML block for' $1 >&2
+        return 1
+    fi
+
+    # Cache the block(s) in the `blocks` associative array
+    blocks[$1]=${(j:++:)block}
+}
 
 __start_found() { # {{{2
     # Return 1 if the start of a YAML block is found; return 0 if it is not
     # found. Takes the array `start_end_line_numbers` as its argument
-    local -i possible_start
-    local -i possible_end
     while true; do
         # The start must be a `---` line (as opposed to a `...` line); it must
         # not be followed by a blank line; and, if it is not the first line of
@@ -66,115 +133,8 @@ __key_found() { # {{{2
 }
 # }}}2
 
-# _get_block() {{{1
-
-setopt rc_quotes
-
-declare key_start_chars='[^\-?:,[\]{}#&*!|>''"%@`[:space:]]'
-declare key_can_start_if_chars='[?:\-](?=[^[:space:]])'
-declare key_chars="(${key_start_chars}|${key_can_start_if_chars})"
-declare key_subsequent_chars='(\S#|:\S|[^[:space:]:#])*'
-key_chars="${key_chars}${key_subsequent_chars}"
-
-declare unquoted_key_regex="${key_chars}(\s+${key_chars})*"
-declare quoted_key_regex="'([^']|'')*'"
-declare dquoted_key_regex='"([^"]|\\")*(?<!\\)"'
-declare key_regex="^\s*(?(?=^')${quoted_key_regex}|"
-key_regex="${key_regex}(?(?=^\")${dquoted_key_regex}|"
-key_regex="${key_regex}${unquoted_key_regex}))\s*:(\s|$)"
-
-_get_block() {
-    local -a start_end_line_numbers=(
-        ${(f)"$(
-            pcre2grep --line-number '^(---|\.\.\.)\s*$' $1 | cut -d : -f 1
-        )"}
-    )
-
-    if (( $#start_end_line_numbers < 2 )); then
-        echo 'build-index: cannot get YAML block for' $1 >&2
-        return 1
-    fi
-
-    local -a key_line_numbers=(
-        ${(f)"$(
-            pcre2grep --line-number $key_regex $1 | cut -d : -f 1
-        )"}
-    )
-
-    local -a file=( "${(@f)$(cat $1)}" )
-    local -i block_start
-    local -i block_end
-    local -a block=()
-
-    while __start_found $start_end_line_numbers; do
-        block_start=$start_end_line_numbers[1]
-        block_end=$start_end_line_numbers[2]
-        if (( block_end - block_start == 1 )); then
-            [[ ! -n $got_empty_block ]] && local -i got_empty_block=1
-        else
-            block+=( $file[block_start+1,block_end-1] )
-        fi
-
-        # Remove the starting and ending line numbers from the array
-        start_end_line_numbers=( $start_end_line_numbers[3,-1] )
-        if [[ ! -n $start_end_line_numbers ]]; then
-            break
-        fi
-    done
-
-    if [[ ! -n $block && ! -n $got_empty_block ]]; then
-        echo 'build-index: cannot get YAML block for' $1 >&2
-        return 1
-    fi
-
-    # Cache the block(s) in the `blocks` associative array
-    blocks[$1]=${(j:++:)block}
-}
-
-# {{{1 Utility functions for `_parse_block`
-
-# {{{2 __check_quotes()
-
-__check_quotes() {
-    if [[ $value[1] == "'" ]]; then
-        single_quote=1
-    elif [[ $value[1] == '"' ]]; then
-        double_quote=1
-    elif [[ $value[1] == '[' ]]; then
-        bracket=1
-    fi
-
-    if [[ $value[-1] == "'" && $value[-2] == [^\'] ]]; then
-        single_quote=0
-    elif [[ $value[-1] == '"' && $value[-2] == [^\\] ]]; then
-        double_quote=0
-    elif [[ $value[-1] == "]" ]]; then
-        bracket=0
-    fi
-}
-
-# {{{2 __get_indent()
-
-__get_indent() {
-    echo ${#${1}%%[^[:space:]]*}
-}
-
-# {{{2 __append_to_string()
-
-__append_to_string() {
-    if [[ -n $values[-1] ]]; then
-        values[-1]="$values[-1] $value"
-    else
-        values[-1]=$value
-    fi
-}
-
-# }}}2
-
-# {{{1 _parse_block()
-
-_parse_block() {
-    # {{{2 Get values from first line
+_parse_yaml_block() { # {{{1
+    # Get values from first line {{{2
 
     # Find the line in the block with the key we're looking for; disregard
     # any lines before this
@@ -211,13 +171,12 @@ _parse_block() {
     local -i bracket=0
     __check_quotes
 
-    # {{{2 Get values from subsequent lines
+    # Get values from subsequent lines {{{2
 
     local -a block_slice=( $block[(( $first_line_num + 1 )),-1] )
-    local -i line_indent
     local line
     for line in $block_slice; do
-        line_indent=$(__get_indent $line)
+        local -i line_indent=$(__get_indent $line)
 
         # Trim whitespace from both ends
         value=${${line##[[:space:]]#}%%[[:space:]]#}
@@ -241,9 +200,9 @@ _parse_block() {
                 return 1
 
             elif (( line_indent >= key_indent )); then
-                # If `list_indent` has not been defined, then this is the first list item.
-                # Therefore, set `list_indent` to whatever the `line_indent` of this line
-                # is.
+                # If `list_indent` has not been defined, then this is the first
+                # list item. Therefore, set `list_indent` to whatever the
+                # `line_indent` of this line is.
                 if [[ ! -n $list_indent ]]; then
                     local -i list_indent=$line_indent
                 fi
@@ -318,9 +277,9 @@ _parse_block() {
         __check_quotes
     done
 
-# {{{2 Process values
+# Process values {{{2
 
-    # {{{3 Process values with brackets
+    # Process values with brackets {{{3
 
     if [[ ${values[1][1]} == '[' ]]; then
         if [[ $1 == 'title' ]]; then
@@ -353,13 +312,14 @@ _parse_block() {
         done
     fi
 
-    # {{{3 Process values with quotes
+    # Process values with quotes {{{3
     # Given the way that values have been collected, any value that starts with
     # a quote but does not end with a quote is breaking YAML parsing rules. If
     # there is both a starting and ending quote, strip off the outside quotes
     # and substitute properly escaped interior quotes with '++'. Then, if any
     # quotes remain, that means that there are unescaped quotes.
-    index=1
+
+    local -i index=1
     for value in $values; do
         if [[ $value[1] == "'" ]]; then
             if [[ $value[-1] == "'" ]]; then
@@ -417,7 +377,6 @@ _parse_block() {
 
         index=$(( index + 1 ))
     done
-
     # }}}3
 
     # Split keywords one more time at commas, like Pandoc's YAML parser does
@@ -432,13 +391,46 @@ _parse_block() {
     fi
 
     print -l -- ${values//[[:space:]]##/ }
-
 # }}}2
 }
 
+__check_quotes() { # {{{2
+    if [[ $value[1] == "'" ]]; then
+        single_quote=1
+    elif [[ $value[1] == '"' ]]; then
+        double_quote=1
+    elif [[ $value[1] == '[' ]]; then
+        bracket=1
+    fi
+
+    if [[ $value[-1] == "'" && $value[-2] == [^\'] ]]; then
+        single_quote=0
+    elif [[ $value[-1] == '"' && $value[-2] == [^\\] ]]; then
+        double_quote=0
+    elif [[ $value[-1] == "]" ]]; then
+        bracket=0
+    fi
+}
+
+__get_indent() { # {{{2
+    echo ${#${1}%%[^[:space:]]*}
+}
+
+__append_to_string() { # {{{2
+    if [[ -n $values[-1] ]]; then
+        values[-1]="$values[-1] $value"
+    else
+        values[-1]=$value
+    fi
+}
+# }}}2
+
 # }}}1
 
-# {{{1 Build an index file for every keyword found in notes
+# Build an index file for every keyword found in notes {{{1
+
+setopt extended_glob
+setopt typeset_silent
 
 if [[ $1 == (--pandoc-always|-p) ]]; then
     integer pandoc_always=1
@@ -447,62 +439,39 @@ fi
 
 cd $HOME/Documents/Notes || exit 1
 
-setopt extended_glob
+# Cache keywords and titles {{{2
 
 declare -A blocks
-declare -a file_keywords
-declare -Ua all_keywords
 declare -A keywords
 declare -A titles
 
-# Cache every file's metadata block, title, and keywords, and create a list of
-# all keywords
 declare file
 for file in *.md; do
-    _get_block $file
-    file_keywords=( ${(f)"$(_parse_block keywords $file)"} )
+    _get_yaml_block $file
+    declare -a file_keywords=( ${(f)"$(_parse_yaml_block keywords $file)"} )
+    declare -Ua all_keywords
     all_keywords+=( $file_keywords )
     keywords[$file]=${(j:++:)file_keywords}
-    titles[$file]="$(_parse_block title $file)"
+    titles[$file]="$(_parse_yaml_block title $file)"
 done
 
-declare html_file
-declare -a html_files=()
-declare index_file
-declare -a block
-declare title
-declare -a index_files
-declare -Ua keyword_files
-declare -a sub_index_files
-declare sub_index_file
-declare link
-declare sub_keyword
-declare -Ua sub_keyword_files
-declare -a both_keyword_files
-declare -Ua used_keyword_files
-declare -Ua unused_keyword_files
-declare ref
-declare -a input_files=()
-declare -a output_files=()
-
+# Write metadata block to file {{{2 
+declare keyword
 for keyword in $all_keywords; do
-    html_file="$keyword index.html"
-    html_files+=( $html_file )
-
-    index_file=${keyword// /_}_index.md
+    declare index_file=${keyword// /_}_index.md
     if [[ $keyword[1] == '@' ]]; then
         index_file=${index_file/@/_}
-        title=${keyword/@/\\@}
+        declare title=${keyword/@/\\@}
     else
-        title=$keyword
+        declare title=$keyword
     fi
 
     # If the index file exists, use its existing metadata block; otherwise, use
     # a default metadata block
     if [[ -f $index_file ]]; then
-        block=( '---' ${(s:++:)blocks[$index_file]} '---'$'\n' )
+        declare -a block=( '---' ${(s:++:)blocks[$index_file]} '---'$'\n' )
     else
-        block=(
+        declare -a block=(
             '---'
             'id: '${index_file%.md}
             'title: '$title
@@ -522,34 +491,34 @@ for keyword in $all_keywords; do
 
     print -lr -- $block > $index_file
 
-    index_files+=( $index_file )
-
+    # Write links to files containing `keyword` to file {{{2
     # Create a list of all files that have the keyword `keyword`
-    keyword_files=( ${(k)keywords[(R)*$keyword++*]} )
+    declare -Ua keyword_files=( ${(k)keywords[(R)*$keyword++*]} )
     keyword_files+=( ${(k)keywords[(R)*++$keyword*]} )
     keyword_files+=( ${(k)keywords[(R)$keyword]} )
 
     # Create a list of all index files that have the keyword `keyword`
-    sub_index_files=( ${keyword_files:#[[:digit:]]*} )
+    declare -a sub_index_files=( ${keyword_files:#[[:digit:]]*} )
 
+    declare sub_index_file
     for sub_index_file in ${(i)sub_index_files}; do
         title=$titles[$sub_index_file]
-        link='## ['$title']['$sub_index_file']'
+        declare link='## ['$title']['$sub_index_file']'
         echo $link
         echo
 
         # Get the keyword corresponding to the sub-index file
-        sub_keyword=${${sub_index_file%_index.md}//_/ }
+        declare sub_keyword=${${sub_index_file%_index.md}//_/ }
         [[ $sub_keyword[1] == ' ' ]] && sub_keyword=${sub_keyword/ /@}
 
         # Create a list of all files that have the keyword `sub_keyword`
-        sub_keyword_files=( ${(k)keywords[(R)*$sub_keyword++*]} )
+        declare -Ua sub_keyword_files=( ${(k)keywords[(R)*$sub_keyword++*]} )
         sub_keyword_files+=( ${(k)keywords[(R)*++$sub_keyword*]} )
         sub_keyword_files+=( ${(k)keywords[(R)$sub_keyword]} )
 
         # Create a list of all files that have both the keyword `keyword` and
         # the keyword `sub_keyword`
-        both_keyword_files=( ${sub_keyword_files:*keyword_files} )
+        declare -a both_keyword_files=( ${sub_keyword_files:*keyword_files} )
         both_keyword_files=( ${both_keyword_files:|sub_index_files} )
 
         for file in ${(nO)both_keyword_files}; do
@@ -559,13 +528,14 @@ for keyword in $all_keywords; do
         done
         echo
 
+        declare -Ua used_keyword_files
         used_keyword_files+=( $both_keyword_files )
     done >> $index_file
 
     # Now that the loop is complete, append links to only those files that have
     # not already been linked to
     used_keyword_files+=( $sub_index_files )
-    unused_keyword_files=( ${keyword_files:|used_keyword_files} )
+    declare -Ua unused_keyword_files=( ${keyword_files:|used_keyword_files} )
     {
         for file in ${(nO)unused_keyword_files}; do
             title=$titles[$file]
@@ -575,9 +545,9 @@ for keyword in $all_keywords; do
         echo
     } >> $index_file
 
-    # We have been using reference-style links, so add references
+    # We have been using reference-style links, so add references {{{2
     for file in ${(o)keyword_files}; do
-        ref=${file//_/%20}
+        declare ref=${file//_/%20}
         if [[ $ref[1,3] == '%20' ]]; then
             ref="@${ref#\%20}"
         fi
@@ -587,28 +557,40 @@ for keyword in $all_keywords; do
 
     used_keyword_files=()
 
-    # Compare to temporary file; if they are different, add the index file to
-    # the list of files to be converted to html by Pandoc
+    # Compare index file to temporary file {{{2
+    # If they are different, add the index file to the list of files to be
+    # converted to html by Pandoc
     if [[
         -n "$(diff $index_file /tmp/build_index.md)" || -n $pandoc_always
     ]]; then
+        declare -a input files
         input_files+=( $index_file )
+        declare -a output_files
         output_files+=( $html_file )
     fi
 
-    # Create a file containing a list of keywords for Vim completion
+    # Create a list of the index files creates by this process {{{2
+    # To compare to index files actually existing in directory and identify
+    # index files that don't correspond to any existing keywords
+    declare -a index_files
+    index_files+=( $index_file )
+
+    declare html_file="$keyword index.html"
+    declare -a html_files
+    html_files+=( $html_file )
+
+    # Create a file containing a list of keywords for Vim completion {{{2
     echo $keyword
 done > index_tmp.txt
 sort --ignore-case index_tmp.txt > index.txt
 rm index_tmp.txt
 
-# Also convert index files to html
+# Also convert index files to html {{{2
 for input_file output_file in ${input_files:^output_files}; do
     pandoc -d notes -o $output_file $input_file
 done
 
-# Check if there are any index files that correspond to keywords that are no
-# longer used
+# Check if there are index files corresponding to unused keywords {{{2
 declare -a old_md_files=(
     ${(f)"$(comm -13 \
         =(print -l $index_files | sort) \
@@ -628,5 +610,6 @@ if [[ -n $old_files ]]; then
         'the following index files do not correspond to any keywords:' >&2
     print -l $old_files >&2
 fi
+# }}}2
 
 # }}}1
