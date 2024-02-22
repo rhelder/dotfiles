@@ -369,7 +369,7 @@ call plug#begin()
     Plug 'lervag/vimtex'
 call plug#end()
 
-" VimTeX settings {{{1
+" VimTeX configuration {{{1
 
 let g:vimtex_compiler_latexmk_engines = {'_' : '-xelatex'}
 let g:vimtex_complete_close_braces = 1
@@ -391,7 +391,7 @@ let g:vimtex_indent_conditionals = {
             \ 'close': '\\fi\>',
             \ }
 
-" Indent outline environment like other list environments
+" Indent custom list environments like default list environments
 let g:vimtex_indent_lists = [
             \ 'itemize',
             \ 'description',
@@ -419,8 +419,7 @@ function! s:nvim_regain_focus() abort
     redraw!
 endfunction
 
-" ncm2 configuration {{{1
-
+" ncm2 configuration {{{2
 set completeopt=noinsert,menuone,noselect
 augroup my_cm_setup
     autocmd!
@@ -435,11 +434,35 @@ augroup my_cm_setup
                 \ 'on_complete': ['ncm2#on_complete#omni', 'vimtex#complete#omnifunc'],
                 \ })
 augroup END
+"}}}2
 
 " vim-gnupg configuration {{{1
 
 let g:GPGExecutable = "PINENTRY_USER_DATA='' gpg --trust-model always"
 
 " }}}1
+
+let s:notes_ncm_word_pattern = '(\\@)?\w+[\w\s.-]*'
+let s:notes_ncm_regexes = [
+            \ '^\s*-\s+\w+',
+            \ '^\s*keywords\s*:\s+(\[\s*)?(\\@)?\w+',
+            \ '^\s*keywords\s*:\s+(\[\s*)?(\\@)?(' ..
+            \     s:notes_ncm_word_pattern .. ',\s+)+\w+',
+            \ '@\w+',
+            \ ]
+
+augroup ncm_notes
+    autocmd!
+    autocmd User Ncm2Plugin call ncm2#register_source({
+                \ 'name': 'notes',
+                \ 'priority': 8,
+                \ 'scope': ['markdown'],
+                \ 'matcher': {'name': 'prefix', 'key': 'word'},
+                \ 'sorter': 'none',
+                \ 'word_pattern': s:notes_ncm_word_pattern,
+                \ 'complete_pattern': s:notes_ncm_regexes,
+                \ 'on_complete': ['ncm2#on_complete#omni', 'notes#completefunc'],
+                \ })
+augroup END
 
 let s:sourced = 1
