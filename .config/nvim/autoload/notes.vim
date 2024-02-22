@@ -83,7 +83,7 @@ endfunction
 
 let notes#completer_keywords = {
             \ 'patterns': [
-            \     {'detect': '\v^\s*keywords:\s+\[=([^,]*,\s+)*',
+            \     {'detect': '\v^\s*keywords\s*:\s+\[=([^,]*,\s+)*',
             \         'terminate': '\v^\s*keywords:\s+\[=([^,]*,\s+)*$'},
             \     {'detect': '\v^\s*-\s+', 'terminate': '\v^\s*-\s+$'},
             \ ],
@@ -95,18 +95,11 @@ function! notes#completer_keywords.in_context() abort dict " {{{3
     let l:key_line_number = search(s:yaml_key_regex, 'bnW')
     if !l:key_line_number | return 0 | endif
     let l:key_line = getline(l:key_line_number)
-    if matchstr(l:key_line, s:yaml_key_regex) !=# 'keywords'
+    if matchstr(l:key_line, s:yaml_key_regex) ==# 'keywords'
+        return 1
+    else
         return 0
     endif
-
-    let l:pos = col('.') - 1
-    let l:line = getline('.')[:l:pos-1]
-    for pattern in self.patterns
-        if l:pos > 0 && l:line =~# pattern.detect
-            return 1
-        endif
-    endfor
-    return 0
 endfunction
 
 function! s:in_yaml_block() abort " {{{4
