@@ -455,7 +455,7 @@ for file in *.md; do
     titles[$file]="$(_parse_yaml_block title $file)"
 done
 
-# Write metadata block to file {{{2 
+# Write metadata block to file {{{2
 declare keyword
 for keyword in $all_keywords; do
     declare index_file=${keyword// /_}_index.md
