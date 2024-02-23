@@ -1,6 +1,4 @@
-if expand('%:p') !~# '/Users/rhelder/Documents/Notes/.*\.md'
-    finish
-endif
+if !get(b:, 'notes_enabled', 0) | finish | endif
 
 setlocal completefunc=notes#completefunc
 
@@ -18,21 +16,39 @@ augroup mdnotes
     autocmd ExitPre <buffer> let b:exiting = 1
 augroup END
 
-" rfv configuration {{{1
+" mdView configuration {{{1
 
-let g:rfv_action = {
-            \ 'ctrl-v': 'vertical split',
-            \ 'ctrl-x': 'split',
-            \ 'ctrl-o': 'silent !md-open',
-            \ 'ctrl-]': function('notes#insert_link'),
-            \ }
-
-" mdView configuration " {{{1
-
-let g:mdview = {}
-let g:mdview.output = function('notes#mdview_output_file')
-let g:mdview.pandoc_args = [
+let b:mdview = {}
+let b:mdview.output = function('notes#mdview_output_file')
+let b:mdview.pandoc_args = [
             \ '--defaults=notes',
             \ ]
+
+" ncm2 configuration " {{{1
+
+let s:notes_ncm_word_pattern = '(\\@)?\w+[\w\s.-]*'
+let s:notes_ncm_regexes = [
+            \ '^\s*-\s+\w+',
+            \ '^\s*keywords\s*:\s+(\[\s*)?(\\@)?\w+',
+            \ '^\s*keywords\s*:\s+(\[\s*)?(\\@)?(' ..
+            \     s:notes_ncm_word_pattern .. ',\s+)+\w+',
+            \ '@\w+',
+            \ ]
+
+augroup ncm_notes
+    autocmd!
+    autocmd BufEnter $HOME/Documents/Notes/*.md call ncm2#enable_for_buffer()
+    autocmd User Ncm2Plugin call ncm2#register_source({
+                \ 'name': 'notes',
+                \ 'priority': 8,
+                \ 'scope': ['markdown'],
+                \ 'matcher': {'name': 'prefix', 'key': 'word'},
+                \ 'sorter': 'none',
+                \ 'word_pattern': s:notes_ncm_word_pattern,
+                \ 'complete_pattern': s:notes_ncm_regexes,
+                \ 'on_complete': ['ncm2#on_complete#omni',
+                \     'notes#completefunc'],
+                \ })
+augroup END
 
 " }}}1
