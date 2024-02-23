@@ -18,10 +18,8 @@ nnoremap <Leader>ehf <Cmd>vs
             \ $HISTFILE<CR>
 nnoremap <Leader>elmk <Cmd>vs
             \ $XDG_CONFIG_HOME/latexmk/latexmkrc<CR>
-nnoremap <Leader>emca <Cmd>vs
-            \ $XDG_DATA_HOME/nvim/site/autoload/mdcomplete.vim<CR>
 nnoremap <Leader>emcz <Cmd>vs
-            \ $XDG_DATA_HOME/nvim/site/after/ftplugin/markdown/complete.vim<CR>
+            \ $XDG_CONFIG_HOME/nvim/after/ftplugin/markdown.vim<CR>
 nnoremap <Leader>emna <Cmd>vs
             \ $XDG_CONFIG_HOME/nvim/autoload/notes.vim<CR>
 nnoremap <Leader>emnf <Cmd>vs
@@ -32,7 +30,7 @@ nnoremap <Leader>emva <Cmd>vs
             \ $XDG_DATA_HOME/nvim/site/autoload/mdview.vim<CR>
 nnoremap <Leader>emvd <Cmd>vs
             \ $XDG_DATA_HOME/nvim/site/doc/mdview.txt<CR>
-nnoremap <Leader>emvp <Cmd>vs
+nnoremap <Leader>emvf <Cmd>vs
             \ $XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdview.vim<CR>
 nnoremap <Leader>emvz <Cmd>vs
             \ $XDG_DATA_HOME/nvim/site/after/ftplugin/markdown/mdview.vim<CR>
@@ -92,8 +90,7 @@ let fzf = "$XDG_CONFIG_HOME/fzf/fzf.zsh"
 let gc = "$XDG_CONFIG_HOME/git/config"
 let gi = "$XDG_CONFIG_HOME/git/ignore"
 let lmk = "$XDG_CONFIG_HOME/latexmk/latexmkrc"
-let mca = "$XDG_DATA_HOME/nvim/site/autoload/mdcomplete.vim"
-let mcz = "$XDG_DATA_HOME/nvim/site/after/ftplugin/markdown/complete.vim"
+let mcz = "$XDG_CONFIG_HOME/nvim/after/ftplugin/markdown.vim"
 let mna = "$XDG_CONFIG_HOME/nvim/autoload/notes.vim"
 let mnf = "$XDG_CONFIG_HOME/nvim/ftplugin/markdown/notes.vim"
 let mnp = "$XDG_CONFIG_HOME/nvim/plugin/notes.vim"
