@@ -3,6 +3,7 @@
 let &formatlistpat = '^\s*\(\d\|\*\|+\|-\)\+[\]:.)}\t ]\s*'
 let g:python3_host_prog = '/usr/local/bin/python3'
 set belloff=
+set completeopt=noinsert,menuone,noselect " As required for ncm2
 set cursorline
 set cursorlineopt=line
 set expandtab
@@ -115,7 +116,6 @@ function! s:right_align_right_column(type) abort range " {{{2
         execute 'normal ' .. (l:col_of_max - l:col) .. "i \<Esc>"
     endfor
 endfunction
-
 " }}}2
 
 " Spell
@@ -263,7 +263,6 @@ iabbrev fo              of
 iabbrev wrold           world
 iabbrev iwll            will
 iabbrev delcare         declare
-
 " }}}2
 
 " Autocommands {{{1
@@ -277,6 +276,10 @@ augroup nvimrc_autocommands " {{{2
     autocmd BufReadPost,BufNewFile $XDG_DATA_HOME/zsh/functions/*
                 \ set filetype=zsh
 
+    " Enable notes configuration in notes directory
+    autocmd BufReadPost,BufNewFile $HOME/Documents/Notes/*.md
+                \ let b:notes_enabled = 1
+
     " Run a script converting .zshrc aliases and shell variables into Vim
     " mappings and variables when exiting .zshrc
     autocmd BufWinLeave $XDG_CONFIG_HOME/zsh/.zshrc !sync-vz
@@ -289,7 +292,7 @@ augroup nvimrc_autocommands " {{{2
     autocmd TermOpen * set nonumber
 augroup END
 
-function! s:make_spell_files() abort " {{{2
+function! s:make_spell_files() abort " {{{3
     for file in glob('$XDG_CONFIG_HOME/nvim/spell/*.add', 0, 1)
         if (filereadable(expand(file)) &&
                     \ !filereadable(expand(file) .. '.spl'))
@@ -300,7 +303,7 @@ function! s:make_spell_files() abort " {{{2
         endif
     endfor
 endfunction
-" }}}2
+" }}}3
 
 augroup nvimrc_filetype_defaults " {{{2
     autocmd!
@@ -313,7 +316,6 @@ augroup nvimrc_filetype_defaults " {{{2
     autocmd BufWinEnter COMMIT_EDITMSG  setlocal nosmartindent textwidth=72
     autocmd FileType text,markdown,tex  setlocal nosmartindent
 augroup END
-" }}}2
 
 augroup nvrimc_key_mappings " {{{2
     autocmd!
@@ -347,7 +349,7 @@ augroup nvrimc_key_mappings " {{{2
     autocmd TermEnter * tnoremap <buffer> <C-W>c     <C-\><C-N>
 augroup END
 
-function! s:comment(character) abort " {{{2
+function! s:comment(character) abort " {{{3
     let l:pattern = '^\s*' .. a:character
     if match(getline('.'), l:pattern) ==# 0
         normal ^xx
@@ -355,6 +357,7 @@ function! s:comment(character) abort " {{{2
         execute 'normal I' .. a:character .. "\<Space>\<Esc>"
     endif
 endfunction
+" }}}3
 " }}}2
 
 " vim-plug {{{1
@@ -376,7 +379,7 @@ let g:vimtex_complete_close_braces = 1
 let g:vimtex_view_method = 'skim'
 let g:vimtex_view_skim_reading_bar = 1
 
-" Indent after [ and ], not just { and }
+" Indent after [ and ], not just { and } {{{2
 let g:vimtex_indent_delims = {
             \ 'open' : ['{','['],
             \ 'close' : ['}',']'],
@@ -384,14 +387,14 @@ let g:vimtex_indent_delims = {
             \ 'include_modified_math' : 1,
             \ }
 
-" Do not indent after ifbool
+" Do not indent after ifbool {{{2
 let g:vimtex_indent_conditionals = {
             \ 'open': '\v%(\\newif)@<!\\if%(f>|field|name|numequal|thenelse|toggle|bool)@!',
             \ 'else': '\\else\>',
             \ 'close': '\\fi\>',
             \ }
 
-" Indent custom list environments like default list environments
+" Indent custom list environments like default list environments {{{2
 let g:vimtex_indent_lists = [
             \ 'itemize',
             \ 'description',
@@ -406,7 +409,7 @@ let g:vimtex_indent_lists = [
             \ 'service',
             \ ]
 
-" Make Vim regain focus after inverse search
+" Make Vim regain focus after inverse search {{{2
 " (from https://www.ejmastnak.com/tutorials/vim-latex/pdf-reader/
 " #refocus-vim-after-forward-search)
 augroup nvimrc_vimtex_autocommands
@@ -420,18 +423,17 @@ function! s:nvim_regain_focus() abort
 endfunction
 
 " ncm2 configuration {{{2
-set completeopt=noinsert,menuone,noselect
-augroup my_cm_setup
-    autocmd!
-    autocmd BufEnter *      call ncm2#enable_for_buffer()
-    autocmd Filetype tex    call ncm2#register_source({
+augroup nvimrc_vimtex_ncm2
+    autocmd FileType tex call ncm2#enable_for_buffer()
+    autocmd FileType tex call ncm2#register_source({
                 \ 'name': 'vimtex',
                 \ 'priority': 8,
                 \ 'scope': ['tex'],
                 \ 'mark': 'tex',
                 \ 'word_pattern': '\w+',
                 \ 'complete_pattern': g:vimtex#re#ncm2,
-                \ 'on_complete': ['ncm2#on_complete#omni', 'vimtex#complete#omnifunc'],
+                \ 'on_complete': ['ncm2#on_complete#omni',
+                \     'vimtex#complete#omnifunc'],
                 \ })
 augroup END
 "}}}2
@@ -441,28 +443,5 @@ augroup END
 let g:GPGExecutable = "PINENTRY_USER_DATA='' gpg --trust-model always"
 
 " }}}1
-
-let s:notes_ncm_word_pattern = '(\\@)?\w+[\w\s.-]*'
-let s:notes_ncm_regexes = [
-            \ '^\s*-\s+\w+',
-            \ '^\s*keywords\s*:\s+(\[\s*)?(\\@)?\w+',
-            \ '^\s*keywords\s*:\s+(\[\s*)?(\\@)?(' ..
-            \     s:notes_ncm_word_pattern .. ',\s+)+\w+',
-            \ '@\w+',
-            \ ]
-
-augroup ncm_notes
-    autocmd!
-    autocmd User Ncm2Plugin call ncm2#register_source({
-                \ 'name': 'notes',
-                \ 'priority': 8,
-                \ 'scope': ['markdown'],
-                \ 'matcher': {'name': 'prefix', 'key': 'word'},
-                \ 'sorter': 'none',
-                \ 'word_pattern': s:notes_ncm_word_pattern,
-                \ 'complete_pattern': s:notes_ncm_regexes,
-                \ 'on_complete': ['ncm2#on_complete#omni', 'notes#completefunc'],
-                \ })
-augroup END
 
 let s:sourced = 1
