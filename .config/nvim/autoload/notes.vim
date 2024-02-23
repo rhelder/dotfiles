@@ -1,8 +1,8 @@
-" Omnifunc
+" Completion
 
-function! mdcomplete#omnifunc(findstart, base, completers=[]) abort " {{{1
-    if empty(a:completers) && len(get(s:, 'completers', []))
-        call extend(a:completers, s:completers)
+function! notes#omnifunc(findstart, base, completers=[]) abort " {{{1
+    if empty(a:completers)
+        call extend(a:completers, s:omnifunc_completers)
     endif
 
     if a:findstart
@@ -49,19 +49,19 @@ function! mdcomplete#omnifunc(findstart, base, completers=[]) abort " {{{1
     endif
 endfunction
 
-" }}}1
+function! notes#completefunc(findstart, base) abort " {{{1
+    return notes#omnifunc(a:findstart, a:base, s:completefunc_completers)
+endfunction
 
-" Completers
+" Citation completer {{{1
 
-" Citations {{{1
-
-let mdcomplete#completer_citations = {
+let s:completer_citations = {
             \ 'patterns': [
             \     {'detect': '\v\@[0-9A-Za-z._-]*$', 'terminate': '@$'},
             \ ],
             \ }
 
-function! mdcomplete#completer_citations.in_context() abort dict " {{{2
+function! s:completer_citations.in_context() abort dict " {{{2
     let l:pos = col('.') - 1
     let l:line = getline('.')[:l:pos-1]
     for pattern in self.patterns
@@ -72,7 +72,7 @@ function! mdcomplete#completer_citations.in_context() abort dict " {{{2
     return 0
 endfunction
 
-function! mdcomplete#completer_citations.complete(base) abort dict " {{{2
+function! s:completer_citations.complete(base) abort dict " {{{2
     let l:biblatex_file_path =
                 \ $HOME .. '/Library/texmf/bibtex/bib/my_library.bib'
     let l:biblatex_file = readfile(l:biblatex_file_path)
@@ -88,28 +88,102 @@ endfunction
 " }}}3
 " }}}2
 
-" Default {{{1
+" Default completer {{{1
 
-let mdcomplete#completer_default = {}
+let s:completer_default = {}
 
-function! mdcomplete#completer_default.in_context() abort
+function! s:completer_default.in_context() abort
     return 1
 endfunction
 
-function! mdcomplete#completer_default.find_start() abort
+function! s:completer_default.find_start() abort
     return function(b:default_omnifunc)(1, '')
 endfunction
 
-function! mdcomplete#completer_default.complete(base) abort
+function! s:completer_default.complete(base) abort
     return function(b:default_omnifunc)(0, a:base)
 endfunction
 
+" Keyword completer {{{1
+
+let s:completer_keywords = {
+            \ 'patterns': [
+            \     {'detect': '\v^\s*keywords\s*:\s+\[=([^,]*,\s+)*',
+            \         'terminate': '\v^\s*keywords:\s+\[=([^,]*,\s+)*$'},
+            \     {'detect': '\v^\s*-\s+', 'terminate': '\v^\s*-\s+$'},
+            \ ],
+            \ }
+
+function! s:completer_keywords.in_context() abort dict " {{{2
+    if !s:in_yaml_block() | return 0 | endif
+
+    let l:key_line_number = search(s:yaml_key_regex, 'bnW')
+    if !l:key_line_number | return 0 | endif
+    let l:key_line = getline(l:key_line_number)
+    if matchstr(l:key_line, s:yaml_key_regex) ==# 'keywords'
+        return 1
+    else
+        return 0
+    endif
+endfunction
+
+function! s:in_yaml_block() abort " {{{4
+    let l:start = search('\v^---\s*$', 'bnW')
+    if !l:start | return 0 | endif
+
+    let l:end = search('\v^(---|\.\.\.)\s*$', 'nW')
+    if !l:end | return 0 | endif
+
+    if getline(l:start + 1) =~# '\v^\s*$' ||
+                \ (l:start != 1 && getline(l:start - 1) !~# '\v^\s*$')
+        return 0
+    endif
+
+    if line('.') > l:start && line('.') < l:end
+        return 1
+    else
+        return 0
+    endif
+endfunction
+
+let s:yaml_key_start_chars = '[^\-?:,[\]{}#&*!|>''"%@`[:space:]]'
+let s:yaml_key_can_start_if_chars = '[?:\-]([^[:space:]])@='
+let s:yaml_key_subsequent_chars = '(\S#|:\S|[^[:space:]:#])*'
+let s:yaml_key_chars = '(' .. s:yaml_key_start_chars .. '|' ..
+            \ s:yaml_key_can_start_if_chars .. ')' ..
+            \ s:yaml_key_subsequent_chars
+let s:yaml_key_regex = '\v^\s*\zs' .. s:yaml_key_chars ..
+            \ '(\s+' .. s:yaml_key_chars .. ')*\ze\s*:(\s|$)'
+" }}}4
+
+function! s:completer_keywords.complete(base) abort dict " {{{2
+    if a:base[0:1] == '\@'
+        let l:biblatex_keys = s:completer_citations.complete(a:base[2:])
+        call map(l:biblatex_keys, '{"word": "\\@" .. v:val, "abbr": v:val}')
+        return l:biblatex_keys
+
+    else
+        let l:name = $HOME .. '/Documents/Notes/index.txt'
+        let l:keywords = readfile(l:name)
+        call filter(l:keywords, 'v:val !~# "^@"')
+        call filter(l:keywords, 'v:val =~? "^" .. a:base')
+        return l:keywords
+    endif
+endfunction
+" }}}2
+
 " }}}1
 
-let s:completers = [
-            \ mdcomplete#completer_citations,
-            \ mdcomplete#completer_default,
+let s:omnifunc_completers = [
+            \ s:completer_citations,
+            \ s:completer_default,
             \ ]
+
+let s:completefunc_completers = [
+            \ s:completer_keywords,
+            \ s:completer_citations,
+            \ ]
+
 " Global
 
 function! notes#new_note() abort " {{{1
@@ -183,88 +257,7 @@ endfunction
 
 " }}}1
 
-" Filetype
-
-" Completion {{{1
-
-function! notes#completefunc(findstart, base) abort
-    return mdcomplete#omnifunc(a:findstart, a:base, s:completers)
-endfunction
-
-" Keyword completer {{{2
-
-let notes#completer_keywords = {
-            \ 'patterns': [
-            \     {'detect': '\v^\s*keywords\s*:\s+\[=([^,]*,\s+)*',
-            \         'terminate': '\v^\s*keywords:\s+\[=([^,]*,\s+)*$'},
-            \     {'detect': '\v^\s*-\s+', 'terminate': '\v^\s*-\s+$'},
-            \ ],
-            \ }
-
-function! notes#completer_keywords.in_context() abort dict " {{{3
-    if !s:in_yaml_block() | return 0 | endif
-
-    let l:key_line_number = search(s:yaml_key_regex, 'bnW')
-    if !l:key_line_number | return 0 | endif
-    let l:key_line = getline(l:key_line_number)
-    if matchstr(l:key_line, s:yaml_key_regex) ==# 'keywords'
-        return 1
-    else
-        return 0
-    endif
-endfunction
-
-function! s:in_yaml_block() abort " {{{4
-    let l:start = search('\v^---\s*$', 'bnW')
-    if !l:start | return 0 | endif
-
-    let l:end = search('\v^(---|\.\.\.)\s*$', 'nW')
-    if !l:end | return 0 | endif
-
-    if getline(l:start + 1) =~# '\v^\s*$' ||
-                \ (l:start != 1 && getline(l:start - 1) !~# '\v^\s*$')
-        return 0
-    endif
-
-    if line('.') > l:start && line('.') < l:end
-        return 1
-    else
-        return 0
-    endif
-endfunction
-
-let s:yaml_key_start_chars = '[^\-?:,[\]{}#&*!|>''"%@`[:space:]]'
-let s:yaml_key_can_start_if_chars = '[?:\-]([^[:space:]])@='
-let s:yaml_key_subsequent_chars = '(\S#|:\S|[^[:space:]:#])*'
-let s:yaml_key_chars = '(' .. s:yaml_key_start_chars .. '|' ..
-            \ s:yaml_key_can_start_if_chars .. ')' ..
-            \ s:yaml_key_subsequent_chars
-let s:yaml_key_regex = '\v^\s*\zs' .. s:yaml_key_chars ..
-            \ '(\s+' .. s:yaml_key_chars .. ')*\ze\s*:(\s|$)'
-" }}}4
-
-function! notes#completer_keywords.complete(base) abort dict " {{{3
-    if a:base[0:1] == '\@'
-        let l:biblatex_keys = s:citation_completer.complete(a:base[2:])
-        call map(l:biblatex_keys, '{"word": "\\@" .. v:val, "abbr": v:val}')
-        return l:biblatex_keys
-
-    else
-        let l:name = $HOME .. '/Documents/Notes/index.txt'
-        let l:keywords = readfile(l:name)
-        call filter(l:keywords, 'v:val !~# "^@"')
-        call filter(l:keywords, 'v:val =~? "^" .. a:base')
-        return l:keywords
-    endif
-endfunction
-" }}}3
-
-" }}}2
-
-let s:citation_completer = mdcomplete#completer_citations
-let s:completers = [notes#completer_keywords, s:citation_completer]
-
-" }}}1
+" Notes only
 
 function! notes#make_bracketed_list_hyphenated() abort " {{{1
     let l:unnamed_register = @"
