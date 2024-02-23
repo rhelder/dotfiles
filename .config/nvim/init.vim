@@ -55,68 +55,22 @@ nnoremap <Leader>sv <Cmd>source $MYVIMRC<CR>
 nnoremap <Leader>sf <Cmd>source %<CR>
 
 " Open terminal in vertical split
-nnoremap <Leader>t  <Cmd>vsplit<CR><Cmd>terminal<CR>
+nnoremap <Leader>t <Cmd>vsplit<CR><Cmd>terminal<CR>
 
 " Move lines up or down
-nnoremap -  ddkP
-nnoremap _  ddp
+nnoremap - ddkP
+nnoremap _ ddp
 
 " Help
 nnoremap \          <Cmd>vert help<CR>:help 
-nnoremap <BS>       <Cmd>help<CR>:help 
 nnoremap <Leader>h  :help 
 
 " Display
-nnoremap <silent> <Leader><Esc> <Cmd>noh<CR>
+nnoremap <Leader><Esc> <Cmd>noh<CR>
 nnoremap <expr> <Leader>w
             \ &colorcolumn ==# ''
             \     ? "<Cmd>setlocal colorcolumn=+1<CR>"
             \     : "<Cmd>setlocal colorcolumn=<CR>"
-
-" Writing docs
-nnoremap <Leader>fh <Cmd>call <SID>toggle_help_filetype()<CR>
-nnoremap <Leader>rr <Cmd>call <SID>right_align_right_column('tag')<CR>
-vnoremap <Leader>rt :call <SID>right_align_right_column('tag')<CR>
-vnoremap <Leader>rl :call <SID>right_align_right_column('link')<CR>
-nnoremap <Leader>== <Cmd>execute "normal! o\<lt>Esc>78i=\<lt>Esc>"<CR>
-nnoremap <Leader>=- <Cmd>execute "normal! o\<lt>Esc>78i-\<lt>Esc>"<CR>
-
-function! s:toggle_help_filetype() abort " {{{2
-    if &filetype ==# 'text'
-        setlocal filetype=help
-    elseif &filetype ==# 'help'
-        setlocal filetype=text
-    endif
-endfunction
-
-function! s:right_align_right_column(type) abort range " {{{2
-    if a:type == 'tag'
-        let l:pattern = '\v\*.*\*'
-    elseif a:type == 'link'
-        let l:pattern = '\v\|.*\|'
-    endif
-
-    let l:lengths = []
-    for line in range(a:firstline, a:lastline)
-        call add(l:lengths, len(matchstr(getline(line), l:pattern)))
-    endfor
-    let l:line_with_max = index(l:lengths, max(l:lengths)) + a:firstline
-
-    call cursor(l:line_with_max,
-                \ match(getline(l:line_with_max), l:pattern) + 1)
-    execute "normal " .. (78 - virtcol('$') + 1) .. "i \<Esc>"
-    let l:col_of_max = match(getline(l:line_with_max), l:pattern)
-    for line in range(a:firstline, a:lastline)
-        if line == l:line_with_max || !len(matchstr(getline(line), l:pattern))
-            continue
-        endif
-
-        let l:col = match(getline(line), l:pattern)
-        call cursor(line, l:col + 1)
-        execute 'normal ' .. (l:col_of_max - l:col) .. "i \<Esc>"
-    endfor
-endfunction
-" }}}2
 
 " Spell
 nnoremap <Leader>sl         :setlocal spelllang=
@@ -251,23 +205,11 @@ vnoremap al` :<C-U>normal! F`F`va`<CR>
 vnoremap il` :<C-U>normal! F`F`vi`<CR>
 " }}}3
 
-" Insert mode abbreviations {{{2
-iabbrev assortnment     assortment
-iabbrev snd             and
-iabbrev perseverence    perseverance
-iabbrev ot              to
-iabbrev nd              and
-iabbrev sya             say
-iabbrev teh             the
-iabbrev fo              of
-iabbrev wrold           world
-iabbrev iwll            will
-iabbrev delcare         declare
 " }}}2
 
 " Autocommands {{{1
 
-augroup nvimrc_autocommands " {{{2
+augroup nvimrc " {{{2
     autocmd!
 
     " When opening a (new) file in ~/.local/bin or in
@@ -317,7 +259,7 @@ augroup nvimrc_filetype_defaults " {{{2
     autocmd FileType text,markdown,tex  setlocal nosmartindent
 augroup END
 
-augroup nvrimc_key_mappings " {{{2
+augroup nvimrc_key_mappings " {{{2
     autocmd!
 
     " Comment out lines according to filetype
@@ -389,7 +331,8 @@ let g:vimtex_indent_delims = {
 
 " Do not indent after ifbool {{{2
 let g:vimtex_indent_conditionals = {
-            \ 'open': '\v%(\\newif)@<!\\if%(f>|field|name|numequal|thenelse|toggle|bool)@!',
+            \ 'open': '\v%(\\newif)@<!'
+            \     .. '\\if%(f>|field|name|numequal|thenelse|toggle|bool)@!',
             \ 'else': '\\else\>',
             \ 'close': '\\fi\>',
             \ }
@@ -412,14 +355,14 @@ let g:vimtex_indent_lists = [
 " Make Vim regain focus after inverse search {{{2
 " (from https://www.ejmastnak.com/tutorials/vim-latex/pdf-reader/
 " #refocus-vim-after-forward-search)
-augroup nvimrc_vimtex_autocommands
+augroup nvimrc_vimtex
     autocmd!
     autocmd User VimtexEventViewReverse call s:nvim_regain_focus()
 augroup END
 
 function! s:nvim_regain_focus() abort
     silent execute "!open -a Terminal"
-    redraw!
+    redraw
 endfunction
 
 " ncm2 configuration {{{2
