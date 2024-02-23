@@ -26,7 +26,7 @@ let b:mdview.pandoc_args = [
 
 " ncm2 configuration " {{{1
 
-let s:notes_ncm_word_pattern = '(\\@)?\w+[\w\s.-]*'
+let s:notes_ncm_word_pattern = '\w+[\w\s.-]*'
 let s:notes_ncm_regexes = [
             \ '^\s*-\s+\w+',
             \ '^\s*keywords\s*:\s+(\[\s*)?(\\@)?\w+',
