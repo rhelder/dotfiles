@@ -1,8 +1,3 @@
-if exists('b:did_ftplugin_mdnotes')
-    finish
-endif
-let b:did_ftplugin_mdnotes = 1
-
 if expand('%:p') !~# '/Users/rhelder/Documents/Notes/.*\.md'
     finish
 endif

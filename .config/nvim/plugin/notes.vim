@@ -1,8 +1,3 @@
-if exists('g:loaded_mdnotes')
-    finish
-endif
-let g:loaded_mdnotes = 1
-
 nnoremap <Leader>nj <Cmd>call notes#new_journal()<CR>
 nnoremap <Leader>nn <Cmd>call notes#new_note()<CR>
 nnoremap <Leader>ns <Cmd>call notes#search_notes()<CR>
