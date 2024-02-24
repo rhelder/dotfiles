@@ -1,0 +1,22 @@
+# Create compressed tar archives or extract from tar archives
+
+# Optionally trash original files or directories
+if [[ $1 == '--trash' || $1 == '-t' ]]; then
+    local -i trash=1
+    shift
+fi
+
+if [[ ! -n $* ]]; then
+    echo 'tars: no files or directories specified' >&2
+    return 1
+fi
+
+for file in $*; do
+    if [[ $file == *.tar* ]]; then
+        tar --extract --file=$file
+    else
+        tar --create --gzip --file=${file}.tar.gz $file
+    fi || return 1
+done
+
+[[ -n $trash ]] && trash $*

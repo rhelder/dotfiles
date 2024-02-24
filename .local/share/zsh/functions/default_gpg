@@ -1,0 +1,32 @@
+# Encrypt unencrypted files or directories, or decrypt encrypted files or
+# directories. When encrypting files, use ASCII armor, and create a file with
+# the same name plus the .asc extension. When encrypting directories, create an
+# archive with the .tar.gpg extension. When decrypting directories, first
+# decrypt, and then extract from the tar archive.
+
+# Optionally trash the original files or directories
+if [[ $1 == '--trash' || $1 == '-t' ]]; then
+    local -i trash=1
+    shift
+fi
+
+if [[ ! -n $* ]]; then
+    echo 'gpgs: no files or directories specified' >&2
+    return 1
+fi
+
+for file in $*; do
+    if [[ $file == *.tar.gpg ]]; then
+        gpg --decrypt --output=${file%.gpg} $file
+        tar --extract --file=${file%.gpg}
+        rm ${file%.gpg}
+    elif [[ $file == *.asc ]]; then
+        gpg --decrypt --output=${file%.asc} $file
+    elif [[ -f $file ]]; then
+        gpg --encrypt --armor --output=${file}.asc $file
+    elif [[ -d $file ]]; then
+        gpgtar --encrypt --output=${file}.tar.gpg $file
+    fi || return 1
+done
+
+[[ -n $trash ]] && trash $*
