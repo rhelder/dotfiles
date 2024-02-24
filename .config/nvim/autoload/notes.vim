@@ -222,7 +222,7 @@ function! notes#browse_index() abort " {{{1
     return l:browse_index_spec
 endfunction
 
-function! notes#fzf_expect() abort " {{{2
+function! s:fzf_expect() abort " {{{2
     let l:options = []
 
     for key in keys(s:browse_index_action)
@@ -239,7 +239,7 @@ let s:browse_index_action = {
             \ 'ctrl-o': 'silent !md-open',
             \ }
 
-function! notes#browse_index_open_result(lines) abort " {{{2
+function! s:browse_index_open_result(lines) abort " {{{2
     if len(a:lines) < 2
         return
     endif
