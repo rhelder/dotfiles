@@ -1,9 +1,5 @@
 # to-do
-# * Add gpg-related functions
 # * Consider completion options
-# * Turn `Cl` and `cl` into functions with error messages
-# alias Cl="ts ^*.(((tex)|(latex)|(sty)|(dtx)|(bib)|(txt)|(md)|(vim)))(.)"
-# alias cl="ts ^*.(((tex)|(latex)|(sty)|(dtx)|(bib)|(txt)|(md)|(vim)|(pdf)))(.)"
 
 # {{{1 Options and settings
 
@@ -54,12 +50,13 @@ integer alias_zshrc_sourced=0
 autoload -f alias
 
 # Load other user functions
+autoload clean_tex_aux_files
 autoload cs
-autoload mktar
-autoload mz
-autoload nvim-help
+autoload default_gpg
+autoload default_tar
+autoload man_zsh
+autoload nvim_help
 autoload trash
-autoload untar
 
 # Install run-help
 [[ ${"$(whence -w run-help)"##*: } == 'alias' ]] && unalias run-help
@@ -134,15 +131,19 @@ alias gsw='git switch'
 alias gswc='git switch -c'
 
 # {{{2 Abbreviate
+alias cl='clean_tex_aux_files'
+alias dgpg='default_gpg'
+alias dtar='default_tar'
 alias la='ls -aF'
 alias lua='luajit'
 alias m='man'
+alias mz='man_zsh'
 alias ni='browse-index'
 alias nj='new-journal'
 alias nn='new-note'
 alias ns='search-notes'
 alias nv='nvim'
-alias nvh='nvim-help'
+alias nvh='nvim_help'
 alias o='open'
 alias restart='[[ $(jobs) ]] && unset FPATH && PATH=/bin && exec -l zsh'
 alias spr="source $XDG_CONFIG_HOME/zsh/.zprofile"
