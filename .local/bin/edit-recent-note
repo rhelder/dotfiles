@@ -1,0 +1,11 @@
+#! /bin/zsh
+
+# Edit a note by referencing its UID's position in the set of UIDs (i.e., by
+# how recently it was written). An argument of -1 will give the most recent
+# note, an argument of -2 will give the second most recent note, and so on. An
+# argument of 1 will give the oldest note, an argument of 2 will give the scond
+# oldest note, and so on.
+
+cd $HOME/Documents/Notes || exit 1
+
+nvim [[:digit:]]*.md(on[$1])
