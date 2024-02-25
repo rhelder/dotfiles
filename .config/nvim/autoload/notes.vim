@@ -116,46 +116,8 @@ let s:completer_keywords = {
             \ }
 
 function! s:completer_keywords.in_context() abort dict " {{{2
-    if !s:in_yaml_block() | return 0 | endif
-
-    let l:key_line_number = search(s:yaml_key_regex, 'bnW')
-    if !l:key_line_number | return 0 | endif
-    let l:key_line = getline(l:key_line_number)
-    if matchstr(l:key_line, s:yaml_key_regex) ==# 'keywords'
-        return 1
-    else
-        return 0
-    endif
+    return s:_in_keywords()
 endfunction
-
-function! s:in_yaml_block() abort " {{{4
-    let l:start = search('\v^---\s*$', 'bnW')
-    if !l:start | return 0 | endif
-
-    let l:end = search('\v^(---|\.\.\.)\s*$', 'nW')
-    if !l:end | return 0 | endif
-
-    if getline(l:start + 1) =~# '\v^\s*$' ||
-                \ (l:start != 1 && getline(l:start - 1) !~# '\v^\s*$')
-        return 0
-    endif
-
-    if line('.') > l:start && line('.') < l:end
-        return 1
-    else
-        return 0
-    endif
-endfunction
-
-let s:yaml_key_start_chars = '[^\-?:,[\]{}#&*!|>''"%@`[:space:]]'
-let s:yaml_key_can_start_if_chars = '[?:\-]([^[:space:]])@='
-let s:yaml_key_subsequent_chars = '(\S#|:\S|[^[:space:]:#])*'
-let s:yaml_key_chars = '(' .. s:yaml_key_start_chars .. '|' ..
-            \ s:yaml_key_can_start_if_chars .. ')' ..
-            \ s:yaml_key_subsequent_chars
-let s:yaml_key_regex = '\v^\s*\zs' .. s:yaml_key_chars ..
-            \ '(\s+' .. s:yaml_key_chars .. ')*\ze\s*:(\s|$)'
-" }}}4
 
 function! s:completer_keywords.complete(base) abort dict " {{{2
     if a:base[0:1] == '\@'
@@ -184,6 +146,250 @@ let s:completefunc_completers = [
             \ s:completer_keywords,
             \ s:completer_citations,
             \ ]
+
+" Links
+
+function! notes#follow_link() abort " {{{1
+    for handler in s:link_handlers
+        call handler.create_url()
+        if has_key(handler, 'url')
+            call handler.follow_link()
+            unlet handler.url
+            break
+        endif
+    endfor
+endfunction
+
+" Markdown reference links {{{1
+
+let s:ref_link_handler = {}
+
+function! s:ref_link_handler.follow_link() abort dict " {{{2
+    execute 'edit ' .. self.url
+endfunction
+
+function! s:ref_link_handler.create_url() abort dict " {{{2
+    let l:url = self.get_text_under_cursor()
+    if empty(l:url) | return | endif
+
+    let l:url = expand('%:p:h') .. '/' .. l:url
+    let self.url = l:url
+endfunction
+
+function! s:ref_link_handler.get_text_under_cursor() abort dict " {{{2
+    let l:syntax_group = self.in_context()
+    if empty(l:syntax_group) | return '' | endif
+
+    let l:cursor_pos = getcurpos()
+    let l:unnamed_register = @"
+
+    if l:syntax_group ==# 'markdownLinkTextDelimiter' ||
+                \ l:syntax_group ==# 'markdownLinkText'
+        execute "normal! vi[\<Esc>f[vi[\"\"y"
+    elseif l:syntax_group ==# 'markdownIdDelimiter' ||
+                \ l:syntax_group ==# 'markdownId'
+        normal! vi[""y
+    endif
+
+    let l:text = @"
+
+    let @" = l:unnamed_register
+    call setpos('.', l:cursor_pos)
+
+    return l:text
+endfunction
+
+function! s:ref_link_handler.in_context() abort dict " {{{2
+    let l:syntax_group = synIDattr(synID(line('.'), col('.'), 0), 'name')
+    if l:syntax_group ==# 'markdownLinkTextDelimiter' ||
+                \ l:syntax_group ==# 'markdownLinkText' ||
+                \ l:syntax_group ==# 'markdownIdDelimiter' ||
+                \ l:syntax_group ==# 'markdownId'
+        return l:syntax_group
+    else
+        return ''
+    endif
+endfunction
+" }}}2
+
+" Keyword links {{{1
+
+let s:keyword_link_handler = {
+            \ 'patterns': [
+            \     {'start': '\v(^\s*keywords\s*:\s+[?\S|,\s+\S)',
+            \         'end': '\v\s*(,|]|$)'},
+            \     {'start': '\v^\s*-\s+\S', 'end': '\v\s*$'},
+            \ ],
+            \ }
+
+function! s:keyword_link_handler.follow_link(ftype='md') abort dict " {{{2
+    if a:ftype ==# 'md'
+        execute 'edit ' .. self.url
+    elseif a:ftype ==# 'html'
+        if filereadable(self.url)
+            execute 'silent !open ' .. self.url
+            redraw
+        else
+            echohl WarningMsg
+            echomsg 'No html file found for this keyword'
+            echohl None
+        endif
+    endif
+endfunction
+
+function! s:keyword_link_handler.create_url(ftype='md') abort dict " {{{2
+    let l:keyword = self.get_text_under_cursor()
+    if empty(l:keyword) | return | endif
+
+    if a:ftype ==# 'md'
+        let l:url = l:keyword .. '_index.md'
+        if match(l:keyword, '\\@') == 0
+            let l:url = substitute(l:url, '\\@', '_', '')
+        endif
+        let l:url = substitute(l:url, ' ', '_', 'g')
+        let l:url = $HOME .. '/Documents/Notes/' .. l:url
+        let self.url = l:url
+    elseif a:ftype ==# 'html'
+        let l:url = l:keyword .. ' index.html'
+        if match(l:url, '\\@') == 0
+            let l:url = substitute(l:keyword, '\\@', '@', '')
+        endif
+        let l:url = $HOME .. '/Documents/Notes/' .. l:url
+        let self.url = l:url
+    endif
+endfunction
+
+function! s:keyword_link_handler.get_text_under_cursor() abort dict " {{{2
+    if !self.in_context() | return '' | endif
+    let l:line_number = line('.')
+    for pattern in self.patterns
+        let l:start = searchpos(pattern.start, 'bcn', l:line_number)[1]
+        if l:start
+            let l:pattern = pattern
+            break
+        endif
+    endfor
+
+    let l:start_end = searchpos(l:pattern.start, 'bcne', l:line_number)[1]
+    let l:pos = col('.')
+    if l:start_end < l:start && l:start_end < l:pos
+        return ''
+    endif
+
+    let l:end = searchpos(pattern.end, 'cn', l:line_number)[1]
+    if l:pos >= l:end
+        return ''
+    endif
+
+    let l:text = getline('.')[l:start_end-1:l:end-2]
+    return l:text
+endfunction
+
+function! s:keyword_link_handler.in_context() abort " {{{2
+    return s:_in_keywords()
+endfunction
+" }}}2
+
+" Citation links {{{1
+
+let s:citation_link_handler = {
+            \ 'chars': '0-9A-Za-z._-',
+            \ 'pattern': '\v^\@[0-9A-Za-z._-]+$',
+            \ }
+
+function! s:citation_link_handler.follow_link() abort dict " {{{2
+    if filereadable(self.url)
+        execute 'silent !open ' .. self.url
+        redraw
+    else
+        echohl WarningMsg
+        echomsg 'No PDF found for this citation key'
+        echohl None
+    endif
+endfunction
+
+function! s:citation_link_handler.create_url() abort dict " {{{2
+    let l:biblatex_key = substitute(self.get_text_under_cursor(), '^@', '', '')
+    if empty(l:biblatex_key) | return '' | endif
+    let l:dirname = substitute(l:biblatex_key, '\.$', '', '')
+    let l:dir = $HOME .. '/Documents/Zotero/Storage' .. '/' .. l:dirname
+    let l:url = l:dir .. '/' .. l:biblatex_key .. '.pdf'
+    let self.url = l:url
+endfunction
+
+function! s:citation_link_handler.get_text_under_cursor() abort dict " {{{2
+    if !self.in_context() | return '' | endif
+
+    let l:text = expand('<cWORD>')
+    let l:text = substitute(l:text, '^[^@' .. self.chars .. ']*', '', 'g')
+    let l:text = substitute(l:text, '[^' .. self.chars .. ']*$', '', 'g')
+    if l:text =~# self.pattern
+        return l:text
+    else
+        return ''
+    endif
+endfunction
+
+function! s:citation_link_handler.in_context() abort " {{{2
+    if !s:_in_keywords()
+        return 1
+    else
+        return 0
+    endif
+endfunction
+
+" }}}1
+
+let s:link_handlers = [
+            \ s:ref_link_handler,
+            \ s:citation_link_handler,
+            \ s:keyword_link_handler,
+            \ ]
+
+" Utility functions
+
+function! s:_in_keywords() abort " {{{1
+    if !s:_in_yaml_block() | return 0 | endif
+
+    let l:key_line_number = search(s:yaml_key_regex, 'bnW')
+    if !l:key_line_number | return 0 | endif
+    let l:key_line = getline(l:key_line_number)
+    if matchstr(l:key_line, s:yaml_key_regex) ==# 'keywords'
+        return 1
+    else
+        return 0
+    endif
+endfunction
+
+function! s:_in_yaml_block() abort " {{{1
+    let l:start = search('\v^---\s*$', 'bnW')
+    if !l:start | return 0 | endif
+
+    let l:end = search('\v^(---|\.\.\.)\s*$', 'nW')
+    if !l:end | return 0 | endif
+
+    if getline(l:start + 1) =~# '\v^\s*$' ||
+                \ (l:start != 1 && getline(l:start - 1) !~# '\v^\s*$')
+        return 0
+    endif
+
+    if line('.') > l:start && line('.') < l:end
+        return 1
+    else
+        return 0
+    endif
+endfunction
+
+let s:yaml_key_start_chars = '[^\-?:,[\]{}#&*!|>''"%@`[:space:]]'
+let s:yaml_key_can_start_if_chars = '[?:\-]([^[:space:]])@='
+let s:yaml_key_subsequent_chars = '(\S#|:\S|[^[:space:]:#])*'
+let s:yaml_key_chars = '(' .. s:yaml_key_start_chars .. '|' ..
+            \ s:yaml_key_can_start_if_chars .. ')' ..
+            \ s:yaml_key_subsequent_chars
+let s:yaml_key_regex = '\v^\s*\zs' .. s:yaml_key_chars ..
+            \ '(\s+' .. s:yaml_key_chars .. ')*\ze\s*:(\s|$)'
+
+" }}}1
 
 " Global
 
