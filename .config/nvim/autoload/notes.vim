@@ -57,7 +57,8 @@ endfunction
 
 let s:completer_citations = {
             \ 'patterns': [
-            \     {'detect': '\v\@[0-9A-Za-z._-]*$', 'terminate': '@$'},
+            \     {'detect': '\v(^|\s)\@[0-9A-Za-z._-]*$',
+            \         'terminate': '\v(^|\s)\@$'},
             \ ],
             \ }
 
