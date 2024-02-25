@@ -5,15 +5,16 @@ setlocal completefunc=notes#completefunc
 nnoremap <buffer> <LocalLeader>nl
             \ <Cmd>call notes#make_bracketed_list_hyphenated()<CR>
 
-augroup mdnotes
+augroup notes
     " Run MdviewConvert and build-index when exiting a note, if it has been
     " modified
     autocmd BufWinLeave <buffer> call notes#exit_note()
-    autocmd BufModifiedSet <buffer> ++once let b:modified = 1
+    autocmd BufModifiedSet <buffer> ++once
+                \ call setbufvar(expand('<afile>'), 'modified', 1)
 
     " Set flag so that s:run_build_index can force 'hit enter' prompt before
     " quitting
-    autocmd ExitPre <buffer> let b:exiting = 1
+    autocmd ExitPre <buffer> call setbufvar(expand('<afile>'), 'exiting', 1)
 augroup END
 
 " mdView configuration {{{1
