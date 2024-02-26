@@ -560,6 +560,7 @@ for keyword in $all_keywords; do
     # Compare index file to temporary file {{{2
     # If they are different, add the index file to the list of files to be
     # converted to html by Pandoc
+    declare html_file="$keyword index.html"
     if [[
         -n "$(diff $index_file /tmp/build_index.md)" || -n $pandoc_always
     ]]; then
@@ -575,7 +576,6 @@ for keyword in $all_keywords; do
     declare -a index_files
     index_files+=( $index_file )
 
-    declare html_file="$keyword index.html"
     declare -a html_files
     html_files+=( $html_file )
 
