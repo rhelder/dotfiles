@@ -149,11 +149,11 @@ let s:completefunc_completers = [
 
 " Links
 
-function! notes#follow_link() abort " {{{1
+function! notes#follow_link(filetype) abort " {{{1
     for handler in s:link_handlers
-        call handler.create_url()
+        call handler.create_url(a:filetype)
         if has_key(handler, 'url')
-            call handler.follow_link()
+            call handler.follow_link(a:filetype)
             unlet handler.url
             break
         endif
@@ -164,14 +164,32 @@ endfunction
 
 let s:ref_link_handler = {}
 
-function! s:ref_link_handler.follow_link() abort dict " {{{2
-    execute 'edit ' .. self.url
+function! s:ref_link_handler.follow_link(filetype) abort dict " {{{2
+    if a:filetype ==# 'markdown'
+        execute 'edit ' .. self.url
+    elseif a:filetype ==# 'html'
+        if filereadable(self.url)
+            execute 'silent !open ' .. shellescape(self.url)
+            redraw
+        else
+            echohl WarningMsg
+            echomsg 'No html file found for this keyword'
+            echohl None
+        endif
+    endif
 endfunction
 
-function! s:ref_link_handler.create_url() abort dict " {{{2
+function! s:ref_link_handler.create_url(filetype) abort dict " {{{2
     let l:url = self.get_text_under_cursor()
     if empty(l:url) | return | endif
 
+    if a:filetype ==# 'html'
+        if match(l:url, '_') == 0
+            let l:url = substitute(l:url, '_', '@', '')
+        endif
+        let l:url = substitute(l:url, '_', ' ', 'g')
+        let l:url = substitute(l:url, '.md$', '.html', '')
+    endif
     let l:url = expand('%:p:h') .. '/' .. l:url
     let self.url = l:url
 endfunction
@@ -222,12 +240,12 @@ let s:keyword_link_handler = {
             \ ],
             \ }
 
-function! s:keyword_link_handler.follow_link(ftype='md') abort dict " {{{2
-    if a:ftype ==# 'md'
+function! s:keyword_link_handler.follow_link(filetype) abort dict " {{{2
+    if a:filetype ==# 'markdown'
         execute 'edit ' .. self.url
-    elseif a:ftype ==# 'html'
+    elseif a:filetype ==# 'html'
         if filereadable(self.url)
-            execute 'silent !open ' .. self.url
+            execute 'silent !open ' .. shellescape(self.url)
             redraw
         else
             echohl WarningMsg
@@ -237,11 +255,11 @@ function! s:keyword_link_handler.follow_link(ftype='md') abort dict " {{{2
     endif
 endfunction
 
-function! s:keyword_link_handler.create_url(ftype='md') abort dict " {{{2
+function! s:keyword_link_handler.create_url(filetype) abort dict " {{{2
     let l:keyword = self.get_text_under_cursor()
     if empty(l:keyword) | return | endif
 
-    if a:ftype ==# 'md'
+    if a:filetype ==# 'markdown'
         let l:url = l:keyword .. '_index.md'
         if match(l:keyword, '\\@') == 0
             let l:url = substitute(l:url, '\\@', '_', '')
@@ -249,7 +267,7 @@ function! s:keyword_link_handler.create_url(ftype='md') abort dict " {{{2
         let l:url = substitute(l:url, ' ', '_', 'g')
         let l:url = $HOME .. '/Documents/Notes/' .. l:url
         let self.url = l:url
-    elseif a:ftype ==# 'html'
+    elseif a:filetype ==# 'html'
         let l:url = l:keyword .. ' index.html'
         if match(l:url, '\\@') == 0
             let l:url = substitute(l:keyword, '\\@', '@', '')
@@ -297,7 +315,7 @@ let s:citation_link_handler = {
             \ 'pattern': '\v^\@[0-9A-Za-z._-]+$',
             \ }
 
-function! s:citation_link_handler.follow_link() abort dict " {{{2
+function! s:citation_link_handler.follow_link(...) abort dict " {{{2
     if filereadable(self.url)
         execute 'silent !open ' .. self.url
         redraw
@@ -308,7 +326,7 @@ function! s:citation_link_handler.follow_link() abort dict " {{{2
     endif
 endfunction
 
-function! s:citation_link_handler.create_url() abort dict " {{{2
+function! s:citation_link_handler.create_url(...) abort dict " {{{2
     let l:biblatex_key = substitute(self.get_text_under_cursor(), '^@', '', '')
     if empty(l:biblatex_key) | return '' | endif
     let l:dirname = substitute(l:biblatex_key, '\.$', '', '')

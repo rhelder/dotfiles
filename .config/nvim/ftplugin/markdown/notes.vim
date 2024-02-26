@@ -2,7 +2,8 @@ if !get(b:, 'notes_enabled', 0) | finish | endif
 
 setlocal completefunc=notes#completefunc
 
-nnoremap <buffer> <CR> <Cmd>call notes#follow_link()<CR>
+nnoremap <buffer> <CR>      <Cmd>call notes#follow_link('markdown')<CR>
+nnoremap <buffer> <C-W><CR> <Cmd>call notes#follow_link('html')<CR>
 nnoremap <buffer> <LocalLeader>nl
             \ <Cmd>call notes#make_bracketed_list_hyphenated()<CR>
 
