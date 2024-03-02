@@ -38,15 +38,7 @@ rfv_default_additional_options=(
 # {{{1 Functions
 
 # Use `autoload` and `alias` functions instead of builtins
-
-integer autoload_zshrc_sourced=0
-if [[ $(whence -w autoload) == 'autoload: function' ]]; then
-    autoload -f autoload
-else
-    autoload autoload
-fi
-
-integer alias_zshrc_sourced=0
+autoload autoload
 autoload -f alias
 
 # Load other user functions
@@ -60,9 +52,15 @@ autoload trash
 
 # Install run-help
 [[ ${"$(whence -w run-help)"##*: } == 'alias' ]] && unalias run-help
-autoload -Uz run-help
-autoload -Uz run-help-git
+autoload -U run-help
+autoload -U run-help-git
 export HELPDIR='/usr/share/zsh/5.9/help'
+
+# Run compinit
+if [[ ! -n $sourced ]]; then
+    autoload -U compinit
+    compinit
+fi
 
 # {{{1 Aliases
 
@@ -196,3 +194,5 @@ declare z="$XDG_CONFIG_HOME/zsh/.zshrc"
 declare zf="$XDG_DATA_HOME/zsh/functions"
 
 # }}}1
+
+integer sourced=1

@@ -1,10 +1,5 @@
 # Before aliasing, check whether or not name is already defined as a command,
 # function, alias, etc. If not, let `alias` act as normal builtin `alias`.
-#
-# To use this function, include the following line in your `.zshrc` before
-# autoloading:
-#
-# declare -gi alias_zshrc_sourced=0
 
 local flags=()
 while getopts 'fgmsrL' flag; do
@@ -30,35 +25,36 @@ if [[ ! $* || $mopt -eq 1 || $force -eq 1 ]]; then
     builtin alias $flags $*
 
 else
-    # If `alias` is being called in `.zshrc` and `alias_zshrc_sourced` is zero
-    # then that means `.zshrc` is being sourced at startup or re-sourced by the
-    # user. To prevent an error being thrown for every alias defined in
-    # `.zshrc` when `.zshrc` is re-sourced, unalias all aliases in `.zshrc`.
-    # Clear the `alias_zshrc_aliases` array so that it can be rebuilt as
-    # `.zshrc` is sourced.
-    if (( alias_zshrc_sourced == 0 )); then
-        if [[ $funcfiletrace[(r)$XDG_CONFIG_HOME/zsh/.zshrc*] ]]; then
-            if [[ $alias_zshrc_aliases ]]; then
-                unalias $alias_zshrc_aliases
-            fi
-            declare -ga alias_zshrc_aliases=()
-            alias_zshrc_sourced=1
-        fi
-    fi
-
     # Check to see if there is another command, function, alias, etc. by the
     # same name before defining the alias
+
+    # Keep track of aliases defined in `.zshrc` so that these aren't flagged as
+    # 'already defined' every time `.zshrc` is re-sourced
+    declare -Uga autoload_zshrc_aliases
+
+    declare zshrc_line_number=$funcfiletrace[(r)$XDG_CONFIG_HOME/zsh/.zshrc*]
+    [[ -n $zshrc_line_number ]] && integer in_zshrc=1
+
     local name
     for arg in $*; do
         name="${arg%%=*}"
+        if [[ -n $autoload_zshrc_aliases[(r)$name] ]]; then
+            integer prev_in_zshrc=1
+        fi
+
         if [[ $(whence $name) ]]; then
-            echo 'alias:' $name 'already defined' >&2
-            return 1
-        else
-            builtin alias $flags $arg
-            if [[ $funcfiletrace[(r)$XDG_CONFIG_HOME/zsh/.zshrc*] ]]; then
-                alias_zshrc_aliases+=( $name )
+            if [[ -n $in_zshrc && ! -n $prev_in_zshrc ]]; then
+                echo 'alias:'${zshrc_line_number}':'\
+                    $name 'already defined' >&2
+                return 1
+            elif [[ ! -n $in_zshrc ]]; then
+                echo 'alias:'${zshrc_line_number}':'\
+                    $name 'already defined' >&2
+                return 1
             fi
         fi
+
+        [[ -n $in_zshrc ]] && autoload_zshrc_aliases+=( $name )
+        builtin alias $flags $arg
     done
 fi

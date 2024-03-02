@@ -1,17 +1,7 @@
 # Before autoloading, check whether or not name is already defined as a
 # command, function, alias, etc. If not, let `autoload` act as normal. Also
-# undefine function before autoloading so that any changes made to the function
-# can be loaded after user sources `.zshrc`.
-#
-# To use this function, put `autoload` in your `FPATH` and include the
-# following lines in your `.zshrc`:
-#
-# declare -gi autoload_zshrc_sourced=0
-# if [[ $(whence -w autoload) == 'autoload: function' ]]; then
-    # autoload -f autoload
-# else
-    # autoload autoload
-# fi
+# `unfunction` before autoloading so that any changes made to the function can
+# be loaded the next time the function is called.
 
 local -a flags=()
 while getopts 'fRTUXdkmrtWz' flag; do
@@ -43,51 +33,52 @@ while getopts 'fRTUXdkmrtWz' flag; do
 done
 shift $(( OPTIND - 1 ))
 
-# If no argument is provided, the `{+|-}m` flag is present (and KSH_AUTOLOAD is
-# not set), or the `-f` flag is present, run the `autoload` builtin like normal
-if [[ ! $1 || ( mopt -eq 1 && ! -o KSH_AUTOLOAD ) ]]; then
+# If no argument is provided, the `{+|-}m` flag is present, or the `-f` flag is
+# present, run the `autoload` builtin like normal
+if [[ ! -n $* || mopt -eq 1 ]]; then
     builtin autoload $flags $*
 
 elif (( force == 1 )); then
-    # If the `-f` flag is present, also undefine the function first, so
-    # that any changes made to a function can be loaded the next time the
-    # function is called after `.zshrc` is re-sourced
-    for name in $*; do
-        [[ $(typeset -f $name) ]] && unfunction $name
-    done
+    # If the `-f` flag is present, also `unfunction` first
+    if typeset -f $* > /dev/null; then
+        unfunction $*
+    fi
     builtin autoload $flags $*
 
 else
-    # If `autoload` is being called in `.zshrc`, and `autoload_zshrc_sourced`
-    # is zero, then that means `.zshrc` is being sourced at startup or
-    # re-sourced by the user. To prevent an error being thrown for every
-    # function autoloaded in `.zshrc` when `.zshrc` is re-sourced, and so that
-    # any changes made to a function can be loaded the next time the function
-    # is called after `.zshrc` is re-sourced, undefine all functions in
-    # `.zshrc`. Clear the `autoload_zshrc_functions` array so that it can be
-    # rebuilt as `.zshrc` is sourced.
-    if (( autoload_zshrc_sourced == 0 )); then
-        if [[ $funcfiletrace[(r)$XDG_CONFIG_HOME/zsh/.zshrc*] ]]; then
-            if [[ $autoload_zshrc_functions ]]; then
-                unfunction $autoload_zshrc_functions
-            fi
-            declare -ga autoload_zshrc_functions=()
-            autoload_zshrc_sourced=1
-        fi
-    fi
-
     # Check to see if there is another command, function, alias, etc. by the
     # same name before autoloading the function
+
+    # Keep track of functions marked for autoloading in `.zshrc` so that these
+    # aren't flagged as 'already defined' every time `.zshrc` is re-sourced
+    declare -Uga autoload_zshrc_functions
+
+    declare zshrc_line_number=$funcfiletrace[(r)$XDG_CONFIG_HOME/zsh/.zshrc*]
+    [[ -n $zshrc_line_number ]] && integer in_zshrc=1
+
     local name
     for name in $*; do
-        if [[ $(whence $name) ]]; then
-            echo 'autoload:' $name 'already defined' >&2
-            return 1
-        else
-            builtin autoload $flags $name
-            if [[ $funcfiletrace[(r)$XDG_CONFIG_HOME/zsh/.zshrc*] ]]; then
-                autoload_zshrc_functions+=( $name )
+        if [[ -n $autoload_zshrc_functions[(r)$name] ]]; then
+            integer prev_in_zshrc=1
+        fi
+
+        if [[ -n $(whence $name) && $name != 'autoload' ]]; then
+            if [[ -n $in_zshrc && ! -n $prev_in_zshrc ]]; then
+                echo 'autoload:'${zshrc_line_number}':'\
+                    $name 'already defined' >&2
+                return 1
+            elif [[ ! -n $in_zshrc ]]; then
+                echo 'autoload:'${zshrc_line_number}':'\
+                    $name 'already defined' >&2
+                return 1
             fi
         fi
+
+        [[ -n $in_zshrc ]] && autoload_zshrc_functions+=( $name )
+
+        if typeset -f $* > /dev/null; then
+            unfunction $*
+        fi
+        builtin autoload $flags $name
     done
 fi
