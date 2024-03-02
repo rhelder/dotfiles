@@ -57,22 +57,13 @@
                 \if@twocolumn
                 \else
                     \ifx \f@size \@xiipt
-                        \RequirePackage[
-                            vmarginratio=9:10,
-                            hmargin=1.55in,
-                        ]{geometry}
+                        \RequirePackage[hmargin=1.55in]{geometry}
                     \else
                         \ifx \f@size \@xipt
-                            \RequirePackage[
-                                vmarginratio=9:10,
-                                hmargin=1.78in,
-                            ]{geometry}
+                            \RequirePackage[hmargin=1.78in]{geometry}
                         \else
                             \ifx \f@size \@xpt
-                                \RequirePackage[
-                                    vmarginratio=9:10,
-                                    hmargin=2in,
-                                ]{geometry}
+                                \RequirePackage[hmargin=2in]{geometry}
                             \fi
                         \fi
                     \fi
