@@ -1,10 +1,9 @@
-# to-do
-# * Consider completion options
-
 # {{{1 Options and settings
 
 setopt extended_glob
 setopt ignore_eof
+setopt menu_complete
+setopt no_list_beep
 setopt rc_expand_param
 setopt rc_quotes
 
@@ -56,10 +55,12 @@ autoload -U run-help
 autoload -U run-help-git
 export HELPDIR='/usr/share/zsh/5.9/help'
 
-# Run compinit
-if [[ ! -n $sourced ]]; then
+# Initialize completion
+if [[ ! -n $zshrc_sourced ]]; then
     autoload -U compinit
     compinit
+    zmodload zsh/complist
+    zstyle ':completion*:default' menu 'select=0'
 fi
 
 # {{{1 Aliases
@@ -195,4 +196,4 @@ declare zf="$XDG_DATA_HOME/zsh/functions"
 
 # }}}1
 
-integer sourced=1
+integer zshrc_sourced=1
