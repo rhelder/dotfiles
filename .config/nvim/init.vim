@@ -57,6 +57,9 @@ nnoremap <Leader>sf <Cmd>source %<CR>
 " Open terminal in vertical split
 nnoremap <Leader>t <Cmd>vsplit<CR><Cmd>terminal<CR>
 
+" Sort case-insensitively
+vnoremap <silent> <Leader>si :sort i<CR>
+
 " Move lines up or down
 nnoremap - ddkP
 nnoremap _ ddp
