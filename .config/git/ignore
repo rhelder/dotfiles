@@ -16,6 +16,7 @@
 
 /.config/nvim/spell/*.spl
 /.config/zsh/.zsh_history
+/.config/zsh/.zcompdump
 
 /.gnupg/*
 !/.gnupg/gpg-agent.conf
