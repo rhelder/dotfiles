@@ -67,7 +67,7 @@ fi
 
 # {{{2 Edit
 alias eas="nvim $HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
-alias ebgt="open $HOME/Documents/Personal/Finance/budget_2023.xlsx"
+alias ebgt="open $HOME/Documents/Personal/Finance/budget_2024.xlsx"
 alias ebib="nvim $HOME/Library/texmf/bibtex/bib/my_library.bib"
 alias ecv="nvim $HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
 alias edf="nvim $XDG_CONFIG_HOME/git/filter-repo/dotfiles"
