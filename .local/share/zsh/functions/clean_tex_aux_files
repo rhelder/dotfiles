@@ -3,7 +3,7 @@ if [[ $options[extended_glob] == 'off' ]]; then
     setopt local_options
 fi
 
-local -a files=( *.^(tex|pdf|sty|bib|vim|txt|md|dtx|latex)(N) )
+local -a files=( *.^(tex|pdf|sty|bib|vim|txt|md|dtx|latex)(.N) )
 if [[ ! -n $files ]]; then
     echo 'clean: no temporary files to clean up' >&2
     return 1
