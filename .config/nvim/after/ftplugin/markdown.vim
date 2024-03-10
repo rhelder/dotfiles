@@ -1,2 +1,2 @@
 let b:default_omnifunc = &omnifunc
-setlocal omnifunc=mdcomplete#omnifunc
+setlocal omnifunc=notes#omnifunc
