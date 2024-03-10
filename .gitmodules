@@ -9,4 +9,4 @@
 [submodule ".local/share/pandoc/templates"]
 	path = .local/share/pandoc/templates
 	url = https://github.com/rhelder/pandoc-templates.git
-        branch = custom
+        branch = main
