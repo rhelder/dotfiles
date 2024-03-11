@@ -149,33 +149,40 @@ let s:completefunc_completers = [
 
 " Links
 
-function! notes#follow_link(filetype) abort " {{{1
+function! notes#follow_link_map(action, filetype, lhs) abort " {{{1
+    if !notes#follow_link(a:action, a:filetype)
+        execute 'normal! ' .. a:lhs
+    endif
+endfunction
+
+function! notes#follow_link(action, filetype) abort " {{{1
     for handler in s:link_handlers
         call handler.create_url(a:filetype)
         if has_key(handler, 'url')
-            call handler.follow_link(a:filetype)
+            call handler.follow_link(a:action)
             unlet handler.url
-            break
+            return 1
         endif
     endfor
+    return 0
 endfunction
 
 " Markdown reference links {{{1
 
 let s:ref_link_handler = {}
 
-function! s:ref_link_handler.follow_link(filetype) abort dict " {{{2
-    if a:filetype ==# 'markdown'
-        execute 'edit ' .. self.url
-    elseif a:filetype ==# 'html'
-        if filereadable(self.url)
-            execute 'silent !open ' .. shellescape(self.url)
-            redraw
+function! s:ref_link_handler.follow_link(action) abort dict " {{{2
+    if filereadable(self.url)
+        if match(a:action, '!')
+            execute a:action .. ' ' .. self.url
         else
-            echohl WarningMsg
-            echomsg 'No html file found for this keyword'
-            echohl None
+            execute 'silent ' a:action .. ' ' .. shellescape(self.url)
+            redraw
         endif
+    else
+        echohl WarningMsg
+        echomsg 'File not found at URL'
+        echohl None
     endif
 endfunction
 
@@ -191,6 +198,7 @@ function! s:ref_link_handler.create_url(filetype) abort dict " {{{2
         let l:url = substitute(l:url, '.md$', '.html', '')
     endif
     let l:url = expand('%:p:h') .. '/' .. l:url
+    let l:url = fnamemodify(l:url, ':.')
     let self.url = l:url
 endfunction
 
@@ -198,32 +206,38 @@ function! s:ref_link_handler.get_text_under_cursor() abort dict " {{{2
     let l:syntax_group = self.in_context()
     if empty(l:syntax_group) | return '' | endif
 
-    let l:cursor_pos = getcurpos()
+    let l:pos = getcurpos()
     let l:unnamed_register = @"
 
-    if l:syntax_group ==# 'markdownLinkTextDelimiter' ||
-                \ l:syntax_group ==# 'markdownLinkText'
+    if l:syntax_group ==# 'markdownLinkTextDelimiter'
         execute "normal! vi[\<Esc>f[vi[\"\"y"
-    elseif l:syntax_group ==# 'markdownIdDelimiter' ||
-                \ l:syntax_group ==# 'markdownId'
+    elseif l:syntax_group ==# 'markdownIdDelimiter'
         normal! vi[""y
     endif
 
     let l:text = @"
 
     let @" = l:unnamed_register
-    call setpos('.', l:cursor_pos)
+    call setpos('.', l:pos)
 
     return l:text
 endfunction
 
 function! s:ref_link_handler.in_context() abort dict " {{{2
-    let l:syntax_group = synIDattr(synID(line('.'), col('.'), 0), 'name')
-    if l:syntax_group ==# 'markdownLinkTextDelimiter' ||
-                \ l:syntax_group ==# 'markdownLinkText' ||
-                \ l:syntax_group ==# 'markdownIdDelimiter' ||
-                \ l:syntax_group ==# 'markdownId'
-        return l:syntax_group
+    let l:pos = getcurpos()
+    if search('\[', 'bcW')
+        normal! %
+        let l:syntax_group = synIDattr(synID(line('.'), col('.'), 0), 'name')
+        if (l:pos[1] < line('.') ||
+                    \ (l:pos[1] == line('.') && l:pos[2] <= col('.'))) &&
+                    \ (l:syntax_group ==# 'markdownIdDelimiter' ||
+                    \ l:syntax_group ==# 'markdownLinkTextDelimiter')
+            call setpos('.', l:pos)
+            return l:syntax_group
+        else
+            call setpos('.', l:pos)
+            return ''
+        endif
     else
         return ''
     endif
@@ -240,18 +254,18 @@ let s:keyword_link_handler = {
             \ ],
             \ }
 
-function! s:keyword_link_handler.follow_link(filetype) abort dict " {{{2
-    if a:filetype ==# 'markdown'
-        execute 'edit ' .. self.url
-    elseif a:filetype ==# 'html'
-        if filereadable(self.url)
-            execute 'silent !open ' .. shellescape(self.url)
-            redraw
+function! s:keyword_link_handler.follow_link(action) abort dict " {{{2
+    if filereadable(self.url)
+        if match(a:action, '!')
+            execute a:action .. ' ' .. self.url
         else
-            echohl WarningMsg
-            echomsg 'No html file found for this keyword'
-            echohl None
+            execute 'silent ' a:action .. ' ' .. shellescape(self.url)
+            redraw
         endif
+    else
+        echohl WarningMsg
+        echomsg 'File not found at URL'
+        echohl None
     endif
 endfunction
 
@@ -265,16 +279,16 @@ function! s:keyword_link_handler.create_url(filetype) abort dict " {{{2
             let l:url = substitute(l:url, '\\@', '_', '')
         endif
         let l:url = substitute(l:url, ' ', '_', 'g')
-        let l:url = $HOME .. '/Documents/Notes/' .. l:url
-        let self.url = l:url
     elseif a:filetype ==# 'html'
         let l:url = l:keyword .. ' index.html'
         if match(l:url, '\\@') == 0
             let l:url = substitute(l:keyword, '\\@', '@', '')
         endif
-        let l:url = $HOME .. '/Documents/Notes/' .. l:url
-        let self.url = l:url
     endif
+
+    let l:url = expand('%:p:h') .. '/' .. l:url
+    let l:url = fnamemodify(l:url, ':.')
+    let self.url = l:url
 endfunction
 
 function! s:keyword_link_handler.get_text_under_cursor() abort dict " {{{2
