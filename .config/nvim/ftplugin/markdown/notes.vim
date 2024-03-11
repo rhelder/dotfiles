@@ -2,8 +2,21 @@ if !get(b:, 'notes_enabled', 0) | finish | endif
 
 setlocal completefunc=notes#completefunc
 
-nnoremap <buffer> <CR>      <Cmd>call notes#follow_link('markdown')<CR>
-nnoremap <buffer> <C-W><CR> <Cmd>call notes#follow_link('html')<CR>
+nnoremap <buffer> <CR>
+            \ <Cmd>call notes#follow_link_map(
+            \   'edit', 'markdown', "\<lt>CR>")<CR>
+nnoremap <buffer> <C-W><C-V>
+            \ <Cmd>call notes#follow_link_map(
+            \   'vsplit', 'markdown', "\<lt>C-W>\<lt>C-V>")<CR>
+nnoremap <buffer> <C-W>v
+            \ <Cmd>call notes#follow_link_map(
+            \   'vsplit', 'markdown', "\<lt>C-W>v")<CR>
+nnoremap <buffer> <C-W><C-O>
+            \ <Cmd>call notes#follow_link_map(
+            \   '!open', 'html', "\<lt>C-W>\<lt>C-O>")<CR>
+nnoremap <buffer> <C-W>o
+            \ <Cmd>call notes#follow_link_map(
+            \   '!open', 'html', "\<lt>C-W>o")<CR>
 nnoremap <buffer> <LocalLeader>nl
             \ <Cmd>call notes#make_bracketed_list_hyphenated()<CR>
 
