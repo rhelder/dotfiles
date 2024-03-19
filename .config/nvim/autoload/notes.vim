@@ -498,6 +498,39 @@ endfunction
 
 " Notes only
 
+function! notes#index_word_count() abort " {{{1
+    let l:modified = getbufvar('%', 'modified', 0)
+    let l:curpos = getcurpos()
+
+    silent %sort u
+    silent %g/^[^*].*$/delete
+    silent %g/^$/delete
+    nohlsearch
+
+    let l:word_count = 0
+    for line in range(1, line('$'))
+        let l:pos = col('$') - 2
+        call setpos('.', [0, line, l:pos, 0])
+        let l:word_count += str2nr(system(['wc', '-w'],
+                    \ system(['pandoc', '-t', 'plain', expand('<cfile>')])))
+    endfor
+
+    silent undo
+    call setpos('.', l:curpos)
+    if !l:modified
+        augroup index_word_count
+            autocmd!
+            autocmd BufModifiedSet <buffer> ++once
+                        \ call setbufvar(expand('<afile>'), 'modified', 0)
+            autocmd BufModifiedSet <buffer> ++once
+                        \ autocmd BufModifiedSet <buffer> ++once
+                        \   call setbufvar(expand('<afile>'), 'modified', 1)
+        augroup END
+    endif
+
+    echomsg l:word_count
+endfunction
+
 function! notes#make_bracketed_list_hyphenated() abort " {{{1
     let l:unnamed_register = @"
     normal! ""di[
