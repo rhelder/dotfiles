@@ -313,7 +313,7 @@ call plug#begin()
     Plug 'roxma/nvim-yarp'
     Plug 'jamessan/vim-gnupg'
     Plug 'junegunn/vim-plug'
-    Plug 'machakann/vim-sandwich'
+    " Plug 'machakann/vim-sandwich'
     Plug 'lervag/vimtex'
 call plug#end()
 
@@ -323,6 +323,20 @@ let g:vimtex_compiler_latexmk_engines = {'_' : '-xelatex'}
 let g:vimtex_complete_close_braces = 1
 let g:vimtex_view_method = 'skim'
 let g:vimtex_view_skim_reading_bar = 1
+
+" Filter undesidered errors and warnings {{{2
+let g:vimtex_quickfix_ignore_filters = []
+
+nnoremap <LocalLeader>lf
+            \ <Cmd>call <SID>toggle_vimtex_quickfix_ignore_filters()<CR>
+
+function! s:toggle_vimtex_quickfix_ignore_filters() abort
+    if !empty('g:vimtex_quickfix_ignore_filters')
+        let g:vimtex_quickfix_ignore_filters = ['Overfull \\hbox']
+    else
+        let g:vimtex_quickfix_ignore_filters = []
+    endif
+endfunction
 
 " Indent after [ and ], not just { and } {{{2
 let g:vimtex_indent_delims = {
