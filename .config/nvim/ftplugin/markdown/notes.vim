@@ -21,15 +21,15 @@ nnoremap <buffer> <LocalLeader>nl
             \ <Cmd>call notes#make_bracketed_list_hyphenated()<CR>
 
 augroup notes
-    " Run MdviewConvert and build-index when exiting a note, if it has been
+    " Set flag so that notes#exit_note is only called if the buffer has been
     " modified
-    autocmd BufWinLeave <buffer> call notes#exit_note()
     autocmd BufModifiedSet <buffer> ++once
                 \ call setbufvar(expand('<afile>'), 'modified', 1)
-
-    " Set flag so that s:run_build_index can force 'hit enter' prompt before
-    " quitting
+    " Set flag so that, when exiting, notes#exit_note is only called at
+    " VimLeavePre, not also at BufWinLeave
     autocmd ExitPre <buffer> call setbufvar(expand('<afile>'), 'exiting', 1)
+    autocmd BufWinLeave <buffer> call notes#exit_note('BufWinLeave')
+    autocmd VimLeavePre <buffer> call notes#exit_note('VimLeavePre')
 augroup END
 
 " mdView configuration {{{1
