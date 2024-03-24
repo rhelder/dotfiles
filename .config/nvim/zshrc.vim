@@ -38,10 +38,14 @@ nnoremap <Leader>epr <Cmd>vs
             \ $XDG_CONFIG_HOME/zsh/.zprofile<CR>
 nnoremap <Leader>erfv <Cmd>vs
             \ $XDG_DATA_HOME/nvim/site/plugin/rfv.vim<CR>
-nnoremap <Leader>es <Cmd>vs
+nnoremap <Leader>erh <Cmd>vs
             \ $HOME/Library/texmf/tex/latex/rhelder/rhelder.sty<CR>
+nnoremap <Leader>esa <Cmd>vs
+            \ $XDG_CONFIG_HOME/nvim/autoload/shell.vim<CR>
 nnoremap <Leader>etd <Cmd>vs
             \ $HOME/Library/texmf/texdoc/texdoc.cnf<CR>
+nnoremap <Leader>etf <Cmd>vs
+            \ $XDG_CONFIG_HOME/nvim/ftplugin/tex.vim<CR>
 nnoremap <Leader>ev <Cmd>vs
             \ $XDG_CONFIG_HOME/nvim/init.vim<CR>
 nnoremap <Leader>ewld <Cmd>vs
@@ -92,7 +96,7 @@ let gi = "$XDG_CONFIG_HOME/git/ignore"
 let lmk = "$XDG_CONFIG_HOME/latexmk/latexmkrc"
 let mva = "$XDG_DATA_HOME/nvim/site/autoload/mdview.vim"
 let mvd = "$XDG_DATA_HOME/nvim/site/doc/mdview.txt"
-let mvp = "$XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdview.vim"
+let mvf = "$XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdview.vim"
 let mvz = "$XDG_DATA_HOME/nvim/site/after/ftplugin/markdown/mdview.vim"
 let mz = "$XDG_CONFIG_HOME/nvim/after/ftplugin/markdown.vim"
 let na = "$XDG_CONFIG_HOME/nvim/autoload/notes.vim"
@@ -105,8 +109,10 @@ let pdd = "$XDG_DATA_HOME/pandoc/defaults"
 let pdt = "$XDG_DATA_HOME/pandoc/templates"
 let pr = "$XDG_CONFIG_HOME/zsh/.zprofile"
 let rfv = "$XDG_DATA_HOME/nvim/site/plugin/rfv.vim"
-let s = "$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
+let rh = "$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
+let sa = "$XDG_CONFIG_HOME/nvim/autoload/shell.vim"
 let td = "$HOME/Library/texmf/texdoc/texdoc.cnf"
+let tf = "$XDG_CONFIG_HOME/nvim/ftplugin/tex.vim"
 let ucb = "$HOME/Documents/Past/2019-2024_UCBerkeley"
 let v = "$XDG_CONFIG_HOME/nvim/init.vim"
 let vmc = "$XDG_CONFIG_HOME/nvim/vimtex_my_complete"
