@@ -544,54 +544,46 @@ function! notes#make_bracketed_list_hyphenated() abort " {{{1
     let @" = l:unnamed_register
 endfunction
 
-function! notes#exit_note() abort " {{{1
+function! notes#exit_note(event) abort " {{{1
     " Use <afile> instead of %, and getbufvar with <afile> and 'modified'
     " instead of b:modified, because the latter will be wrong in some cases
     " when executing a BufWinleave autocommand (e.g., as when exiting Vim with
     " multiple windows open)
     if !filereadable(expand('<afile>')) ||
-                \ !getbufvar(expand('<afile>'), 'modified', 0)
+                \ !getbufvar(expand('<afile>'), 'modified', 0) ||
+                \ (getbufvar(expand('<afile>'), 'exiting', 0) &&
+                \   a:event ==# 'BufWinLeave')
         return
     endif
 
-    try
-        echo 'Running MdviewConvert...'
-        execute mdview#convert_to_html()
-
-    catch /^Vim(echoerr):/
-        echohl ErrorMsg
-        for line in split(v:errmsg, '\n')
-            echomsg line
-        endfor
+    echo 'Running MdviewConvert...'
+    redraw
+    if mdview#convert_to_html(v:false)
         echohl Type
-        call input("\nPress ENTER or type command to continue")
-
-    finally
+        call input('Press ENTER or type command to continue')
         echohl None
         redraw
-    endtry
+    endif
 
-    try
-        execute s:run_build_index()
-    catch /^Vim(echoerr):/
-        echohl ErrorMsg
-        for line in split(v:errmsg, '\n')
-            echomsg line
-        endfor
-        echohl None
-        if exists('b:exiting')
+    echo 'Running build-index...'
+    redraw
+    if a:event == 'BufWinLeave'
+        call shell#jobstart(['build-index'], s:build_index_background_opts)
+    else
+        if shell#jobstart(['build-index'], s:build_index_exiting_opts)
             echohl Type
-            call input("\nPress ENTER or type command to continue")
+            call input('Press ENTER or type command to continue')
             echohl None
         endif
-    catch /build-index(stderr)/
-        if exists('b:exiting')
-            echohl Type
-            call input("\nPress ENTER or type command to continue")
-            echohl None
-        endif
-    endtry
+    endif
 endfunction
+
+let s:build_index_background_opts = {
+            \ 'detach': v:true,
+            \ }
+let s:build_index_exiting_opts = {
+            \ 'sync': {'events': ['stderr']}
+            \ }
 
 function! s:run_build_index() abort " {{{2
     echo 'Running build-index...'
