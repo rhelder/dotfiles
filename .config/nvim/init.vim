@@ -69,7 +69,7 @@ nnoremap \          <Cmd>vert help<CR>:help
 nnoremap <Leader>h  :help 
 
 " Display
-nnoremap <Leader><Esc> <Cmd>noh<CR>
+nnoremap <expr> <Esc> v:hlsearch ? "<Cmd>noh<CR>" : "<Esc>"
 nnoremap <expr> <Leader>w
             \ &colorcolumn ==# ''
             \     ? "<Cmd>setlocal colorcolumn=+1<CR>"
@@ -254,12 +254,10 @@ augroup nvimrc_filetype_defaults " {{{2
     autocmd!
     autocmd FileType markdown           setlocal formatoptions-=l
     autocmd FileType csv                setlocal formatoptions-=tc
-    autocmd FileType tex                setlocal formatoptions-=t
-    autocmd FileType tex                setlocal formatoptions+=orl
     autocmd FileType text,markdown      setlocal nonumber textwidth=78
-    autocmd FileType text,markdown,tex  setlocal linebreak
+    autocmd FileType text,markdown      setlocal linebreak
     autocmd BufWinEnter COMMIT_EDITMSG  setlocal nosmartindent textwidth=72
-    autocmd FileType text,markdown,tex  setlocal nosmartindent
+    autocmd FileType text,markdown      setlocal nosmartindent
 augroup END
 
 augroup nvimrc_key_mappings " {{{2
@@ -313,94 +311,14 @@ call plug#begin()
     Plug 'roxma/nvim-yarp'
     Plug 'jamessan/vim-gnupg'
     Plug 'junegunn/vim-plug'
-    " Plug 'machakann/vim-sandwich'
+    Plug 'machakann/vim-sandwich'
     Plug 'lervag/vimtex'
 call plug#end()
 
-" VimTeX configuration {{{1
+" Use vim-surround key mappings for vim-sandwich
+runtime macros/sandwich/keymap/surround.vim
 
-let g:vimtex_compiler_latexmk_engines = {'_' : '-xelatex'}
-let g:vimtex_complete_close_braces = 1
-let g:vimtex_view_method = 'skim'
-let g:vimtex_view_skim_reading_bar = 1
-
-" Filter undesidered errors and warnings {{{2
-let g:vimtex_quickfix_ignore_filters = []
-
-nnoremap <LocalLeader>lf
-            \ <Cmd>call <SID>toggle_vimtex_quickfix_ignore_filters()<CR>
-
-function! s:toggle_vimtex_quickfix_ignore_filters() abort
-    if !empty('g:vimtex_quickfix_ignore_filters')
-        let g:vimtex_quickfix_ignore_filters = ['Overfull \\hbox']
-    else
-        let g:vimtex_quickfix_ignore_filters = []
-    endif
-endfunction
-
-" Indent after [ and ], not just { and } {{{2
-let g:vimtex_indent_delims = {
-            \ 'open' : ['{','['],
-            \ 'close' : ['}',']'],
-            \ 'close_indented' : 0,
-            \ 'include_modified_math' : 1,
-            \ }
-
-" Do not indent after ifbool {{{2
-let g:vimtex_indent_conditionals = {
-            \ 'open': '\v%(\\newif)@<!'
-            \     .. '\\if%(f>|field|name|numequal|thenelse|toggle|bool)@!',
-            \ 'else': '\\else\>',
-            \ 'close': '\\fi\>',
-            \ }
-
-" Indent custom list environments like default list environments {{{2
-let g:vimtex_indent_lists = [
-            \ 'itemize',
-            \ 'description',
-            \ 'enumerate',
-            \ 'thebibliography',
-            \ 'outline',
-            \ 'education',
-            \ 'research',
-            \ 'papers',
-            \ 'talks',
-            \ 'awards',
-            \ 'service',
-            \ ]
-
-" Make Vim regain focus after inverse search {{{2
-" (from https://www.ejmastnak.com/tutorials/vim-latex/pdf-reader/
-" #refocus-vim-after-forward-search)
-augroup nvimrc_vimtex
-    autocmd!
-    autocmd User VimtexEventViewReverse call s:nvim_regain_focus()
-augroup END
-
-function! s:nvim_regain_focus() abort
-    silent execute "!open -a Terminal"
-    redraw
-endfunction
-
-" ncm2 configuration {{{2
-augroup nvimrc_vimtex_ncm2
-    autocmd FileType tex call ncm2#enable_for_buffer()
-    autocmd FileType tex call ncm2#register_source({
-                \ 'name': 'vimtex',
-                \ 'priority': 8,
-                \ 'scope': ['tex'],
-                \ 'mark': 'tex',
-                \ 'word_pattern': '\w+',
-                \ 'complete_pattern': g:vimtex#re#ncm2,
-                \ 'on_complete': ['ncm2#on_complete#omni',
-                \     'vimtex#complete#omnifunc'],
-                \ })
-augroup END
-"}}}2
-
-" vim-gnupg configuration {{{1
-
-let g:GPGExecutable = "PINENTRY_USER_DATA='' gpg --trust-model always"
+let g:GPGExecutable = 'PINENTRY_USER_DATA="" gpg --trust-model=always'
 
 " }}}1
 
