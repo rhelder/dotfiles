@@ -2,7 +2,7 @@
 
 cd $HOME/Documents/Notes || exit 1
 
-fd '[A-Za-z_].*\.md' | sort --ignore-case |
+fd '\d+\.md' | sort --ignore-case --reverse |
     fzf --multi \
         --preview='bat --color=always {}' \
         --preview-window='~3,+3/2' \

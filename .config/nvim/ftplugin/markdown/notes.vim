@@ -17,8 +17,10 @@ nnoremap <buffer> <C-W><C-O>
 nnoremap <buffer> <C-W>o
             \ <Cmd>call notes#follow_link_map(
             \   '!open', 'html', "\<lt>C-W>o")<CR>
-nnoremap <buffer> <LocalLeader>nl
+nnoremap <buffer> <LocalLeader>nh
             \ <Cmd>call notes#make_bracketed_list_hyphenated()<CR>
+nnoremap <buffer> <LocalLeader>nl
+            \ <Cmd>call fzf#run(fzf#wrap(notes#browse_links(0), 0))<CR>
 
 augroup notes
     " Set flag so that notes#exit_note is only called if the buffer has been

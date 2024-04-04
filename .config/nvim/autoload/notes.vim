@@ -449,54 +449,130 @@ function! notes#search_notes() abort " {{{1
     Rfv [[:digit:]]*.md
 endfunction
 
-function! notes#browse_index() abort " {{{1
+function! notes#browse_index(bang) abort " {{{1
+    call fzf#toggle_vim_global_display_opts(a:bang)
+    augroup browse_index
+        autocmd!
+        autocmd FileType fzf setlocal statusline=%y\ Index\ files
+    augroup END
+
     let l:browse_index_spec = {
                 \ 'dir': "$HOME/Documents/Notes",
-                \ 'source': 'fd "[A-z].*\.md"',
+                \ 'source': 'fd "[A-Za-z_].*\.md" | sort --ignore-case',
                 \ 'left': '50',
-                \ 'options': s:fzf_expect(),
-                \ 'sinklist': function('s:browse_index_open_result'),
+                \ 'options': ['--multi'] + fzf#opts_expect(s:fzf_action),
+                \ 'sinklist': function('s:fzf_open_files'),
                 \ }
 
     return l:browse_index_spec
 endfunction
 
-function! s:fzf_expect() abort " {{{2
-    let l:options = []
-
-    for key in keys(s:browse_index_action)
-        let l:option = '--expect=' .. key
-        call add(l:options, l:option)
-    endfor
-
-    return l:options
+function! s:fzf_open_files(lines) abort
+    call fzf#open_files(a:lines, s:fzf_action)
 endfunction
 
-let s:browse_index_action = {
+function! notes#browse_notes(bang) abort " {{{1
+    call fzf#toggle_vim_global_display_opts(a:bang)
+
+    let l:fzf_options = fzf#opts_expect(s:fzf_action) + [
+                \ '--ansi',
+                \ '--multi',
+                \ '--preview=bat --color=always {}',
+                \ '--preview-window=~3,+3/2',
+                \ ]
+
+    let l:browse_notes_spec = {
+                \ 'dir': "$HOME/Documents/Notes",
+                \ 'source': 'fd "\d+\.md" | sort --ignore-case --reverse',
+                \ 'options': l:fzf_options,
+                \ 'sinklist': function('s:fzf_open_files'),
+                \ }
+
+    return l:browse_notes_spec
+endfunction
+
+" }}}1
+
+let s:fzf_action = {
             \ 'ctrl-v': 'vertical split',
             \ 'ctrl-x': 'split',
             \ 'ctrl-o': 'silent !md-open',
             \ }
 
-function! s:browse_index_open_result(lines) abort " {{{2
-    if len(a:lines) < 2
-        return
-    endif
+" Notes only
 
-    let l:key = a:lines[0]
-    let l:result = a:lines[1]
+function! notes#browse_links(bang) abort " {{{1
+    call fzf#toggle_vim_global_display_opts(a:bang)
 
-    if type(get(s:browse_index_action, l:key, 'edit')) == v:t_func
-        call s:browse_index_action[l:key](l:result)
+    let l:file_text = join(getline(1, '$'))
+    let l:links = []
+    let l:start = 0
+    while v:true
+        let l:strpos = matchstrpos(l:file_text,
+                    \ '\v\[[^][]*\]\[[^][]+\]', l:start)
+        let l:link = matchlist(l:strpos[0], '\v\[([^][]*)\]\[([^][]+)\]')
+        if !empty(l:link)
+            call add(l:links, ['[38;5;121m' .. link[2],
+                        \ '[4;38;5;81m' .. link[1] .. '[0m'])
+            let l:start = l:strpos[2]
+        else
+            break
+        endif
+    endwhile
+
+    call uniq(sort(l:links, function('s:fzf_sort_links')))
+    call map(l:links, 'join(reverse(v:val), ":")')
+
+    let l:fzf_options = fzf#opts_expect(s:fzf_action) + [
+                \ '--ansi',
+                \ '--multi',
+                \ '--delimiter=:',
+                \ '--preview=bat --color=always {-1}',
+                \ '--preview-window=~3,+3/2',
+                \ ]
+
+    let l:browse_links_spec = {
+                \ 'dir': "$HOME/Documents/Notes",
+                \ 'source': l:links,
+                \ 'options': l:fzf_options,
+                \ 'sinklist': function('s:fzf_open_links'),
+                \ }
+
+    return l:browse_links_spec
+endfunction
+
+function! s:fzf_sort_links(first, second) abort " {{{2
+    let l:start = 11
+    if a:first ==? a:second
+        return 0
+    elseif a:first[0][l:start] =~ '\D' && a:second[0][l:start] =~ '\d'
+        return 1
+    elseif a:first[0][l:start] =~ '\d' && a:second[0][l:start] =~ '\D'
+        return -1
     else
-        execute get(s:browse_index_action, l:key, 'edit') l:result
+        let l:status = 0
+        while l:status == 0
+            let l:status = char2nr(tolower(a:second[0][l:start])) -
+                        \ char2nr(tolower(a:first[0][l:start]))
+            let l:start +=1
+        endwhile
+        return l:status
     endif
 endfunction
+
+function! s:fzf_open_links(lines) abort " {{{2
+    call fzf#open_files(a:lines, s:fzf_action, function('s:fzf_get_urls'))
+endfunction
+
+function! s:fzf_get_urls(links) abort " {{{3
+    let l:urls = []
+    for link in a:links
+        call add(l:urls, substitute(link, '\v.*:([^:])', '\1', ''))
+    endfor
+    return l:urls
+endfunction
+" }}}3
 " }}}2
-
-" }}}1
-
-" Notes only
 
 function! notes#index_word_count() abort " {{{1
     let l:modified = getbufvar('%', 'modified', 0)
@@ -565,6 +641,7 @@ function! notes#exit_note(event) abort " {{{1
         redraw
     endif
 
+    redraw
     echo 'Running build-index...'
     redraw
     if a:event == 'BufWinLeave'
@@ -584,28 +661,6 @@ let s:build_index_background_opts = {
 let s:build_index_exiting_opts = {
             \ 'sync': {'events': ['stderr']}
             \ }
-
-function! s:run_build_index() abort " {{{2
-    echo 'Running build-index...'
-
-    let l:filtered_stderr = system('build-index')
-    if len(l:filtered_stderr) > 0
-        let l:stderr = split(l:filtered_stderr, '\n')
-        if v:shell_error == 0
-            return 'echohl WarningMsg | for line in ' .. string(l:stderr) ..
-                        \ ' | echomsg line | endfor | echohl None | ' ..
-                        \ 'throw "build-index(stderr)"'
-        else
-            return 'let v:errmsg = join(' .. string(l:stderr) .. ', "\n") | ' ..
-                        \ 'for line in ' .. string(l:stderr) ..
-                        \ ' | echoerr line | endfor'
-        endif
-    else
-        return ''
-    endif
-    return ''
-endfunction
-" }}}2
 
 function! notes#insert_link(file) abort " {{{1
     execute 'normal! a[' .. a:file .. "]\<Esc>"

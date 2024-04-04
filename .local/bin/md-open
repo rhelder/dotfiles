@@ -3,20 +3,20 @@
 # Opens html file corresponding to Markdown file, if one exists, following the
 # naming convention that I use for my notes
 
-declare file=$*
+for file in $*; do
+    if [[ ! -f $file ]]; then
+        echo 'md-open:' $file 'not found'
+    fi
 
-if [[ ! -f $file ]]; then
-    echo 'md-open:' "$*" 'not found'
-fi
+    if [[ $file[1] == '_' ]]; then
+        file=${file/_/@}
+    fi
+    file=${file//_/ }
+    file="${file%.md}.html"
 
-if [[ $file[1] == '_' ]]; then
-    file=${file/_/@}
-fi
-file=${file//_/ }
-file="${file%.md}.html"
+    if [[ ! -f $file ]]; then
+        echo 'md-open:' $file 'not found'
+    fi
 
-if [[ ! -f $file ]]; then
-    echo 'md-open:' "$file" 'not found'
-fi
-
-open $file
+    open $file
+done
