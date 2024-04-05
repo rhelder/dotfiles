@@ -625,29 +625,39 @@ function! notes#exit_note(event) abort " {{{1
     " instead of b:modified, because the latter will be wrong in some cases
     " when executing a BufWinleave autocommand (e.g., as when exiting Vim with
     " multiple windows open)
-    if !filereadable(expand('<afile>')) ||
-                \ !getbufvar(expand('<afile>'), 'modified', 0) ||
-                \ (getbufvar(expand('<afile>'), 'exiting', 0) &&
-                \   a:event ==# 'BufWinLeave')
+    if a:event ==# 'BufWinLeave'
+        if !filereadable(expand('<afile>')) ||
+                    \ !getbufvar(expand('<afile>'), 'modified', 0)
+            return
+        endif
+
+        if !getbufvar(expand('<afile>'), 'exiting', 0)
+            execute 'autocmd BufEnter * ++once let b:mdview.input = ' ..
+                        \ string(expand('<afile>'))
+            autocmd BufEnter * ++once call notes#exit_note('BufEnter')
+        else
+            autocmd VimLeavePre <buffer> call notes#exit_note('VimLeavePre')
+        endif
+
         return
     endif
 
-    echo 'Running MdviewConvert...'
-    redraw
-    if mdview#convert_to_html(v:false)
-        echohl Type
-        call input('Press ENTER or type command to continue')
-        echohl None
-        redraw
+    if mdview#convert_to_html(0)
+        let l:mdview_convert_to_html = 1
+    else
+        let l:mdview_convert_to_html = 0
     endif
 
-    redraw
-    echo 'Running build-index...'
-    redraw
-    if a:event == 'BufWinLeave'
+    if a:event ==# 'BufEnter'
         call shell#jobstart(['build-index'], s:build_index_background_opts)
-    else
-        if shell#jobstart(['build-index'], s:build_index_exiting_opts)
+
+        echomsg b:mdview.input
+        unlet b:mdview.input
+
+    elseif a:event ==# 'VimLeavePre'
+        if shell#jobstart(['build-index'], s:build_index_exiting_opts) ||
+                    \ l:mdview_convert_to_html == 1
+
             echohl Type
             call input('Press ENTER or type command to continue')
             echohl None
@@ -658,6 +668,7 @@ endfunction
 let s:build_index_background_opts = {
             \ 'detach': v:true,
             \ }
+
 let s:build_index_exiting_opts = {
             \ 'sync': {'events': ['stderr']}
             \ }

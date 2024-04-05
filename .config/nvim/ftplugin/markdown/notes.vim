@@ -31,7 +31,6 @@ augroup notes
     " VimLeavePre, not also at BufWinLeave
     autocmd ExitPre <buffer> call setbufvar(expand('<afile>'), 'exiting', 1)
     autocmd BufWinLeave <buffer> call notes#exit_note('BufWinLeave')
-    autocmd VimLeavePre <buffer> call notes#exit_note('VimLeavePre')
 augroup END
 
 " mdView configuration {{{1
