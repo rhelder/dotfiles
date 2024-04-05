@@ -6,6 +6,7 @@ setopt menu_complete
 setopt no_list_beep
 setopt rc_expand_param
 setopt rc_quotes
+setopt share_history
 
 # History
 HISTSIZE=1200000
@@ -71,6 +72,7 @@ alias ebgt="open $HOME/Documents/Personal/Finance/budget_2024.xlsx"
 alias ebib="nvim $HOME/Library/texmf/bibtex/bib/my_library.bib"
 alias ecv="nvim $HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
 alias edf="nvim $XDG_CONFIG_HOME/git/filter-repo/dotfiles"
+alias efa="nvim $XDG_CONFIG_HOME/nvim/autoload/fzf.vim"
 alias efzf="nvim $XDG_CONFIG_HOME/fzf/fzf.zsh"
 alias egc="nvim $XDG_CONFIG_HOME/git/config"
 alias egi="nvim $XDG_CONFIG_HOME/git/ignore"
@@ -139,7 +141,7 @@ alias la='ls -aF'
 alias lua='luajit'
 alias m='man'
 alias mz='man_zsh'
-alias ne='edit-recent-note'
+alias nb='browse-notes'
 alias ni='browse-index'
 alias nj='new-journal'
 alias nn='new-note'
@@ -163,6 +165,7 @@ declare cv="$HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
 declare df="$XDG_CONFIG_HOME/git/filter-repo/dotfiles"
 declare doc="$HOME/Documents"
 declare docg="$HOME/Documents/Git"
+declare fa="$XDG_CONFIG_HOME/nvim/autoload/fzf.vim"
 declare fzf="$XDG_CONFIG_HOME/fzf/fzf.zsh"
 declare gc="$XDG_CONFIG_HOME/git/config"
 declare gi="$XDG_CONFIG_HOME/git/ignore"

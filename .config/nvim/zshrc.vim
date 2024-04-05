@@ -8,6 +8,8 @@ nnoremap <Leader>ecv <Cmd>vs
             \ $HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls<CR>
 nnoremap <Leader>edf <Cmd>vs
             \ $XDG_CONFIG_HOME/git/filter-repo/dotfiles<CR>
+nnoremap <Leader>efa <Cmd>vs
+            \ $XDG_CONFIG_HOME/nvim/autoload/fzf.vim<CR>
 nnoremap <Leader>efzf <Cmd>vs
             \ $XDG_CONFIG_HOME/fzf/fzf.zsh<CR>
 nnoremap <Leader>egc <Cmd>vs
@@ -90,6 +92,7 @@ let cv = "$HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
 let df = "$XDG_CONFIG_HOME/git/filter-repo/dotfiles"
 let doc = "$HOME/Documents"
 let docg = "$HOME/Documents/Git"
+let fa = "$XDG_CONFIG_HOME/nvim/autoload/fzf.vim"
 let fzf = "$XDG_CONFIG_HOME/fzf/fzf.zsh"
 let gc = "$XDG_CONFIG_HOME/git/config"
 let gi = "$XDG_CONFIG_HOME/git/ignore"
