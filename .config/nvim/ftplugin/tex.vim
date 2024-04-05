@@ -47,21 +47,11 @@ let g:vimtex_complete_close_braces = 1
 let g:vimtex_view_method = 'skim'
 let g:vimtex_view_skim_reading_bar = 1
 
-" Filter undesidered errors and warnings {{{2
-let g:vimtex_quickfix_ignore_filters = []
+let g:vimtex_complete_bib = {
+            \ 'simple': 1,
+            \ 'custom_patterns': ['sectioncite'],
+            \ }
 
-nnoremap <LocalLeader>lf
-            \ <Cmd>call <SID>toggle_vimtex_quickfix_ignore_filters()<CR>
-
-function! s:toggle_vimtex_quickfix_ignore_filters() abort
-    if empty(g:vimtex_quickfix_ignore_filters)
-        let g:vimtex_quickfix_ignore_filters = ['Overfull \\hbox']
-    else
-        let g:vimtex_quickfix_ignore_filters = []
-    endif
-endfunction
-
-" Indent after [ and ], not just { and } {{{2
 let g:vimtex_indent_delims = {
             \ 'open' : ['{','['],
             \ 'close' : ['}',']'],
@@ -69,7 +59,6 @@ let g:vimtex_indent_delims = {
             \ 'include_modified_math' : 1,
             \ }
 
-" Do not indent after ifbool {{{2
 let g:vimtex_indent_conditionals = {
             \ 'open': '\v%(\\newif)@<!'
             \     .. '\\if%(f>|field|name|numequal|thenelse|toggle|bool)@!',
@@ -77,7 +66,6 @@ let g:vimtex_indent_conditionals = {
             \ 'close': '\\fi\>',
             \ }
 
-" Indent custom list environments like default list environments {{{2
 let g:vimtex_indent_lists = [
             \ 'itemize',
             \ 'description',
@@ -91,6 +79,20 @@ let g:vimtex_indent_lists = [
             \ 'awards',
             \ 'service',
             \ ]
+
+" Filter undesidered errors and warnings {{{2
+let g:vimtex_quickfix_ignore_filters = []
+
+nnoremap <LocalLeader>lf
+            \ <Cmd>call <SID>toggle_vimtex_quickfix_ignore_filters()<CR>
+
+function! s:toggle_vimtex_quickfix_ignore_filters() abort
+    if empty(g:vimtex_quickfix_ignore_filters)
+        let g:vimtex_quickfix_ignore_filters = ['Overfull \\hbox']
+    else
+        let g:vimtex_quickfix_ignore_filters = []
+    endif
+endfunction
 
 " Make Vim regain focus after inverse search {{{2
 " (from https://www.ejmastnak.com/tutorials/vim-latex/pdf-reader/
