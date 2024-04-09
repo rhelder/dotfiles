@@ -441,6 +441,8 @@ cd $HOME/Documents/Notes || exit 1
 
 # Cache keywords and titles {{{2
 
+echo 'Parsing notes files...'
+
 declare -A blocks
 declare -A keywords
 declare -A titles
@@ -456,6 +458,9 @@ for file in *.md; do
 done
 
 # Write metadata block to file {{{2
+
+echo 'Building index files...'
+
 declare keyword
 for keyword in $all_keywords; do
     declare index_file=${keyword// /_}_index.md
@@ -586,11 +591,23 @@ sort --ignore-case index_tmp.txt > index.txt
 rm index_tmp.txt
 
 # Also convert index files to html {{{2
+
+convert_to_html() {
+    echo 'Converting' $1 'to html...'
+    pandoc --defaults=notes --output=$2 $1
+    echo 'Converted' $1 'to html.'
+}
+
+[[ -n $input_files ]] && echo 'Converting index files to html in background...'
+
 for input_file output_file in ${input_files:^output_files}; do
-    pandoc -d notes -o $output_file $input_file
+    convert_to_html $input_file $output_file &
 done
 
 # Check if there are index files corresponding to unused keywords {{{2
+
+echo 'Checking for index files corresponding to unused keywords...'
+
 declare -a old_md_files=(
     ${(f)"$(comm -13 \
         =(print -l $index_files | sort) \
@@ -610,6 +627,8 @@ if [[ -n $old_files ]]; then
         'the following index files do not correspond to any keywords:' >&2
     print -l $old_files >&2
 fi
+
+echo 'Done.'
 # }}}2
 
 # }}}1
