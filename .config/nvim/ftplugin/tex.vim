@@ -3,7 +3,7 @@ setlocal formatoptions-=t
 setlocal linebreak
 setlocal nosmartindent
 
-nnoremap <LocalLeader>mt <Cmd>call <SID>insert_maketitle_def()<CR>
+nnoremap <LocalLeader>tt <Cmd>call <SID>insert_maketitle_def()<CR>
 function! s:insert_maketitle_def() abort " {{{1
     let l:lines = [
                 \ '\makeatletter',
@@ -31,11 +31,7 @@ function! s:insert_maketitle_def() abort " {{{1
                 \ '\makeatother',
                 \ ]
     call setline(line('.'), l:lines[0])
-    if line('.') == line('$')
-        call append(line('$'), l:lines[1:])
-    else
-        call append(line('.') + 1, l:lines[1:])
-    endif
+    call append(line('.'), l:lines[1:])
 endfunction
 
 " }}}1
