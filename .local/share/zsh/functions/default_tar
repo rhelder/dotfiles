@@ -7,7 +7,7 @@ if [[ $1 == '--trash' || $1 == '-t' ]]; then
 fi
 
 if [[ ! -n $* ]]; then
-    echo 'tars: no files or directories specified' >&2
+    echo 'tar: no files or directories specified' >&2
     return 1
 fi
 
