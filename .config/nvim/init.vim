@@ -81,135 +81,6 @@ nnoremap <Leader>sp         <Cmd>setlocal spell!<CR>
 nnoremap <expr> <Leader>sn  &spell ? "]sz=" : "<Leader>sn"
 nnoremap <expr> <Leader>sN  &spell ? "[sz=" : "<Leader>sN"
 
-" Text objects for next and last objects {{{2
-
-" Sentences (can't figure out how to do 'last' sentence) {{{3
-onoremap ans :<C-U>normal! )vas<CR>
-onoremap ins :<C-U>normal! )vis<CR>
-vnoremap ans :<C-U>normal! )vas<CR>
-vnoremap ins :<C-U>normal! )vis<CR>
-
-" Square brackets {{{3
-onoremap an[ :<C-U>normal! f[va[<CR>
-onoremap in[ :<C-U>normal! f[vi[<CR>
-onoremap al[ :<C-U>normal! F]va[<CR>
-onoremap il[ :<C-U>normal! F]vi[<CR>
-onoremap an] :<C-U>normal! f[va[<CR>
-onoremap in] :<C-U>normal! f[vi]<CR>
-onoremap al] :<C-U>normal! F]va]<CR>
-onoremap il] :<C-U>normal! F]vi]<CR>
-vnoremap an[ :<C-U>normal! f[va[<CR>
-vnoremap in[ :<C-U>normal! f[vi[<CR>
-vnoremap al[ :<C-U>normal! F]va[<CR>
-vnoremap il[ :<C-U>normal! F]vi[<CR>
-vnoremap an] :<C-U>normal! f[va]<CR>
-vnoremap in] :<C-U>normal! f[vi]<CR>
-vnoremap al] :<C-U>normal! F]va]<CR>
-vnoremap il] :<C-U>normal! F]vi]<CR>
-
-" Parentheses {{{3
-onoremap an( :<C-U>normal! f(va(<CR>
-onoremap in( :<C-U>normal! f(vi(<CR>
-onoremap al( :<C-U>normal! F)va(<CR>
-onoremap il( :<C-U>normal! F)vi(<CR>
-onoremap an) :<C-U>normal! f(va)<CR>
-onoremap in) :<C-U>normal! f(vi)<CR>
-onoremap al) :<C-U>normal! F)va)<CR>
-onoremap il) :<C-U>normal! F)vi)<CR>
-onoremap anb :<C-U>normal! f(vab<CR>
-onoremap inb :<C-U>normal! f(vib<CR>
-onoremap alb :<C-U>normal! F)vab<CR>
-onoremap ilb :<C-U>normal! F)vib<CR>
-vnoremap an( :<C-U>normal! f(va(<CR>
-vnoremap in( :<C-U>normal! f(vi(<CR>
-vnoremap al( :<C-U>normal! F)va(<CR>
-vnoremap il( :<C-U>normal! F)vi(<CR>
-vnoremap an) :<C-U>normal! f(va)<CR>
-vnoremap in) :<C-U>normal! f(vi)<CR>
-vnoremap al) :<C-U>normal! F)va)<CR>
-vnoremap il) :<C-U>normal! F)vi)<CR>
-vnoremap anb :<C-U>normal! f(vab<CR>
-vnoremap inb :<C-U>normal! f(vib<CR>
-vnoremap alb :<C-U>normal! F)vab<CR>
-vnoremap ilb :<C-U>normal! F)vib<CR>
-
-" Angle brackets {{{3
-onoremap an< :<C-U>normal! f<va<<CR>
-onoremap in< :<C-U>normal! f<vi<<CR>
-onoremap al< :<C-U>normal! F>va<<CR>
-onoremap il< :<C-U>normal! F>vi<<CR>
-onoremap an> :<C-U>normal! f<va><CR>
-onoremap in> :<C-U>normal! f<vi><CR>
-onoremap al> :<C-U>normal! F>va><CR>
-onoremap il> :<C-U>normal! F>vi><CR>
-vnoremap an< :<C-U>normal! f<va<<CR>
-vnoremap in< :<C-U>normal! f<vi<<CR>
-vnoremap al< :<C-U>normal! F>va<<CR>
-vnoremap il< :<C-U>normal! F>vi<<CR>
-vnoremap an> :<C-U>normal! f<va><CR>
-vnoremap in> :<C-U>normal! f<vi><CR>
-vnoremap al> :<C-U>normal! F>va><CR>
-vnoremap il> :<C-U>normal! F>vi><CR>
-
-" Curly braces {{{3
-onoremap an{ :<C-U>normal! f{va{<CR>
-onoremap in{ :<C-U>normal! f{vi{<CR>
-onoremap al{ :<C-U>normal! F}va{<CR>
-onoremap il{ :<C-U>normal! F}vi{<CR>
-onoremap an} :<C-U>normal! f{va}<CR>
-onoremap in} :<C-U>normal! f{vi}<CR>
-onoremap al} :<C-U>normal! F}va}<CR>
-onoremap il} :<C-U>normal! F}vi}<CR>
-onoremap anB :<C-U>normal! f{vaB<CR>
-onoremap inB :<C-U>normal! f{viB<CR>
-onoremap alB :<C-U>normal! F}vaB<CR>
-onoremap ilB :<C-U>normal! F}viB<CR>
-vnoremap an{ :<C-U>normal! f{va{<CR>
-vnoremap in{ :<C-U>normal! f{vi{<CR>
-vnoremap al{ :<C-U>normal! F}va{<CR>
-vnoremap il{ :<C-U>normal! F}vi{<CR>
-vnoremap an} :<C-U>normal! f{va}<CR>
-vnoremap in} :<C-U>normal! f{vi}<CR>
-vnoremap al} :<C-U>normal! F}va}<CR>
-vnoremap il} :<C-U>normal! F}vi}<CR>
-vnoremap anB :<C-U>normal! f{vaB<CR>
-vnoremap inB :<C-U>normal! f{viB<CR>
-vnoremap alB :<C-U>normal! F}vaB<CR>
-vnoremap ilB :<C-U>normal! F}viB<CR>
-
-" Double quotes {{{3
-onoremap an" :<C-U>normal! f"f"va"<CR>
-onoremap in" :<C-U>normal! f"f"vi"<CR>
-onoremap al" :<C-U>normal! F"F"va"<CR>
-onoremap il" :<C-U>normal! F"F"vi"<CR>
-vnoremap an" :<C-U>normal! f"f"va"<CR>
-vnoremap in" :<C-U>normal! f"f"vi"<CR>
-vnoremap al" :<C-U>normal! F"F"va"<CR>
-vnoremap il" :<C-U>normal! F"F"vi"<CR>
-
-" Single quotes {{{3
-onoremap an' :<C-U>normal! f'f'va'<CR>
-onoremap in' :<C-U>normal! f'f'vi'<CR>
-onoremap al' :<C-U>normal! F'F'va'<CR>
-onoremap il' :<C-U>normal! F'F'vi'<CR>
-vnoremap an' :<C-U>normal! f'f'va'<CR>
-vnoremap in' :<C-U>normal! f'f'vi'<CR>
-vnoremap al' :<C-U>normal! F'F'va'<CR>
-vnoremap il' :<C-U>normal! F'F'vi'<CR>
-
-" Backticks {{{3
-onoremap an` :<C-U>normal! f`f`va`<CR>
-onoremap in` :<C-U>normal! f`f`vi`<CR>
-onoremap al` :<C-U>normal! F`F`va`<CR>
-onoremap il` :<C-U>normal! F`F`vi`<CR>
-vnoremap an` :<C-U>normal! f`f`va`<CR>
-vnoremap in` :<C-U>normal! f`f`vi`<CR>
-vnoremap al` :<C-U>normal! F`F`va`<CR>
-vnoremap il` :<C-U>normal! F`F`vi`<CR>
-" }}}3
-
-" }}}2
-
 " Autocommands {{{1
 
 augroup nvimrc " {{{2
@@ -309,6 +180,7 @@ call plug#begin()
     Plug '/opt/homebrew/opt/fzf'
     Plug 'ncm2/ncm2'
     Plug 'roxma/nvim-yarp'
+    Plug 'wellle/targets.vim'
     Plug 'jamessan/vim-gnupg'
     Plug 'junegunn/vim-plug'
     Plug 'machakann/vim-sandwich'
