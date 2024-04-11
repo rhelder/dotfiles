@@ -507,7 +507,7 @@ function! notes#browse_links(bang) abort " {{{1
     let l:file_text = join(getline(1, '$'))
     let l:links = []
     let l:start = 0
-    while v:true
+    while 1
         let l:strpos = matchstrpos(l:file_text,
                     \ '\v\[[^][]*\]\[[^][]+\]', l:start)
         let l:link = matchlist(l:strpos[0], '\v\[([^][]*)\]\[([^][]+)\]')
@@ -652,6 +652,7 @@ function! notes#exit_note(event) abort " {{{1
         call shell#jobstart(['build-index'], s:build_index_background_opts)
 
         echomsg b:mdview.input
+        call setbufvar(b:mdview.input, 'modified', 0)
         unlet b:mdview.input
 
     elseif a:event ==# 'VimLeavePre'
@@ -666,7 +667,7 @@ function! notes#exit_note(event) abort " {{{1
 endfunction
 
 let s:build_index_background_opts = {
-            \ 'detach': v:true,
+            \ 'detach': 1,
             \ }
 
 let s:build_index_exiting_opts = {
