@@ -624,9 +624,9 @@ declare -a old_files=( $old_md_files $old_html_files )
 
 if [[ -n $old_files ]]; then
     echo 'build-index:' \
-        'the following index files do not correspond to any keywords:' >&2
-    print -l $old_files >&2
-fi
+        'the following index files do not correspond to any keywords:'
+    print -l $old_files
+fi >&2
 
 echo 'Done.'
 # }}}2
