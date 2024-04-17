@@ -121,11 +121,15 @@ function! s:on_exit(job_id, data, event) abort dict " {{{1
     unlet self.both
     unlet self.stderr_indices
     if has_key(self, 'scratch')
-        let self.scratch = {
-                    \ 'winnr': self.scratch.winnr,
-                    \ 'bufnr': self.scratch.bufnr,
-                    \ 'winid': self.scratch.winid,
-                    \ }
+        if has_key(self.scratch, 'winnr') &&
+                    \ has_key(self.scratch, 'bufnr') &&
+                    \ has_key(self.scratch, 'winid')
+            let self.scratch = {
+                        \ 'winnr': self.scratch.winnr,
+                        \ 'bufnr': self.scratch.bufnr,
+                        \ 'winid': self.scratch.winid,
+                        \ }
+        endif
     endif
 endfunction
 
