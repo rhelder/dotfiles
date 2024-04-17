@@ -1,10 +1,5 @@
 function! shell#jobstart(cmd, opts = {}) abort
-    let l:opts = {
-            \ 'on_stdout': function('s:on_event'),
-            \ 'on_stderr': function('s:on_event'),
-            \ 'on_exit': function('s:on_exit'),
-            \ }
-    call extend(a:opts, l:opts)
+    call extend(a:opts, s:opts)
 
     let l:job_id = jobstart(a:cmd, a:opts)
     if has_key(a:opts, 'sync') | call jobwait([l:job_id]) | endif
@@ -21,9 +16,6 @@ function! s:on_event(job_id, data, event) abort dict " {{{1
     if !has_key(self, a:event) | let self[a:event] = [''] | endif
     if !has_key(self, 'both') | let self.both = [''] | endif
 
-    " The index at which we're starting for this event
-    let l:event_start = len(self[a:event]) - 1
-    " The index at which we're starting for both events
     let l:output_start = len(self.both) - 1
 
     let self[a:event][-1] ..= a:data[0]
@@ -45,51 +37,10 @@ function! s:on_event(job_id, data, event) abort dict " {{{1
         call extend(self.stderr_indices, range(l:output_start, l:output_end))
     endif
 
-    if has_key(self, 'scratch') " {{{2
-        if !l:output_start && self[a:event] != ['']
-            let l:pos = getcurpos()
-            let l:winnr = bufwinnr('%')
-
-            " If a scratch buffer is not currently open, open a new scratch
-            " buffer. Otherwise, re-use the current scratch buffer
-            let self.scratch.winnr = bufwinnr(get(self.scratch, 'bufnr', -1))
-            if self.scratch.winnr == -1
-                execute get(self.scratch, 'height', 10) .. 'new'
-                let self.scratch.winnr = bufwinnr('%')
-                let self.scratch.bufnr = bufnr('%')
-                let self.scratch.winid = bufwinid('%')
-                setlocal buftype=nofile
-                setlocal nocursorline
-                setlocal bufhidden=wipe
-                setlocal nonumber
-                setlocal scrolloff=0
-            else
-                execute self.scratch.winnr 'wincmd w'
-                silent %delete _
-            endif
-
-            execute l:winnr 'wincmd w'
-            call setpos('.', l:pos)
-
-            call setbufline(self.scratch.bufnr, 1, self[a:event][0])
-            " Set the first element of the list to an empty string. This way,
-            " the indices of the list aren't changed, and the first element
-            " won't be printed again, since later we make sure empty elements
-            " aren't printed
-            let self[a:event][0] = ''
-        endif
-
-        for line in self[a:event][l:event_start:]
-            " Elements indicating a newline or EOF will be empty, so don't
-            " print those
-            if empty(line) | continue | endif
-            let l:lnum = line('$', self.scratch.winid)
-            call appendbufline(self.scratch.bufnr, l:lnum, line)
-            " Scroll down as text is appended
-            call win_execute(self.scratch.winid, 'normal! G')
-        endfor
+    if has_key(self, 'scratch')
+        let self.print_to_scratch_buf = function('s:print_to_scratch_buf')
+        call self.print_to_scratch_buf(a:data, a:event)
     endif
-    " }}}2
 
     " Add last element of a:data to list; it may be concatenated with the first
     " element of a:data the next time the function is called
@@ -169,6 +120,124 @@ function! s:on_exit(job_id, data, event) abort dict " {{{1
     unlet self.stderr
     unlet self.both
     unlet self.stderr_indices
+    if has_key(self, 'scratch')
+        let self.scratch = {
+                    \ 'winnr': self.scratch.winnr,
+                    \ 'bufnr': self.scratch.bufnr,
+                    \ 'winid': self.scratch.winid,
+                    \ }
+    endif
 endfunction
 
 " }}}1
+
+let s:opts = {
+            \ 'on_stdout': function('s:on_event'),
+            \ 'on_stderr': function('s:on_event'),
+            \ 'on_exit': function('s:on_exit'),
+            \ }
+
+function! s:print_to_scratch_buf(data, event) dict abort " {{{1
+    " if get(self.scratch, 'no_' .. a:event, 0)
+        " return
+    " endif
+
+    let l:pos = getcurpos()
+    let l:winnr = bufwinnr('%')
+
+    " When function is called for the first time, check if there is already a
+    " scratch buffer open. Wipe it if there is. Also initialize
+    " self.scratch.event and self.scratch.data
+    if !exists('self.scratch.index')
+        let self.scratch.winnr = bufwinnr(get(self.scratch, 'bufnr', -1))
+        if self.scratch.winnr != -1
+            execute self.scratch.winnr 'wincmd w'
+            silent %delete _
+            execute l:winnr 'wincmd w'
+            call setpos('.', l:pos)
+        endif
+
+        let self.scratch.index = {a:event: '0'}
+        let self.scratch.data = a:data
+        let self.scratch.event = a:event
+    elseif !exists('self.scratch.index[' .. string(a:event) .. ']')
+        call extend(self.scratch.index, {a:event: '0'})
+    endif
+
+    if a:event !=# self.scratch.event
+        let l:other = self.scratch.event
+        let l:index = -len(self.scratch.data)
+        if !empty(self[l:other][l:index]) &&
+                    \ self.scratch.index[l:other] <=
+                    \   index(self[l:other], self[l:other][l:index])
+            " If a scratch buffer is not currently open, open a new scratch
+            " buffer. Otherwise, reuse the old one.
+            if self.scratch.winnr == -1
+                execute get(self.scratch, 'height', 10) .. 'new'
+                let self.scratch.winnr = bufwinnr('%')
+                let self.scratch.bufnr = bufnr('%')
+                let self.scratch.winid = bufwinid('%')
+                setlocal buftype=nofile
+                setlocal nocursorline
+                setlocal bufhidden=wipe
+                setlocal nonumber
+                setlocal scrolloff=0
+                execute l:winnr 'wincmd w'
+                call setpos('.', l:pos)
+            endif
+
+            let l:lnum = line('$', self.scratch.winid)
+            if l:lnum == 1 && empty(getbufline(self.scratch.bufnr, 1)[0])
+                call setbufline(self.scratch.bufnr, 1,
+                            \ self[self.scratch.event][0])
+            else
+                let l:lnum = line('$', self.scratch.winid)
+                call appendbufline(self.scratch.bufnr, l:lnum,
+                            \ self[self.scratch.event][l:index])
+                " Scroll down as text is appended
+                call win_execute(self.scratch.winid, 'normal! G')
+            endif
+
+            let self.scratch.index[self.scratch.event] += 1
+        endif
+    endif
+
+    if len(self[a:event]) - 1 > self.scratch.index[a:event]
+        " If a scratch buffer is not currently open, open a new scratch buffer.
+        " Otherwise, reuse the old one.
+        if self.scratch.winnr == -1
+            execute get(self.scratch, 'height', 10) .. 'new'
+            let self.scratch.winnr = bufwinnr('%')
+            let self.scratch.bufnr = bufnr('%')
+            let self.scratch.winid = bufwinid('%')
+            setlocal buftype=nofile
+            setlocal nocursorline
+            setlocal bufhidden=wipe
+            setlocal nonumber
+            setlocal scrolloff=0
+            execute l:winnr 'wincmd w'
+            call setpos('.', l:pos)
+        endif
+
+        let l:lnum = line('$', self.scratch.winid)
+        if l:lnum == 1 && empty(getbufline(self.scratch.bufnr, 1)[0])
+            call setbufline(self.scratch.bufnr, 1, self[a:event][0])
+            let self.scratch.index[a:event] = 1
+        endif
+
+        for line in self[a:event][self.scratch.index[a:event]:]
+            " Elements indicating a newline or EOF will be empty, so don't
+            " print those
+            if empty(line) | continue | endif
+            let l:lnum = line('$', self.scratch.winid)
+            call appendbufline(self.scratch.bufnr, l:lnum, line)
+            " Scroll down as text is appended
+            call win_execute(self.scratch.winid, 'normal! G')
+        endfor
+
+        let self.scratch.index[a:event] = len(self[a:event])
+    endif
+
+    let self.scratch.data = a:data
+    let self.scratch.event = a:event
+endfunction
