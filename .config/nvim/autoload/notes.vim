@@ -621,58 +621,35 @@ function! notes#make_bracketed_list_hyphenated() abort " {{{1
 endfunction
 
 function! notes#exit_note(event) abort " {{{1
-    " Use <afile> instead of %, and getbufvar with <afile> and 'modified'
-    " instead of b:modified, because the latter will be wrong in some cases
-    " when executing a BufWinleave autocommand (e.g., as when exiting Vim with
-    " multiple windows open)
-    if a:event ==# 'BufWinLeave'
-        if !filereadable(expand('<afile>')) ||
-                    \ !getbufvar(expand('<afile>'), 'modified', 0)
-            return
-        endif
-
-        if !getbufvar(expand('<afile>'), 'exiting', 0)
-            execute 'autocmd BufEnter * ++once let b:mdview.input = ' ..
-                        \ string(expand('<afile>'))
-            autocmd BufEnter * ++once call notes#exit_note('BufEnter')
-        else
-            autocmd VimLeavePre <buffer> call notes#exit_note('VimLeavePre')
-        endif
-
+    if a:event ==# 'BufWinLeave' &&
+                \ getbufvar(expand('<afile>'), 'exiting', 0)
+        autocmd VimLeavePre <buffer> call notes#exit_note('VimLeavePre')
+        return
+    elseif !filereadable(expand('<afile>')) ||
+                \ !getbufvar(expand('<afile>'), 'modified', 0)
         return
     endif
 
-    if mdview#convert_to_html(0)
-        let l:mdview_convert_to_html = 1
-    else
-        let l:mdview_convert_to_html = 0
-    endif
-
-    if a:event ==# 'BufEnter'
-        call shell#jobstart(['build-index'], s:build_index_background_opts)
-
-        echomsg b:mdview.input
-        call setbufvar(b:mdview.input, 'modified', 0)
-        unlet b:mdview.input
+    if a:event ==# 'BufWinLeave'
+        call mdview#convert_to_html(1, {'scratch': {'height': 3}})
+        call shell#jobstart(['build-index'], {'detach': 1})
+        call setbufvar(expand('<afile>'), 'modified', 0)
 
     elseif a:event ==# 'VimLeavePre'
-        if shell#jobstart(['build-index'], s:build_index_exiting_opts) ||
-                    \ l:mdview_convert_to_html == 1
+        if mdview#convert_to_html(0)
+            let l:mdview_convert_to_html = 1
+        else
+            let l:mdview_convert_to_html = 0
+        endif
 
+        if shell#jobstart(['build-index'], {'sync': {'events': ['stderr']}}) ||
+                    \ l:mdview_convert_to_html == 1
             echohl Type
             call input('Press ENTER or type command to continue')
             echohl None
         endif
     endif
 endfunction
-
-let s:build_index_background_opts = {
-            \ 'detach': 1,
-            \ }
-
-let s:build_index_exiting_opts = {
-            \ 'sync': {'events': ['stderr']}
-            \ }
 
 function! notes#insert_link(file) abort " {{{1
     execute 'normal! a[' .. a:file .. "]\<Esc>"
