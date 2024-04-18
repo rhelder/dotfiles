@@ -20,10 +20,10 @@
 
 % Load packages
 
-\RequirePackage{rhelder}
 \RequirePackage{titlesec}
 \RequirePackage{tabulary}
 \RequirePackage{enumitem}
+\RequirePackage{pifont}
 
 % Redefine `\maketitle` and title fields
 
