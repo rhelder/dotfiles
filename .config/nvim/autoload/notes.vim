@@ -623,30 +623,47 @@ endfunction
 function! notes#exit_note(event) abort " {{{1
     if a:event ==# 'BufWinLeave' &&
                 \ getbufvar(expand('<afile>'), 'exiting', 0)
+        let s:exiting = 1
+        let s:is_output = 0
+        let s:modified = 0
         autocmd VimLeavePre <buffer> call notes#exit_note('VimLeavePre')
-        return
-    elseif !filereadable(expand('<afile>')) ||
-                \ !getbufvar(expand('<afile>'), 'modified', 0)
         return
     endif
 
     if a:event ==# 'BufWinLeave'
-        call mdview#convert_to_html(1, {'scratch': {'height': 3}})
-        call shell#jobstart(['build-index'], {'detach': 1})
-        call setbufvar(expand('<afile>'), 'modified', 0)
-
-    elseif a:event ==# 'VimLeavePre'
-        if mdview#convert_to_html(0)
-            let l:mdview_convert_to_html = 1
-        else
-            let l:mdview_convert_to_html = 0
+        if !filereadable(expand('<afile>')) ||
+                    \ !getbufvar(expand('<afile>'), 'modified', 0)
+            return
         endif
 
-        if shell#jobstart(['build-index'], {'sync': {'events': ['stderr']}}) ||
-                    \ l:mdview_convert_to_html == 1
-            echohl Type
-            call input('Press ENTER or type command to continue')
-            echohl None
+        if exists('s:exiting')
+            if mdview#convert_to_html(0)
+                let s:is_output = 1
+            endif
+            let s:modified = 1
+        else
+            call mdview#convert_to_html(1, {'scratch': {'height': 3}})
+            call shell#jobstart(['build-index'], {'detach': 1})
+            call setbufvar(expand('<afile>'), 'modified', 0)
+        endif
+
+    elseif a:event ==# 'VimLeavePre'
+        if filereadable(expand('<afile>')) &&
+                    \ getbufvar(expand('<afile>'), 'modified', 0)
+            if mdview#convert_to_html(0)
+                let s:is_output = 1
+            endif
+        endif
+
+        if (filereadable(expand('<afile>')) &&
+                    \ getbufvar(expand('<afile>'), 'modified', 0)) ||
+                    \ s:modified
+            if shell#jobstart(['build-index'], {'sync': {'events': ['stderr']}}) ||
+                        \ s:is_output
+                echohl Type
+                call input('Press ENTER or type command to continue')
+                echohl None
+            endif
         endif
     endif
 endfunction
