@@ -45,11 +45,11 @@ let b:mdview.pandoc_args = [
 
 let s:notes_ncm_word_pattern = '\w+[\w\s.-]*'
 let s:notes_ncm_regexes = [
-            \ '^\s*-\s+\w+',
-            \ '^\s*keywords\s*:\s+(\[\s*)?(\\@)?\w+',
+            \ '^\s*-\s+\w*',
+            \ '^\s*keywords\s*:\s+(\[\s*)?(\\@)?\w*',
             \ '^\s*keywords\s*:\s+(\[\s*)?(\\@)?(' ..
-            \     s:notes_ncm_word_pattern .. ',\s+)+\w+',
-            \ '@\w+',
+            \     s:notes_ncm_word_pattern .. ',\s+)+\w*',
+            \ '@\w*',
             \ ]
 
 augroup ncm_notes
