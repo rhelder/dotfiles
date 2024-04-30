@@ -197,6 +197,7 @@ let g:GPGExecutable = 'PINENTRY_USER_DATA="" gpg --trust-model=always'
 let s:sourced = 1
 
 augroup nvimrc_lists " {{{1
+    autocmd!
     autocmd Filetype text,markdown inoremap <expr> <CR> <SID>list_cr()
 augroup END
 
