@@ -1,6 +1,6 @@
 " Options {{{1
 
-let &formatlistpat = '^\s*\(\d\|\*\|+\|-\)\+[\]:.)}\t ]\s*'
+let &formatlistpat = '^\v\s*(\d+|\*|\+|-)[]:.)}]?\s+'
 let g:python3_host_prog = '/usr/local/bin/python3'
 set belloff=
 set completeopt=noinsert,menuone,noselect " As required for ncm2
@@ -195,3 +195,89 @@ let g:GPGExecutable = 'PINENTRY_USER_DATA="" gpg --trust-model=always'
 " }}}1
 
 let s:sourced = 1
+
+augroup nvimrc_lists " {{{1
+    autocmd Filetype text,markdown inoremap <expr> <CR> <SID>list_cr()
+augroup END
+
+function! s:list_cr() abort " {{{2
+    let l:line = getline('.')
+    let l:lnum = line('.')
+
+    if l:line =~# '\v^\s+'
+        let l:indent = matchend(l:line, '\v^\s+')
+        let l:start = search(&formatlistpat, 'bnW')
+        if !l:start
+            return "\<CR>"
+        endif
+
+        for lnum in range(l:start + 1, l:lnum)
+            if getline(lnum) !~# '\v^\s{' .. l:indent .. '}'
+                return "\<CR>"
+            endif
+        endfor
+
+    elseif l:line =~# &formatlistpat
+        let l:start = l:lnum
+
+    else
+        return "\<CR>"
+    endif
+
+    let l:matchlist = matchlist(getline(l:start), &formatlistpat)
+    let l:indent = strlen(l:matchlist[0])
+
+    if l:matchlist[1] =~# '\v\d+'
+        let l:header = s:renumber_item(l:matchlist, l:indent)
+        autocmd TextChangedI <buffer> ++once call s:renumber_list()
+    else
+        let l:header = l:matchlist[0]
+    endif
+
+    if l:start == l:lnum
+        return "\<CR>" .. l:header
+    else
+        return "\<CR>\<C-U>" .. l:header
+    endif
+endfunction
+
+function! s:renumber_item(matchlist, indent) " {{{2
+    let l:label = str2nr(a:matchlist[1])
+    let l:label += 1
+    let l:header = substitute(a:matchlist[0], a:matchlist[1], l:label, '')
+    if strlen(l:header) > a:indent
+        let l:header = strpart(l:header, 0, a:indent)
+    endif
+    echomsg l:header
+    return l:header
+endfunction
+
+function! s:renumber_list() " {{{2
+    let l:indent = matchend(getline('.'), '\v(' .. &formatlistpat .. '|^\s+)')
+    let l:start = line('.')
+    let l:cursor_pos = getpos('.')
+
+    while 1
+        let [l:next_line, l:next_col] = searchpos(&formatlistpat, 'nW')
+        if !l:next_line && !l:next_col
+            call setpos('.', l:cursor_pos)
+            return
+        endif
+
+        for lnum in range(line('.') + 1, l:next_line - 1)
+            if getline(lnum) !~# '\v^\s{' .. l:indent .. '}'
+                call setpos('.', l:cursor_pos)
+                return
+            endif
+        endfor
+
+        let l:matchlist = matchlist(getline(l:next_line), &formatlistpat)
+        let l:next_header = s:renumber_item(l:matchlist, l:indent)
+        call setline(l:next_line, substitute(getline(l:next_line), &formatlistpat, l:next_header, ''))
+
+        call cursor(l:next_line, l:next_col)
+    endwhile
+endfunction
+" }}}2
+
+" }}}1
