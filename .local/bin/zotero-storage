@@ -9,7 +9,7 @@
 # according to a standard naming convention.
 
 # To-do: replace rg with grep
-# To-do: build associative array by parsing `bib` file
+# To-do: use file field to find files in Zotero cloud lib
 
 # {{{1 Clean up empty subdirectories
 
@@ -63,6 +63,11 @@ shorttitles=( \
     [DA]='aristotle 1964 De Anima' \
     [EE]='aristotle 1991 Ethica Eudemia' \
     [EN]='aristotle 1894 Ethica Nicomachea' \
+    [Insomn]='aristotle 1955 De Insomniis' \
+    [Mem]='aristotle 1955 De Memoria' \
+    [Sens]='aristotle 1955 De sensu et sensibilibus' \
+    [Rhet]='aristotle 1976 Ars rhetorica' \
+    [PA]='aristotle 1831 de partibus animalium' \
     [MA]='aristotle 2020 De Motu Animalium' \
     [Met]='aristotle 1957 Metaphysica' \
     [Phys]='aristotle 1950 Physica' \
