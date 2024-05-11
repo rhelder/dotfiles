@@ -219,9 +219,12 @@ function! s:inner_list_object(action) abort " {{{2
 
     let l:lnum = line('.')
     for line in range(l:start + 1, line('$'))
-        if getline(line) !~# '\v^\s{' .. l:indent .. '}|^$'
-            let l:end = line - 1
-            if getline(l:end) =~# '^$' | let l:end -= 1 | endif
+        if getline(line) =~# '\v^\s{' .. l:indent .. '}'
+            let l:end = line
+        elseif getline(line) =~# '^$'
+            continue
+        else
+            " if getline(l:end) =~# '^$' | let l:end -= 1 | endif
             break
         endif
     endfor
