@@ -1,6 +1,14 @@
+" [TODO]
+" * Force proper formatlistpat for filetype gitcommit (and check for other
+"   disobedient filetypes)
+" * Write mapping that creates new list item at line in insert mode (use <C-A>
+"   after lervag)
+" * Deal with child items vs parent items
+" * Maybe modify formatlistpat to deal with lists in comments, like this one?
+
 " Options {{{1
 
-let &formatlistpat = '^\v(\s{})(\d+|\*|\+|-)[]:.)}]?\s+'
+let &formatlistpat = '\v^(\s{})(\d+|\*|\+|-)[]:.)}]?\s+'
 let g:python3_host_prog = '/usr/local/bin/python3'
 set belloff=
 set completeopt=noinsert,menuone,noselect " As required for ncm2
@@ -217,19 +225,17 @@ function! s:inner_list_object(action) abort " {{{2
     let l:matchlist = matchlist(getline(l:start), s:formatlistpat())
     let l:indent = strlen(l:matchlist[0])
 
+    let l:end = l:start
     let l:lnum = line('.')
     for line in range(l:start + 1, line('$'))
-        if getline(line) =~# '\v^\s{' .. l:indent .. '}'
+        if getline(line) =~# '\v^\s{' .. l:indent .. '}\S+'
             let l:end = line
-        elseif getline(line) =~# '^$'
+        elseif getline(line) =~# '^\s*$'
             continue
         else
-            " if getline(l:end) =~# '^$' | let l:end -= 1 | endif
             break
         endif
     endfor
-
-    if !exists('l:end') | let l:end = line('$') | endif
 
     if l:lnum > l:end
         if a:action ==# 'select' | execute "normal! \<Esc>" | endif
@@ -380,10 +386,10 @@ call s:map('p', 'insert', 'g')
 call s:map('p', 'insert', 'z')
 call s:map('p', 'insert', '[')
 call s:map('p', 'insert', ']')
-nnoremap <expr> . <SID>change_list('.', '')
-inoremap <expr> <CR> <SID>insert_list_item("\<CR>")
-nnoremap <expr> o <SID>insert_list_item('o')
-nnoremap <expr> O <SID>insert_list_item('O')
+nnoremap <expr> . <SID>change_numbered_list('.', '')
+inoremap <expr> <CR> <SID>insert_list_line("\<CR>")
+nnoremap <expr> o <SID>insert_list_line('o')
+nnoremap <expr> O <SID>insert_list_line('O')
 
 function! s:change_numbered_list(key, action) abort " {{{2
     if a:key == '.'
@@ -411,11 +417,29 @@ function! s:change_numbered_list(key, action) abort " {{{2
     return a:key
 endfunction
 
-function! s:insert_list_item(key) abort " {{{2
+function! s:insert_list_line(key) abort " {{{2
     let l:current_list_object = s:inner_list_object('get')
-    if empty(l:current_list_object) | return a:key | endif
-    let l:label = l:current_list_object.label
+    if empty(l:current_list_object)
+        return a:key
 
+    elseif a:key ==# 'O' && line('.') != l:current_list_object.line.start
+        return a:key
+
+    elseif a:key ==# "\<CR>" || a:key ==# 'o'
+        if line('.') == l:current_list_object.line.start &&
+                    \ line('.') != l:current_list_object.line.end
+            let l:indent = ''
+            for iteration in range(1, l:current_list_object.indent.item)
+                let l:indent ..= ' '
+            endfor
+
+            return a:key .. l:indent
+        elseif line('.') != l:current_list_object.line.end
+            return a:key
+        endif
+    endif
+
+    let l:label = l:current_list_object.label
     if l:label =~# '\v\d+'
         if a:key ==# "\<CR>" || a:key == 'o'
             let l:label = str2nr(l:label) + 1
@@ -430,13 +454,16 @@ function! s:insert_list_item(key) abort " {{{2
                     \ &formatlistpat)[0]
     endif
 
-    if line('.') == l:current_list_object.line.start
+    if a:key ==# 'O'
         return a:key .. l:header
-    else
-        return a:key .. "\<C-U>" .. l:header
+    elseif a:key ==# "\<CR>" || a:key ==# 'o'
+        if line('.') == l:current_list_object.line.start
+            return a:key .. l:header
+        else
+            return a:key .. "\<C-U>" .. l:header
+        endif
     endif
 endfunction
-
 
 function! s:renumber_list(action) abort " {{{2
     let l:new_list_object = s:inner_list_object('get')
