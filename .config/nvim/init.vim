@@ -1,6 +1,4 @@
 " [TODO]
-" * Force proper formatlistpat for filetype gitcommit (and check for other
-"   disobedient filetypes)
 " * Write mapping that creates new list item at line in insert mode (use <C-A>
 "   after lervag)
 " * Deal with child items vs parent items
@@ -132,11 +130,10 @@ endfunction
 augroup nvimrc_filetype_defaults " {{{2
     autocmd!
     autocmd FileType markdown           setlocal formatoptions-=l
-    autocmd FileType csv                setlocal formatoptions-=tc
-    autocmd FileType text,markdown      setlocal nonumber textwidth=78
-    autocmd FileType text,markdown      setlocal linebreak
-    autocmd BufWinEnter COMMIT_EDITMSG  setlocal nosmartindent textwidth=72
-    autocmd FileType text,markdown      setlocal nosmartindent
+    autocmd FileType text,markdown      setlocal textwidth=78
+    autocmd FileType text,markdown      setlocal nonumber nosmartindent
+    autocmd FileType gitcommit          setlocal nosmartindent textwidth=72
+    autocmd FileType markdown,gitcommit setlocal formatlistpat<
 augroup END
 
 augroup nvimrc_key_mappings " {{{2
