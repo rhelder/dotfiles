@@ -62,10 +62,14 @@ nnoremap <Leader>doc <Cmd>lcd
             \ $HOME/Documents<CR>
 nnoremap <Leader>docg <Cmd>lcd
             \ $HOME/Documents/Git<CR>
+nnoremap <Leader>nch <Cmd>lcd
+            \ $XDG_CONFIG_HOME/nvim<CR>
 nnoremap <Leader>nd <Cmd>lcd
             \ $HOME/Documents/Notes<CR>
 nnoremap <Leader>ndh <Cmd>lcd
             \ $XDG_DATA_HOME/nvim/site<CR>
+nnoremap <Leader>nrt <Cmd>lcd
+            \ /opt/homebrew/Cellar/neovim/0.9.4/share/nvim/runtime<CR>
 nnoremap <Leader>pdd <Cmd>lcd
             \ $XDG_DATA_HOME/pandoc/defaults<CR>
 nnoremap <Leader>pdt <Cmd>lcd
@@ -103,10 +107,12 @@ let mvf = "$XDG_DATA_HOME/nvim/site/ftplugin/markdown/mdview.vim"
 let mvz = "$XDG_DATA_HOME/nvim/site/after/ftplugin/markdown/mdview.vim"
 let mz = "$XDG_CONFIG_HOME/nvim/after/ftplugin/markdown.vim"
 let na = "$XDG_CONFIG_HOME/nvim/autoload/notes.vim"
+let nch = "$XDG_CONFIG_HOME/nvim"
 let nd = "$HOME/Documents/Notes"
 let ndh = "$XDG_DATA_HOME/nvim/site"
 let nf = "$XDG_CONFIG_HOME/nvim/ftplugin/markdown/notes.vim"
 let np = "$XDG_CONFIG_HOME/nvim/plugin/notes.vim"
+let nrt = '/opt/homebrew/Cellar/neovim/0.9.4/share/nvim/runtime'
 let nt = "$HOME/Documents/Notes"
 let pdd = "$XDG_DATA_HOME/pandoc/defaults"
 let pdt = "$XDG_DATA_HOME/pandoc/templates"
