@@ -1,8 +1,9 @@
 " [TODO]
 " * Write mapping that creates new list item at line in insert mode (use <C-A>
 "   after lervag)
-" * Deal with child items vs parent items
 " * Maybe modify formatlistpat to deal with lists in comments, like this one?
+" * Add mapping to shift to child item with tab (and renumber subsequent items)
+" * Add mapping to change label
 
 " Options {{{1
 
@@ -204,10 +205,52 @@ let s:sourced = 1
 
 " Text objects for lists {{{1
 
+onoremap <silent> al :<C-U>call <SID>outer_list_object('select')<CR>
+vnoremap <silent> al :<C-U>call <SID>outer_list_object('select')<CR>
 onoremap <silent> il :<C-U>call <SID>inner_list_object('select')<CR>
 vnoremap <silent> il :<C-U>call <SID>inner_list_object('select')<CR>
 
-function! s:inner_list_object(action) abort " {{{2
+function s:outer_list_object(action) abort " {{{2
+    let l:inner_list_object = s:inner_list_object('get', 1)
+    if !l:inner_list_object.indent.label
+        if a:action ==# 'select'
+            call s:select_range(l:inner_list_object.line.start,
+                        \ l:inner_list_object.line.end)
+        endif
+        return l:inner_list_object
+    endif
+
+    let l:label_indent = l:inner_list_object.indent.label - 1
+    while s:to_list('label', 'b', 'end', '0,' .. l:label_indent)
+        let l:prev_list_object = s:inner_list_object('get', 1)
+
+        if l:prev_list_object.line.end < l:inner_list_object.line.end
+            break
+        endif
+
+        let l:outer_list_object = l:prev_list_object
+        if !l:outer_list_object.indent.label
+            break
+        endif
+        let l:label_indent = l:outer_list_object.indent.label - 1
+    endwhile
+
+    if !exists('l:outer_list_object')
+        if a:action ==# 'select'
+            call s:select_range(l:inner_list_object.line.start,
+                        \ l:inner_list_object.line.end)
+        endif
+        return l:inner_list_object
+    endif
+
+    if a:action ==# 'select'
+        call s:select_range(l:outer_list_object.line.start,
+                    \ l:outer_list_object.line.end)
+    endif
+    return l:outer_list_object
+endfunction
+
+function! s:inner_list_object(action, children = 0) abort " {{{2
     if getline('.') !~# s:formatlistpat() .. '|^\s+|^$'
         if a:action ==# 'select' | execute "normal! \<Esc>" | endif
         return {}
@@ -225,9 +268,13 @@ function! s:inner_list_object(action) abort " {{{2
     let l:end = l:start
     let l:lnum = line('.')
     for line in range(l:start + 1, line('$'))
-        if getline(line) =~# '\v^\s{' .. l:indent .. '}\S+'
+        if getline(line) =~# &formatlistpat && !a:children
+            break
+        elseif getline(line) =~# '\v^\s{' .. l:indent .. '}\S+'
             let l:end = line
         elseif getline(line) =~# '^\s*$'
+            if exists('l:blank_line') | break | endif
+            let l:blank_line = 1
             continue
         else
             break
@@ -240,10 +287,7 @@ function! s:inner_list_object(action) abort " {{{2
     endif
 
     if a:action == 'select'
-        let l:count = l:end - l:start
-        call cursor(l:start, 1)
-        execute 'normal! V0'
-        if l:count | execute 'normal! ' .. l:count .. 'j' | endif
+        call s:select_range(l:start, l:end)
     elseif a:action == 'get'
         let s:inner_list_object = {
                     \ 'line': {
@@ -258,6 +302,13 @@ function! s:inner_list_object(action) abort " {{{2
                     \ }
         return s:inner_list_object
     endif
+endfunction
+
+function! s:select_range(start, end) " {{{2
+    let l:count = a:end - a:start
+    call cursor(a:start, 1)
+    execute 'normal! V0'
+    if l:count | execute 'normal! ' .. l:count .. 'j' | endif
 endfunction
 
 function! s:formatlistpat(label_indent = '') abort " {{{2
@@ -315,7 +366,7 @@ function! s:to_list(indent, direction, position, label_indent = '') abort " {{{2
             if line('.') == l:inner_list_object.line.start &&
                         \ col('.') <= l:inner_list_object.indent[a:indent] + 1 &&
                         \ col('.') != 1
-                call search(s:formatlistpat(a:label_indent), 'bW')
+                call search(&formatlistpat, 'bW')
             endif
 
             if search(s:formatlistpat(a:label_indent), 'bW')
@@ -328,7 +379,7 @@ function! s:to_list(indent, direction, position, label_indent = '') abort " {{{2
         elseif a:direction ==# 'b' && a:position ==# 'end'
             if line('.') != l:inner_list_object.line.start ||
                         \ col('.') != 1
-                call search(s:formatlistpat(a:label_indent), 'bW')
+                call search(&formatlistpat, 'bW')
             endif
 
             if search(s:formatlistpat(a:label_indent), 'bW')
@@ -451,14 +502,10 @@ function! s:insert_list_line(key) abort " {{{2
                     \ &formatlistpat)[0]
     endif
 
-    if a:key ==# 'O'
+    if getline('.') =~# '^\s'
+        return a:key .. "\<C-U>" .. l:header
+    else
         return a:key .. l:header
-    elseif a:key ==# "\<CR>" || a:key ==# 'o'
-        if line('.') == l:current_list_object.line.start
-            return a:key .. l:header
-        else
-            return a:key .. "\<C-U>" .. l:header
-        endif
     endif
 endfunction
 
