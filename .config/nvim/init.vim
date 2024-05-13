@@ -88,6 +88,19 @@ nnoremap <Leader>sp         <Cmd>setlocal spell!<CR>
 nnoremap <expr> <Leader>sn  &spell ? "]sz=" : "<Leader>sn"
 nnoremap <expr> <Leader>sN  &spell ? "[sz=" : "<Leader>sN"
 
+" Pattern matching
+nnoremap <Leader>pm <Cmd>echo <SID>pattern_matches()<CR>
+
+function! s:pattern_matches() abort " {{{2
+    let l:expr = input("Expression:\n")
+    redraw
+    let l:regex = input("Regular expression:\n")
+    redraw
+    execute 'let l:result = eval(' .. l:expr .. ' =~# ' .. l:regex .. ')'
+    return l:result
+endfunction
+" }}}2
+
 " Autocommands {{{1
 
 augroup nvimrc " {{{2
