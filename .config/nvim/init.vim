@@ -4,6 +4,7 @@
 " * Maybe modify formatlistpat to deal with lists in comments, like this one?
 " * Add mapping to shift to child item with tab (and renumber subsequent items)
 " * Add mapping to change label
+" * Add navigation for list objects
 
 " Options {{{1
 
@@ -218,64 +219,151 @@ let s:sourced = 1
 
 " Text objects for lists {{{1
 
-onoremap <silent> al :<C-U>call <SID>outer_list_object('select')<CR>
-vnoremap <silent> al :<C-U>call <SID>outer_list_object('select')<CR>
-onoremap <silent> il :<C-U>call <SID>inner_list_object('select')<CR>
-vnoremap <silent> il :<C-U>call <SID>inner_list_object('select')<CR>
+onoremap <silent> al :<C-U>call <SID>list_object('outer', 1)<CR>
+vnoremap <silent> al :<C-U>call <SID>list_object('outer', 1)<CR>
+onoremap <silent> il :<C-U>call <SID>inner_list_object(1)<CR>
+vnoremap <silent> il :<C-U>call <SID>inner_list_object(1)<CR>
+onoremap <silent> am :<C-U>call <SID>outer_item_object(1)<CR>
+vnoremap <silent> am :<C-U>call <SID>outer_item_object(1)<CR>
+onoremap <silent> im :<C-U>call <SID>inner_item_object(1)<CR>
+vnoremap <silent> im :<C-U>call <SID>inner_item_object(1)<CR>
 
-function s:outer_list_object(action) abort " {{{2
-    let l:inner_list_object = s:inner_list_object('get', 1)
-    if !l:inner_list_object.indent.label
-        if a:action ==# 'select'
-            call s:select_range(l:inner_list_object.line.start,
-                        \ l:inner_list_object.line.end)
+function! s:inner_list_object(select = 0) abort " {{{2
+    let l:cursor_pos = getpos('.')
+    let l:inner_list_object = {'objects' : []}
+    let l:current_item_object = s:inner_item_object('get')
+    if empty(l:current_item_object) | return {} | endif
+    let l:outer_list_object = s:list_object('outer', 'get')
+    for outer_item_object in l:outer_list_object.objects
+        if outer_item_object.indent == l:current_item_object.indent
+            call cursor(outer_item_object.line.start, v:maxcol)
+            call add(l:inner_list_object.objects, s:inner_item_object('get'))
+        endif
+    endfor
+    call setpos('.', l:cursor_pos)
+
+    if empty(l:inner_list_object.objects)
+        return s:list_object('inner')
+    else
+        let l:inner_list_object.label = l:outer_list_object.label
+        if a:select
+            call s:select_range(l:inner_list_object.objects[0].line.start,
+                        \ l:inner_list_object.objects[-1].line.end)
         endif
         return l:inner_list_object
     endif
-
-    let l:label_indent = l:inner_list_object.indent.label - 1
-    while s:to_list('label', 'b', 'end', '0,' .. l:label_indent)
-        let l:prev_list_object = s:inner_list_object('get', 1)
-
-        if l:prev_list_object.line.end < l:inner_list_object.line.end
-            break
-        endif
-
-        let l:outer_list_object = l:prev_list_object
-        if !l:outer_list_object.indent.label
-            break
-        endif
-        let l:label_indent = l:outer_list_object.indent.label - 1
-    endwhile
-
-    if !exists('l:outer_list_object')
-        if a:action ==# 'select'
-            call s:select_range(l:inner_list_object.line.start,
-                        \ l:inner_list_object.line.end)
-        endif
-        return l:inner_list_object
-    endif
-
-    if a:action ==# 'select'
-        call s:select_range(l:outer_list_object.line.start,
-                    \ l:outer_list_object.line.end)
-    endif
-    return l:outer_list_object
 endfunction
 
-function! s:inner_list_object(action, children = 0) abort " {{{2
-    if getline('.') !~# s:formatlistpat() .. '|^\s+|^$'
-        if a:action ==# 'select' | execute "normal! \<Esc>" | endif
+function! s:list_object(item, select = 0) abort " {{{2
+    execute 'let l:current_item_object = s:' .. a:item .. '_item_object()'
+    if empty(l:current_item_object) | return {} | endif
+    let l:list_object = {'objects': []}
+    call add(l:list_object.objects, l:current_item_object)
+
+    let l:cursor_pos = getpos('.')
+    while s:to_item('label', 'b', 'end',
+                \ l:list_object.objects[0].indent.label)
+        execute 'let l:prev_item_object = s:' .. a:item .. '_item_object()'
+        if l:current_item_object.line.start - l:prev_item_object.line.end != 1
+            break
+        endif
+        call add(l:list_object.objects, l:prev_item_object)
+        let l:current_item_object = l:prev_item_object
+    endwhile
+
+    call reverse(l:list_object.objects)
+
+    let l:current_item_object = l:list_object.objects[-1]
+    call cursor(l:current_item_object.line.start, v:maxcol)
+    while s:to_item('label', '', 'start',
+                \ l:list_object.objects[0].indent.label)
+        execute 'let l:next_item_object = s:' .. a:item .. '_item_object()'
+        if l:next_item_object.line.start - l:current_item_object.line.end != 1
+            break
+        endif
+        call add(l:list_object.objects, l:next_item_object)
+        let l:current_item_object = l:next_item_object
+    endwhile
+
+    call setpos('.', l:cursor_pos)
+
+    if l:list_object.objects[0].label =~# '1'
+        let l:list_object.label = 'arabic'
+    elseif l:list_object.objects[0].label =~# 'I'
+        let l:list_object.label = 'Roman'
+    elseif l:list_object.objects[0].label =~# 'i'
+        let l:list_object.label = 'roman'
+    elseif l:list_object.objects[0].label =~# 'A'
+        let l:list_object.label = 'Alpha'
+    elseif l:list_object.objects[0].label =~# 'a'
+        let l:list_object.label = 'alpha'
+    elseif l:list_object.objects[0].label =~# '\v[-*+]'
+        let l:list_object.label = 'unordered'
+    else
+        if a:select | execute "normal! \<Esc>" | endif
+        return l:list_object
+    endif
+
+    if a:select
+        call s:select_range(l:list_object.objects[0].line.start,
+                    \ l:list_object.objects[-1].line.end)
+    endif
+    return l:list_object
+endfunction
+
+function! s:outer_item_object(select = 0) abort " {{{2
+    let l:inner_item_object = s:inner_item_object(0, 1)
+    if !l:inner_item_object.indent.label
+        if a:select
+            call s:select_range(l:inner_item_object.line.start,
+                        \ l:inner_item_object.line.end)
+        endif
+        return l:inner_item_object
+    endif
+
+    let l:label_indent = l:inner_item_object.indent.label - 1
+    while s:to_item('label', 'b', 'end', '0,' .. l:label_indent)
+        let l:prev_item_object = s:inner_item_object(0, 1)
+
+        if l:prev_item_object.line.end < l:inner_item_object.line.end
+            break
+        endif
+
+        let l:outer_item_object = l:prev_item_object
+        if !l:outer_item_object.indent.label
+            break
+        endif
+        let l:label_indent = l:outer_item_object.indent.label - 1
+    endwhile
+
+    if !exists('l:outer_item_object')
+        if a:select
+            call s:select_range(l:inner_item_object.line.start,
+                        \ l:inner_item_object.line.end)
+        endif
+        return l:inner_item_object
+    endif
+
+    if a:select
+        call s:select_range(l:outer_item_object.line.start,
+                    \ l:outer_item_object.line.end)
+    endif
+    return l:outer_item_object
+endfunction
+
+function! s:inner_item_object(select = 0, children = 0) abort " {{{2
+    if getline('.') !~# &formatlistpat .. '|^\s+|^$'
+        if a:select | execute "normal! \<Esc>" | endif
         return {}
     endif
 
-    let l:start = search(s:formatlistpat(), 'bcnW')
+    let l:start = search(&formatlistpat, 'bcnW')
     if !l:start
-        if a:action ==# 'select' | execute "normal! \<Esc>" | endif
+        if a:select | execute "normal! \<Esc>" | endif
         return {}
     endif
 
-    let l:matchlist = matchlist(getline(l:start), s:formatlistpat())
+    let l:matchlist = matchlist(getline(l:start), &formatlistpat)
     let l:indent = strlen(l:matchlist[0])
 
     let l:end = l:start
@@ -295,26 +383,25 @@ function! s:inner_list_object(action, children = 0) abort " {{{2
     endfor
 
     if l:lnum > l:end
-        if a:action ==# 'select' | execute "normal! \<Esc>" | endif
+        if a:select | execute "normal! \<Esc>" | endif
         return {}
     endif
 
-    if a:action == 'select'
+    if a:select
         call s:select_range(l:start, l:end)
-    elseif a:action == 'get'
-        let s:inner_list_object = {
-                    \ 'line': {
-                    \   'start': l:start,
-                    \   'end': l:end,
-                    \   },
-                    \ 'indent': {
-                    \   'item': l:indent,
-                    \   'label': strlen(l:matchlist[1]),
-                    \   },
-                    \ 'label': l:matchlist[2],
-                    \ }
-        return s:inner_list_object
     endif
+    let s:inner_item_object = {
+                \ 'line': {
+                \   'start': l:start,
+                \   'end': l:end,
+                \   },
+                \ 'indent': {
+                \   'item': l:indent,
+                \   'label': strlen(l:matchlist[1]),
+                \   },
+                \ 'label': l:matchlist[2],
+                \ }
+    return s:inner_item_object
 endfunction
 
 function! s:select_range(start, end) " {{{2
@@ -331,72 +418,72 @@ endfunction
 
 " Navigation for lists {{{1
 
-nnoremap ]l <Cmd>call <SID>to_list('label', '', 'start')<CR>
-nnoremap ]L <Cmd>call <SID>to_list('label', '', 'end')<CR>
-nnoremap [l <Cmd>call <SID>to_list('label', 'b', 'start')<CR>
-nnoremap [L <Cmd>call <SID>to_list('label', 'b', 'end')<CR>
-nnoremap ]m <Cmd>call <SID>to_list('item', '', 'start')<CR>
-nnoremap ]M <Cmd>call <SID>to_list('item', '', 'end')<CR>
-nnoremap [m <Cmd>call <SID>to_list('item', 'b', 'start')<CR>
-nnoremap [M <Cmd>call <SID>to_list('item', 'b', 'end')<CR>
+nnoremap ]b <Cmd>call <SID>to_item('label', '', 'start')<CR>
+nnoremap ]B <Cmd>call <SID>to_item('label', '', 'end')<CR>
+nnoremap [b <Cmd>call <SID>to_item('label', 'b', 'start')<CR>
+nnoremap [B <Cmd>call <SID>to_item('label', 'b', 'end')<CR>
+nnoremap ]m <Cmd>call <SID>to_item('item', '', 'start')<CR>
+nnoremap ]M <Cmd>call <SID>to_item('item', '', 'end')<CR>
+nnoremap [m <Cmd>call <SID>to_item('item', 'b', 'start')<CR>
+nnoremap [M <Cmd>call <SID>to_item('item', 'b', 'end')<CR>
 
-function! s:to_list(indent, direction, position, label_indent = '') abort " {{{2
+function! s:to_item(indent, direction, to, label_indent = '') abort " {{{2
     let l:cursor_pos = getpos('.')
 
-    let l:inner_list_object = s:inner_list_object('get')
-    if empty(l:inner_list_object)
+    let l:inner_item = s:inner_item_object()
+    if empty(l:inner_item)
         if search(s:formatlistpat(a:label_indent), a:direction .. 'W')
-            let l:inner_list_object = s:inner_list_object('get')
+            let l:inner_item = s:inner_item_object()
         else
             call setpos('.', l:cursor_pos)
             return 0
         endif
 
     else
-        if a:direction ==# '' && a:position ==# 'start'
-            if line('.') != l:inner_list_object.line.start ||
-                        \ col('.') >= l:inner_list_object.indent[a:indent] + 1
+        if a:direction ==# '' && a:to ==# 'start'
+            if line('.') != l:inner_item.line.start ||
+                        \ col('.') >= l:inner_item.indent[a:indent] + 1
                 if search(s:formatlistpat(a:label_indent), 'W')
-                    let l:inner_list_object = s:inner_list_object('get')
+                    let l:inner_item = s:inner_item_object()
                 else
                     call setpos('.', l:cursor_pos)
                     return 0
                 endif
             endif
 
-        elseif a:direction ==# '' && a:position ==# 'end'
-            if line('.') == l:inner_list_object.line.end &&
+        elseif a:direction ==# '' && a:to ==# 'end'
+            if line('.') == l:inner_item.line.end &&
                         \ col('.') >= col('$') - 1
                 if search(s:formatlistpat(a:label_indent), 'W')
-                    let l:inner_list_object = s:inner_list_object('get')
+                    let l:inner_item = s:inner_item_object()
                 else
                     call setpos('.', l:cursor_pos)
                     return 0
                 endif
             endif
 
-        elseif a:direction ==# 'b' && a:position ==# 'start'
-            if line('.') == l:inner_list_object.line.start &&
-                        \ col('.') <= l:inner_list_object.indent[a:indent] + 1 &&
+        elseif a:direction ==# 'b' && a:to ==# 'start'
+            if line('.') == l:inner_item.line.start &&
+                        \ col('.') <= l:inner_item.indent[a:indent] + 1 &&
                         \ col('.') != 1
                 call search(&formatlistpat, 'bW')
             endif
 
             if search(s:formatlistpat(a:label_indent), 'bW')
-                let l:inner_list_object = s:inner_list_object('get')
+                let l:inner_item = s:inner_item_object()
             else
                 call setpos('.', l:cursor_pos)
                 return 0
             endif
 
-        elseif a:direction ==# 'b' && a:position ==# 'end'
-            if line('.') != l:inner_list_object.line.start ||
+        elseif a:direction ==# 'b' && a:to ==# 'end'
+            if line('.') != l:inner_item.line.start ||
                         \ col('.') != 1
                 call search(&formatlistpat, 'bW')
             endif
 
             if search(s:formatlistpat(a:label_indent), 'bW')
-                let l:inner_list_object = s:inner_list_object('get')
+                let l:inner_item = s:inner_item_object()
             else
                 call setpos('.', l:cursor_pos)
                 return 0
@@ -404,11 +491,11 @@ function! s:to_list(indent, direction, position, label_indent = '') abort " {{{2
         endif
     endif
 
-    if a:position ==# 'start'
-        call cursor(l:inner_list_object.line.start,
-                    \ l:inner_list_object.indent[a:indent] + 1)
-    elseif a:position ==# 'end'
-        call cursor(l:inner_list_object.line.end, v:maxcol)
+    if a:to ==# 'start'
+        call cursor(l:inner_item.line.start,
+                    \ l:inner_item.indent[a:indent] + 1)
+    elseif a:to ==# 'end'
+        call cursor(l:inner_item.line.end, v:maxcol)
     endif
 
     if getpos('.') == l:cursor_pos
@@ -461,9 +548,9 @@ function! s:change_numbered_list(key, action) abort " {{{2
     endif
 
     if l:action ==# 'delete'
-        let s:current_list_object = s:inner_list_object('get')
-        if empty(s:current_list_object) | return a:key | endif
-        let l:label = s:current_list_object.label
+        let s:current_item_object = s:inner_item_object()
+        if empty(s:current_item_object) | return a:key | endif
+        let l:label = s:current_item_object.label
     elseif l:action ==# 'insert'
         let l:execute_register = eval('@' .. v:register)
         let l:matchlist = matchlist(l:execute_register, &formatlistpat)
@@ -479,28 +566,28 @@ function! s:change_numbered_list(key, action) abort " {{{2
 endfunction
 
 function! s:insert_list_line(key) abort " {{{2
-    let l:current_list_object = s:inner_list_object('get')
-    if empty(l:current_list_object)
+    let l:current_item_object = s:inner_item_object()
+    if empty(l:current_item_object)
         return a:key
 
-    elseif a:key ==# 'O' && line('.') != l:current_list_object.line.start
+    elseif a:key ==# 'O' && line('.') != l:current_item_object.line.start
         return a:key
 
     elseif a:key ==# "\<CR>" || a:key ==# 'o'
-        if line('.') == l:current_list_object.line.start &&
-                    \ line('.') != l:current_list_object.line.end
+        if line('.') == l:current_item_object.line.start &&
+                    \ line('.') != l:current_item_object.line.end
             let l:indent = ''
-            for iteration in range(1, l:current_list_object.indent.item)
+            for iteration in range(1, l:current_item_object.indent.item)
                 let l:indent ..= ' '
             endfor
 
             return a:key .. l:indent
-        elseif line('.') != l:current_list_object.line.end
+        elseif line('.') != l:current_item_object.line.end
             return a:key
         endif
     endif
 
-    let l:label = l:current_list_object.label
+    let l:label = l:current_item_object.label
     if l:label =~# '\v\d+'
         if a:key ==# "\<CR>" || a:key == 'o'
             let l:label = str2nr(l:label) + 1
@@ -508,10 +595,10 @@ function! s:insert_list_line(key) abort " {{{2
             let l:label = str2nr(l:label) - 1
             if !l:label | let l:label = 1 | endif
         endif
-        let l:header = s:renumber_header(l:current_list_object, l:label)
+        let l:header = s:renumber_header(l:current_item_object, l:label)
         autocmd TextChangedI <buffer> ++once call s:renumber_list('insert')
     else
-        let l:header = matchlist(getline(l:current_list_object.line.start),
+        let l:header = matchlist(getline(l:current_item_object.line.start),
                     \ &formatlistpat)[0]
     endif
 
@@ -523,85 +610,85 @@ function! s:insert_list_line(key) abort " {{{2
 endfunction
 
 function! s:renumber_list(action) abort " {{{2
-    let l:new_list_object = s:inner_list_object('get')
-    if empty(l:new_list_object) | return | endif
+    let l:new_item_object = s:inner_item_object()
+    if empty(l:new_item_object) | return | endif
 
     if a:action ==# 'delete'
-        if l:new_list_object.indent == s:current_list_object.indent &&
-                    \ l:new_list_object.label == s:current_list_object.label
+        if l:new_item_object.indent == s:current_item_object.indent &&
+                    \ l:new_item_object.label == s:current_item_object.label
             return
         endif
     endif
 
     let l:cursor_pos = getpos('.')
 
-    if !s:to_list('label', 'b', 'end', l:new_list_object.indent.label)
-        let l:prev_list_object = {}
+    if !s:to_item('label', 'b', 'end', l:new_item_object.indent.label)
+        let l:prev_item_object = {}
     else
-        let l:prev_list_object = s:inner_list_object('get')
-        if l:new_list_object.line.start - l:prev_list_object.line.end != 1
-            let l:prev_list_object = {}
+        let l:prev_item_object = s:inner_item_object()
+        if l:new_item_object.line.start - l:prev_item_object.line.end != 1
+            let l:prev_item_object = {}
         endif
     endif
 
     call setpos('.', l:cursor_pos)
 
-    if !s:to_list('label', '', 'start', l:new_list_object.indent.label)
-        let l:next_list_object = {}
+    if !s:to_item('label', '', 'start', l:new_item_object.indent.label)
+        let l:next_item_object = {}
     else
-        let l:next_list_object = s:inner_list_object('get')
-        if l:next_list_object.line.start - l:new_list_object.line.end != 1
-            let l:next_list_object = {}
+        let l:next_item_object = s:inner_item_object('get')
+        if l:next_item_object.line.start - l:new_item_object.line.end != 1
+            let l:next_item_object = {}
         endif
     endif
 
     call setpos('.', l:cursor_pos)
 
-    if empty(l:prev_list_object)
+    if empty(l:prev_item_object)
         let l:label = 1
     else
-        let l:label = l:prev_list_object.label + 1
+        let l:label = l:prev_item_object.label + 1
     endif
-    call s:renumber_line(l:new_list_object, l:label)
+    call s:renumber_line(l:new_item_object, l:label)
 
-    if empty(l:next_list_object) | return | endif
+    if empty(l:next_item_object) | return | endif
 
-    let l:diff = (l:next_list_object.label - l:label) - 1
-    let l:label = l:next_list_object.label - l:diff
-    call s:renumber_line(l:next_list_object, l:label)
+    let l:diff = (l:next_item_object.label - l:label) - 1
+    let l:label = l:next_item_object.label - l:diff
+    call s:renumber_line(l:next_item_object, l:label)
 
-    call s:to_list('label', '', 'start', l:new_list_object.indent.label)
+    call s:to_item('label', '', 'start', l:new_item_object.indent.label)
 
-    while s:to_list('label', '', 'start', l:new_list_object.indent.label)
-        let l:prev_list_object = l:next_list_object
-        let l:next_list_object = s:inner_list_object('get')
+    while s:to_item('label', '', 'start', l:new_item_object.indent.label)
+        let l:prev_item_object = l:next_item_object
+        let l:next_item_object = s:inner_item_object('get')
 
-        if l:next_list_object.line.start - l:prev_list_object.line.end != 1
+        if l:next_item_object.line.start - l:prev_item_object.line.end != 1
             break
         endif
 
         let l:label +=1
-        call s:renumber_line(s:inner_list_object('get'), l:label)
+        call s:renumber_line(s:inner_item_object(), l:label)
     endwhile
 
     call setpos('.', l:cursor_pos)
 endfunction
 
-function! s:renumber_line(list_object, label) abort " {{{2
-    let l:header = s:renumber_header(a:list_object, a:label)
-    let l:line = getline(a:list_object.line.start)
+function! s:renumber_line(item_object, label) abort " {{{2
+    let l:header = s:renumber_header(a:item_object, a:label)
+    let l:line = getline(a:item_object.line.start)
     let l:line = substitute(l:line, &formatlistpat, l:header, '')
-    call setline(a:list_object.line.start, l:line)
+    call setline(a:item_object.line.start, l:line)
 endfunction
 
-function! s:renumber_header(list_object, label) abort " {{{2
-    let l:line = getline(a:list_object.line.start)
+function! s:renumber_header(item_object, label) abort " {{{2
+    let l:line = getline(a:item_object.line.start)
     let l:matchlist = matchlist(l:line, s:formatlistpat())
     let l:header = substitute(l:matchlist[0], l:matchlist[2], a:label, '')
-    if strlen(l:header) > a:list_object.indent.item
-        let l:header = strpart(l:header, 0, a:list_object.indent.item)
-    elseif strlen(l:header) < a:list_object.indent.item
-        while strlen(l:header) < a:list_object.indent.item
+    if strlen(l:header) > a:item_object.indent.item
+        let l:header = strpart(l:header, 0, a:item_object.indent.item)
+    elseif strlen(l:header) < a:item_object.indent.item
+        while strlen(l:header) < a:item_object.indent.item
             let l:header = l:header .. ' '
         endwhile
     endif
