@@ -5,6 +5,8 @@
 " * Add mapping to shift to child item with tab (and renumber subsequent items)
 " * Add mapping to change label
 " * Add navigation for list objects
+" * If <C-U> deletes a label, renumber subsequent items
+" * Known error: cw seems to not work sometimes in normal mode
 
 " Options {{{1
 
@@ -235,7 +237,7 @@ function! s:inner_list_object(select = 0) abort " {{{2
     if empty(current_item) | return {} | endif
     let l:outer_list_object = s:list_object('outer')
     for outer_item in l:outer_list_object.objects
-        if outer_item.indent == current_item.indent
+        if outer_item.indent ==# current_item.indent
             call cursor(outer_item.line.start, v:maxcol)
             call add(l:inner_list_object.objects, s:inner_item_object())
         endif
@@ -264,7 +266,7 @@ function! s:list_object(item, select = 0) abort " {{{2
     while s:to_item('label', 'b', 'end',
                 \ l:list_object.objects[0].indent.label)
         execute 'let l:prev_item = s:' .. a:item .. '_item_object()'
-        if l:current_item.line.start - l:prev_item.line.end != 1
+        if l:current_item.line.start - l:prev_item.line.end !=# 1
             break
         endif
         call add(l:list_object.objects, l:prev_item)
@@ -278,7 +280,7 @@ function! s:list_object(item, select = 0) abort " {{{2
     while s:to_item('label', '', 'start',
                 \ l:list_object.objects[0].indent.label)
         execute 'let l:next_item = s:' .. a:item .. '_item_object()'
-        if l:next_item.line.start - l:current_item.line.end != 1
+        if l:next_item.line.start - l:current_item.line.end !=# 1
             break
         endif
         call add(l:list_object.objects, l:next_item)
@@ -437,7 +439,7 @@ function! s:to_item(indent, direction, to, label_indent = '') abort " {{{2
 
     else
         if a:direction ==# '' && a:to ==# 'start'
-            if line('.') != l:inner_item.line.start ||
+            if line('.') !=# l:inner_item.line.start ||
                         \ col('.') >= l:inner_item.indent[a:indent] + 1
                 if search(s:formatlistpat(a:label_indent), 'W')
                     let l:inner_item = s:inner_item_object()
@@ -448,7 +450,7 @@ function! s:to_item(indent, direction, to, label_indent = '') abort " {{{2
             endif
 
         elseif a:direction ==# '' && a:to ==# 'end'
-            if line('.') == l:inner_item.line.end &&
+            if line('.') ==# l:inner_item.line.end &&
                         \ col('.') >= col('$') - 1
                 if search(s:formatlistpat(a:label_indent), 'W')
                     let l:inner_item = s:inner_item_object()
@@ -459,9 +461,9 @@ function! s:to_item(indent, direction, to, label_indent = '') abort " {{{2
             endif
 
         elseif a:direction ==# 'b' && a:to ==# 'start'
-            if line('.') == l:inner_item.line.start &&
+            if line('.') ==# l:inner_item.line.start &&
                         \ col('.') <= l:inner_item.indent[a:indent] + 1 &&
-                        \ col('.') != 1
+                        \ col('.') !=# 1
                 call search(&formatlistpat, 'bW')
             endif
 
@@ -473,7 +475,7 @@ function! s:to_item(indent, direction, to, label_indent = '') abort " {{{2
             endif
 
         elseif a:direction ==# 'b' && a:to ==# 'end'
-            if line('.') != l:inner_item.line.start || col('.') != 1
+            if line('.') !=# l:inner_item.line.start || col('.') !=# 1
                 call search(&formatlistpat, 'bW')
             endif
 
@@ -492,7 +494,7 @@ function! s:to_item(indent, direction, to, label_indent = '') abort " {{{2
         call cursor(l:inner_item.line.end, v:maxcol)
     endif
 
-    if getpos('.') == l:cursor_pos
+    if getpos('.') ==# l:cursor_pos
         return 0
     else
         return 1
@@ -525,20 +527,20 @@ function! s:map(key, action, prefix = '') abort " {{{2
                 \   string(a:action) .. ')'
 endfunction
 
-call s:map('c', 'delete')
-call s:map('d', 'delete')
-call s:map('p', 'insert')
-call s:map('p', 'insert', 'g')
-call s:map('p', 'insert', 'z')
-call s:map('p', 'insert', '[')
-call s:map('p', 'insert', ']')
-nnoremap <expr> . <SID>change_numbered_list('.', '')
-inoremap <expr> <CR> <SID>insert_list_line("\<CR>")
-nnoremap <expr> o <SID>insert_list_line('o')
-nnoremap <expr> O <SID>insert_list_line('O')
+autocmd FileType text call s:map('c', 'delete')
+autocmd FileType text call s:map('d', 'delete')
+autocmd FileType text call s:map('p', 'insert')
+autocmd FileType text call s:map('p', 'insert', 'g')
+autocmd FileType text call s:map('p', 'insert', 'z')
+autocmd FileType text call s:map('p', 'insert', '[')
+autocmd FileType text call s:map('p', 'insert', ']')
+autocmd FileType text nnoremap <expr> . <SID>change_numbered_list('.', '')
+autocmd FileType text inoremap <expr> <CR> <SID>insert_list_line("\<CR>")
+autocmd FileType text nnoremap <expr> o <SID>insert_list_line('o')
+autocmd FileType text nnoremap <expr> O <SID>insert_list_line('O')
 
 function! s:change_numbered_list(key, action) abort " {{{2
-    if a:key == '.'
+    if a:key ==# '.'
         if !exists('s:last_action') | return a:key | endif
         let l:action = s:last_action
     else
@@ -568,26 +570,26 @@ function! s:insert_list_line(key) abort " {{{2
     if empty(l:current_item)
         return a:key
 
-    elseif a:key ==# 'O' && line('.') != l:current_item.line.start
+    elseif a:key ==# 'O' && line('.') !=# l:current_item.line.start
         return a:key
 
     elseif a:key ==# "\<CR>" || a:key ==# 'o'
-        if line('.') == l:current_item.line.start &&
-                    \ line('.') != l:current_item.line.end
+        if line('.') ==# l:current_item.line.start &&
+                    \ line('.') !=# l:current_item.line.end
             let l:indent = ''
             for iteration in range(1, l:current_item.indent.item)
                 let l:indent ..= ' '
             endfor
 
             return a:key .. l:indent
-        elseif line('.') != l:current_item.line.end
+        elseif line('.') !=# l:current_item.line.end
             return a:key
         endif
     endif
 
     let l:label = l:current_item.label
     if l:label =~# '\v\d+'
-        if a:key ==# "\<CR>" || a:key == 'o'
+        if a:key ==# "\<CR>" || a:key ==# 'o'
             let l:label = str2nr(l:label) + 1
         elseif a:key ==# 'O'
             let l:label = str2nr(l:label) - 1
@@ -608,68 +610,42 @@ function! s:insert_list_line(key) abort " {{{2
 endfunction
 
 function! s:renumber_list(action) abort " {{{2
-    let l:new_item = s:inner_item_object()
-    if empty(l:new_item) | return | endif
+    let l:current_item = s:inner_item_object()
+    if empty(l:current_item) | return | endif
+    " [FIXME] This is what is preventing renumbering if you delete first line
+    " of multiline first item
 
     if a:action ==# 'delete'
-        if l:new_item.indent == s:current_item.indent &&
-                    \ l:new_item.label == s:current_item.label
+        if l:current_item.indent ==# s:current_item.indent &&
+                    \ l:current_item.label ==# s:current_item.label
             return
         endif
     endif
 
-    let l:cursor_pos = getpos('.')
-
-    if !s:to_item('label', 'b', 'end', l:new_item.indent.label)
-        let l:prev_item = {}
-    else
-        let l:prev_item = s:inner_item_object()
-        if l:new_item.line.start - l:prev_item.line.end != 1
-            let l:prev_item = {}
-        endif
-    endif
-
-    call setpos('.', l:cursor_pos)
-
-    if !s:to_item('label', '', 'start', l:new_item.indent.label)
-        let l:next_item = {}
-    else
-        let l:next_item = s:inner_item_object()
-        if l:next_item.line.start - l:new_item.line.end != 1
-            let l:next_item = {}
-        endif
-    endif
-
-    call setpos('.', l:cursor_pos)
-
-    if empty(l:prev_item)
+    let l:current_list = s:inner_list_object()
+    let l:index = index(l:current_list.objects, l:current_item)
+    if !l:index
         let l:label = 1
     else
+        let l:prev_item = l:current_list.objects[l:index - 1]
         let l:label = l:prev_item.label + 1
     endif
-    call s:renumber_line(l:new_item, l:label)
+    call s:renumber_line(l:current_item, l:label)
 
-    if empty(l:next_item) | return | endif
+    if l:current_list.objects[-1] ==# l:current_item
+        return
+    else
+        let l:next_item = l:current_list.objects[l:index + 1]
+    endif
 
     let l:diff = (l:next_item.label - l:label) - 1
     let l:label = l:next_item.label - l:diff
     call s:renumber_line(l:next_item, l:label)
 
-    call s:to_item('label', '', 'start', l:new_item.indent.label)
-
-    while s:to_item('label', '', 'start', l:new_item.indent.label)
-        let l:prev_item = l:next_item
-        let l:next_item = s:inner_item_object()
-
-        if l:next_item.line.start - l:prev_item.line.end != 1
-            break
-        endif
-
-        let l:label +=1
-        call s:renumber_line(s:inner_item_object(), l:label)
-    endwhile
-
-    call setpos('.', l:cursor_pos)
+    for item in l:current_list.objects[l:index+2:-1]
+        let l:label += 1
+        call s:renumber_line(item, l:label)
+    endfor
 endfunction
 
 function! s:renumber_line(item_object, label) abort " {{{2
@@ -701,39 +677,39 @@ function! s:arabic2roman(integer, case) abort " {{{2
     let l:digits = split(a:integer, '\zs')
     let l:numeral = ''
     for digit in l:digits
-        if len(l:digits) == 4 && digit > 3
+        if len(l:digits) ==# 4 && digit > 3
             echohl ErrorMsg
             echomsg 'No Roman numerals above 3999'
             echohl None
             return
         endif
 
-        if len(l:digits) == 4
+        if len(l:digits) ==# 4
             let l:one = 'M'
-        elseif len(l:digits) == 3
+        elseif len(l:digits) ==# 3
             let l:one = 'C'
             let l:five = 'D'
             let l:ten = 'M'
-        elseif len(l:digits) == 2
+        elseif len(l:digits) ==# 2
             let l:one = 'X'
             let l:five = 'L'
             let l:ten = 'C'
-        elseif len(l:digits) == 1
+        elseif len(l:digits) ==# 1
             let l:one = 'I'
             let l:five = 'V'
             let l:ten = 'X'
         endif
 
-        if digit == 4 && len(l:digits) < 3
+        if digit ==# 4 && len(l:digits) < 3
             let l:numeral ..= l:one .. l:five
-        elseif digit == 9 && len(l:digits) < 3
+        elseif digit ==# 9 && len(l:digits) < 3
             let l:numeral ..= l:one .. l:ten
         elseif digit < 5
             let l:numeral ..= ''
             for iteration in range(1, digit)
                 let l:numeral ..= l:one
             endfor
-        elseif digit == 5
+        elseif digit ==# 5
             let l:numeral ..= l:five
         elseif digit > 5
             let l:numeral ..= l:five
@@ -764,7 +740,7 @@ function! s:roman2arabic(numeral) abort " {{{2
     let v = 5
     let i = 1
 
-    if strlen(a:numeral) == 1
+    if strlen(a:numeral) ==# 1
         return eval(a:numeral)
     endif
 
@@ -792,3 +768,5 @@ function! s:roman2arabic(numeral) abort " {{{2
     return l:integer
 endfunction
 " }}}2
+
+" }}}1
