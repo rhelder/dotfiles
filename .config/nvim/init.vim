@@ -258,8 +258,8 @@ function! s:inner_list_object(select = 0) abort " {{{2
     endif
 endfunction
 
-function! s:list_object(item, select = 0) abort " {{{2
-    execute 'let l:current_item = s:item_object(' .. string(a:item) .. ')'
+function! s:list_object(scope, select = 0) abort " {{{2
+    execute 'let l:current_item = s:item_object(' .. string(a:scope) .. ')'
     if empty(l:current_item) | return {} | endif
     let l:list_object = {'objects': []}
     call add(l:list_object.objects, l:current_item)
@@ -267,7 +267,7 @@ function! s:list_object(item, select = 0) abort " {{{2
     let l:cursor_pos = getpos('.')
     while s:to_item('label', 'b', 'end',
                 \ l:list_object.objects[0].indent.label)
-        execute 'let l:prev_item = s:item_object(' .. string(a:item) .. ')'
+        execute 'let l:prev_item = s:item_object(' .. string(a:scope) .. ')'
         if l:current_item.line.start - l:prev_item.line.end !=# 1
             break
         endif
@@ -281,7 +281,7 @@ function! s:list_object(item, select = 0) abort " {{{2
     call cursor(l:current_item.line.start, v:maxcol)
     while s:to_item('label', '', 'start',
                 \ l:list_object.objects[0].indent.label)
-        execute 'let l:next_item = s:item_object(' .. string(a:item) .. ')'
+        execute 'let l:next_item = s:item_object(' .. string(a:scope) .. ')'
         if l:next_item.line.start - l:current_item.line.end !=# 1
             break
         endif
@@ -291,15 +291,15 @@ function! s:list_object(item, select = 0) abort " {{{2
 
     call setpos('.', l:cursor_pos)
 
-    if l:list_object.objects[0].label =~# '1'
+    if l:list_object.objects[0].label ==# 1
         let l:list_object.label = 'arabic'
-    elseif l:list_object.objects[0].label =~# 'I'
+    elseif l:list_object.objects[0].label ==# 'I'
         let l:list_object.label = 'Roman'
-    elseif l:list_object.objects[0].label =~# 'i'
+    elseif l:list_object.objects[0].label ==# 'i'
         let l:list_object.label = 'roman'
-    elseif l:list_object.objects[0].label =~# 'A'
+    elseif l:list_object.objects[0].label ==# 'A'
         let l:list_object.label = 'Alpha'
-    elseif l:list_object.objects[0].label =~# 'a'
+    elseif l:list_object.objects[0].label ==# 'a'
         let l:list_object.label = 'alpha'
     elseif l:list_object.objects[0].label =~# '\v[-*+]'
         let l:list_object.label = 'unordered'
@@ -315,7 +315,7 @@ function! s:list_object(item, select = 0) abort " {{{2
     return l:list_object
 endfunction
 
-function! s:item_object(item, select = 0) abort " {{{2
+function! s:item_object(scope, select = 0) abort " {{{2
     let l:item_object = s:get_item()
     if empty(l:item_object)
         if a:select | execute "normal! \<Esc>" | endif
@@ -323,7 +323,7 @@ function! s:item_object(item, select = 0) abort " {{{2
     endif
 
     if !l:item_object.indent.label
-        if a:item ==# 'inner'
+        if a:scope ==# 'inner'
             let l:item_object.line.end = s:inner_item_end()
         endif
         if a:select
@@ -350,10 +350,10 @@ function! s:item_object(item, select = 0) abort " {{{2
         endif
     endwhile
 
-    if a:item ==# 'inner'
+    if a:scope ==# 'inner'
         call setpos('.', l:cursor_pos)
         let l:item_object.line.end = s:inner_item_end()
-    elseif a:item ==# 'outer'
+    elseif a:scope ==# 'outer'
         let l:start = l:item_object.parents[-1].line.start
         let l:matchlist = matchlist(getline(l:start), &formatlistpat)
         let l:item_object = {
