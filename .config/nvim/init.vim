@@ -236,6 +236,7 @@ function! s:outer_list_object(select = 0) abort " {{{2
         let l:outer_list_object = s:get_list()
         let l:outer_list_object.type = l:inner_list.type
         let l:outer_list_object.parents = l:inner_list.parents
+        let l:outer_list_object.children = l:inner_list.children
 
         if a:select
             call s:_select_range(l:outer_list_object.objects[0].line.start,
@@ -243,10 +244,12 @@ function! s:outer_list_object(select = 0) abort " {{{2
         endif
         return l:outer_list_object
     endif
+
     let l:outer_list_object = s:inner_list_object().parents[0]
 
     for item in l:outer_list_object.objects
         let item.parents = s:get_parents(item)
+        let item.children = s:get_children(item)
     endfor
 
     let l:outer_list_object.parents = []
@@ -255,6 +258,12 @@ function! s:outer_list_object(select = 0) abort " {{{2
         let l:parent.type = s:get_list_type(l:parent)
         call add(l:outer_list_object.parents, l:parent)
     endfor
+
+    let l:outer_list_object.children = []
+    for item in l:outer_list_object.objects
+        call add(l:outer_list_object.children, item.children)
+    endfor
+
 
     if a:select
         call s:_select_range(l:outer_list_object.objects[0].line.start,
@@ -278,6 +287,11 @@ function! s:inner_list_object(select = 0) abort " {{{2
         let l:parent = s:get_list(item)
         let l:parent.type = s:get_list_type(l:parent)
         call add(l:inner_list_object.parents, l:parent)
+    endfor
+
+    let l:inner_list_object.children = []
+    for item in l:inner_list_object.objects
+        call add(l:inner_list_object.children, item.children)
     endfor
 
     if a:select
@@ -316,8 +330,7 @@ function! s:get_list(item = '') abort " {{{2
 
     let l:cursor_pos = getpos('.')
     call cursor(l:current_item.line.start, 1)
-    while s:to_item('label', 'b', 'start',
-                \ l:list.objects[0].indent.label)
+    while search(s:formatlistpat(l:list.objects[0].indent.label), 'bW')
         let l:prev_item = s:get_item()
         if l:current_item.line.start - l:prev_item.line.end !=# 1
             break
@@ -330,8 +343,7 @@ function! s:get_list(item = '') abort " {{{2
 
     let l:current_item = l:list.objects[-1]
     call cursor(l:current_item.line.start, v:maxcol)
-    while s:to_item('label', '', 'start',
-                \ l:list.objects[0].indent.label)
+    while search(s:formatlistpat(l:list.objects[0].indent.label), 'W')
         let l:next_item = s:get_item()
         if l:next_item.line.start - l:current_item.line.end !=# 1
             break
@@ -357,6 +369,7 @@ function! s:item_object(scope, select = 0, item = '') abort " {{{2
     endif
 
     let l:item_object.parents = s:get_parents(l:item_object)
+    let l:item_object.children = s:get_children(l:item_object)
 
     if a:scope ==# 'inner'
         let l:item_object.line.end = s:inner_item_end(l:item_object)
@@ -394,6 +407,24 @@ function! s:item_object(scope, select = 0, item = '') abort " {{{2
     return l:item_object
 endfunction
 
+function! s:get_children(item) abort " {{{2
+    let a:item.children = []
+
+    let l:cursor_pos = getpos('.')
+    call cursor(a:item.line.start, v:maxcol)
+
+    let l:label_indent = a:item.indent.label + 1
+    while search(s:formatlistpat(l:label_indent .. ','), 'W', a:item.line.end)
+        let l:child = s:get_list()
+        let l:child.type = s:get_list_type(l:child)
+        call add(a:item.children, l:child)
+        let l:label_indent = s:get_item().indent.label + 1
+    endwhile
+
+    call setpos('.', l:cursor_pos)
+    return a:item.children
+endfunction
+
 function! s:get_parents(item) abort " {{{2
     let a:item.parents = []
 
@@ -411,7 +442,7 @@ function! s:get_parents(item) abort " {{{2
             break
         endif
 
-        call add(a:item.parents, s:get_item())
+        call add(a:item.parents, l:prev_item)
 
         if !l:prev_item.indent.label
             break
@@ -619,17 +650,17 @@ function! s:map(key, action, prefix = '') abort " {{{2
                 \   string(a:action) .. ')'
 endfunction
 
-autocmd FileType text call s:map('c', 'delete')
-autocmd FileType text call s:map('d', 'delete')
-autocmd FileType text call s:map('p', 'insert')
-autocmd FileType text call s:map('p', 'insert', 'g')
-autocmd FileType text call s:map('p', 'insert', 'z')
-autocmd FileType text call s:map('p', 'insert', '[')
-autocmd FileType text call s:map('p', 'insert', ']')
-autocmd FileType text nnoremap <buffer> <expr> . <SID>change_numbered_list('.', '')
-autocmd FileType text inoremap <buffer> <expr> <CR> <SID>insert_list_line("\<CR>")
-autocmd FileType text nnoremap <buffer> <expr> o <SID>insert_list_line('o')
-autocmd FileType text nnoremap <buffer> <expr> O <SID>insert_list_line('O')
+" autocmd FileType text call s:map('c', 'delete')
+" autocmd FileType text call s:map('d', 'delete')
+" autocmd FileType text call s:map('p', 'insert')
+" autocmd FileType text call s:map('p', 'insert', 'g')
+" autocmd FileType text call s:map('p', 'insert', 'z')
+" autocmd FileType text call s:map('p', 'insert', '[')
+" autocmd FileType text call s:map('p', 'insert', ']')
+" autocmd FileType text nnoremap <buffer> <expr> . <SID>change_numbered_list('.', '')
+" autocmd FileType text inoremap <buffer> <expr> <CR> <SID>insert_list_line("\<CR>")
+" autocmd FileType text nnoremap <buffer> <expr> o <SID>insert_list_line('o')
+" autocmd FileType text nnoremap <buffer> <expr> O <SID>insert_list_line('O')
 
 function! s:change_numbered_list(key, action) abort " {{{2
     if a:key ==# '.'
@@ -646,8 +677,12 @@ function! s:change_numbered_list(key, action) abort " {{{2
     elseif l:action ==# 'insert'
         let l:execute_register = eval('@' .. v:register)
         let l:matchlist = matchlist(l:execute_register, &formatlistpat)
+        " [TODO]:
+        " let l:matchlist = matchlist(l:execute_register,
+                    " \ substitute(&formatlistpat, '\^', '(^|\\n)', ''))
         if empty(l:matchlist) | return a:key | endif
         let l:label = l:matchlist[2]
+        " let l:label = l:matchlist[3]
     endif
     if l:label !~# '\v\d+' | return a:key | endif
 
