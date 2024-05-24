@@ -574,10 +574,10 @@ function! s:to_list(direction, to, label_indent = '') abort " {{{2
 
     let l:current_list = s:inner_list_object()
     if empty(l:current_list)
+        normal! m'
         call search(s:formatlistpat(a:label_indent), a:direction .. 'W')
         let l:current_list = s:inner_list_object()
-        call cursor(l:current_list.objects[l:idx].line[a:to], l:col)
-        return
+        return cursor(l:current_list.objects[l:idx].line[a:to], l:col)
     endif
 
     let l:lines = s:get_lines(a:to, l:current_list)
@@ -595,20 +595,24 @@ function! s:to_list(direction, to, label_indent = '') abort " {{{2
     endif
     if search(s:formatlistpat(a:label_indent), a:direction .. 'W')
         if a:direction ==# '' && a:to ==# 'start'
-            return
+            let l:destination = getpos('.')[1:2]
+            call setpos('.', l:cursor_pos)
+            return s:jump_cursor(l:destination)
         elseif a:direction ==# 'b' && a:to ==# 'end'
             call cursor(s:inner_list_object().objects[-1].line.end, v:maxcol)
-            return
+            let l:destination = getpos('.')[1:2]
+            call setpos('.', l:cursor_pos)
+            return s:jump_cursor(l:destination)
         endif
 
         let l:lines = s:get_lines(a:to, s:inner_list_object())
-        call s:to_line(a:direction, a:to, l:lines)
+        call s:to_line(a:direction, a:to, l:lines, l:cursor_pos)
     else
         call setpos('.', l:cursor_pos)
     endif
 endfunction
 
-function! s:to_line(direction, to, lines) abort " {{{3
+function! s:to_line(direction, to, lines, from = '') abort " {{{3
     if a:direction ==# 'b' | call reverse(a:lines) | endif
     if a:to ==# 'start'
         let l:positions = map(a:lines, '[v:val, s:indent(v:val) + 1]')
@@ -621,19 +625,23 @@ function! s:to_line(direction, to, lines) abort " {{{3
         if a:direction ==# ''
             if a:to ==# 'end' &&
                         \ (l:pos[0] ==# l:lnum && col('.') < (col('$') - 1))
-                call cursor(l:pos)
+                if !empty(a:from) | call setpos('.', a:from) | endif
+                call s:jump_cursor(l:pos)
                 return 1
             elseif l:pos[0] > l:lnum
-                call cursor(l:pos)
+                if !empty(a:from) | call setpos('.', a:from) | endif
+                call s:jump_cursor(l:pos)
                 return 1
             endif
         elseif a:direction ==# 'b'
             if a:to ==# 'start' &&
                         \ (l:pos[0] ==# l:lnum && col('.') > l:pos[1])
-                call cursor(l:pos)
+                if !empty(a:from) | call setpos('.', a:from) | endif
+                call s:jump_cursor(l:pos)
                 return 1
             elseif l:pos[0] < l:lnum
-                call cursor(l:pos)
+                if !empty(a:from) | call setpos('.', a:from) | endif
+                call s:jump_cursor(l:pos)
                 return 1
             endif
         endif
@@ -687,7 +695,7 @@ function! s:whither(to) abort " {{{3
 endfunction
 
 function! s:jump_cursor(...) abort " {{{3
-    normal! m`
+    normal! m'
     if a:0 ==# 1
         call cursor(a:1)
     elseif a:0 ==# 2
