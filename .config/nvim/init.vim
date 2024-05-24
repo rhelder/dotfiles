@@ -4,13 +4,12 @@
 " * Maybe modify formatlistpat to deal with lists in comments, like this one?
 " * Add mapping to shift to child item with tab (and renumber subsequent items)
 " * Add mapping to change label
-" * Add navigation for list objects
 " * If <C-U> deletes a label, renumber subsequent items
 " * Known error: cw seems to not work sometimes in normal mode
 
 " Options {{{1
 
-let &formatlistpat = '\v^(\s{})(\d+|\*|\+|-)[]:.)}]?\s+'
+let &formatlistpat = '\v^(\s{})\(?((\d+|\a+|#|\@\a*)[]:.)}]{1}|\*|\+|-)\s+'
 let g:python3_host_prog = '/usr/local/bin/python3'
 set belloff=
 set completeopt=noinsert,menuone,noselect " As required for ncm2
@@ -230,8 +229,13 @@ vnoremap <silent> am :<C-U>call <SID>item_object('outer', 1)<CR>
 onoremap <silent> im :<C-U>call <SID>item_object('inner', 1)<CR>
 vnoremap <silent> im :<C-U>call <SID>item_object('inner', 1)<CR>
 
-function! s:outer_list_object(select = 0) abort " {{{2
-    let l:inner_list = s:inner_list_object()
+function! s:outer_list_object(select = 0, item = '') abort " {{{2
+    let l:inner_list = s:inner_list_object(0, a:item)
+    if empty(l:inner_list)
+        if a:select | execute "normal! \<Esc>" | endif
+        return {}
+    endif
+
     if empty(l:inner_list.parents)
         let l:outer_list_object = s:get_list()
         let l:outer_list_object.type = l:inner_list.type
@@ -272,8 +276,12 @@ function! s:outer_list_object(select = 0) abort " {{{2
     return l:outer_list_object
 endfunction
 
-function! s:inner_list_object(select = 0) abort " {{{2
-    let l:list_object = s:get_list()
+function! s:inner_list_object(select = 0, item = '') abort " {{{2
+    let l:list_object = s:get_list(a:item)
+    if empty(l:list_object)
+        if a:select | execute "normal! \<Esc>" | endif
+        return {}
+    endif
 
     let l:inner_list_object = {}
     let l:inner_list_object.objects = []
@@ -301,17 +309,21 @@ function! s:inner_list_object(select = 0) abort " {{{2
     return l:inner_list_object
 endfunction
 
-function! s:get_list_type(list) " {{{2
-    if a:list.objects[0].label ==# 1
+function! s:get_list_type(list) abort " {{{2
+    if a:list.objects[0].label =~# '\v\d+[]:.)}]{1}'
         let l:type = 'arabic'
-    elseif a:list.objects[0].label ==# 'I'
+    elseif a:list.objects[0].label =~# '\v[IVXLCDM]+[]:.)}]{1}'
         let l:type = 'Roman'
-    elseif a:list.objects[0].label ==# 'i'
+    elseif a:list.objects[0].label =~# '\v[ivxlcdm]+[]:.)}]{1}'
         let l:type = 'roman'
-    elseif a:list.objects[0].label ==# 'A'
+    elseif a:list.objects[0].label =~# '\v\u[]:.)}]{1}'
         let l:type = 'Alpha'
-    elseif a:list.objects[0].label ==# 'a'
+    elseif a:list.objects[0].label =~# '\v\l[]:.)}]{1}'
         let l:type = 'alpha'
+    elseif a:list.objects[0].label =~# '\v#[]:.)}]{1}'
+        let l:type = 'fancy'
+    elseif a:list.objects[0].label =~# '\v\@\a+[]:.)}]{1}'
+        let l:type = 'example'
     elseif a:list.objects[0].label =~# '\v[-*+]'
         let l:type = 'unordered'
     endif
@@ -537,12 +549,17 @@ function! s:_select_range(start, end) abort " {{{2
 endfunction
 
 function! s:formatlistpat(label_indent = '') abort " {{{2
-    return '\v^(\s{' .. a:label_indent .. '})(\d+|\*|\+|-)[]:.)}]?\s+'
+    return substitute(&formatlistpat,
+                \ '\\s{}', '\\s{' .. a:label_indent .. '}', '')
 endfunction
 " }}}2
 
 " Navigation for lists {{{1
 
+nnoremap ]l <Cmd>call <SID>to_list('', 'start')<CR>
+nnoremap ]L <Cmd>call <SID>to_list('', 'end')<CR>
+nnoremap [l <Cmd>call <SID>to_list('b', 'start')<CR>
+nnoremap [L <Cmd>call <SID>to_list('b', 'end')<CR>
 nnoremap ]b <Cmd>call <SID>to_item('label', '', 'start')<CR>
 nnoremap ]B <Cmd>call <SID>to_item('label', '', 'end')<CR>
 nnoremap [b <Cmd>call <SID>to_item('label', 'b', 'start')<CR>
@@ -551,6 +568,135 @@ nnoremap ]m <Cmd>call <SID>to_item('item', '', 'start')<CR>
 nnoremap ]M <Cmd>call <SID>to_item('item', '', 'end')<CR>
 nnoremap [m <Cmd>call <SID>to_item('item', 'b', 'start')<CR>
 nnoremap [M <Cmd>call <SID>to_item('item', 'b', 'end')<CR>
+
+function! s:to_list(direction, to, label_indent = '') abort " {{{2
+    let [l:idx, l:col] = s:whither(a:to)
+
+    let l:current_list = s:inner_list_object()
+    if empty(l:current_list)
+        call search(s:formatlistpat(a:label_indent), a:direction .. 'W')
+        let l:current_list = s:inner_list_object()
+        call cursor(l:current_list.objects[l:idx].line[a:to], l:col)
+        return
+    endif
+
+    let l:lines = s:get_lines(a:to, l:current_list)
+    if s:to_line(a:direction, a:to, l:lines) | return | endif
+
+    if !empty(l:current_list.parents)
+        let l:current_list = l:current_list.parents[-1]
+    endif
+
+    let l:cursor_pos = getpos('.')
+    if a:direction ==# ''
+        call cursor(l:current_list.objects[-1].line.end, v:maxcol)
+    elseif a:direction ==# 'b'
+        call cursor(l:current_list.objects[0].line.start, 1)
+    endif
+    if search(s:formatlistpat(a:label_indent), a:direction .. 'W')
+        if a:direction ==# '' && a:to ==# 'start'
+            return
+        elseif a:direction ==# 'b' && a:to ==# 'end'
+            call cursor(s:inner_list_object().objects[-1].line.end, v:maxcol)
+            return
+        endif
+
+        let l:lines = s:get_lines(a:to, s:inner_list_object())
+        call s:to_line(a:direction, a:to, l:lines)
+    else
+        call setpos('.', l:cursor_pos)
+    endif
+endfunction
+
+function! s:to_line(direction, to, lines) abort " {{{3
+    if a:direction ==# 'b' | call reverse(a:lines) | endif
+    if a:to ==# 'start'
+        let l:positions = map(a:lines, '[v:val, s:indent(v:val) + 1]')
+    elseif a:to ==# 'end'
+        let l:positions = map(a:lines, '[v:val, v:maxcol]')
+    endif
+
+    let l:lnum = line('.')
+    for l:pos in l:positions
+        if a:direction ==# ''
+            if a:to ==# 'end' &&
+                        \ (l:pos[0] ==# l:lnum && col('.') < (col('$') - 1))
+                call cursor(l:pos)
+                return 1
+            elseif l:pos[0] > l:lnum
+                call cursor(l:pos)
+                return 1
+            endif
+        elseif a:direction ==# 'b'
+            if a:to ==# 'start' &&
+                        \ (l:pos[0] ==# l:lnum && col('.') > l:pos[1])
+                call cursor(l:pos)
+                return 1
+            elseif l:pos[0] < l:lnum
+                call cursor(l:pos)
+                return 1
+            endif
+        endif
+    endfor
+    return 0
+endfunction
+
+function! s:indent(line) abort " {{{3
+    return match(getline(a:line), '\S')
+endfunction
+
+function! s:get_lines(to, list) abort " {{{3
+    let [l:idx, l:col] = s:whither(a:to)
+
+    let l:lines = []
+    for parent in a:list.parents
+        if empty(a:list.parents) | break | endif
+        let l:inner_parent_list = s:inner_list_object(0, parent.objects[0])
+        call add(l:lines, l:inner_parent_list.objects[l:idx].line[a:to])
+        call reverse(l:lines)
+        for children in l:inner_parent_list.children
+            for child in children
+                call add(l:lines, child.objects[l:idx].line[a:to])
+            endfor
+        endfor
+    endfor
+
+    if empty(l:lines)
+        call add(l:lines, a:list.objects[l:idx].line[a:to])
+    endif
+
+    for children in a:list.children
+        for child in children
+            call add(l:lines, child.objects[l:idx].line[a:to])
+        endfor
+    endfor
+
+    return uniq(sort(l:lines, 'n'))
+endfunction
+
+function! s:whither(to) abort " {{{3
+    if a:to ==# 'start'
+        let l:idx = 0
+        let l:col = 1
+    elseif a:to ==# 'end'
+        let l:idx = -1
+        let l:col = v:maxcol
+    endif
+
+    return [l:idx, l:col]
+endfunction
+
+function! s:jump_cursor(...) abort " {{{3
+    normal! m`
+    if a:0 ==# 1
+        call cursor(a:1)
+    elseif a:0 ==# 2
+        call cursor(a:1, a:2)
+    elseif a:0 ==# 3
+        call cursor(a:1, a:2, a:3)
+    endif
+endfunction
+" }}}3
 
 function! s:to_item(indent, direction, to, label_indent = '') abort " {{{2
     let l:cursor_pos = getpos('.')
