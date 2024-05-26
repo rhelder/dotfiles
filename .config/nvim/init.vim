@@ -548,18 +548,18 @@ function! s:_select_range(start, end) abort " {{{2
     if l:count | execute 'normal! ' .. l:count .. 'j' | endif
 endfunction
 
-function! s:formatlistpat(label_indent = '') abort " {{{2
+function! s:formatlistpat(n = '') abort " {{{2
     return substitute(&formatlistpat,
-                \ '\\s{}', '\\s{' .. a:label_indent .. '}', '')
+                \ '\\s{}', '\\s{' .. a:n .. '}', '')
 endfunction
 " }}}2
 
 " Navigation for lists {{{1
 
-nnoremap ]l <Cmd>call <SID>to_list('', 'start')<CR>
-nnoremap ]L <Cmd>call <SID>to_list('', 'end')<CR>
-nnoremap [l <Cmd>call <SID>to_list('b', 'start')<CR>
-nnoremap [L <Cmd>call <SID>to_list('b', 'end')<CR>
+nnoremap ]l <Cmd>call <SID>to_list('start', '')<CR>
+nnoremap ]L <Cmd>call <SID>to_list('end', '')<CR>
+nnoremap [l <Cmd>call <SID>to_list('start', 'b')<CR>
+nnoremap [L <Cmd>call <SID>to_list('end', 'b')<CR>
 nnoremap ]b <Cmd>call <SID>to_item('label', '', 'start')<CR>
 nnoremap ]B <Cmd>call <SID>to_item('label', '', 'end')<CR>
 nnoremap [b <Cmd>call <SID>to_item('label', 'b', 'start')<CR>
@@ -568,30 +568,31 @@ nnoremap ]m <Cmd>call <SID>to_item('item', '', 'start')<CR>
 nnoremap ]M <Cmd>call <SID>to_item('item', '', 'end')<CR>
 nnoremap [m <Cmd>call <SID>to_item('item', 'b', 'start')<CR>
 nnoremap [M <Cmd>call <SID>to_item('item', 'b', 'end')<CR>
-nnoremap qq <Cmd>call <SID>to_list('', 'start', 4)<CR>
 
-function! s:to_list(direction, to, label_indent = '') abort " {{{2
-    if a:to ==# 'start'
+function! s:to_list(where, direction, n = '') abort " {{{2
+    if a:where ==# 'start'
         let l:idx = 0
-    elseif a:to ==# 'end'
+    elseif a:where ==# 'end'
         let l:idx = -1
     endif
 
     let l:current_list = s:inner_list_object()
     if empty(l:current_list)
         normal! m'
-        call search(s:formatlistpat(a:label_indent), a:direction .. 'W')
+        call search(s:formatlistpat(a:n), a:direction .. 'W')
         let l:current_list = s:inner_list_object()
-        if a:to ==# 'start'
-            return cursor(l:current_list.objects[l:idx].line[a:to],
+        if a:where ==# 'start'
+            return cursor(l:current_list.objects[l:idx].line[a:where],
                         \ l:current_list.objects[l:idx].indent.label + 1)
-        elseif a:to ==# 'end'
-            return cursor(l:current_list.objects[l:idx].line[a:to], v:maxcol)
+        elseif a:where ==# 'end'
+            return cursor(l:current_list.objects[l:idx].line[a:where],
+                        \ v:maxcol)
         endif
     endif
 
-    let l:positions = s:get_positions(a:direction, a:to, l:current_list, a:label_indent)
-    if s:to_position(a:direction, a:to, l:positions) | return | endif
+    let l:positions = s:get_positions(l:current_list,
+                \ a:where, a:direction, a:n)
+    if s:to_position(l:positions, a:where, a:direction) | return | endif
 
     if !empty(l:current_list.parents)
         let l:current_list = l:current_list.parents[-1]
@@ -603,49 +604,49 @@ function! s:to_list(direction, to, label_indent = '') abort " {{{2
     elseif a:direction ==# 'b'
         call cursor(l:current_list.objects[0].line.start, 1)
     endif
-    if search(s:formatlistpat(a:label_indent), a:direction .. 'W')
-        if a:direction ==# '' && a:to ==# 'start'
+    if search(s:formatlistpat(a:n), a:direction .. 'W')
+        if a:direction ==# '' && a:where ==# 'start'
             let l:destination = [line('.'),
                         \ s:inner_list_object().objects[0].indent.label + 1]
             call setpos('.', l:cursor_pos)
             return s:jump_cursor(l:destination)
-        elseif a:direction ==# 'b' && a:to ==# 'end'
+        elseif a:direction ==# 'b' && a:where ==# 'end'
             call cursor(s:inner_list_object().objects[-1].line.end, v:maxcol)
             let l:destination = getpos('.')[1:2]
             call setpos('.', l:cursor_pos)
             return s:jump_cursor(l:destination)
         endif
 
-        let l:positions =
-                    \ s:get_positions(a:direction, a:to, s:inner_list_object(), a:label_indent))
-        call s:to_position(a:direction, a:to, l:positions, l:cursor_pos)
+        let l:positions = s:get_positions(s:inner_list_object(),
+                    \ a:where, a:direction, a:n)
+        call s:to_position(l:positions, a:where, a:direction, l:cursor_pos)
     else
         call setpos('.', l:cursor_pos)
     endif
 endfunction
 
-function! s:to_position(direction, to, positions, from = '') abort " {{{3
+function! s:to_position(positions, where, direction, jump = '') abort " {{{3
     let l:lnum = line('.')
     for l:pos in a:positions
         if a:direction ==# ''
-            if a:to ==# 'end' &&
+            if a:where ==# 'end' &&
                         \ (l:pos[0] ==# l:lnum && col('.') < (col('$') - 1))
-                if !empty(a:from) | call setpos('.', a:from) | endif
+                if !empty(a:jump) | call setpos('.', a:jump) | endif
                 call s:jump_cursor(l:pos)
                 return 1
             elseif l:pos[0] > l:lnum
-                if !empty(a:from) | call setpos('.', a:from) | endif
+                if !empty(a:jump) | call setpos('.', a:jump) | endif
                 call s:jump_cursor(l:pos)
                 return 1
             endif
         elseif a:direction ==# 'b'
-            if a:to ==# 'start' &&
+            if a:where ==# 'start' &&
                         \ (l:pos[0] ==# l:lnum && col('.') > l:pos[1])
-                if !empty(a:from) | call setpos('.', a:from) | endif
+                if !empty(a:jump) | call setpos('.', a:jump) | endif
                 call s:jump_cursor(l:pos)
                 return 1
             elseif l:pos[0] < l:lnum
-                if !empty(a:from) | call setpos('.', a:from) | endif
+                if !empty(a:jump) | call setpos('.', a:jump) | endif
                 call s:jump_cursor(l:pos)
                 return 1
             endif
@@ -658,10 +659,10 @@ function! s:indent(line) abort " {{{3
     return match(getline(a:line), '\S')
 endfunction
 
-function! s:get_positions(direction, to, list, label_indent) abort " {{{3
-    if a:to ==# 'start'
+function! s:get_positions(list, where, direction, n) abort " {{{3
+    if a:where ==# 'start'
         let l:idx = 0
-    elseif a:to ==# 'end'
+    elseif a:where ==# 'end'
         let l:idx = -1
     endif
 
@@ -669,35 +670,35 @@ function! s:get_positions(direction, to, list, label_indent) abort " {{{3
     for parent in a:list.parents
         if empty(a:list.parents) | break | endif
         let l:inner_parent_list = s:inner_list_object(0, parent.objects[0])
-        call add(l:lines, l:inner_parent_list.objects[l:idx].line[a:to])
+        call add(l:lines, l:inner_parent_list.objects[l:idx].line[a:where])
         call reverse(l:lines)
         for children in l:inner_parent_list.children
             for child in children
-                call add(l:lines, child.objects[l:idx].line[a:to])
+                call add(l:lines, child.objects[l:idx].line[a:where])
             endfor
         endfor
     endfor
 
     if empty(l:lines)
-        call add(l:lines, a:list.objects[l:idx].line[a:to])
+        call add(l:lines, a:list.objects[l:idx].line[a:where])
     endif
 
     for children in a:list.children
         for child in children
-            call add(l:lines, child.objects[l:idx].line[a:to])
+            call add(l:lines, child.objects[l:idx].line[a:where])
         endfor
     endfor
 
-    if !empty(a:label_indent)
-        call filter(l:lines, 's:indent(v:val) ==# a:label_indent')
+    if !empty(a:n)
+        call filter(l:lines, 's:indent(v:val) ==# a:n')
     endif
 
     call uniq(sort(l:lines, 'n'))
 
     if a:direction ==# 'b' | call reverse(l:lines) | endif
-    if a:to ==# 'start'
+    if a:where ==# 'start'
         return map(l:lines, '[v:val, s:indent(v:val) + 1]')
-    elseif a:to ==# 'end'
+    elseif a:where ==# 'end'
         return map(l:lines, '[v:val, v:maxcol]')
     endif
 endfunction
