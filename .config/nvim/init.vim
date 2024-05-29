@@ -220,100 +220,65 @@ let s:sourced = 1
 
 " Text objects for lists {{{1
 
-onoremap <silent> al :<C-U>call <SID>outer_list_object(1)<CR>
-vnoremap <silent> al :<C-U>call <SID>outer_list_object(1)<CR>
-onoremap <silent> il :<C-U>call <SID>inner_list_object(1)<CR>
-vnoremap <silent> il :<C-U>call <SID>inner_list_object(1)<CR>
+onoremap <silent> al :<C-U>call <SID>list_object('outer', 1)<CR>
+vnoremap <silent> al :<C-U>call <SID>list_object('outer', 1)<CR>
+onoremap <silent> il :<C-U>call <SID>list_object('inner', 1)<CR>
+vnoremap <silent> il :<C-U>call <SID>list_object('inner', 1)<CR>
 onoremap <silent> am :<C-U>call <SID>item_object('outer', 1)<CR>
 vnoremap <silent> am :<C-U>call <SID>item_object('outer', 1)<CR>
 onoremap <silent> im :<C-U>call <SID>item_object('inner', 1)<CR>
 vnoremap <silent> im :<C-U>call <SID>item_object('inner', 1)<CR>
 
-function! s:outer_list_object(select = 0, item = '') abort " {{{2
-    let l:inner_list = s:inner_list_object(0, a:item)
-    if empty(l:inner_list)
+function! s:list_object(scope, select = 0, item = '') abort " {{{2
+    let l:list = s:get_list(a:item)
+    if empty(l:list)
         if a:select | execute "normal! \<Esc>" | endif
         return {}
     endif
 
-    if empty(l:inner_list.parents)
-        let l:outer_list_object = s:get_list()
-        let l:outer_list_object.type = l:inner_list.type
-        let l:outer_list_object.parents = l:inner_list.parents
-        let l:outer_list_object.children = l:inner_list.children
+    let l:list_object = {}
+    let l:list_object.objects = []
+    for item in l:list.objects
+        call add(l:list_object.objects, s:item_object('inner', 0, item))
+    endfor
 
-        for item in l:outer_list_object.objects
+    let l:list_object.type = s:get_list_type(l:list_object)
+
+    let l:list_object.parents = []
+    for item in l:list_object.objects[0].parents
+        let l:parent = s:get_list(item)
+        let l:parent.type = s:get_list_type(l:parent)
+        call add(l:list_object.parents, l:parent)
+    endfor
+
+    if a:scope ==# 'outer'
+        if empty(l:list_object.parents)
+            let l:list_object.objects = l:list.objects
+        else
+            let l:inner_list = l:list_object
+            let l:list_object = l:inner_list.parents[0]
+            let l:list_object.parents = l:inner_list.parents[1:]
+        endif
+
+        for item in l:list_object.objects
             let item.parents = s:get_parents(item)
             let item.children = s:get_children(item)
         endfor
-
-        if a:select
-            call s:_select_range(l:outer_list_object.objects[0].line.start,
-                        \ l:outer_list_object.objects[-1].line.end)
-        endif
-        return l:outer_list_object
     endif
 
-    let l:outer_list_object = s:inner_list_object().parents[0]
-
-    for item in l:outer_list_object.objects
-        let item.parents = s:get_parents(item)
-        let item.children = s:get_children(item)
-    endfor
-
-    let l:outer_list_object.parents = []
-    for item in l:outer_list_object.objects[0].parents
-        let l:parent = s:get_list(item)
-        let l:parent.type = s:get_list_type(l:parent)
-        call add(l:outer_list_object.parents, l:parent)
-    endfor
-
-    let l:outer_list_object.children = []
-    for item in l:outer_list_object.objects
-        call add(l:outer_list_object.children, item.children)
-    endfor
-
-    if a:select
-        call s:_select_range(l:outer_list_object.objects[0].line.start,
-                    \ l:outer_list_object.objects[-1].line.end)
-    endif
-    return l:outer_list_object
-endfunction
-
-function! s:inner_list_object(select = 0, item = '') abort " {{{2
-    let l:list_object = s:get_list(a:item)
-    if empty(l:list_object)
-        if a:select | execute "normal! \<Esc>" | endif
-        return {}
-    endif
-
-    let l:inner_list_object = {}
-    let l:inner_list_object.objects = []
+    let l:list_object.children = []
     for item in l:list_object.objects
-        call add(l:inner_list_object.objects, s:item_object('inner', 0, item))
-    endfor
-    let l:inner_list_object.type = s:get_list_type(l:inner_list_object)
-
-    let l:inner_list_object.parents = []
-    for item in l:inner_list_object.objects[0].parents
-        let l:parent = s:get_list(item)
-        let l:parent.type = s:get_list_type(l:parent)
-        call add(l:inner_list_object.parents, l:parent)
-    endfor
-
-    let l:inner_list_object.children = []
-    for item in l:inner_list_object.objects
-        call add(l:inner_list_object.children, item.children)
+        call add(l:list_object.children, item.children)
     endfor
 
     if a:select
-        call s:_select_range(l:inner_list_object.objects[0].line.start,
-                    \ l:inner_list_object.objects[-1].line.end)
+        call s:_select_range(l:list_object.objects[0].line.start,
+                    \ l:list_object.objects[-1].line.end)
     endif
-    return l:inner_list_object
+    return l:list_object
 endfunction
 
-function! s:get_list_type(list) abort " {{{2
+function! s:get_list_type(list) abort " {{{3
     if a:list.objects[0].label =~# '\v\d+[]:.)}]{1}'
         let l:type = 'arabic'
     elseif a:list.objects[0].label =~# '\v[IVXLCDM]+[]:.)}]{1}'
@@ -331,92 +296,84 @@ function! s:get_list_type(list) abort " {{{2
     elseif a:list.objects[0].label =~# '\v[-*+]'
         let l:type = 'unordered'
     endif
+
     return l:type
 endfunction
 
-function! s:get_list(item = '') abort " {{{2
+function! s:get_list(item = '') abort " {{{3
     if !empty(a:item)
-        let l:current_item = a:item
+        let l:item = deepcopy(a:item)
     else
-        let l:current_item = s:get_item()
+        let l:item = s:get_item()
     endif
-    if empty(l:current_item) | return {} | endif
+    if empty(l:item) | return {} | endif
+
     let l:list = {'objects': []}
-    call add(l:list.objects, l:current_item)
+    call add(l:list.objects, l:item)
 
     let l:cursor_pos = getpos('.')
-    call cursor(l:current_item.line.start, 1)
+    call cursor(l:item.line.start, 1)
     while search(s:formatlistpat(l:list.objects[0].indent.label), 'bW')
         let l:prev_item = s:get_item()
-        if l:current_item.line.start - l:prev_item.line.end !=# 1
+        if l:item.line.start - l:prev_item.line.end !=# 1
             break
         endif
+
         call add(l:list.objects, l:prev_item)
-        let l:current_item = l:prev_item
+        let l:item = l:prev_item
     endwhile
 
     call reverse(l:list.objects)
+    let l:item = l:list.objects[-1]
 
-    let l:current_item = l:list.objects[-1]
-    call cursor(l:current_item.line.start, v:maxcol)
+    call cursor(l:item.line.start, v:maxcol)
     while search(s:formatlistpat(l:list.objects[0].indent.label), 'W')
         let l:next_item = s:get_item()
-        if l:next_item.line.start - l:current_item.line.end !=# 1
+        if l:next_item.line.start - l:item.line.end !=# 1
             break
         endif
-        call add(l:list.objects, l:next_item)
-        let l:current_item = l:next_item
-    endwhile
 
+        call add(l:list.objects, l:next_item)
+        let l:item = l:next_item
+    endwhile
     call setpos('.', l:cursor_pos)
+
     return l:list
 endfunction
+" }}}3
 
 function! s:item_object(scope, select = 0, item = '') abort " {{{2
     if !empty(a:item)
-        let l:item_object = a:item
+        let l:item = deepcopy(a:item)
     else
-        let l:item_object = s:get_item()
+        let l:item = s:get_item()
     endif
 
-    if empty(l:item_object)
+    if empty(l:item)
         if a:select | execute "normal! \<Esc>" | endif
         return {}
     endif
 
-    let l:item_object.parents = s:get_parents(l:item_object)
-    let l:item_object.children = s:get_children(l:item_object)
-
+    let l:item_object = l:item
+    let l:item_object.parents = s:get_parents(l:item)
+    let l:item_object.children = s:get_children(l:item)
     if a:scope ==# 'inner'
-        let l:item_object.line.end = s:inner_item_end(l:item_object)
+        let l:item_object.line.end = s:get_inner_item_end(l:item_object)
+
     elseif a:scope ==# 'outer'
         if !empty(l:item_object.parents)
-            let l:start = l:item_object.parents[0].line.start
-        else
-            let l:start = l:item_object.line.start
+            let l:item_object.line.start = l:item_object.parents[0].line.start
         endif
+        let l:item = s:get_item(l:item_object.line.start)
+        let l:item_object.line.end = l:item.line.end
+        let l:item_object.children = s:get_children(l:item)
 
-        let l:cursor_pos = getpos('.')
-        call cursor(l:start, v:maxcol)
-        let l:item = s:get_item()
-        let l:end = s:get_item().line.end
-        let l:children = s:get_children(l:item)
-        let l:matchlist = matchlist(getline('.'), &formatlistpat)
-        call setpos('.', l:cursor_pos)
-
-        let l:item_object = {
-                    \ 'line': {
-                    \   'start': l:start,
-                    \   'end': l:end,
-                    \   },
-                    \ 'indent': {
-                    \   'item': strlen(l:matchlist[0]),
-                    \   'label': strlen(l:matchlist[1]),
-                    \   },
-                    \ 'label': l:matchlist[2],
-                    \ 'parents': l:item_object.parents[1:],
-                    \ 'children': l:children,
-                    \ }
+        let l:matchlist = matchlist(getline(l:item_object.line.start),
+                    \ &formatlistpat)
+        let l:item_object.indent.item = strlen(l:matchlist[0])
+        let l:item_object.indent.label = strlen(l:matchlist[1])
+        let l:item_object.label = l:matchlist[2]
+        let l:item_object.parents = l:item_object.parents[1:]
     endif
 
     if a:select
@@ -426,8 +383,8 @@ function! s:item_object(scope, select = 0, item = '') abort " {{{2
     return l:item_object
 endfunction
 
-function! s:get_children(item) abort " {{{2
-    let a:item.children = []
+function! s:get_children(item) abort " {{{3
+    let l:children = []
 
     let l:cursor_pos = getpos('.')
     call cursor(a:item.line.start, v:maxcol)
@@ -436,19 +393,19 @@ function! s:get_children(item) abort " {{{2
     while search(s:formatlistpat(l:label_indent .. ','), 'W', a:item.line.end)
         let l:child = s:get_list()
         let l:child.type = s:get_list_type(l:child)
-        call add(a:item.children, l:child)
+        call add(l:children, l:child)
         let l:label_indent = s:get_item().indent.label + 1
     endwhile
 
     call setpos('.', l:cursor_pos)
-    return a:item.children
+    return l:children
 endfunction
 
-function! s:get_parents(item) abort " {{{2
-    let a:item.parents = []
+function! s:get_parents(item) abort " {{{3
+    let l:parents = []
 
     if !a:item.indent.label
-        return a:item.parents
+        return l:parents
     endif
 
     let l:cursor_pos = getpos('.')
@@ -461,7 +418,7 @@ function! s:get_parents(item) abort " {{{2
             break
         endif
 
-        call add(a:item.parents, l:prev_item)
+        call add(l:parents, l:prev_item)
 
         if !l:prev_item.indent.label
             break
@@ -471,10 +428,10 @@ function! s:get_parents(item) abort " {{{2
     endwhile
 
     call setpos('.', l:cursor_pos)
-    return a:item.parents
+    return l:parents
 endfunction
 
-function! s:inner_item_end(item) abort " {{{2
+function! s:get_inner_item_end(item) abort " {{{3
     let l:start = a:item.line.start
     let l:end = l:start
     for lnum in range(a:item.line.start + 1, a:item.line.end)
@@ -492,17 +449,18 @@ function! s:inner_item_end(item) abort " {{{2
     return l:end
 endfunction
 
-function! s:get_item() abort " {{{2
-    let l:line = getline('.')
+function! s:get_item(line = line('.')) abort " {{{3
+    let l:line = getline(a:line)
     let l:matchlist = matchlist(l:line, &formatlistpat)
     if !empty(l:matchlist)
-        let l:start = line('.')
+        let l:start = a:line
         let l:indent = strlen(l:matchlist[0])
 
     else
         let l:indent = matchend(l:line, '\s*')
 
         let l:cursor_pos = getpos('.')
+        call cursor(a:line, v:maxcol)
         while search(&formatlistpat, 'bW')
             let l:matchlist = matchlist(getline('.'), &formatlistpat)
             if strlen(l:matchlist[0]) ==# l:indent
@@ -530,7 +488,7 @@ function! s:get_item() abort " {{{2
             break
         endif
     endfor
-    if line('.') > l:end
+    if a:line > l:end
         return {}
     endif
 
@@ -548,17 +506,18 @@ function! s:get_item() abort " {{{2
     return l:item
 endfunction
 
-function! s:_select_range(start, end) abort " {{{2
+function! s:_select_range(start, end) abort " {{{3
     let l:count = a:end - a:start
     call cursor(a:start, 1)
     execute 'normal! V0'
     if l:count | execute 'normal! ' .. l:count .. 'j' | endif
 endfunction
 
-function! s:formatlistpat(n = '') abort " {{{2
+function! s:formatlistpat(n = '') abort " {{{3
     return substitute(&formatlistpat,
                 \ '\\s{}', '\\s{' .. a:n .. '}', '')
 endfunction
+" }}}3
 " }}}2
 
 " Navigation for lists {{{1
@@ -583,11 +542,11 @@ function! s:to_list(where, direction, n = '') abort " {{{2
         let l:idx = -1
     endif
 
-    let l:current_list = s:inner_list_object()
+    let l:current_list = s:list_object('inner')
     if empty(l:current_list)
         normal! m'
         call search(s:formatlistpat(a:n), a:direction .. 'W')
-        let l:current_list = s:inner_list_object()
+        let l:current_list = s:list_object('inner')
         if a:where ==# 'start'
             return cursor(l:current_list.objects[l:idx].line[a:where],
                         \ l:current_list.objects[l:idx].indent.label + 1)
@@ -614,17 +573,17 @@ function! s:to_list(where, direction, n = '') abort " {{{2
     if search(s:formatlistpat(a:n), a:direction .. 'W')
         if a:direction ==# '' && a:where ==# 'start'
             let l:destination = [line('.'),
-                        \ s:inner_list_object().objects[0].indent.label + 1]
+                        \ s:list_object('inner').objects[0].indent.label + 1]
             call setpos('.', l:cursor_pos)
             return s:jump_cursor(l:destination)
         elseif a:direction ==# 'b' && a:where ==# 'end'
-            call cursor(s:inner_list_object().objects[-1].line.end, v:maxcol)
+            call cursor(s:list_object('inner').objects[-1].line.end, v:maxcol)
             let l:destination = getpos('.')[1:2]
             call setpos('.', l:cursor_pos)
             return s:jump_cursor(l:destination)
         endif
 
-        let l:positions = s:get_positions(s:inner_list_object(),
+        let l:positions = s:get_positions(s:list_object('inner'),
                     \ a:where, a:direction, a:n)
         call s:to_position(l:positions, a:where, a:direction, l:cursor_pos)
     else
@@ -697,7 +656,7 @@ function! s:get_positions(list, where, direction, n) abort " {{{3
     let l:lines = []
     for parent in a:list.parents
         if empty(a:list.parents) | break | endif
-        let l:inner_parent_list = s:inner_list_object(0, parent.objects[0])
+        let l:inner_parent_list = s:list_object('inner', 0, parent.objects[0])
         call add(l:lines, l:inner_parent_list.objects[l:idx].line[a:where])
         call reverse(l:lines)
         for children in l:inner_parent_list.children
@@ -836,7 +795,7 @@ function! s:to_item(where, indent, direction, n = '') " {{{2
     if s:to_position(l:positions, a:where, a:direction) | return | endif
 
     let l:cursor_pos = getpos('.')
-    let l:list = s:inner_list_object()
+    let l:list = s:list_object('inner')
     if !empty(l:list.parents)
         let l:list = l:list.parents[-1]
     endif
@@ -869,7 +828,7 @@ function! s:get_item_positions(item, where, indent, n) abort " {{{2
     let l:items = []
     call add(l:items, s:item_object('inner'))
 
-    let l:list = s:inner_list_object()
+    let l:list = s:list_object('inner')
     let l:index = index(l:list.objects, l:items[0])
     if l:index
         call add(l:items, l:list.objects[l:index - 1])
@@ -882,7 +841,7 @@ function! s:get_item_positions(item, where, indent, n) abort " {{{2
     if l:outer_item !=# l:items[0]
         call add(l:items, l:outer_item)
 
-        let l:outer_list = s:outer_list_object()
+        let l:outer_list = s:list_object('outer')
         let l:index = index(l:outer_list.objects, l:outer_item)
         if l:index
             call add(l:items, l:outer_list.objects[l:index - 1])
@@ -895,7 +854,7 @@ function! s:get_item_positions(item, where, indent, n) abort " {{{2
     let l:parent_items = []
     for l:item in l:items
         for l:parent in l:item.parents
-            let l:parent.line.end = s:inner_item_end(l:parent)
+            let l:parent.line.end = s:get_inner_item_end(l:parent)
             call add(l:parent_items, l:parent)
         endfor
     endfor
@@ -924,7 +883,7 @@ endfunction
 
 function! s:get_neighbors(item, where, indent) abort " {{{2
     let l:positions = []
-    let l:list = s:inner_list_object()
+    let l:list = s:list_object('inner')
     let l:index = index(l:list.objects, a:item)
     if l:index
         call add(l:positions, s:pos(l:list.objects[l:index - 1],
