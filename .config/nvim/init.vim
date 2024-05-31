@@ -541,11 +541,18 @@ nnoremap [m <Cmd>call <SID>to('item', 'start', 'item', 'b')<CR>
 nnoremap [M <Cmd>call <SID>to('item', 'end', 'item', 'b')<CR>
 
 function! s:to(what, where, indent, direction, n = '') " {{{2
+    let l:opts = {
+                \ 'what': a:what,
+                \ 'where': a:where,
+                \ 'indent': a:indent,
+                \ 'direction': a:direction,
+                \ 'n': a:n,
+                \ }
+
     let l:list = s:list_object('inner')
     let l:cursor_pos = getpos('.')
     if empty(l:list)
-        return s:to_adjacent_list(l:list, a:what, l:cursor_pos,
-                    \ a:where, a:indent, a:direction, a:n)
+        return s:to_adjacent_list(l:list, l:opts)
     endif
 
     if a:what ==# 'list'
@@ -554,18 +561,17 @@ function! s:to(what, where, indent, direction, n = '') " {{{2
         let l:object = s:item_object('inner')
     endif
 
-    let l:positions = s:get_positions(l:object, a:where, a:indent, a:n)
-    if s:to_position(l:positions, a:where, a:direction) | return 1 | endif
+    let l:positions = s:get_positions(l:object, l:opts)
+    if s:to_position(l:positions, l:opts) | return 1 | endif
 
-    if s:to_adjacent_list(l:object, a:what, l:cursor_pos,
-                \ a:where, a:indent, a:direction, a:n)
+    if s:to_adjacent_list(l:object, l:opts)
         return 1
     else
         return 0
     endif
 endfunction
 
-function! s:get_list_positions(list, where, indent, n) abort " {{{2
+function! s:get_list_positions(list, opts) abort " {{{2
     let l:items = []
     call add(l:items, a:list)
 
@@ -587,18 +593,18 @@ function! s:get_list_positions(list, where, indent, n) abort " {{{2
 
     let l:positions = []
     for l:item in l:items
-        call add(l:positions, s:pos(l:item, a:where, a:indent))
+        call add(l:positions, s:pos(l:item, a:opts.where, a:opts.indent))
     endfor
 
-    if !empty(a:n)
-        return filter(l:positions, '(v:val[1] - 1) ==# a:n')
+    if !empty(a:opts.n)
+        return filter(l:positions, '(v:val[1] - 1) ==# a:opts.n')
     endif
     return l:positions
 endfunction
 
-function! s:get_item_positions(item, where, indent, n) abort " {{{2
+function! s:get_item_positions(item, opts) abort " {{{2
     let l:items = []
-    call add(l:items, s:item_object('inner'))
+    call add(l:items, a:item)
 
     let l:list = s:list_object('inner')
     let l:index = index(l:list.objects, l:items[0])
@@ -645,77 +651,78 @@ function! s:get_item_positions(item, where, indent, n) abort " {{{2
 
     let l:positions = []
     for l:item in l:items
-        call add(l:positions, s:pos(l:item, a:where, a:indent))
+        call add(l:positions, s:pos(l:item, a:opts.where, a:opts.indent))
     endfor
 
-    if !empty(a:n)
-        return filter(l:positions, '(v:val[1] - 1) ==# a:n')
+    if !empty(a:opts.n)
+        return filter(l:positions, '(v:val[1] - 1) ==# a:opts.n')
     endif
     return l:positions
 endfunction
 
-function! s:to_adjacent_list(object, what, pos, where, indent, direction, n) abort " {{{2
-    if a:what ==# 'list'
+function! s:to_adjacent_list(object, opts) abort " {{{2
+    if a:opts.what ==# 'list'
         let l:list = deepcopy(a:object)
-    elseif a:what ==# 'item'
+    elseif a:opts.what ==# 'item'
         let l:list = s:list_object('inner')
     endif
+
+    let l:cursor_pos = getpos('.')
 
     if !empty(l:list)
         if !empty(l:list.parents)
             let l:list = l:list.parents[-1]
         endif
 
-        if a:direction ==# ''
-            call cursor(s:pos(l:list, 'end', a:indent))
-        elseif a:direction ==# 'b'
-            call cursor(s:pos(l:list, 'start', a:indent)[0], 1)
+        if a:opts.direction ==# ''
+            call cursor(s:pos(l:list, 'end', a:opts.indent))
+        elseif a:opts.direction ==# 'b'
+            call cursor(s:pos(l:list, 'start', a:opts.indent)[0], 1)
         endif
     endif
 
-    if !search(s:formatlistpat(a:n), a:direction .. 'W')
-        call setpos('.', a:pos)
+    if !search(s:formatlistpat(a:opts.n), a:opts.direction .. 'W')
+        call setpos('.', l:cursor_pos)
         return 0
     endif
 
-    execute 'let l:object = s:' .. a:what .. '_object("inner")'
-    if a:direction ==# 'b'
-        call cursor(s:pos(l:object, 'end', a:indent))
-        if a:where ==# 'end'
+    execute 'let l:object = s:' .. a:opts.what .. '_object("inner")'
+    if a:opts.direction ==# 'b'
+        call cursor(s:pos(l:object, 'end', a:opts.indent))
+        if a:opts.where ==# 'end'
             let l:destination = getpos('.')[1:2]
-            call setpos('.', a:pos)
+            call setpos('.', l:cursor_pos)
             call s:jump_cursor(l:destination)
             return 1
         endif
     endif
 
-    if getpos('.')[1:2] ==# s:pos(l:object, a:where, a:indent)
+    if getpos('.')[1:2] ==# s:pos(l:object, a:opts.where, a:opts.indent)
         let l:destination = getpos('.')[1:2]
-        call setpos('.', a:pos)
+        call setpos('.', l:cursor_pos)
         call s:jump_cursor(l:destination)
         return 1
     endif
 
-    let l:positions = s:get_positions(l:object,
-                \ a:where, a:indent, a:n)
-    if s:to_position(l:positions, a:where, a:direction, a:pos)
+    let l:positions = s:get_positions(l:object, a:opts)
+    if s:to_position(l:positions, a:opts, l:cursor_pos)
         return 1
     else
         return 0
     endif
 endfunction
 
-function! s:get_positions(object, where, indent, n) abort " {{{2
+function! s:get_positions(object, opts) abort " {{{2
     if has_key(a:object, 'objects')
-        return s:get_list_positions(a:object, a:where, a:indent, a:n)
+        return s:get_list_positions(a:object, a:opts)
     else
-        return s:get_item_positions(a:object, a:where, a:indent, a:n)
+        return s:get_item_positions(a:object, a:opts)
     endif
 endfunction
 
-function! s:to_position(positions, where, direction, jump = []) abort " {{{2
+function! s:to_position(positions, opts, jump = []) abort " {{{2
     call uniq(sort(a:positions, 's:sort_positions'))
-    if a:direction ==# 'b' | call reverse(a:positions) | endif
+    if a:opts.direction ==# 'b' | call reverse(a:positions) | endif
 
     let l:lnum = line('.')
     for l:pos in a:positions
@@ -725,7 +732,7 @@ function! s:to_position(positions, where, direction, jump = []) abort " {{{2
             let l:col = l:pos[1]
         endif
 
-        if a:direction ==# ''
+        if a:opts.direction ==# ''
             if l:pos[0] ==# l:lnum && col('.') < l:col
                 call setpos('.', a:jump)
                 call s:jump_cursor(l:pos)
@@ -735,7 +742,7 @@ function! s:to_position(positions, where, direction, jump = []) abort " {{{2
                 call s:jump_cursor(l:pos)
                 return 1
             endif
-        elseif a:direction ==# 'b'
+        elseif a:opts.direction ==# 'b'
             if l:pos[0] ==# l:lnum && col('.') > l:col
                 call setpos('.', a:jump)
                 call s:jump_cursor(l:pos)
