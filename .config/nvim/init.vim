@@ -1,7 +1,6 @@
 " [TODO]
 " * Write mapping that creates new list item at line in insert mode (use <C-A>
 "   after lervag)
-" * Maybe modify formatlistpat to deal with lists in comments, like this one?
 " * Add mapping to shift to child item with tab (and renumber subsequent items)
 " * Add mapping to change label
 " * If <C-U> deletes a label, renumber subsequent items
@@ -9,7 +8,7 @@
 
 " Options {{{1
 
-let &formatlistpat = '\v^(\s{})\(?((\d+|\a+|#|\@\a*)[]:.)}]{1}|\*|\+|-)\s+'
+highlight Normal guifg=NvimLightGrey2 guibg=Black
 let g:python3_host_prog = '/usr/local/bin/python3'
 set belloff=
 set completeopt=noinsert,menuone,noselect " As required for ncm2
@@ -42,7 +41,6 @@ endif
 " the first time init.vim is sourced, so that the options are not overridden if
 " init.vim is sourced again
 if !exists('s:sourced')
-    set formatoptions+=n
     set number
     set smartindent
     set spelllang=en_us
@@ -149,7 +147,6 @@ augroup nvimrc_filetype_defaults " {{{2
     autocmd FileType text,markdown      setlocal textwidth=78
     autocmd FileType text,markdown      setlocal nonumber nosmartindent
     autocmd FileType gitcommit          setlocal nosmartindent textwidth=72
-    autocmd FileType markdown,gitcommit setlocal formatlistpat<
 augroup END
 
 augroup nvimrc_key_mappings " {{{2
@@ -204,6 +201,7 @@ call plug#begin()
     Plug 'roxma/nvim-yarp'
     Plug 'wellle/targets.vim'
     Plug 'jamessan/vim-gnupg'
+    Plug 'fladson/vim-kitty'
     Plug 'junegunn/vim-plug'
     Plug 'machakann/vim-sandwich'
     Plug 'lervag/vimtex'
