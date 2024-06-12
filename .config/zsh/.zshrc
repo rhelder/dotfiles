@@ -22,11 +22,11 @@ export MANPAGER='nvim +Man!'
 # No .lesshst file
 export LESSHISTFILE=-
 
-# Configure gpg-agent
-export GPG_TTY="$(tty)"
-
-# Source `fzf` preferences
-source $XDG_CONFIG_HOME/fzf/fzf.zsh
+# Configure fzf
+source <(fzf --zsh)
+# Use `fd` instead of `find`
+export FZF_DEFAULT_COMMAND='fd --hidden --type f --strip-cwd-prefix'
+export FZF_CTRL_T_COMMAND='fd --hidden --strip-cwd-prefix'
 
 # Configure `rfv`
 export RFV_DEFAULT_BIND='--bind=enter:become(nvim {1} +{2})'
@@ -34,6 +34,9 @@ export -T RFV_DEFAULT_ADDITIONAL_OPTIONS rfv_default_additional_options '@'
 rfv_default_additional_options=(
     --bind='ctrl-o:become(md-open {1})'
 )
+
+# Configure gpg-agent
+export GPG_TTY="$(tty)"
 
 # {{{1 Functions
 
@@ -72,8 +75,6 @@ alias ebgt="open $HOME/Documents/Personal/Finance/budget_2024.xlsx"
 alias ebib="nvim $HOME/Library/texmf/bibtex/bib/my_library.bib"
 alias ecv="nvim $HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
 alias edf="nvim $XDG_CONFIG_HOME/git/filter-repo/dotfiles"
-alias efa="nvim $XDG_CONFIG_HOME/nvim/autoload/fzf.vim"
-alias efzf="nvim $XDG_CONFIG_HOME/fzf/fzf.zsh"
 alias egc="nvim $XDG_CONFIG_HOME/git/config"
 alias egi="nvim $XDG_CONFIG_HOME/git/ignore"
 alias ehf="nvim $HISTFILE"
@@ -167,8 +168,6 @@ declare cv="$HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
 declare df="$XDG_CONFIG_HOME/git/filter-repo/dotfiles"
 declare doc="$HOME/Documents"
 declare docg="$HOME/Documents/Git"
-declare fa="$XDG_CONFIG_HOME/nvim/autoload/fzf.vim"
-declare fzf="$XDG_CONFIG_HOME/fzf/fzf.zsh"
 declare gc="$XDG_CONFIG_HOME/git/config"
 declare gi="$XDG_CONFIG_HOME/git/ignore"
 declare lmk="$XDG_CONFIG_HOME/latexmk/latexmkrc"
