@@ -14,6 +14,8 @@ nnoremap <Leader>egi <Cmd>vs
             \ $XDG_CONFIG_HOME/git/ignore<CR>
 nnoremap <Leader>ehf <Cmd>vs
             \ $HISTFILE<CR>
+nnoremap <Leader>ek <Cmd>vs
+            \ $XDG_CONFIG_HOME/kitty/kitty.conf<CR>
 nnoremap <Leader>elmk <Cmd>vs
             \ $XDG_CONFIG_HOME/latexmk/latexmkrc<CR>
 nnoremap <Leader>emva <Cmd>vs
@@ -94,6 +96,7 @@ let doc = "$HOME/Documents"
 let docg = "$HOME/Documents/Git"
 let gc = "$XDG_CONFIG_HOME/git/config"
 let gi = "$XDG_CONFIG_HOME/git/ignore"
+let k = "$XDG_CONFIG_HOME/kitty/kitty.conf"
 let lmk = "$XDG_CONFIG_HOME/latexmk/latexmkrc"
 let mva = "$XDG_DATA_HOME/nvim/site/autoload/mdview.vim"
 let mvd = "$XDG_DATA_HOME/nvim/site/doc/mdview.txt"
