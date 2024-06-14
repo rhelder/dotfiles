@@ -1,0 +1,9 @@
+#!/bin/zsh
+
+# Kill processes using RHMediaHD portable hard drive
+
+declare -U pids=( $(lsof | rg RHMediaHD | cut -f 2 -w) )
+
+for pid in $pids; do
+    kill $pid
+done
