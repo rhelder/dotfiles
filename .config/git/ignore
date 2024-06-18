@@ -21,12 +21,15 @@
 /.gnupg/*
 !/.gnupg/gpg-agent.conf
 
+.terminfo/
+
 /.local/state/
-/.local/share/zotero/
+/.local/share/kitty-ssh-kitten/
 /.local/share/nvim/.netrwhist
 /.local/share/nvim/plugged/
 /.local/share/nvim/site/autoload/plug.vim
 /.local/share/nvim/site/doc/tags
+/.local/share/zotero/
 
 /Library/*
 !/Library/texmf/
