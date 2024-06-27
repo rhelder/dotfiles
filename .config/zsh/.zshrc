@@ -154,6 +154,7 @@ alias nv='nvim'
 alias nvh='nvim_help'
 alias o='open'
 alias restart='[[ $(jobs) ]] && unset FPATH && PATH=/bin && exec -l zsh'
+alias sshimac='kitten ssh rhelder@192.168.0.129'
 alias spr="source $XDG_CONFIG_HOME/zsh/.zprofile"
 alias sz="source $XDG_CONFIG_HOME/zsh/.zshrc"
 alias td='texdoc'
