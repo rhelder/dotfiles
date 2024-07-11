@@ -675,7 +675,8 @@ function! notes#insert_link(file) abort " {{{1
     if getline('$') =~ '^\[.*\]: .*'
         execute 'normal! Go[' .. a:file .. ']: ' .. l:url .. "\<Esc>"
     else
-        execute "normal! Go\<CR>[" .. a:file .. ']: ' .. l:url .. "\<Esc>"
+        execute "normal! Go\<CR>\<Esc>i[" .. a:file .. ']: ' .. l:url ..
+                    \ "\<Esc>"
     endif
     call setpos('.', l:cursor_position)
 endfunction
