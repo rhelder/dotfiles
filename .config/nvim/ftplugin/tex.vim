@@ -1,8 +1,10 @@
+let g:enumerate_enabled = 0
 setlocal formatoptions+=orl
 setlocal formatoptions-=t
 setlocal linebreak
 setlocal nosmartindent
 
+nnoremap <LocalLeader>gk /\v(\\textgreek\{)@<!<[Α-ῳἈ-ᾡΆ-ῷ]+>(\})@!<CR>
 nnoremap <LocalLeader>tt <Cmd>call <SID>insert_maketitle_def()<CR>
 function! s:insert_maketitle_def() abort " {{{1
     let l:lines = [
@@ -67,6 +69,7 @@ let g:vimtex_indent_lists = [
             \ 'description',
             \ 'enumerate',
             \ 'thebibliography',
+            \ 'trivlist',
             \ 'outline',
             \ 'education',
             \ 'research',
@@ -99,7 +102,7 @@ augroup vimtex
 augroup END
 
 function! s:nvim_regain_focus() abort
-    silent execute "!open -a Terminal"
+    silent execute "!open -a kitty"
     redraw
 endfunction
 
