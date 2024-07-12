@@ -1,0 +1,19 @@
+#!/bin/zsh
+
+# Count words in notes files, either all of them or the ones time-stamped with
+# today's date
+
+cd $HOME/Documents/Notes || exit 1
+
+if [[ $1 == '--today' || $1 == '-t' ]]; then
+    notes=( $(date +%Y%m%d)*.md )
+else
+    notes=( [[:digit:]]*.md )
+fi
+
+integer words
+for note in $notes; do
+    words+=$(pandoc --from=markdown --to=plain $note | wc -w)
+done
+
+echo $words
