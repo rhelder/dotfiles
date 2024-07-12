@@ -86,23 +86,27 @@
 \newbool{@anonymous}
 \newbool{@defaultlangs}
 \newbool{@misguided}
+\newbool{@translit}
+
+\booltrue{@defaultlangs}
+\booltrue{@defaultauthor}
+\booltrue{@translit}
 
 \DeclareOption{biblatex}{\booltrue{@biblatex}}
 \DeclareOption{nomencl}{\booltrue{@nomencl}}
 \DeclareOption{doublespaced}{\booltrue{@doublespaced}}
-\DeclareOption{defaultauthor}{\booltrue{@defaultauthor}}
 \DeclareOption{anonymous}{\boolfalse{@defaultauthor}\booltrue{@anonymous}}
-\DeclareOption{defaultlangs}{\booltrue{@defaultlangs}}
-\DeclareOption{custom}{\boolfalse{@defaultlangs}}
+\DeclareOption{customlangs}{\boolfalse{@defaultlangs}}
 \DeclareOption{misguided}{\booltrue{@misguided}}
+\DeclareOption{notranslit}{\boolfalse{@translit}}
 
 \DeclareOption*{\PackageWarning{rhelder}{Unknown ‘\CurrentOption’}}
 
 % {{{2 Execute options
-\ExecuteOptions{defaultlangs, defaultauthor}
 \ProcessOptions\relax
 
 % {{{3 biblatex
+
 \if@biblatex
     \RequirePackage[
         authordate,
@@ -117,14 +121,17 @@
         autolang=hyphen,
     ]{biblatex-chicago}%
     \addbibresource{my_library.bib}
+
     % Map `cms-american.lbx` onto polyglossia language `latin'; replaces dummy
     % `latin.lbx`
     \DeclareLanguageMapping{latin}{cms-american}
+
     % Declare group of all bibstrings
     \input{rhelder_BibstringSet}
     % Format the group of all bibstrings in accordance with the document's main
     % language
     \DeclareBibstringSetFormat{all}{\textmainlang{#1}}
+
     % Patch `\footnotetext` so that the footnote-specific `ibidtracker` resets
     % at the beginning of each footnote
     \NewCommandCopy{\oldfootnotetext}{\footnotetext}
@@ -132,10 +139,12 @@
 \fi
 
 % {{{3 nomencl
+
 \if@nomencl
     \RequirePackage{nomencl}
     \makenomenclature
     \renewcommand{\nomname}{Abbreviations}
+
     % No inter-sentence spacing in nomenclatures (as in biblatex citations)
     \NewCommandCopy{\defprintnomenclature}{\printnomenclature}
     \RenewDocumentCommand{\printnomenclature}{}{%
@@ -143,8 +152,9 @@
         \defprintnomenclature
         \nonfrenchspacing
     }
+
     \if@biblatex
-        % ensure uniformity with bibliography spacing
+        % Ensure uniformity with bibliography spacing
         \setlength{\nomitemsep}{\bibitemsep}
         \addtolength{\nomitemsep}{-\parsep} % Remove excess spacing
     \else
@@ -153,9 +163,11 @@
 \fi
 
 % {{{3 doublespaced
+
 \if@doublespaced
     \RequirePackage{setspace}
     \doublespacing
+
     \if@biblatex
         \if@nomencl
             \setlength{\bibitemsep}{0pt}        % Remove excess spacing
@@ -167,6 +179,7 @@
 \fi
 
 % {{{3 defaultauthor
+
 \if@defaultauthor
     \AtEndOfPackage{
         \author{Russell\ Wright\ Helder}
@@ -175,6 +188,7 @@
 \fi
 
 % {{{3 anonymous
+
 \if@anonymous
     \def\@maketitle{%
         \newpage
@@ -184,20 +198,16 @@
             \let \footnote \thanks
             {\LARGE \@title \par}%
             \vskip 1.5em%
-            % {\large
-            %      \lineskip 0.5em%
-            %      \begin{tabular}[t]{c}%
-            %         \@author
-            %      \end{tabular}\par}%
-            % \vskip 1em%
             {\large \@date}%
         \end{center}%
         \par
         \vskip 1.5em%
     }
+
 \fi
 
 % {{{3 defaultlangs
+
 \if@defaultlangs
     \AtEndOfPackage{%
         \setdefaultlanguage[variant=american]{english}%
@@ -207,15 +217,14 @@
 \fi
 
 % {{{3 misguided
-\if@misguided
 
+\if@misguided
     % Include punctuation within quotes
     \DeclareAutoPunct{.,}
     \renewcommand{\mktextquote}[6]{#1#2#4#5#3#6}
+
 \else
-
     % Use British quotation conventions when language is american english
-
     % Use single quotes outside, double quotes inside
     \DeclareQuoteStyle[american]{english}
         {\textquoteleft}{\textquoteright}
@@ -257,15 +266,15 @@
 
 % {{{1 Quotations
 
-% Achieve desired spacing for syllogisms in block quotes
-\renewcommand*{\quotingfont}{\small\setlength{\itemsep}{0pt}}
-
 % Set quoting environment as default block quote environment for `csquotes`
 \SetBlockEnvironment{quoting}
 
 % Replace `quotation` environment (which is used for abstracts) with `quoting`
 % environment
 \renewenvironment{quotation}{\begin{quoting}}{\end{quoting}}
+
+% Achieve desired spacing for syllogisms in block quotes
+\renewcommand*{\quotingfont}{\small\setlength{\itemsep}{0pt}}
 
 % Use double quotes when language is ancient Greek
 \DeclareQuoteStyle[ancient]{greek}
@@ -275,20 +284,20 @@
 
 % {{{1 Lists
 
-% Make paragraph spacing within list same as outside of list
-\setlist{listparindent=\parindent,parsep=0pt}
-
 % Change default bullet points for nested itemized lists
 \setlist[itemize,2]{label=\ding{118}}
 \setlist[itemize,3]{label=\ding{66}}
 
 % Define `outline` list
 \newlist{outline}{enumerate}{5}
-\setlist[outline,1]{itemsep=2\itemsep,label=\Roman*.}
-\setlist[outline,2]{itemsep=2\itemsep,label=\Alph*.}
+\setlist[outline,1]{label=\Roman*.}
+\setlist[outline,2]{label=\Alph*.}
 \setlist[outline,3]{label=\arabic*.}
 \setlist[outline,4]{label=\alph*.}
 \setlist[outline,5]{label=\roman*.}
+
+% Make paragraph spacing within list same as outside of list
+\setlist[1,2,3,4,5]{listparindent=1\parindent, parsep=0pt}
 
 % A potentially useful configuration for description
 % \setlist[description]{%
@@ -303,21 +312,48 @@
 % Define copy of `\emph` so that, even if `\emph` is redefined, the following
 % commands italicize their arguments
 \NewCommandCopy{\emphit}{\emph}
+
 \NewDocumentCommand{\texttitle}{m}{\emphit{#1}}
 \NewDocumentCommand{\alialingua}{O{}O{latin}m}{%
     \textlang[#1]{#2}{\emphit{#3}}%
 }
-
-\NewCommandCopy{\define}{\emph}
+\NewCommandCopy{\define}{\emphit}
 \NewCommandCopy{\attn}{\textbf}
 
-\NewDocumentCommand{\nous}{}{\alialingua{nous}}
-\NewDocumentCommand{\Nous}{}{\alialingua{Nous}}
-\NewDocumentCommand{\phantasia}{}{\alialingua{phantasia}}
-\NewDocumentCommand{\Phantasia}{}{\alialingua{Phantasia}}
-\NewDocumentCommand{\phantasiai}{}{\alialingua{phantasiai}}
-\NewDocumentCommand{\Phantasiai}{}{\alialingua{Phantasiai}}
-\NewDocumentCommand{\phantasma}{}{\alialingua{phantasma}}
-\NewDocumentCommand{\phantasmata}{}{\alialingua{phantasmata}}
+\if@translit
+    \NewDocumentCommand{\boulesis}{}{\alialingua{boulēsis}}
+    \NewDocumentCommand{\nous}{}{\alialingua{nous}}
+    \NewDocumentCommand{\Nous}{}{\alialingua{Nous}}
+    \NewDocumentCommand{\phantasiai}{}{\alialingua{phantasiai}}
+    \NewDocumentCommand{\Phantasiai}{}{\alialingua{Phantasiai}}
+    \NewDocumentCommand{\phantasia}{}{\alialingua{phantasia}}
+    \NewDocumentCommand{\Phantasia}{}{\alialingua{Phantasia}}
+    \NewDocumentCommand{\phantasmata}{}{\alialingua{phantasmata}}
+    \NewDocumentCommand{\phantasma}{}{\alialingua{phantasma}}
+    \NewDocumentCommand{\thumos}{}{\alialingua{thumos}}
+\else
+    \NewDocumentCommand{\boulesis}{}{\textgreek{βούλησις}}
+    \NewDocumentCommand{\nous}{}{\textgreek{νοῦς}}
+    \NewDocumentCommand{\Nous}{}{\textgreek{Νοῦς}}
+    \NewDocumentCommand{\phantasiai}{}{\textgreek{φαντασίαι}}
+    \NewDocumentCommand{\Phantasiai}{}{\textgreek{Φαντασίαι}}
+    \NewDocumentCommand{\phantasia}{}{\textgreek{φαντασία}}
+    \NewDocumentCommand{\Phantasia}{}{\textgreek{Φαντασία}}
+    \NewDocumentCommand{\phantasmata}{}{\textgreek{φαντάσματα}}
+    \NewDocumentCommand{\phantasma}{}{\textgreek{φάντασμα}}
+    \NewDocumentCommand{\thumos}{}{\textgreek{θυμός}}
+\fi
+
+\NewDocumentCommand{\akrates}{}{\textgreek{ἀκρατής}}
+\NewDocumentCommand{\epithumia}{}{\textgreek{ἐπιθυμία}}
+\NewDocumentCommand{\ergon}{}{\textgreek{ἔργον}}
+\NewDocumentCommand{\krisis}{}{\textgreek{κρίσις}}
+\NewDocumentCommand{\logoi}{}{\textgreek{λόγοι}}
+\NewDocumentCommand{\logos}{}{\textgreek{λόγος}}
+\NewDocumentCommand{\orexis}{}{\textgreek{ὄρεξις}}
+\NewDocumentCommand{\pathemata}{}{\textgreek{παθήματα}}
+\NewDocumentCommand{\prohaireseis}{}{\textgreek{προαιρέσεις}}
+\NewDocumentCommand{\Prohairesis}{}{\textgreek{Προαίρεσις}}
+\NewDocumentCommand{\prohairesis}{}{\textgreek{προαίρεσις}}
 
 % }}}1
