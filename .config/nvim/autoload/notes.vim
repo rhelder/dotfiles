@@ -637,20 +637,20 @@ function! notes#exit_note(event) abort " {{{1
         endif
 
         if exists('s:exiting')
-            if mdview#convert_to_html(0)
+            if !empty(mdview#convert_to_html(0).stderr)
                 let s:is_output = 1
             endif
             let s:modified = 1
         else
-            call mdview#convert_to_html(1, {'scratch': {'height': 3}})
-            call shell#jobstart(['build-index'], {'detach': 1})
+            call mdview#convert_to_html(1)
+            call shell#jobstart(['build-index'], {'sync': 0, 'detach': 1})
             call setbufvar(expand('<afile>'), 'modified', 0)
         endif
 
     elseif a:event ==# 'VimLeavePre'
         if filereadable(expand('<afile>')) &&
                     \ getbufvar(expand('<afile>'), 'modified', 0)
-            if mdview#convert_to_html(0)
+            if !empty(mdview#convert_to_html(0).stderr)
                 let s:is_output = 1
             endif
         endif
@@ -658,8 +658,9 @@ function! notes#exit_note(event) abort " {{{1
         if (filereadable(expand('<afile>')) &&
                     \ getbufvar(expand('<afile>'), 'modified', 0)) ||
                     \ s:modified
-            if shell#jobstart(['build-index'], {'sync': {'events': ['stderr']}}) ||
-                        \ s:is_output
+            let l:output = shell#jobstart(['build-index'],
+                        \ {'msg': 1, 'display_stdout': 0})
+            if !empty(l:output.stderr) || s:is_output
                 echohl Type
                 call input('Press ENTER or type command to continue')
                 echohl None
