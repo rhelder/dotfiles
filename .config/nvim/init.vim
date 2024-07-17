@@ -187,7 +187,7 @@ endfunction
 " Plugins {{{1
 
 call plug#begin()
-    " Plug 'lervag/lists.vim'
+    Plug '/opt/homebrew/opt/fzf'
     Plug 'ncm2/ncm2'
     Plug 'roxma/nvim-yarp'
     Plug 'wellle/targets.vim'
@@ -197,9 +197,6 @@ call plug#begin()
     Plug 'machakann/vim-sandwich'
     Plug 'lervag/vimtex'
 call plug#end()
-
-" Set up fzf
-set rtp+=/opt/homebrew/opt/fzf
 
 " Use vim-surround key mappings for vim-sandwich
 runtime macros/sandwich/keymap/surround.vim
