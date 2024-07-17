@@ -1,145 +1,104 @@
 #!/bin/zsh
 
 # Create and maintain local Zotero storage library. If they do not already
-# exist, create a directory for every item in `myLibrary.bib`, which contains
+# exist, create a directory for every item in `my_library.bib`, which contains
 # my entire Zotero library. Name the directories after the BibLaTeX keys. Name
 # any files in the directories after the directories (and any files in
 # subdirectories after both the directory and the subdirectory). In this way,
 # automatically rename every file in local storage with a unique name and
 # according to a standard naming convention.
 
-# To-do: replace rg with grep
-# To-do: use file field to find files in Zotero cloud lib
-
-# {{{1 Clean up empty subdirectories
+setopt rc_expand_param
 
 cd $HOME/Documents/Zotero/Storage || exit 1
 
-echo 'Cleaning up empty subdirectories...'
-declare dir
-declare subdir
-for dir in *(NF); do
-    cd $dir
-    for subdir in *(N/^F); do
-        rmdir $subdir
-    done
-    cd ..
-done
-
-#{{{1 Parse `bib` file
+# Parse `bib` file {{{1
 
 echo 'Parsing BibLaTeX file...'
-declare item
-declare -a lib=( ${(f)"$(rg '^@.+\{(.+?)\.*,$' --replace '$1' -- \
+matches=( ${(f)"$(rg --line-number '^@.+\{(.+?)\.*,$' --replace '$1' -- \
     $HOME/Library/texmf/bibtex/bib/my_library.bib)"} )
 
-#{{{1 If directory corresponding to `bib` entry doesn't exist, make it (along
-#with two default subdirectories, 'annotated' and 'clean', for convenience)
+key_line_numbers=( )
+biblatex_keys=( )
+for match in $matches; do
+    key_line_numbers+=$(echo $match | cut -d : -f 1)
+    biblatex_keys+=$(echo $match | cut -d : -f 2)
+done
+
+# If directory corresponding to `bib` entry doesn't exist, make it {{{1
 
 echo 'Making directories for new entries...'
-for item in $lib; do
-    if [[ ! -d $item ]]; then
-        mkdir $item
-        mkdir $item/clean
-        mkdir $item/annotated
+for key in $biblatex_keys; do
+    if [[ ! -d $key ]]; then
+        mkdir $key
     fi
 done
 
 #{{{1  Check for attachments in Zotero cloud storage
 
-cd $XDG_DATA_HOME/zotero/storage || exit 1
-
 echo 'Checking for attachments in Zotero cloud storage...'
 
-declare -A shorttitles
-shorttitles=( \
-    [Bonitz]='bonitz 1955 Index Aristotelicus' \
-    [LSJ]='liddell Scott 1940 Greek English Lexicon' \
-    [Smyth]='smyth 1956 Greek Grammar' \
-    [TLG]='2014 TLG Home' \
-    [APo]='aristotle 1964 Analytica Posteriora' \
-    [APr]='aristotle 1964 Analytica Priora' \
-    [CGCG]='van Emde Boas 2019 Cambridge Grammar' \
-    [DA]='aristotle 1964 De Anima' \
-    [EE]='aristotle 1991 Ethica Eudemia' \
-    [EN]='aristotle 1894 Ethica Nicomachea' \
-    [Insomn]='aristotle 1955 De Insomniis' \
-    [Mem]='aristotle 1955 De Memoria' \
-    [Sens]='aristotle 1955 De sensu et sensibilibus' \
-    [Rhet]='aristotle 1976 Ars rhetorica' \
-    [PA]='aristotle 1831 de partibus animalium' \
-    [MA]='aristotle 2020 De Motu Animalium' \
-    [Met]='aristotle 1957 Metaphysica' \
-    [Phys]='aristotle 1950 Physica' \
-    [Pol]='aristotle 1957 Politica' \
-    [Rep]='plato 2003 Respublica' \
-    [Top]='aristotle 1958 Topica sophistici' \
-)
+matches=( ${(f)"$(rg --line-number --only-matching \
+    '(/Users/rhelder/.local/share/zotero/storage/[^};]+)(}|;)' --replace='$1' \
+    $HOME/Library/texmf/bibtex/bib/my_library.bib)"} )
 
-declare query
-declare -a match
-declare attch
+file_line_numbers=( )
+files=( )
+for match in $matches; do
+    file_line_numbers+=$(echo $match | cut -d : -f 1)
+    files+=$(echo $match | cut -d : -f 2)
+done
 
-for item in $lib; do
-    # If the item in question has a short title, then use the value from the
-    # `shorttitles` associative array; otherwise, split up the `biblatex` key
-    # and use that
-    if [[ $shorttitles[$item] ]]; then
-        query=$shorttitles[$item]
-    else
-        query=$(echo $item | \
-            sed -E 's/([0-9]{4})/ \1 /' | \
-            sed -E 's/([A-Z])/ \1/g')
-    fi
-    match=( ${(f)"$(fd --type f --strip-cwd-prefix | fzf -i -f $query)"} )
+if (( $#files > 1 )); then
+    echo $#files "attachments were found in Zotero's cloud storage:"
+elif (( $#match == 1 )); then
+    echo '1 attachment was found in Zotero cloud storage:'
+fi
 
-    if (( $#match > 1 )); then
-        echo $#match "attachments were found in Zotero's cloud storage:"
-        print -l $match
-        for attch in $match; do
-            read "?Copy '${attch#*/}' to ~/Documents/Zotero/Storage? (y/n) "
-            if [[ $REPLY == y || $REPLY == Y ]]; then
-                cp $attch \
-                    $HOME/Documents/Zotero/Storage/$item/${attch/\//_}
-                echo 'File copied.'
-            else
-                echo 'File not copied.'
-            fi
-        done
-    elif (( $#match == 1 )); then
-        echo '1 attachment was found in Zotero cloud storage:'
-        echo $match
-        read "?Copy '${match#*/}' to ~/Documents/Zotero/Storage? (y/n) "
-        if [[ $REPLY == y || $REPLY == Y ]]; then
-            cp $match \
-                $HOME/Documents/Zotero/Storage/$item/${match/\//_}
-            echo 'File copied.'
-        else
-            echo 'File not copied.'
+items=( )
+for file in $files; do
+    integer file_line_number=$file_line_numbers[${(k)files[(r)$file]}]
+    for key_line_number in $key_line_numbers; do
+        if (( key_line_number > file_line_number )); then
+            break
         fi
+        item=$biblatex_keys[${(k)key_line_numbers[(r)$key_line_number]}]
+    done
+    items+=$item
+
+    echo "${item}: ${file##*/}"
+done
+
+integer len=$#files
+for (( i=1; i<=len; i++ )); do
+    read "?Copy '${files[i]##*/}' to ~/Documents/Zotero/Storage? (y/n) "
+    if [[ $REPLY == y || $REPLY == Y ]]; then
+        read "?Type name of subdirectory: "
+        mkdir $items[i]/$REPLY && \
+            cp $files[i] $items[i]/$REPLY/${files[i]##*/}
+        echo 'File copied.'
+    else
+        echo 'File not copied.'
     fi
 done
 
 #{{{1 Rename files in local Zotero storage
 
-cd $HOME/Documents/Zotero/Storage
-
 echo 'Renaming files in local Zotero storage...'
-declare file
-for item in $lib; do
-    cd $item
+for key in $biblatex_keys; do
+    cd $key
 
-    # Rename any files after the directory it is in (which is the name of the
-    # item)
+    # Rename files after the parent directory
     for file in *(N.); do
-        mv $file ${file/*./$item.}
+        mv $file ${file/*./$key.}
     done
 
-    for subdir in *(NF); do
-        cd $subdir
-        # Rename any files after the directory and the subdirectory
+    # Rename files in subdirectories after their parent directory and the
+    # parent of the parent directory
+    for subdirectory in *(NF); do
+        cd $subdirectory
         for file in *(.); do
-            mv $file ${file/*./$item\_$subdir.}
+            mv $file ${file/*./$key\_$subdirectory.}
         done
         cd ..
     done
@@ -149,12 +108,12 @@ done
 #{{{1 Check that storage directory and Zotero library are in sync
 
 echo 'Checking that storage directory and Zotero library are in sync...'
-if [[ $(comm -23 =(print -l $lib | sort) =(ls | sort)) ]]; then
+if [[ $(comm -23 =(print -l $biblatex_keys | sort) =(ls | sort)) ]]; then
     echo 'zotero-storage: unknown error' >&2
     exit 1
-elif [[ $(comm -13 =(print -l $lib | sort) =(ls | sort)) ]]; then
+elif [[ $(comm -13 =(print -l $biblatex_keys | sort) =(ls | sort)) ]]; then
     echo 'The following items are not in your Zotero library:' >&2
-    echo $(comm -13 =(print -l $lib | sort) =(ls | sort)) >&2
+    echo $(comm -13 =(print -l $biblatex_keys | sort) =(ls | sort)) >&2
 fi
 
 echo 'Done.'
