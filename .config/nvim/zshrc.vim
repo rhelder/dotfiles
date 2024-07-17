@@ -60,6 +60,8 @@ nnoremap <Leader>doc <Cmd>lcd
             \ $HOME/Documents<CR>
 nnoremap <Leader>docg <Cmd>lcd
             \ $HOME/Documents/Git<CR>
+nnoremap <Leader>docm <Cmd>lcd
+            \ $HOME/Documents/Personal/LilyPond<CR>
 nnoremap <Leader>nch <Cmd>lcd
             \ $XDG_CONFIG_HOME/nvim<CR>
 nnoremap <Leader>nd <Cmd>lcd
@@ -94,6 +96,7 @@ let cv = "$HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
 let df = "$XDG_CONFIG_HOME/git/filter-repo/dotfiles"
 let doc = "$HOME/Documents"
 let docg = "$HOME/Documents/Git"
+let docm = "$HOME/Documents/Personal/LilyPond"
 let gc = "$XDG_CONFIG_HOME/git/config"
 let gi = "$XDG_CONFIG_HOME/git/ignore"
 let k = "$XDG_CONFIG_HOME/kitty/kitty.conf"
