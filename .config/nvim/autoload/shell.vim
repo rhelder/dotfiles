@@ -10,7 +10,7 @@ function! shell#jobstart(cmd, opts = {}) abort " {{{1
     endif
 
     let l:job_id = jobstart(a:cmd, a:opts)
-    if !get(a:opts, 'sync', 1) | return l:job_id | endif
+    if !get(a:opts, 'sync', 0) | return l:job_id | endif
 
     call jobwait([l:job_id])
 
@@ -67,7 +67,7 @@ function! s:on_exit(job_id, data, event) abort dict " {{{1
         call call(self.createqflist, get(self, 'qf_args', [0, '']))
     endif
 
-    if !get(self, 'sync', 1)
+    if !get(self, 'sync', 0)
         unlet self.stdout
         unlet self.stderr
         unlet self.both
@@ -91,7 +91,7 @@ function! s:print_msg(event) abort dict " {{{1
         if l:msg ==# [''] | return | endif
 
         mode
-        if get(self, 'sync', 1)
+        if get(self, 'sync', 0)
             echo join(l:msg, "\n")
         else
             echo join(l:msg, "\n") .. "\n"
