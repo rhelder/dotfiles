@@ -20,12 +20,6 @@ function! shell#jobstart(cmd, opts = {}) abort " {{{1
                 \ 'both': filter(a:opts.both, '!empty(v:val)'),
                 \ }
 
-    unlet a:opts.stdout
-    unlet a:opts.stderr
-    unlet a:opts.both
-
-    let &cmdheight = a:opts.cmdheight
-
     return l:output
 endfunction
 
@@ -56,9 +50,13 @@ function! s:on_event(job_id, data, event) abort dict " {{{1
         call add(self[a:event], a:data[-1])
         call add(self.both, a:data[-1])
     endif
+
+    if has_key(self, 'callback')
+        call call(function(self.callback), [a:job_id, a:data, a:event])
+    endif
 endfunction
 
-function! s:on_exit(job_id, data, event) abort dict " {{{1
+function! s:on_exit(job_id, exit_status, event) abort dict " {{{1
     if get(self, 'msg', 0)
         call self.print_msg(a:event)
     endif
@@ -67,11 +65,10 @@ function! s:on_exit(job_id, data, event) abort dict " {{{1
         call call(self.createqflist, get(self, 'qf_args', [0, '']))
     endif
 
-    if !get(self, 'sync', 0)
-        unlet self.stdout
-        unlet self.stderr
-        unlet self.both
-        let &cmdheight = self.cmdheight
+    let &cmdheight = self.cmdheight
+
+    if has_key(self, 'callback')
+        call call(function(self.callback), [a:job_id, a:exit_status, a:event])
     endif
 endfunction
 
