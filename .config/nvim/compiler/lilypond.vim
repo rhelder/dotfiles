@@ -15,12 +15,12 @@ function! s:open_output(job_id, exit_status, event) abort
 endfunction
 
 command! -buffer LilypondCompile
-            \ call shell#jobstart([
+            \ call shell#compile([
             \   'lilypond',
             \   '--output=' .. expand('%<'),
             \   expand('%')
             \ ], {
             \   'msg': 3,
             \   'qf': {'window': 1, 'title': 'LilyPond'},
-            \   'callback': function('s:open_output'),
+            \   'callbacks': [function('s:open_output')],
             \ })
