@@ -9,8 +9,8 @@ function! shell#jobstart(cmd, opts = {}) abort " {{{1
     return l:job_handler.start(a:cmd)
 endfunction
 
-function! shell#job_handler() abort " {{{1
-    return s:job_handler
+function! shell#job_handler(opts = {}) abort " {{{1
+    return extend(deepcopy(s:job_handler), a:opts)
 endfunction
 
 " }}}1
@@ -43,8 +43,10 @@ function! s:on_output(job_id, data, event) abort dict " {{{1
         call add(self.both, a:data[-1])
     endif
 
-    if has_key(self, 'callback')
-        call call(function(self.callback), [a:job_id, a:data, a:event])
+    if has_key(self, 'callbacks')
+        for l:Func in self.callbacks
+            call call(l:Func, [a:job_id, a:data, a:event])
+        endfor
     endif
 endfunction
 
@@ -53,6 +55,7 @@ endfunction
 let s:job_handler = {
             \ 'on_stdout': function('s:on_output'),
             \ 'on_stderr': function('s:on_output'),
+            \ 'callbacks': [],
             \ }
 
 function! s:job_handler.on_exit(job_id, exit_status, event) abort dict " {{{1
@@ -60,12 +63,10 @@ function! s:job_handler.on_exit(job_id, exit_status, event) abort dict " {{{1
         call self.print_msg(a:event)
     endif
 
-    if has_key(self, 'qf')
-        call self.createqflist()
-    endif
-
-    if has_key(self, 'callback')
-        call call(function(self.callback), [a:job_id, a:exit_status, a:event])
+    if has_key(self, 'callbacks')
+        for l:Func in self.callbacks
+            call call(l:Func, [a:job_id, a:exit_status, a:event])
+        endfor
     endif
 endfunction
 
@@ -111,7 +112,29 @@ function! s:job_handler.print_msg(event) abort dict " {{{1
     redraw
 endfunction
 
-function! s:job_handler.createqflist() abort dict " {{{1
+function! s:job_handler.start(cmd) abort " {{{1
+    let self.job_id = jobstart(a:cmd, self)
+    if get(self, 'sync', 0)
+        call jobwait([self.job_id])
+    endif
+    return self
+endfunction
+
+" }}}1
+
+function! shell#compile(cmd, opts = {}) abort " {{{1
+    let l:compiler = deepcopy(s:compiler)
+    call extend(l:compiler, a:opts)
+    call insert(l:compiler.callbacks, l:compiler.createqflist)
+    return l:compiler.start(a:cmd)
+endfunction
+
+" }}}1
+
+let s:compiler = extend(deepcopy(s:job_handler), {'qf': {}})
+function! s:compiler.createqflist(job_id, exit_status, event) abort dict " {{{1
+    if a:event !=# 'exit' | return | endif
+
     silent cexpr self.both
     if get(self.qf, 'window', 0)
         call setqflist(filter(getqflist(), 'v:val.valid !=# 0'))
@@ -120,14 +143,6 @@ function! s:job_handler.createqflist() abort dict " {{{1
         endif
         execute 'cwindow ' .. get(self.qf, 'height', '')
     endif
-endfunction
-
-function! s:job_handler.start(cmd) abort " {{{1
-    let self.job_id = jobstart(a:cmd, self)
-    if get(self, 'sync', 0)
-        call jobwait([self.job_id])
-    endif
-    return self
 endfunction
 
 " }}}1
