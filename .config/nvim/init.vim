@@ -139,6 +139,7 @@ augroup nvimrc_filetype_defaults " {{{2
     autocmd FileType text,markdown      setlocal textwidth=78
     autocmd FileType text,markdown      setlocal nonumber nosmartindent
     autocmd FileType gitcommit          setlocal nosmartindent textwidth=72
+    autocmd BufNewFile *.ly             call append(0, '\version "2.24.3"')
 augroup END
 
 augroup nvimrc_key_mappings " {{{2
@@ -188,6 +189,7 @@ endfunction
 
 call plug#begin()
     Plug '/opt/homebrew/opt/fzf'
+    Plug '/opt/homebrew/Cellar/lilypond/2.24.3/share/lilypond/2.24.3/vim'
     Plug 'ncm2/ncm2'
     Plug 'roxma/nvim-yarp'
     Plug 'wellle/targets.vim'
