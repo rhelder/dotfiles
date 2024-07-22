@@ -658,8 +658,7 @@ function! notes#exit_note(event) abort " {{{1
         if (filereadable(expand('<afile>')) &&
                     \ getbufvar(expand('<afile>'), 'modified', 0)) ||
                     \ s:modified
-            let l:output = shell#jobstart(['build-index'],
-                        \ {'msg': 1, 'display_stdout': 0})
+            let l:output = shell#jobstart(['build-index'], {'msg': 2})
             if !empty(l:output.stderr) || s:is_output
                 echohl Type
                 call input('Press ENTER or type command to continue')
