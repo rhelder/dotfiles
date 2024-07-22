@@ -1,29 +1,21 @@
 " [TODO]
 " * highlight messages
 " * print to scratch buffer
+" * option to not focus on qf window
 
 function! shell#jobstart(cmd, opts = {}) abort " {{{1
-    call extend(a:opts, s:opts)
-    call extend(a:opts, {'cmdheight': &cmdheight})
-    if !has_key(a:opts, 'createqflist')
-        call extend(a:opts, {'createqflist': function('s:createqflist')})
-    endif
-
-    let l:job_id = jobstart(a:cmd, a:opts)
-    if !get(a:opts, 'sync', 0) | return l:job_id | endif
-
-    call jobwait([l:job_id])
-
-    let l:output = {
-                \ 'stdout': filter(a:opts.stdout, '!empty(v:val)'),
-                \ 'stderr': filter(a:opts.stderr, '!empty(v:val)'),
-                \ 'both': filter(a:opts.both, '!empty(v:val)'),
-                \ }
-
-    return l:output
+    let l:job_handler = deepcopy(s:job_handler)
+    call extend(l:job_handler, a:opts)
+    return l:job_handler.start(a:cmd)
 endfunction
 
-function! s:on_event(job_id, data, event) abort dict " {{{1
+function! shell#job_handler() abort " {{{1
+    return s:job_handler
+endfunction
+
+" }}}1
+
+function! s:on_output(job_id, data, event) abort dict " {{{1
     " The first and last elements of a:data might not be complete lines.
     " Therefore, initialize lists with one empty element so that a:data[0] can
     " be concatenated with first element
@@ -56,33 +48,39 @@ function! s:on_event(job_id, data, event) abort dict " {{{1
     endif
 endfunction
 
-function! s:on_exit(job_id, exit_status, event) abort dict " {{{1
+" }}}1
+
+let s:job_handler = {
+            \ 'on_stdout': function('s:on_output'),
+            \ 'on_stderr': function('s:on_output'),
+            \ }
+
+function! s:job_handler.on_exit(job_id, exit_status, event) abort dict " {{{1
     if get(self, 'msg', 0)
         call self.print_msg(a:event)
     endif
 
-    if get(self, 'qf', 0)
-        call call(self.createqflist, get(self, 'qf_args', [0, '']))
+    if has_key(self, 'qf')
+        call self.createqflist()
     endif
-
-    let &cmdheight = self.cmdheight
 
     if has_key(self, 'callback')
         call call(function(self.callback), [a:job_id, a:exit_status, a:event])
     endif
 endfunction
 
-function! s:print_msg(event) abort dict " {{{1
+function! s:job_handler.print_msg(event) abort dict " {{{1
+    if !has_key(self, 'cmdheight')
+        let self.cmdheight = &cmdheight
+    endif
+
     if a:event ==# 'exit'
         if &cmdheight !=# 1 | set cmdheight-=1 | endif
-        if get(self, 'display_stdout', 1) &&
-                    \ get(self, 'display_stderr', 1)
+        if self.msg ==# 3
             let l:msg = self.both
-        elseif !get(self, 'display_stdout', 1) &&
-                    \ get(self, 'display_stderr', 1)
+        elseif self.msg ==# 2
             let l:msg = self.stderr
-        elseif !get(self, 'display_stderr', 1) &&
-                    \ get(self, 'display_stdout', 1)
+        elseif self.msg ==# 1
             let l:msg = self.stdout
         endif
         if l:msg ==# [''] | return | endif
@@ -93,13 +91,17 @@ function! s:print_msg(event) abort dict " {{{1
         else
             echo join(l:msg, "\n") .. "\n"
         endif
+
+        let &cmdheight = self.cmdheight
         return
     endif
 
-    if !get(self, 'display_' .. a:event, 1) | return | endif
+    if (self.msg ==# 2 && a:event ==# 'stdout') ||
+                \ (self.msg ==# 1 && a:event ==# 'stderr')
+        return
+    endif
 
-    if get(self, 'display_stdout', 1) &&
-                \ get(self, 'display_stderr', 1)
+    if self.msg ==# 3
         let &cmdheight = len(self.both)
         echo join(self.both, "\n")
     else
@@ -109,22 +111,23 @@ function! s:print_msg(event) abort dict " {{{1
     redraw
 endfunction
 
-function! s:createqflist(window, title = '', height = '') abort dict " {{{1
+function! s:job_handler.createqflist() abort dict " {{{1
     silent cexpr self.both
-    if a:window
+    if get(self.qf, 'window', 0)
         call setqflist(filter(getqflist(), 'v:val.valid !=# 0'))
-        if !empty(a:title)
-            call setqflist([], 'a', {'title': a:title})
+        if !empty(get(self.qf, 'title', ''))
+            call setqflist([], 'a', {'title': self.qf.title})
         endif
-        execute 'cwindow ' .. a:height
+        execute 'cwindow ' .. get(self.qf, 'height', '')
     endif
 endfunction
 
-" }}}1
+function! s:job_handler.start(cmd) abort " {{{1
+    let self.job_id = jobstart(a:cmd, self)
+    if get(self, 'sync', 0)
+        call jobwait([self.job_id])
+    endif
+    return self
+endfunction
 
-let s:opts = {
-            \ 'on_stdout': function('s:on_event'),
-            \ 'on_stderr': function('s:on_event'),
-            \ 'on_exit': function('s:on_exit'),
-            \ 'print_msg': function('s:print_msg'),
-            \ }
+" }}}1
