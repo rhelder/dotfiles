@@ -158,10 +158,10 @@ augroup nvimrc_key_mappings " {{{2
     autocmd FileType zsh,conf
                 \ vnoremap <buffer> <LocalLeader>c
                 \   <Cmd>call <SID>comment('#', 'v')<CR>
-    autocmd FileType lilypond,tex
+    autocmd FileType gpg,lilypond,tex
                 \ nnoremap <buffer> <LocalLeader>c
                 \   <Cmd>call <SID>comment('%', 'n')<CR>
-    autocmd FileType lilypond,tex
+    autocmd FileType gpg,lilypond,tex
                 \ vnoremap <buffer> <LocalLeader>c
                 \   <Cmd>call <SID>comment('%', 'v')<CR>
 
