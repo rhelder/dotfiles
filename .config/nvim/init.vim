@@ -14,13 +14,17 @@ set ignorecase
 set list
 set mouse=
 set noruler
+set number
 set report=0
 set scrolloff=3
 set shiftwidth=4
 set smartcase
+set smartindent
 set softtabstop=4
+set spelllang=en_us
 set splitbelow
 set splitright
+set textwidth=79
 
 " Undo files
 set undofile
@@ -29,14 +33,10 @@ if !isdirectory(&undodir)
   call mkdir(&undodir, 'p')
 endif
 
-" Only set options that are also set by FileType autocommands (or spelllang)
-" the first time init.vim is sourced, so that the options are not overridden if
-" init.vim is sourced again
-if !exists('s:sourced')
-    set number
-    set smartindent
-    set spelllang=en_us
-    set textwidth=79
+" If 'init.vim' is sourced after startup, the above global settings may
+" override local filetype-specific settings. Restore local settings.
+if !empty(&filetype)
+    execute 'setfiletype ' .. &filetype
 endif
 
 " Mappings {{{1
@@ -59,7 +59,7 @@ nnoremap <Leader>t <Cmd>vsplit<CR><Cmd>terminal<CR>
 " Sort case-insensitively
 vnoremap <silent> <Leader>si :sort i<CR>
 
-" Move lines up or down
+" Move line up or down
 nnoremap - ddkP
 nnoremap _ ddp
 
@@ -146,18 +146,24 @@ augroup nvimrc_key_mappings " {{{2
     autocmd!
 
     " Comment out lines according to filetype
-    autocmd FileType vim nnoremap <buffer> <silent> <LocalLeader>c
-                \ :call <SID>comment('"')<CR>
-    autocmd FileType vim vnoremap <buffer> <silent> <LocalLeader>c
-                \ :call <SID>comment('"')<CR>
-    autocmd FileType zsh,conf nnoremap <buffer> <silent> <LocalLeader>c
-                \ :call <SID>comment('#')<CR>
-    autocmd FileType zsh,conf vnoremap <buffer> <silent> <LocalLeader>c
-                \ :call <SID>comment('#')<CR>
-    autocmd FileType tex nnoremap <buffer> <silent> <LocalLeader>c
-                \ :call <SID>comment('%')<CR>
-    autocmd FileType tex vnoremap <buffer> <silent> <LocalLeader>c
-                \ :call <SID>comment('%')<CR>
+    autocmd FileType vim
+                \ nnoremap <buffer> <LocalLeader>c
+                \   <Cmd>call <SID>comment('"', 'n')<CR>
+    autocmd FileType vim
+                \ vnoremap <buffer> <LocalLeader>c
+                \   <Cmd>call <SID>comment('"', 'v')<CR>
+    autocmd FileType zsh,conf
+                \ nnoremap <buffer> <LocalLeader>c
+                \   <Cmd>call <SID>comment('#', 'n')<CR>
+    autocmd FileType zsh,conf
+                \ vnoremap <buffer> <LocalLeader>c
+                \   <Cmd>call <SID>comment('#', 'v')<CR>
+    autocmd FileType lilypond,tex
+                \ nnoremap <buffer> <LocalLeader>c
+                \   <Cmd>call <SID>comment('%', 'n')<CR>
+    autocmd FileType lilypond,tex
+                \ vnoremap <buffer> <LocalLeader>c
+                \   <Cmd>call <SID>comment('%', 'v')<CR>
 
     " Make it easier to exit the command window (from @lervag's vimrc)
     autocmd CmdwinEnter * nnoremap <buffer> q     <C-C><C-C>
@@ -174,13 +180,32 @@ augroup nvimrc_key_mappings " {{{2
     autocmd TermEnter * tnoremap <buffer> <C-W>c     <C-\><C-N>
 augroup END
 
-function! s:comment(character) abort " {{{3
-    let l:pattern = '^\s*' .. a:character
-    if match(getline('.'), l:pattern) ==# 0
-        normal ^xx
-    else
-        execute 'normal I' .. a:character .. "\<Space>\<Esc>"
+function! s:comment(character, mode) abort " {{{3
+    let l:range = []
+    call add(l:range, line('.'))
+    if a:mode ==# 'v'
+        call add(l:range, line('v'))
+        call sort(l:range, 'n')
+        let l:range = range(l:range[0], l:range[1])
     endif
+
+    for l:lnum in l:range
+        let l:line = getline(l:lnum)
+        let l:pattern = '\v^(\s*)\' .. a:character
+        if match(l:line, l:pattern) ==# -1
+            if !empty(line)
+                call setline(l:lnum, substitute(l:line, '\v^(\s*)(\S|$)',
+                            \ '\1' .. a:character .. ' \2', ''))
+            else
+                call setline(l:lnum, a:character)
+            endif
+        else
+            call setline(l:lnum, substitute(l:line, l:pattern .. '\s*',
+                        \ '\1', ''))
+        endif
+    endfor
+
+    if a:mode ==# 'v' | execute "normal! \<Esc>" | endif
 endfunction
 " }}}3
 " }}}2
@@ -206,5 +231,3 @@ runtime macros/sandwich/keymap/surround.vim
 let g:GPGExecutable = 'PINENTRY_USER_DATA="" gpg --trust-model=always'
 
 " }}}1
-
-let s:sourced = 1
