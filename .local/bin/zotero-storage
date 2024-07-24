@@ -74,11 +74,17 @@ for (( i=1; i<=len; i++ )); do
     read "?Copy '${files[i]##*/}' to ~/Documents/Zotero/Storage? (y/n) "
     if [[ $REPLY == y || $REPLY == Y ]]; then
         read "?Type name of subdirectory: "
-        mkdir $items[i]/$REPLY && \
-            cp $files[i] $items[i]/$REPLY/${files[i]##*/}
-        echo 'File copied.'
+        subdirectory=$REPLY
+        mkdir $items[i]/$subdirectory && \
+            cp $files[i] $items[i]/$subdirectory/${files[i]##*/} && \
+            echo 'File copied.'
     else
         echo 'File not copied.'
+    fi
+
+    read "?Show '${files[i]##*/}' in Finder? (y/n) "
+    if [[ $REPLY == y || $REPLY == Y ]]; then
+        open -g $items[i]/$subdirectory
     fi
 done
 
