@@ -1,11 +1,12 @@
 # Before autoloading, check whether or not name is already defined as a
-# command, function, alias, etc. If not, let `autoload` act as normal. Also
-# `unfunction` before autoloading so that any changes made to the function can
+# command, function, alias, etc. If not, let 'autoload' act as normal. Also
+# 'unfunction' before autoloading so that any changes made to the function can
 # be loaded the next time the function is called.
 
-local -a flags=()
-while getopts 'fRTUXdkmrtWz' flag; do
+local -a flags
+while getopts 'cfRTUXdkmrtWz' flag; do
     case $flag in
+        (c)     local -i config=1;;
         (f)     local -i force=1;;
         (R)     flags+=( '-R' );;
         (+R)    flags+=( '+R' );;
@@ -33,52 +34,39 @@ while getopts 'fRTUXdkmrtWz' flag; do
 done
 shift $(( OPTIND - 1 ))
 
-# If no argument is provided, the `{+|-}m` flag is present, or the `-f` flag is
-# present, run the `autoload` builtin like normal
-if [[ ! -n $* || mopt -eq 1 ]]; then
+if [[ ! -n $* || -n $mopt ]]; then
     builtin autoload $flags $*
-
-elif (( force == 1 )); then
-    # If the `-f` flag is present, also `unfunction` first
-    if typeset -f $* > /dev/null; then
-        unfunction $*
-    fi
-    builtin autoload $flags $*
-
-else
-    # Check to see if there is another command, function, alias, etc. by the
-    # same name before autoloading the function
-
-    # Keep track of functions marked for autoloading in `.zshrc` so that these
-    # aren't flagged as 'already defined' every time `.zshrc` is re-sourced
-    declare -Uga autoload_zshrc_functions
-
-    declare zshrc_line_number=$funcfiletrace[(r)$XDG_CONFIG_HOME/zsh/.zshrc*]
-    [[ -n $zshrc_line_number ]] && integer in_zshrc=1
-
-    local name
-    for name in $*; do
-        if [[ -n $autoload_zshrc_functions[(r)$name] ]]; then
-            integer prev_in_zshrc=1
-        fi
-
-        if [[ -n $(whence $name) && $name != 'autoload' ]]; then
-            if [[ -n $in_zshrc && ! -n $prev_in_zshrc ]]; then
-                echo 'autoload:'${zshrc_line_number}':'\
-                    $name 'already defined' >&2
-                return 1
-            elif [[ ! -n $in_zshrc ]]; then
-                echo 'autoload:'${zshrc_line_number}':'\
-                    $name 'already defined' >&2
-                return 1
-            fi
-        fi
-
-        [[ -n $in_zshrc ]] && autoload_zshrc_functions+=( $name )
-
-        if typeset -f $* > /dev/null; then
-            unfunction $*
-        fi
-        builtin autoload $flags $name
-    done
+    return $?
 fi
+
+# Keep track of functions with the '-c' option so that they aren't flagged as
+# 'already defined' every time '.zshrc' is re-sourced
+declare -Uga autoload_sourced_zshrc_functions
+
+local -i exit_status
+local name
+for name in $*; do
+    if [[
+        -z $(whence $name) ||
+        $name == 'autoload' ||
+        -n $autoload_sourced_zshrc_functions[(r)$name] ||
+        -n $force
+    ]]; then
+        [[ -n $config ]] && autoload_sourced_zshrc_functions+=$name
+
+        typeset -f $* > /dev/null && unfunction $*
+        builtin autoload $flags $name
+        continue
+    fi
+
+    local zshrc_line_number=$funcfiletrace[(r)$XDG_CONFIG_HOME/zsh/.zshrc*]
+    if [[ -n $zshrc_line_number ]]; then
+        echo 'autoload:'${zshrc_line_number}':' $name 'already defined' >&2
+    else
+        echo 'autoload:' $name 'already defined' >&2
+    fi
+    exit_status=1
+    continue
+done
+
+return $exit_status

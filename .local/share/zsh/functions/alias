@@ -1,9 +1,10 @@
 # Before aliasing, check whether or not name is already defined as a command,
-# function, alias, etc. If not, let `alias` act as normal builtin `alias`.
+# function, alias, etc. If not, let 'alias' act as normal builtin 'alias'.
 
-local flags=()
-while getopts 'fgmsrL' flag; do
+local -a flags
+while getopts 'cfgmsrL' flag; do
     case $flag in
+        (c)     local -i config=1;;
         (f)     local -i force=1;;
         (g)     flags+=( '-g' );;
         (+g)    flags+=( '+g' );;
@@ -19,42 +20,39 @@ while getopts 'fgmsrL' flag; do
 done
 shift $(( OPTIND - 1 ))
 
-# If no argument is provided, the `{+|-}m` flag is present, or the `-f` flag is
-# present, run the `alias` builtin like normal
-if [[ ! $* || $mopt -eq 1 || $force -eq 1 ]]; then
+if [[ ! -n $* || $mopt -eq 1 ]]; then
     builtin alias $flags $*
-
-else
-    # Check to see if there is another command, function, alias, etc. by the
-    # same name before defining the alias
-
-    # Keep track of aliases defined in `.zshrc` so that these aren't flagged as
-    # 'already defined' every time `.zshrc` is re-sourced
-    declare -Uga autoload_zshrc_aliases
-
-    declare zshrc_line_number=$funcfiletrace[(r)$XDG_CONFIG_HOME/zsh/.zshrc*]
-    [[ -n $zshrc_line_number ]] && integer in_zshrc=1
-
-    local name
-    for arg in $*; do
-        name="${arg%%=*}"
-        if [[ -n $autoload_zshrc_aliases[(r)$name] ]]; then
-            integer prev_in_zshrc=1
-        fi
-
-        if [[ $(whence $name) ]]; then
-            if [[ -n $in_zshrc && ! -n $prev_in_zshrc ]]; then
-                echo 'alias:'${zshrc_line_number}':'\
-                    $name 'already defined' >&2
-                return 1
-            elif [[ ! -n $in_zshrc ]]; then
-                echo 'alias:'${zshrc_line_number}':'\
-                    $name 'already defined' >&2
-                return 1
-            fi
-        fi
-
-        [[ -n $in_zshrc ]] && autoload_zshrc_aliases+=( $name )
-        builtin alias $flags $arg
-    done
+    return $?
 fi
+
+# Keep track of aliases with the '-c' option so that they aren't flagged as
+# 'already defined' every time '.zshrc' is re-sourced
+declare -Uga alias_sourced_zshrc_aliases
+
+local -i exit_status
+local name
+local arg
+for arg in $*; do
+    name="${arg%%=*}"
+    if [[
+        -z $(whence $name) ||
+        -n $alias_sourced_zshrc_aliases[(r)$name] ||
+        -n $force
+    ]]; then
+        [[ -n $config ]] && alias_sourced_zshrc_aliases+=$name
+
+        builtin alias $flags $*
+        continue
+    fi
+
+    local zshrc_line_number=$funcfiletrace[(r)$XDG_CONFIG_HOME/zsh/.zshrc*]
+    if [[ -n $zshrc_line_number ]]; then
+        echo 'alias:'${zshrc_line_number}':' $name 'already defined' >&2
+    else
+        echo 'alias:' $name 'already defined' >&2
+    fi
+    exit_status=1
+    continue
+done
+
+return $exit_status
