@@ -45,6 +45,7 @@ autoload autoload
 autoload -f alias
 
 # Load other user functions
+alias -f autoload='autoload -c'
 autoload clean_tex_aux_files
 autoload cs
 autoload default_gpg
@@ -52,22 +53,25 @@ autoload default_tar
 autoload man_zsh
 autoload nvim_help
 autoload trash
+unalias autoload
 
 # Install run-help
-[[ ${"$(whence -w run-help)"##*: } == 'alias' ]] && unalias run-help
-autoload -U run-help
-autoload -U run-help-git
-export HELPDIR='/usr/share/zsh/5.9/help'
+if unalias run-help 2>/dev/null; then
+    autoload -U run-help
+    autoload -U run-help-git
+    export HELPDIR='/usr/share/zsh/5.9/help'
+fi
 
 # Initialize completion
-if [[ ! -n $zshrc_sourced ]]; then
-    autoload -U compinit
+if autoload -U compinit 2>/dev/null; then
     compinit
     zmodload zsh/complist
     zstyle ':completion*:default' menu 'select=0'
 fi
 
 # {{{1 Aliases
+
+alias -f alias='alias -c'
 
 # {{{2 Edit
 alias eas="nvim $HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
@@ -119,6 +123,7 @@ alias xdh="cd $XDG_DATA_HOME"
 alias zf="cd $XDG_DATA_HOME/zsh/functions"
 
 # {{{2 Git
+alias -f git='hub'
 alias ga='git add'
 alias gbD='git branch -D'
 alias gbd='git branch -d'
@@ -162,6 +167,8 @@ alias sz="source $XDG_CONFIG_HOME/zsh/.zshrc"
 alias td='texdoc'
 alias ts='trash'
 # }}}2
+
+unalias alias
 
 # {{{1 Shell variables
 
@@ -211,5 +218,3 @@ declare z="$XDG_CONFIG_HOME/zsh/.zshrc"
 declare zf="$XDG_DATA_HOME/zsh/functions"
 
 # }}}1
-
-integer zshrc_sourced=1
