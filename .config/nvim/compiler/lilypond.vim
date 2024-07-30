@@ -10,11 +10,14 @@ setlocal errorformat+=In\ file\ included\ from\ %f:%l:,
 setlocal errorformat+=\^I\^Ifrom\ %f:%l%m
 silent CompilerSet errorformat
 
-function! s:open_output(job_id, exit_status, event) abort
+function! s:open_output(job_id, exit_code, event) abort dict
     if a:event !=# 'exit' | return | endif
-    if a:exit_status ># 0 | return | endif
 
-    call shell#jobstart(['open', '-a', 'Skim', expand('%<') .. '.pdf'], {})
+    call self.createqflist(a:job_id, a:exit_code, a:event)
+
+    if !a:exit_code
+        call shell#jobstart(['open', '-a', 'Skim', expand('%<') .. '.pdf'], {})
+    endif
 endfunction
 
 command! -buffer LilypondCompile
@@ -25,5 +28,5 @@ command! -buffer LilypondCompile
             \ ], {
             \   'msg': 3,
             \   'qf': {'window': 1, 'title': 'LilyPond'},
-            \   'callbacks': [function('s:open_output')],
+            \   'callback': function('s:open_output'),
             \ })
