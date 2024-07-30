@@ -43,10 +43,8 @@ function! s:on_output(job_id, data, event) abort dict " {{{1
         call add(self.both, a:data[-1])
     endif
 
-    if has_key(self, 'callbacks')
-        for l:Func in self.callbacks
-            call call(l:Func, [a:job_id, a:data, a:event])
-        endfor
+    if has_key(self, 'callback')
+        call call(self.callback, [a:job_id, a:data, a:event])
     endif
 endfunction
 
@@ -55,18 +53,15 @@ endfunction
 let s:job_handler = {
             \ 'on_stdout': function('s:on_output'),
             \ 'on_stderr': function('s:on_output'),
-            \ 'callbacks': [],
             \ }
 
-function! s:job_handler.on_exit(job_id, exit_status, event) abort dict " {{{1
+function! s:job_handler.on_exit(job_id, exit_code, event) abort dict " {{{1
     if get(self, 'msg', 0)
         call self.print_msg(a:event)
     endif
 
-    if has_key(self, 'callbacks')
-        for l:Func in self.callbacks
-            call call(l:Func, [a:job_id, a:exit_status, a:event])
-        endfor
+    if has_key(self, 'callback')
+        call call(self.callback, [a:job_id, a:exit_code, a:event])
     endif
 endfunction
 
@@ -124,15 +119,15 @@ endfunction
 
 function! shell#compile(cmd, opts = {}) abort " {{{1
     let l:compiler = deepcopy(s:compiler)
+    let l:compiler.callback = get(l:compiler, 'createqflist')
     call extend(l:compiler, a:opts)
-    call insert(l:compiler.callbacks, l:compiler.createqflist)
     return l:compiler.start(a:cmd)
 endfunction
 
 " }}}1
 
 let s:compiler = extend(deepcopy(s:job_handler), {'qf': {}})
-function! s:compiler.createqflist(job_id, exit_status, event) abort dict " {{{1
+function! s:compiler.createqflist(job_id, exit_code, event) abort dict " {{{1
     if a:event !=# 'exit' | return | endif
 
     silent cexpr self.both
