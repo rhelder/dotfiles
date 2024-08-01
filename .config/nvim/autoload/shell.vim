@@ -1,5 +1,6 @@
 " [TODO]
 " * highlight messages
+" * option to focus on scratch buffer window
 " * option to not focus on qf window
 
 function! shell#jobstart(cmd, opts = {}) abort " {{{1
@@ -33,7 +34,7 @@ function! s:on_output(channel, data, event) abort dict " {{{1
     endif
 
     if get(self, 'scratch', 0) && len(a:data) > 1
-        call self.set_scratch_buf(a:channel, a:data, a:event)
+        call self.load_scratch_buf(a:channel, a:data, a:event)
     endif
 
     if get(self, 'msg', 0) && len(a:data) > 1
@@ -61,7 +62,7 @@ let s:job_handler = {
 
 function! s:job_handler.on_exit(job, status, event) abort dict " {{{1
     if get(self, 'scratch', 0)
-        call self.set_scratch_buf(a:job, a:status, a:event)
+        call self.load_scratch_buf(a:job, a:status, a:event)
     endif
 
     if get(self, 'msg', 0)
@@ -73,7 +74,7 @@ function! s:job_handler.on_exit(job, status, event) abort dict " {{{1
     endif
 endfunction
 
-function! s:job_handler.set_scratch_buf(id, data, event) abort dict " {{{1
+function! s:job_handler.load_scratch_buf(id, data, event) abort dict " {{{1
     if a:event ==# 'exit'
         let l:scratch = self.scratch
         if l:scratch ># 3 | let l:scratch -= 3 | endif
@@ -241,24 +242,52 @@ endfunction
 
 function! shell#compile(cmd, opts = {}) abort " {{{1
     let l:compiler = deepcopy(s:compiler)
-    let l:compiler.callback = get(l:compiler, 'createqflist')
     call extend(l:compiler, a:opts)
-    return l:compiler.start(a:cmd)
+    let l:compiler.cmd = a:cmd
+    return l:compiler.start()
 endfunction
 
 " }}}1
 
-let s:compiler = extend(deepcopy(s:job_handler), {'qf': {}})
+let s:compiler = deepcopy(s:job_handler)
+
+function! s:compiler.on_exit(job, status, event) abort dict " {{{1
+    if get(self, 'scratch', 0)
+        call self.load_scratch_buf(a:job, a:status, a:event)
+    endif
+
+    if get(self, 'msg', 0)
+        call self.print_msg(a:job, a:status, a:event)
+    endif
+
+    call self.on_error(a:job, a:status, a:event)
+
+    if has_key(self, 'callback')
+        call call(self.callback, [a:job, a:status, a:event])
+    endif
+endfunction
+
+function! s:compiler.on_error(job, status, event) abort dict " {{{1
+    if !empty(&errorformat)
+        call self.createqflist(a:job, a:status, a:event)
+    else
+        let self.scratch = 5
+        call self.load_scratch_buf(a:job, a:status, a:event)
+    endif
+endfunction
+
 function! s:compiler.createqflist(job, status, event) abort dict " {{{1
     if a:event !=# 'exit' | return | endif
 
+    if !exists('self.qf_win') | let self.qf_win = {} | endif
+
     silent cexpr self.both
-    if get(self.qf, 'window', 0)
+    if get(self.qf_win, 'window', 0)
         call setqflist(filter(getqflist(), 'v:val.valid !=# 0'))
-        if !empty(get(self.qf, 'title', ''))
-            call setqflist([], 'a', {'title': self.qf.title})
+        if !empty(get(self.qf_win, 'title', ''))
+            call setqflist([], 'a', {'title': self.qf_win.title})
         endif
-        execute 'cwindow ' .. get(self.qf, 'height', '')
+        execute 'cwindow ' .. get(self.qf_win, 'height', '')
     endif
 endfunction
 
