@@ -74,12 +74,6 @@ function! s:job_handler.on_exit(job, status, event) abort dict " {{{1
 endfunction
 
 function! s:job_handler.set_scratch_buf(id, data, event) abort dict " {{{1
-    let l:cmd = self.cmd
-    if type(self.cmd) ==# v:t_list
-        let l:cmd = join(self.cmd)
-    endif
-    let l:cmd = substitute(l:cmd, '\W', '_', 'g')
-
     if a:event ==# 'exit'
         let l:scratch = self.scratch
         if l:scratch ># 3 | let l:scratch -= 3 | endif
@@ -91,12 +85,19 @@ function! s:job_handler.set_scratch_buf(id, data, event) abort dict " {{{1
         elseif l:scratch ==# 1
             let l:output = self.stdout
         endif
-        if l:output ==# [''] | return | endif
 
-        call self.create_scratch_buf(l:cmd, a:id, a:data, a:event)
-        call setbufline(b:{l:cmd}_scratch_buf.bufnr, 1, l:output)
+        if l:output ==# [''] && exists('s:scratch_win')
+            call win_execute(bufwinid(s:scratch_win.bufnr), 'close')
+            unlet s:scratch_win
+            return
+        elseif l:output ==# ['']
+            return
+        endif
 
-        let b:{l:cmd}_scratch_buf.completed = 1
+        call self.create_scratch_win(a:id, a:data, a:event)
+        call setbufline(s:scratch_win.bufnr, 1, l:output)
+
+        let s:scratch_win.completed = 1
         return
     endif
 
@@ -108,23 +109,23 @@ function! s:job_handler.set_scratch_buf(id, data, event) abort dict " {{{1
 
     if self.scratch ==# 3
         if empty(self.both) | return | endif
-        call self.create_scratch_buf(l:cmd, a:id, a:data, a:event)
-        call setbufline(b:{l:cmd}_scratch_buf.bufnr, 1, self.both)
+        call self.create_scratch_win(a:id, a:data, a:event)
+        call setbufline(s:scratch_win.bufnr, 1, self.both)
     else
         if empty(self[a:event]) | return | endif
-        call self.create_scratch_buf(l:cmd, a:id, a:data, a:event)
-        call setbufline(b:{l:cmd}_scratch_buf.bufnr, 1, self[a:event])
+        call self.create_scratch_win(a:id, a:data, a:event)
+        call setbufline(s:scratch_win.bufnr, 1, self[a:event])
     endif
 endfunction
 
-function! s:job_handler.create_scratch_buf(cmd, id, data, event) abort " {{{1
-    if !exists('b:' .. a:cmd .. '_scratch_buf')
-        let b:{a:cmd}_scratch_buf = deepcopy(self.scratch_win)
+function! s:job_handler.create_scratch_win(id, data, event) abort " {{{1
+    if !exists('s:scratch_win')
+        let s:scratch_win = deepcopy(self.scratch_win)
     endif
 
-    if !get(b:{a:cmd}_scratch_buf, 'completed', 1) | return | endif
+    if !get(s:scratch_win, 'completed', 1) | return | endif
 
-    let l:title = get(b:{a:cmd}_scratch_buf, 'title', '[Scratch] ' .. a:cmd)
+    let l:title = get(s:scratch_win, 'title', '[Output] ' .. join(self.cmd))
     if type(l:title) ==# v:t_list
         if a:event ==# 'exit'
             if !a:data
@@ -137,51 +138,44 @@ function! s:job_handler.create_scratch_buf(cmd, id, data, event) abort " {{{1
         endif
     endif
 
-    let l:pos = getpos('.')
+    let l:cursor_pos = getpos('.')[1:2]
+    let l:winid = bufwinid(bufnr('%'))
 
-    if get(b:{a:cmd}_scratch_buf, 'bufnr', -1) >=# 0
-        let l:scratch_bufwinnr = bufwinnr(b:{a:cmd}_scratch_buf.bufnr)
-        let l:scratch_bufname = bufname(b:{a:cmd}_scratch_buf.bufnr)
+    " Re-use the scratch buffer, if it exists
+    if get(s:scratch_win, 'bufnr', -1) >=# 0
+        let l:scratch_bufwinid = bufwinid(s:scratch_win.bufnr)
+        let l:scratch_bufname = bufname(s:scratch_win.bufnr)
 
-        if l:scratch_bufwinnr ==# -1
-            execute get(b:{a:cmd}_scratch_buf, 'height', 10) .. 'split'
-                        \ l:scratch_bufname
+        if l:scratch_bufwinid >=# 0
+            call win_gotoid(l:scratch_bufwinid)
         else
-            execute l:scratch_bufwinnr .. 'wincmd w'
+            execute get(s:scratch_win, 'height', 10) .. 'split'
+                        \ l:scratch_bufname
         endif
 
         if l:scratch_bufname !=# l:title
-            if buflisted(bufnr(l:title))
-                let l:title ..= '(' .. bufname(l:pos[0]) .. ')'
-            endif
             execute 'file!' l:title
         endif
 
         silent call deletebufline('%', 1, '$')
 
-        execute bufwinnr(l:pos[0]) .. 'wincmd w'
-        call cursor(l:pos[1:2])
-        let b:{a:cmd}_scratch_buf.completed = 0
+        call win_gotoid(l:winid)
+        call cursor(l:cursor_pos)
+        let s:scratch_win.completed = 0
         return
     endif
 
-    if buflisted(bufnr(l:title))
-        let l:title ..= '(' .. bufname('%') .. ')'
-    endif
-
-    execute get(b:{a:cmd}_scratch_buf, 'height', 10) .. 'split' l:title
+    " Create scratch window and buffer
+    execute get(s:scratch_win, 'height', 10) .. 'split' l:title
     setlocal buftype=nofile
     setlocal bufhidden=hide
     setlocal noswapfile
-    silent call deletebufline('%', 1, '$')
 
-    let l:bufnr = bufnr('%')
+    let s:scratch_win.bufnr = bufnr('%')
 
-    execute bufwinnr(l:pos[0]) .. 'wincmd w'
-    call cursor(l:pos[1:2])
-
-    let b:{a:cmd}_scratch_buf.bufnr = l:bufnr
-    let b:{a:cmd}_scratch_buf.completed = 0
+    call win_gotoid(l:winid)
+    call cursor(l:cursor_pos)
+    let s:scratch_win.completed = 0
 endfunction
 
 function! s:job_handler.print_msg(id, data, event) abort dict " {{{1
@@ -224,9 +218,11 @@ function! s:job_handler.print_msg(id, data, event) abort dict " {{{1
     endif
 
     if self.msg ==# 3
+        if empty(self.both) | return | endif
         let &cmdheight = len(self.both)
         echo join(self.both, "\n")
     else
+        if empty(self[a:event]) | return | endif
         let &cmdheight = len(self[a:event])
         echo join(self[a:event], "\n")
     endif
