@@ -75,6 +75,8 @@ function! s:job_handler.on_exit(job, status, event) abort dict " {{{1
 endfunction
 
 function! s:job_handler.load_scratch_buf(id, data, event) abort dict " {{{1
+    if !exists('self.scratch_win') | let self.scratch_win = {} | endif
+
     if a:event ==# 'exit'
         let l:scratch = self.scratch
         if l:scratch ># 3 | let l:scratch -= 3 | endif
@@ -168,6 +170,7 @@ function! s:job_handler.create_scratch_win(id, data, event) abort " {{{1
 
     " Create scratch window and buffer
     execute get(s:scratch_win, 'height', 10) .. 'split' l:title
+    setlocal filetype=joboutput
     setlocal buftype=nofile
     setlocal bufhidden=hide
     setlocal noswapfile
@@ -268,10 +271,16 @@ function! s:compiler.on_exit(job, status, event) abort dict " {{{1
 endfunction
 
 function! s:compiler.on_error(job, status, event) abort dict " {{{1
-    if !empty(&errorformat)
+    if !empty(&l:errorformat)
         call self.createqflist(a:job, a:status, a:event)
     else
         let self.scratch = 5
+        let self.scratch_win = {
+                    \ 'title': [
+                    \   '[Warning] ' .. join(self.cmd),
+                    \   '[Error] ' .. join(self.cmd),
+                    \ ],
+                    \ }
         call self.load_scratch_buf(a:job, a:status, a:event)
     endif
 endfunction
