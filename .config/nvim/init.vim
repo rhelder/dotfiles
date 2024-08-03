@@ -104,10 +104,6 @@ augroup nvimrc " {{{2
     autocmd BufReadPost,BufNewFile $XDG_DATA_HOME/zsh/functions/*
                 \ set filetype=zsh
 
-    " Enable notes configuration in notes directory
-    autocmd BufReadPost,BufNewFile $HOME/Documents/Notes/*.md
-                \ let b:notes_enabled = 1
-
     " Run a script converting .zshrc aliases and shell variables into Vim
     " mappings and variables when exiting .zshrc
     autocmd BufWinLeave $XDG_CONFIG_HOME/zsh/.zshrc !sync-vz
@@ -118,6 +114,10 @@ augroup nvimrc " {{{2
     " Enter terminal mode and turn off line numbering when opening terminal
     autocmd TermOpen * startinsert
     autocmd TermOpen * set nonumber
+augroup END
+
+augroup nvim_swapfile
+    autocmd!
 augroup END
 
 function! s:make_spell_files() abort " {{{3
