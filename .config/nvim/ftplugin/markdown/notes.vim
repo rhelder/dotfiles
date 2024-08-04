@@ -1,6 +1,19 @@
-if !get(b:, 'notes_enabled', 0) | finish | endif
+if expand('%:p:h') !=# '/Users/rhelder/Documents/Notes'
+    finish
+endif
 
 setlocal completefunc=notes#completefunc
+call notes#init()
+
+augroup notes " {{{1
+    autocmd BufModifiedSet <buffer>
+                \ call setbufvar(expand('<afile>'), 'modified', 1)
+    autocmd User MdviewConvertSuccess
+                \ call setbufvar(expand('<abuf>'), 'modified', 0)
+    autocmd BufWinLeave <buffer> call notes#exit_note()
+augroup END
+
+" Mappings {{{1
 
 nnoremap <buffer> <CR>
             \ <Cmd>call notes#follow_link_map(
@@ -22,24 +35,12 @@ nnoremap <buffer> <LocalLeader>nh
 nnoremap <buffer> <LocalLeader>nl
             \ <Cmd>call fzf#run(fzf#wrap(notes#browse_links(0), 0))<CR>
 
-augroup notes
-    " Set flag so that notes#exit_note is only called if the buffer has been
-    " modified
-    autocmd BufModifiedSet <buffer> ++once
-                \ call setbufvar(expand('<afile>'), 'modified', 1)
-    " Set flag so that, when exiting, notes#exit_note is only called at
-    " VimLeavePre, not also at BufWinLeave
-    autocmd ExitPre <buffer> call setbufvar(expand('<afile>'), 'exiting', 1)
-    autocmd BufWinLeave <buffer> call notes#exit_note('BufWinLeave')
-augroup END
-
 " mdView configuration {{{1
 
-let b:mdview = {}
-let b:mdview.output = function('notes#mdview_output_file')
-let b:mdview.pandoc_args = [
-            \ '--defaults=notes',
-            \ ]
+let g:mdview_pandoc_args = {
+            \ 'output': function('notes#mdview_output_file'),
+            \ 'additional': ['--defaults=notes'],
+            \ }
 
 " ncm2 configuration " {{{1
 
