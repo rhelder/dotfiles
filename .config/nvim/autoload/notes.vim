@@ -3,7 +3,6 @@ function! notes#init() abort " {{{1
 
     nnoremap <Leader>nn <Cmd>call notes#new_note()<CR>
     nnoremap <Leader>nj <Cmd>call notes#new_journal()<CR>
-    nnoremap <Leader>nw <Cmd>call notes#index_word_count()<CR>
 endfunction
 
 " }}}1
@@ -25,39 +24,6 @@ function! notes#new_journal() abort " {{{1
         execute 'normal i' .. strftime('%A, %B %e, %Y') .. "\<Esc>"
         execute "normal 2o\<Esc>"
     endif
-endfunction
-
-function! notes#index_word_count() abort " {{{1
-    let l:modified = getbufvar('%', 'modified', 0)
-    let l:curpos = getcurpos()
-
-    silent %sort u
-    silent %g/^[^*].*$/delete
-    silent %g/^$/delete
-    nohlsearch
-
-    let l:word_count = 0
-    for line in range(1, line('$'))
-        let l:pos = col('$') - 2
-        call setpos('.', [0, line, l:pos, 0])
-        let l:word_count += str2nr(system(['wc', '-w'],
-                    \ system(['pandoc', '-t', 'plain', expand('<cfile>')])))
-    endfor
-
-    silent undo
-    call setpos('.', l:curpos)
-    if !l:modified
-        augroup index_word_count
-            autocmd!
-            autocmd BufModifiedSet <buffer> ++once
-                        \ call setbufvar(expand('<afile>'), 'modified', 0)
-            autocmd BufModifiedSet <buffer> ++once
-                        \ autocmd BufModifiedSet <buffer> ++once
-                        \   call setbufvar(expand('<afile>'), 'modified', 1)
-        augroup END
-    endif
-
-    echomsg l:word_count
 endfunction
 
 " }}}1
