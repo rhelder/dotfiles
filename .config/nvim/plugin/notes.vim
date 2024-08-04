@@ -1,3 +1,5 @@
+" Mappings {{{1
+
 nnoremap <Leader>nb <Cmd>call fzf#run(fzf#wrap(notes#browse_notes(0), 0))<CR>
 nnoremap <Leader>ni <Cmd>call fzf#run(fzf#wrap(notes#browse_index(0), 0))<CR>
 nnoremap <Leader>nj <Cmd>call notes#new_journal()<CR>
