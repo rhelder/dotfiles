@@ -238,6 +238,7 @@ function! s:citation_link_handler.in_context() abort " {{{2
         return 0
     endif
 endfunction
+" }}}2
 
 " }}}1
 

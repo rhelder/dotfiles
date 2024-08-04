@@ -160,4 +160,3 @@ let g:rfv_action = {
             \ 'ctrl-o': 'silent !md-open',
             \ 'ctrl-]': function('notes#fzf#insert_link'),
             \ }
-

@@ -79,7 +79,8 @@ function! notes#complete#omnifunc(findstart, base, completers=[]) abort " {{{1
 endfunction
 
 function! notes#complete#completefunc(findstart, base) abort " {{{1
-    return notes#complete#omnifunc(a:findstart, a:base, s:completefunc_completers)
+    return notes#complete#omnifunc(a:findstart, a:base,
+                \ s:completefunc_completers)
 endfunction
 
 " Citation completer {{{1
