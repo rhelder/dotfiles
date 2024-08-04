@@ -500,6 +500,13 @@ let s:fzf_action = {
             \ }
 
 " Notes only
+"
+function! notes#init() abort
+    augroup notes_init
+        autocmd!
+        autocmd BufModifiedSet <buffer> let s:modified = 1
+    augroup END
+endfunction
 
 function! notes#browse_links(bang) abort " {{{1
     call fzf#toggle_vim_global_display_opts(a:bang)
@@ -620,53 +627,66 @@ function! notes#make_bracketed_list_hyphenated() abort " {{{1
     let @" = l:unnamed_register
 endfunction
 
-function! notes#exit_note(event) abort " {{{1
-    if a:event ==# 'BufWinLeave' &&
-                \ getbufvar(expand('<afile>'), 'exiting', 0)
-        let s:exiting = 1
-        let s:is_output = 0
-        let s:modified = 0
-        autocmd VimLeavePre <buffer> call notes#exit_note('VimLeavePre')
-        return
-    endif
+function! notes#exit_note() abort " {{{1
+    if string(v:exiting) ==# 'v:null'
+        if !getbufvar(expand('<afile>'), 'modified', 0) | return | endif
+        call mdview#compiler#convert(1, {
+                    \ 'scratch_win': {
+                    \   'title': ['[Warning] mdView', '[Error] mdView'],
+                    \ },
+                    \ 'callback': function('s:mdview_callback'),
+                    \ })
 
-    if a:event ==# 'BufWinLeave'
-        if !filereadable(expand('<afile>')) ||
-                    \ !getbufvar(expand('<afile>'), 'modified', 0)
-            return
+    else
+        if getbufvar(expand('<afile>'), 'modified', 0)
+            call mdview#compiler#convert(0, {'sync': 1})
         endif
 
-        if exists('s:exiting')
-            if !empty(mdview#convert_to_html(0).stderr)
-                let s:is_output = 1
-            endif
-            let s:modified = 1
-        else
-            call mdview#convert_to_html(1)
-            call shell#jobstart(['build-index'], {'sync': 0, 'detach': 1})
-            call setbufvar(expand('<afile>'), 'modified', 0)
-        endif
-
-    elseif a:event ==# 'VimLeavePre'
-        if filereadable(expand('<afile>')) &&
-                    \ getbufvar(expand('<afile>'), 'modified', 0)
-            if !empty(mdview#convert_to_html(0).stderr)
-                let s:is_output = 1
-            endif
-        endif
-
-        if (filereadable(expand('<afile>')) &&
-                    \ getbufvar(expand('<afile>'), 'modified', 0)) ||
-                    \ s:modified
-            let l:output = shell#jobstart(['build-index'], {'msg': 2})
-            if !empty(l:output.stderr) || s:is_output
-                echohl Type
-                call input('Press ENTER or type command to continue')
-                echohl None
-            endif
+        if s:modified
+            call shell#compile(['build-index'], {'sync': 1})
+            let s:modified = 0
         endif
     endif
 endfunction
+
+function! s:mdview_callback(job, status, event) abort dict " {{{2
+    if a:event !=# 'exit' | return | endif
+    if !s:modified | return | endif
+
+    call shell#compile(['build-index'], {
+                \ 'mdview': self,
+                \ 'on_error': function('s:build_index_on_error'),
+                \ 'info': 'build-index',
+                \ 'callback': function('s:build_index_callback'),
+                \ })
+endfunction
+
+function! s:build_index_on_error(job, status, event) abort dict " {{{2
+    call extend(self.stderr, self.mdview.stderr, 0)
+    if self.stderr ==# ['', ''] | return | endif
+
+    let self.scratch = 5
+
+    let l:title = ['[Warning] build-index', '[Error] build-index']
+    let s:scratch_win = shell#get_scratch_win()
+    if empty(s:scratch_win)
+        let self.scratch_win = self.mdview.scratch_win
+        let self.scratch_win.title = l:title
+    else
+        let l:title = [
+                    \ bufname(s:scratch_win.bufnr) .. ' ' .. l:title[0],
+                    \ bufname(s:scratch_win.bufnr) .. ' ' .. l:title[1],
+                    \ ]
+        call shell#set_scratch_win({'title': l:title})
+    endif
+
+    call self.load_scratch_buf(a:job, a:status, a:event)
+endfunction
+
+function! s:build_index_callback(job, status, event) abort dict " {{{2
+    let s:modified = 0
+endfunction
+" }}}2
 
 function! notes#insert_link(file) abort " {{{1
     execute 'normal! a[' .. a:file .. "]\<Esc>"
