@@ -3,6 +3,19 @@
 " * option to focus on scratch buffer window
 " * option to not focus on qf window
 
+function! shell#init() abort " {{{1
+    for [l:from_group, l:to_group] in [
+                \ ['JobInfo', 'Question'],
+                \ ['JobWarning', 'WarningMsg'],
+                \ ['JobMsg', 'ModeMsg'],
+                \ ]
+        if hlexists(l:from_group) | continue | endif
+        execute 'highlight default link' l:from_group l:to_group
+    endfor
+endfunction
+
+" }}}1
+
 function! shell#jobstart(cmd, opts = {}) abort " {{{1
     let l:job_handler = deepcopy(s:job_handler)
     call extend(l:job_handler, a:opts)
@@ -38,7 +51,7 @@ function! s:on_output(channel, data, event) abort dict " {{{1
     endif
 
     if get(self, 'msg', 0) && len(a:data) > 1
-        call self.print_msg(a:channel, a:data, a:event)
+        call self.echo_output(a:channel, a:data, a:event)
     endif
 
     " Add last element of a:data to list; it may be concatenated with the first
@@ -66,7 +79,11 @@ function! s:job_handler.on_exit(job, status, event) abort dict " {{{1
     endif
 
     if get(self, 'msg', 0)
-        call self.print_msg(a:job, a:status, a:event)
+        call self.echo_output(a:job, a:status, a:event)
+    endif
+
+    if !empty(get(self, 'info', ''))
+        call self.echo_info(a:job, a:status, a:event)
     endif
 
     if has_key(self, 'callback')
@@ -128,7 +145,7 @@ function! s:job_handler.create_scratch_win(id, data, event) abort " {{{1
 
     if !get(s:scratch_win, 'completed', 1) | return | endif
 
-    let l:title = get(s:scratch_win, 'title', '[Output] ' .. join(self.cmd))
+    let l:title = get(s:scratch_win, 'title', '[Output] __' .. join(self.cmd) .. '__')
     if type(l:title) ==# v:t_list
         if a:event ==# 'exit'
             if !a:data
@@ -174,6 +191,8 @@ function! s:job_handler.create_scratch_win(id, data, event) abort " {{{1
     setlocal buftype=nofile
     setlocal bufhidden=hide
     setlocal noswapfile
+    setlocal fillchars=eob:\ 
+    setlocal nonumber
 
     let s:scratch_win.bufnr = bufnr('%')
 
@@ -182,7 +201,7 @@ function! s:job_handler.create_scratch_win(id, data, event) abort " {{{1
     let s:scratch_win.completed = 0
 endfunction
 
-function! s:job_handler.print_msg(id, data, event) abort dict " {{{1
+function! s:job_handler.echo_output(id, data, event) abort dict " {{{1
     if !has_key(self, 'cmdheight')
         let self.cmdheight = &cmdheight
     endif
@@ -233,12 +252,31 @@ function! s:job_handler.print_msg(id, data, event) abort dict " {{{1
     redraw
 endfunction
 
+function! s:job_handler.echo_info(job, status, event) abort " {{{1
+    redraw
+    execute 'echohl' !a:status ? 'JobInfo' : 'JobWarning'
+    echo self.info .. ': '
+    echohl JobMsg
+    echon !a:status ? 'Completed' : 'Failed'
+    echohl None
+endfunction
+
 function! s:job_handler.start() abort dict " {{{1
     let self.job_id = jobstart(self.cmd, self)
     if get(self, 'sync', 0)
         call jobwait([self.job_id])
     endif
     return self
+endfunction
+
+" }}}1
+
+function! shell#get_scratch_win() abort " {{{1
+    return get(s:, 'scratch_win', {})
+endfunction
+
+function! shell#set_scratch_win(opts) abort " {{{1
+    return extend(s:scratch_win, a:opts)
 endfunction
 
 " }}}1
@@ -260,10 +298,14 @@ function! s:compiler.on_exit(job, status, event) abort dict " {{{1
     endif
 
     if get(self, 'msg', 0)
-        call self.print_msg(a:job, a:status, a:event)
+        call self.echo_output(a:job, a:status, a:event)
     endif
 
     call self.on_error(a:job, a:status, a:event)
+
+    if !empty(get(self, 'info', ''))
+        call self.echo_info(a:job, a:status, a:event)
+    endif
 
     if has_key(self, 'callback')
         call call(self.callback, [a:job, a:status, a:event])
@@ -275,12 +317,11 @@ function! s:compiler.on_error(job, status, event) abort dict " {{{1
         call self.createqflist(a:job, a:status, a:event)
     else
         let self.scratch = 5
-        let self.scratch_win = {
-                    \ 'title': [
-                    \   '[Warning] ' .. join(self.cmd),
-                    \   '[Error] ' .. join(self.cmd),
-                    \ ],
-                    \ }
+        if !exists('self.scratch_win') | let self.scratch_win = {} | endif
+        let self.scratch_win.title = get(self.scratch_win, 'title', [
+                    \ '[Warning] __' .. join(self.cmd) .. '__',
+                    \ '[Error] __' .. join(self.cmd) .. '__',
+                    \ ])
         call self.load_scratch_buf(a:job, a:status, a:event)
     endif
 endfunction
@@ -293,9 +334,12 @@ function! s:compiler.createqflist(job, status, event) abort dict " {{{1
     silent cexpr self.both
     if get(self.qf_win, 'window', 0)
         call setqflist(filter(getqflist(), 'v:val.valid !=# 0'))
+        if empty(getqflist()) | return | endif
+
         if !empty(get(self.qf_win, 'title', ''))
             call setqflist([], 'a', {'title': self.qf_win.title})
         endif
+
         execute 'cwindow ' .. get(self.qf_win, 'height', '')
     endif
 endfunction
