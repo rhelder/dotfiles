@@ -288,6 +288,10 @@ function! shell#compile(cmd, opts = {}) abort " {{{1
     return l:compiler.start()
 endfunction
 
+function! shell#compiler(opts = {}) abort " {{{1
+    return extend(deepcopy(s:compiler), a:opts)
+endfunction
+
 " }}}1
 
 let s:compiler = deepcopy(s:job_handler)
