@@ -14,7 +14,6 @@ set ignorecase
 set list
 set mouse=
 set noruler
-set number
 set report=0
 set scrolloff=3
 set shiftwidth=4
@@ -114,10 +113,8 @@ augroup nvimrc " {{{2
     " Enter terminal mode and turn off line numbering when opening terminal
     autocmd TermOpen * startinsert
     autocmd TermOpen * set nonumber
-augroup END
 
-augroup nvim_swapfile
-    autocmd!
+    autocmd VimEnter,VimResized * call s:set_number()
 augroup END
 
 function! s:make_spell_files() abort " {{{3
@@ -131,7 +128,19 @@ function! s:make_spell_files() abort " {{{3
         endif
     endfor
 endfunction
+
+function! s:set_number() abort " {{{3
+    if &columns <# (80 + len(line('$')))
+        set nonumber
+    else
+        set number
+    endif
+endfunction
 " }}}3
+
+augroup nvim_swapfile " {{{2
+    autocmd!
+augroup END
 
 augroup nvimrc_filetype_defaults " {{{2
     autocmd!
