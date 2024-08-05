@@ -35,6 +35,7 @@ function! notes#init_buffer() abort " {{{1
 
     nnoremap <buffer> <LocalLeader>nh
                 \ <Cmd>call notes#make_bracketed_list_hyphenated()<CR>
+    nnoremap <buffer> <LocalLeader>qq <Cmd>call <SID>switch_off_modified()<CR>
 
     augroup notes_init_buffer
         autocmd BufModifiedSet <buffer>
@@ -43,17 +44,17 @@ function! notes#init_buffer() abort " {{{1
         autocmd BufWinLeave <buffer> call notes#exit_note()
     augroup END
 
-    augroup notes_init_user
-        autocmd!
-        autocmd User MdviewConvertSuccess
-                    \ call setbufvar(bufname(expand('<abuf>')), 'modified', 0)
-    augroup END
-
     let g:mdview_pandoc_args = {
                 \ 'output': function('notes#mdview_output_file'),
                 \ 'additional': ['--defaults=notes'],
                 \ }
 endfunction
+
+function! s:switch_off_modified() abort " {{{2
+    call setbufvar(expand('<afile>'), 'modified', 0)
+    call let s:modified = 0
+endfunction
+" }}}2
 
 " }}}1
 
@@ -71,12 +72,16 @@ function! notes#make_bracketed_list_hyphenated() abort " {{{1
 endfunction
 
 function! notes#exit_note() abort " {{{1
+    if !filereadable(expand('%')) | return | endif
+
     if string(v:exiting) ==# 'v:null'
         if !getbufvar(expand('<afile>'), 'modified', 0) | return | endif
+
         call mdview#compiler#convert(1, {
                     \ 'scratch_win': {
                     \   'title': ['[Warning] mdView', '[Error] mdView'],
                     \ },
+                    \ 'bufnr': bufnr(expand('<afile>')),
                     \ 'callback': function('s:mdview_callback'),
                     \ })
 
@@ -94,6 +99,9 @@ endfunction
 
 function! s:mdview_callback(job, status, event) abort dict " {{{2
     if a:event !=# 'exit' | return | endif
+
+    call setbufvar(bufname(self.bufnr), 'modified', 0)
+
     if !s:modified | return | endif
 
     call shell#compile(['build-index'], {
