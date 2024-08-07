@@ -1,6 +1,5 @@
 " [TODO]
 " * Set nonumber for file type 'gitcommit'
-" * Restore filetype defaults after setting 'number'
 
 " Options {{{1
 
@@ -42,24 +41,25 @@ autocmd! nvim_swapfile
 " If 'init.vim' is re-sourced after startup, global settings may override local
 " filetype-specific settings. Restore local settings.
 if !empty(&filetype) " i.e., only after startup
-    execute 'setfiletype ' .. &filetype
+    execute 'setfiletype' &filetype
 endif
 
 augroup nvimrc_options " {{{2
     autocmd!
     autocmd VimEnter,VimResized * execute &columns <# (80 + len(line('$')))
-                \ ? 'set nonumber'
-                \ : 'set number'
+                \ ? 'execute "set nonumber | setfiletype" &filetype'
+                \ : 'execute "set number | setfiletype" &filetype'
 
     autocmd BufReadPost,BufNewFile $HOME/.local/bin/*
                 \ set filetype=zsh
     autocmd BufReadPost,BufNewFile $XDG_DATA_HOME/zsh/functions/*
                 \ set filetype=zsh
 
-    autocmd FileType markdown           setlocal formatoptions-=l
-    autocmd FileType text,markdown      setlocal textwidth=78
-    autocmd FileType text,markdown      setlocal nonumber nosmartindent
-    autocmd FileType gitcommit          setlocal nosmartindent textwidth=72
+    autocmd FileType markdown                   setlocal formatoptions-=l
+    autocmd FileType text,markdown              setlocal textwidth=78
+    autocmd FileType gitcommit                  setlocal textwidth=72
+    autocmd FileType text,markdown,gitcommit    setlocal nonumber
+    autocmd FileType text,markdown,gitcommit    setlocal nosmartindent
 augroup END
 " }}}2
 
