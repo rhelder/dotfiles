@@ -1,0 +1,18 @@
+# Call in '.zshrc' before autoloading functions to initalize custom 'autoload'
+# function. On the first call, autoload 'autoload' and declare the array that
+# will be be used to keep track of user functions autoloaded in '.zshrc'. On
+# subsequent calls, unfunction all of the functions in the array so that
+# 'autoload' won't throw an error for each user function already autoloaded in
+# '.zshrc' every time '.zshrc' is re-sourced.
+
+if autoload autoload 2>/dev/null; then
+    declare -g autoload_zshrc_user_functions=( 'autoload' )
+else
+    # Don't unfunction 'autoload_init', because 'autoload_init' has already
+    # been unfunctioned
+    unfunction ${autoload_zshrc_user_functions:#autoload_init}
+    autoload autoload
+    autoload_zshrc_user_functions=( 'autoload' )
+fi
+
+unfunction autoload_init

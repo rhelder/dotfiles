@@ -1,0 +1,15 @@
+# Call in '.zshrc' before defining aliases to initialize custom 'alias'
+# function. On the first call, autoload 'alias' and declare the array that will
+# be used to keep track of aliases defined in '.zshrc'. On subsequent calls,
+# unalias all the aliases in the array so that 'alias' won't throw an error for
+# each alias already defined in '.zshrc' every time '.zshrc' is re-sourced.
+# (Note: call 'autoload_init' before calling 'alias_init').
+
+if [[ -z $alias_zshrc_sourced_aliases ]]; then
+    declare -ga alias_zshrc_sourced_aliases
+else
+    unalias $alias_zshrc_sourced_aliases
+    alias_zshrc_sourced_aliases=()
+fi
+
+autoload -f alias
