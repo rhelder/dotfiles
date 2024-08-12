@@ -1,6 +1,3 @@
-" [TODO]
-" * Set nonumber for file type 'gitcommit'
-
 " Options {{{1
 
 set belloff=
