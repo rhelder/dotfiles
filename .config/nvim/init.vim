@@ -46,21 +46,33 @@ endif
 
 augroup nvimrc_options " {{{2
     autocmd!
-    autocmd VimEnter,VimResized * execute &columns <# (80 + len(line('$')))
-                \ ? 'execute "set nonumber | setfiletype" &filetype'
-                \ : 'execute "set number | setfiletype" &filetype'
+    autocmd VimEnter,VimResized * call s:set_number()
 
     autocmd BufReadPost,BufNewFile $HOME/.local/bin/*
                 \ set filetype=zsh
     autocmd BufReadPost,BufNewFile $XDG_DATA_HOME/zsh/functions/*
                 \ set filetype=zsh
 
-    autocmd FileType markdown                   setlocal formatoptions-=l
-    autocmd FileType text,markdown              setlocal textwidth=78
-    autocmd FileType gitcommit                  setlocal textwidth=72
-    autocmd FileType text,markdown,gitcommit    setlocal nonumber
-    autocmd FileType text,markdown,gitcommit    setlocal nosmartindent
+    autocmd FileType markdown                       setlocal formatoptions-=l
+    autocmd FileType text,markdown                  setlocal textwidth=78
+    autocmd FileType gitcommit                      setlocal textwidth=72
+    autocmd FileType text,markdown,gitcommit,help   setlocal nonumber
+    autocmd FileType text,markdown,gitcommit        setlocal nosmartindent
 augroup END
+
+function! s:set_number() abort " {{{3
+    " 82 = default kitty window width + padding
+    if &columns <# (82 + len(line('$')))
+        set nonumber
+    else
+        set number
+    endif
+
+    if !empty(&filetype)
+        execute 'setfiletype' &filetype
+    endif
+endfunction
+" }}}3
 " }}}2
 
 " Mappings {{{1
