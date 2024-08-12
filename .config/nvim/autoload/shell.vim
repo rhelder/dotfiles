@@ -1,7 +1,5 @@
 " [TODO]
 " * highlight messages
-" * option to focus on scratch buffer window
-" * option to not focus on qf window
 
 function! shell#init() abort " {{{1
     for [l:from_group, l:to_group] in [
@@ -158,8 +156,10 @@ function! s:job_handler.create_scratch_win(id, data, event) abort " {{{1
         endif
     endif
 
-    let l:cursor_pos = getpos('.')[1:2]
-    let l:winid = bufwinid(bufnr('%'))
+    if !get(s:scratch_win, 'active', 0)
+        let l:cursor_pos = getpos('.')[1:2]
+        let l:winid = bufwinid(bufnr('%'))
+    endif
 
     " Re-use the scratch buffer, if it exists
     if get(s:scratch_win, 'bufnr', -1) >=# 0
@@ -179,8 +179,11 @@ function! s:job_handler.create_scratch_win(id, data, event) abort " {{{1
 
         silent call deletebufline('%', 1, '$')
 
-        call win_gotoid(l:winid)
-        call cursor(l:cursor_pos)
+        if !get(s:scratch_win, 'active', 0)
+            call win_gotoid(l:winid)
+            call cursor(l:cursor_pos)
+        endif
+
         let s:scratch_win.completed = 0
         return
     endif
@@ -196,8 +199,11 @@ function! s:job_handler.create_scratch_win(id, data, event) abort " {{{1
 
     let s:scratch_win.bufnr = bufnr('%')
 
-    call win_gotoid(l:winid)
-    call cursor(l:cursor_pos)
+    if !get(s:scratch_win, 'active', 0)
+        call win_gotoid(l:winid)
+        call cursor(l:cursor_pos)
+    endif
+
     let s:scratch_win.completed = 0
 endfunction
 
@@ -331,12 +337,14 @@ function! s:compiler.on_error(job, status, event) abort dict " {{{1
 endfunction
 
 function! s:compiler.createqflist(job, status, event) abort dict " {{{1
-    if a:event !=# 'exit' | return | endif
+    if get(self, 'qf_autojump', 0)
+        silent cexpr self.both
+    else
+        silent cgetexpr self.both
+    endif
 
     if !exists('self.qf_win') | let self.qf_win = {} | endif
-
-    silent cexpr self.both
-    if get(self.qf_win, 'window', 0)
+    if get(self.qf_win, 'active', 1)
         call setqflist(filter(getqflist(), 'v:val.valid !=# 0'))
         if empty(getqflist()) | return | endif
 
@@ -344,7 +352,17 @@ function! s:compiler.createqflist(job, status, event) abort dict " {{{1
             call setqflist([], 'a', {'title': self.qf_win.title})
         endif
 
+        if get(self.qf_win, 'active', 1) ==# 1
+            let l:cursor_pos = getpos('.')[1:2]
+            let l:winid = bufwinid(bufnr('%'))
+        endif
+
         execute 'cwindow ' .. get(self.qf_win, 'height', '')
+
+        if get(self.qf_win, 'active', 1) ==# 1
+            call win_gotoid(l:winid)
+            call cursor(l:cursor_pos)
+        endif
     endif
 endfunction
 
