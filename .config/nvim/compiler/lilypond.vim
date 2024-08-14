@@ -23,6 +23,6 @@ command! -buffer LilypondCompile
             \   '--output=' .. expand('%<'),
             \   expand('%'),
             \ ], {
-            \   'qf_win': {'window': 1, 'title': 'LilyPond'},
+            \   'qf_win': {'title': 'LilyPond'},
             \   'callback': function('s:open_output'),
             \ })
