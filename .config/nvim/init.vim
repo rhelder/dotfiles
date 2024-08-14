@@ -34,11 +34,11 @@ endif
 
 " Do not skip swapfile prompt (':help default-autocmds')
 autocmd! nvim_swapfile
-"
+
 " If 'init.vim' is re-sourced after startup, global settings may override local
 " filetype-specific settings. Restore local settings.
 if !empty(&filetype) " i.e., only after startup
-    execute 'setfiletype' &filetype
+    doautocmd nvimrc_options FileType
 endif
 
 augroup nvimrc_options " {{{2
@@ -55,6 +55,7 @@ augroup nvimrc_options " {{{2
     autocmd FileType gitcommit                      setlocal textwidth=72
     autocmd FileType text,markdown,gitcommit,help   setlocal nonumber
     autocmd FileType text,markdown,gitcommit        setlocal nosmartindent
+    autocmd FileType help                           setlocal nolist
 augroup END
 
 function! s:set_number() abort " {{{3
@@ -65,9 +66,7 @@ function! s:set_number() abort " {{{3
         set number
     endif
 
-    if !empty(&filetype)
-        execute 'setfiletype' &filetype
-    endif
+    doautocmd nvimrc_options FileType
 endfunction
 " }}}3
 " }}}2
