@@ -14,13 +14,13 @@ nnoremap <Leader>elmk <Cmd>vs
             \ $XDG_CONFIG_HOME/latexmk/latexmkrc<CR>
 nnoremap <Leader>ev <Cmd>vs
             \ $XDG_CONFIG_HOME/nvim/init.vim<CR>
-nnoremap <Leader>ena <Cmd>vs
+nnoremap <Leader>enz <Cmd>vs
             \ $XDG_CONFIG_HOME/nvim/after/ftplugin/markdown/notes.vim<CR>
-nnoremap <Leader>enn <Cmd>vs
+nnoremap <Leader>ena <Cmd>vs
             \ $XDG_CONFIG_HOME/nvim/autoload/notes.vim<CR>
 nnoremap <Leader>enc <Cmd>vs
             \ $XDG_CONFIG_HOME/nvim/autoload/notes/complete.vim<CR>
-nnoremap <Leader>enz <Cmd>vs
+nnoremap <Leader>eny <Cmd>vs
             \ $XDG_CONFIG_HOME/nvim/autoload/notes/fzf.vim<CR>
 nnoremap <Leader>enl <Cmd>vs
             \ $XDG_CONFIG_HOME/nvim/autoload/notes/link.vim<CR>
@@ -125,10 +125,10 @@ let k = "$XDG_CONFIG_HOME/kitty/kitty.conf"
 let lmk = "$XDG_CONFIG_HOME/latexmk/latexmkrc"
 let v = "$XDG_CONFIG_HOME/nvim/init.vim"
 let zv = "$XDG_CONFIG_HOME/nvim/zshrc.vim"
-let na = "$XDG_CONFIG_HOME/nvim/after/ftplugin/markdown/notes.vim"
-let nn = "$XDG_CONFIG_HOME/nvim/autoload/notes.vim"
+let nz = "$XDG_CONFIG_HOME/nvim/after/ftplugin/markdown/notes.vim"
+let na = "$XDG_CONFIG_HOME/nvim/autoload/notes.vim"
 let nc = "$XDG_CONFIG_HOME/nvim/autoload/notes/complete.vim"
-let nz = "$XDG_CONFIG_HOME/nvim/autoload/notes/fzf.vim"
+let ny = "$XDG_CONFIG_HOME/nvim/autoload/notes/fzf.vim"
 let nl = "$XDG_CONFIG_HOME/nvim/autoload/notes/link.vim"
 let nu = "$XDG_CONFIG_HOME/nvim/autoload/notes/u.vim"
 let nf = "$XDG_CONFIG_HOME/nvim/ftplugin/markdown/notes.vim"
