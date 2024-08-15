@@ -1,6 +1,3 @@
-" [TODO]
-" * highlight messages
-
 function! shell#init() abort " {{{1
     for [l:from_group, l:to_group] in [
                 \ ['JobInfo', 'Question'],
@@ -27,40 +24,57 @@ endfunction
 
 " }}}1
 
-function! s:on_output(channel, data, event) abort dict " {{{1
-    " The first and last elements of a:data might not be complete lines.
-    " Therefore, initialize lists with one empty element so that a:data[0] can
-    " be concatenated with first element
-    if !has_key(self, a:event) | let self[a:event] = [''] | endif
-    if !has_key(self, 'both') | let self.both = [''] | endif
-
-    let self[a:event][-1] ..= a:data[0]
-    let self.both[-1] ..= a:data[0]
-
-    " Any list element of a:data that's not first or last are complete lines,
-    " newlines, or EOF, so just append them to the lists
-    if len(a:data) > 2
-        call extend(self[a:event], a:data[1:-2])
-        call extend(self.both, a:data[1:-2])
+function! s:on_output(job, data, event) abort dict " {{{1
+    if !has_key(self, 'output')
+        let self.output = [{'line': '', 'event': ''}]
     endif
 
+    " If 'a:data' is EOF, we're done
+    if a:data ==# [''] | return | endif
+
+    " The first and last elements of 'a:data' might not be complete lines. The
+    " first element of 'a:data' might be a continuation of the last element of
+    " 'a:data' from the last time the function was called. If not, the last
+    " element of 'a:data' from the last time the function was called was a "''"
+    " (i.e., a newline). Either way, concatenate the first element of 'a:data'
+    " with the last.
+    let self.output[-1].line ..= a:data[0]
+    let self.output[-1].event = a:event
+
+    " Any elements of a:data that are not first or last are complete lines or
+    " newlines.
+    if len(a:data) > 2
+        for l:line in a:data[1:-2]
+            call add(self.output, {'line': l:line, 'event': a:event})
+        endfor
+    endif
+
+    " If 'a:data' has only one element, it either is a continuation of the
+    " 'a:data' passed to the function when it was last called, or will be
+    " continued by the 'a:data' passed to the function when it is next called,
+    " or both. But if there are two elements, the first element completes a
+    " line, and the second element starts a new line. Therefore, don't print
+    " any messages unless 'a:data' has at least two elements, or else we will
+    " print incomplete lines.
+
     if get(self, 'scratch', 0) && len(a:data) > 1
-        call self.load_scratch_buf(a:channel, a:data, a:event)
+        call self.load_scratch_buf(a:job, a:data, a:event)
     endif
 
     if get(self, 'msg', 0) && len(a:data) > 1
-        call self.echo_output(a:channel, a:data, a:event)
+        call self.echo_output(a:job, a:data, a:event)
     endif
 
-    " Add last element of a:data to list; it may be concatenated with the first
-    " element of a:data the next time the function is called
+    " Unless 'a:data' is EOF the next time the function is called, the last
+    " element of 'a:data' will be concatenated with the first element of
+    " 'a:data' the next time the function is called, and the event will be
+    " determined then.
     if len(a:data) > 1
-        call add(self[a:event], a:data[-1])
-        call add(self.both, a:data[-1])
+        call add(self.output, {'line': a:data[-1], 'event': ''})
     endif
 
     if has_key(self, 'callback')
-        call call(self.callback, [a:channel, a:data, a:event])
+        call call(self.callback, [a:job, a:data, a:event])
     endif
 endfunction
 
@@ -93,27 +107,28 @@ function! s:job_handler.load_scratch_buf(id, data, event) abort dict " {{{1
     if !exists('self.scratch_win') | let self.scratch_win = {} | endif
 
     if a:event ==# 'exit'
-        let l:scratch = self.scratch
+        let l:scratch = copy(self.scratch)
         if l:scratch ># 3 | let l:scratch -= 3 | endif
 
         if l:scratch ==# 3
-            let l:output = self.both
+            let l:output = self.both()
         elseif l:scratch ==# 2
-            let l:output = self.stderr
+            let l:output = self.stderr()
         elseif l:scratch ==# 1
-            let l:output = self.stdout
+            let l:output = self.stdout()
         endif
 
-        if l:output ==# [''] && exists('s:scratch_win')
+        if empty(l:output) && exists('s:scratch_win')
             call win_execute(bufwinid(s:scratch_win.bufnr), 'close')
             unlet s:scratch_win
             return
-        elseif l:output ==# ['']
+        elseif empty(l:output)
             return
         endif
 
         call self.create_scratch_win(a:id, a:data, a:event)
         call setbufline(s:scratch_win.bufnr, 1, l:output)
+        call self.highlight_scratch_buf(a:id, a:data, a:event)
 
         let s:scratch_win.completed = 1
         return
@@ -126,13 +141,17 @@ function! s:job_handler.load_scratch_buf(id, data, event) abort dict " {{{1
     endif
 
     if self.scratch ==# 3
-        if empty(self.both) | return | endif
+        let l:output = self.both()
+        if empty(l:output) | return | endif
         call self.create_scratch_win(a:id, a:data, a:event)
-        call setbufline(s:scratch_win.bufnr, 1, self.both)
+        call setbufline(s:scratch_win.bufnr, 1, l:output)
+        call self.highlight_scratch_buf(a:id, a:data, a:event)
     else
-        if empty(self[a:event]) | return | endif
+        let l:output = self[a:event]()
+        if empty(l:output) | return | endif
         call self.create_scratch_win(a:id, a:data, a:event)
-        call setbufline(s:scratch_win.bufnr, 1, self[a:event])
+        call setbufline(s:scratch_win.bufnr, 1, l:output)
+        call self.highlight_scratch_buf(a:id, a:data, a:event)
     endif
 endfunction
 
@@ -143,7 +162,8 @@ function! s:job_handler.create_scratch_win(id, data, event) abort " {{{1
 
     if !get(s:scratch_win, 'completed', 1) | return | endif
 
-    let l:title = get(s:scratch_win, 'title', '[Output] __' .. join(self.cmd) .. '__')
+    let l:title = get(s:scratch_win,
+                \ 'title', '[Output] __' .. join(self.cmd) .. '__')
     if type(l:title) ==# v:t_list
         if a:event ==# 'exit'
             if !a:data
@@ -163,11 +183,10 @@ function! s:job_handler.create_scratch_win(id, data, event) abort " {{{1
 
     " Re-use the scratch buffer, if it exists
     if get(s:scratch_win, 'bufnr', -1) >=# 0
-        let l:scratch_bufwinid = bufwinid(s:scratch_win.bufnr)
         let l:scratch_bufname = bufname(s:scratch_win.bufnr)
 
-        if l:scratch_bufwinid >=# 0
-            call win_gotoid(l:scratch_bufwinid)
+        if s:scratch_win.bufwinid >=# 0
+            call win_gotoid(s:scratch_win.bufwinid)
         else
             execute get(s:scratch_win, 'height', 10) .. 'split'
                         \ l:scratch_bufname
@@ -178,6 +197,8 @@ function! s:job_handler.create_scratch_win(id, data, event) abort " {{{1
         endif
 
         silent call deletebufline('%', 1, '$')
+
+        call clearmatches(s:scratch_win.bufwinid)
 
         if !get(s:scratch_win, 'active', 0)
             call win_gotoid(l:winid)
@@ -198,6 +219,7 @@ function! s:job_handler.create_scratch_win(id, data, event) abort " {{{1
     setlocal nonumber
 
     let s:scratch_win.bufnr = bufnr('%')
+    let s:scratch_win.bufwinid = bufwinid('%')
 
     if !get(s:scratch_win, 'active', 0)
         call win_gotoid(l:winid)
@@ -205,6 +227,38 @@ function! s:job_handler.create_scratch_win(id, data, event) abort " {{{1
     endif
 
     let s:scratch_win.completed = 0
+endfunction
+
+function! s:job_handler.highlight_scratch_buf(id, data, event) abort dict " {{{1
+    if self.scratch ==# 1 | return | endif
+    if !exists('s:scratch_win') | return | endif
+
+    let l:scratch = copy(self.scratch)
+    if a:event ==# 'exit'
+        if l:scratch ># 3 | let l:scratch -= 3 | endif
+    endif
+
+    if l:scratch ==# 2
+        let s:scratch_win.stderr_lines =
+                    \ range(1, line('$', s:scratch_win.bufwinid))
+    elseif l:scratch ==# 3
+        let s:scratch_win.stderr_lines = []
+        let l:index = 0
+        for l:item in self.output
+            if l:item.event ==# 'stderr'
+                call add(s:scratch_win.stderr_lines, l:index + 1)
+            endif
+            let l:index += 1
+        endfor
+    endif
+
+    if a:event ==# 'exit' && a:data
+        call matchaddpos('Error', s:scratch_win.stderr_lines,
+                    \ 10, -1, {'window': s:scratch_win.bufwinid})
+    else
+        call matchaddpos('WarningMsg', s:scratch_win.stderr_lines,
+                    \ 10, -1, {'window': s:scratch_win.bufwinid})
+    endif
 endfunction
 
 function! s:job_handler.echo_output(id, data, event) abort dict " {{{1
@@ -215,26 +269,22 @@ function! s:job_handler.echo_output(id, data, event) abort dict " {{{1
     if a:event ==# 'exit'
         if &cmdheight !=# 1 | set cmdheight-=1 | endif
 
-        let l:msg = self.msg
+        let l:msg = copy(self.msg)
         if l:msg ># 3
             let l:msg -= 3
         endif
 
         if l:msg ==# 3
-            let l:output = self.both
+            let l:output = self.both()
         elseif l:msg ==# 2
-            let l:output = self.stderr
+            let l:output = self.stderr()
         elseif l:msg ==# 1
-            let l:output = self.stdout
+            let l:output = self.stdout()
         endif
-        if l:output ==# [''] | return | endif
+        if empty(l:output) | return | endif
 
         mode
-        if get(self, 'sync', 0)
-            echo join(l:output, "\n")
-        else
-            echo join(l:output, "\n") .. "\n"
-        endif
+        echo join(l:output, "\n") .. "\n"
 
         let &cmdheight = self.cmdheight
         return
@@ -247,15 +297,32 @@ function! s:job_handler.echo_output(id, data, event) abort dict " {{{1
     endif
 
     if self.msg ==# 3
-        if empty(self.both) | return | endif
-        let &cmdheight = len(self.both)
-        echo join(self.both, "\n")
+        let l:output = self.both()
+        if empty(l:output) | return | endif
+        let &cmdheight = len(l:output)
+        echo join(l:output, "\n")
     else
-        if empty(self[a:event]) | return | endif
-        let &cmdheight = len(self[a:event])
-        echo join(self[a:event], "\n")
+        let l:output = self[a:event]()
+        if empty(l:output) | return | endif
+        let &cmdheight = len(l:output)
+        echo join(l:output, "\n")
     endif
     redraw
+endfunction
+
+function! s:job_handler.both() abort dict " {{{1
+    return map(filter(copy(self.output), '!empty(v:val.event)'),
+                \ 'v:val.line')
+endfunction
+
+function! s:job_handler.stdout() abort dict " {{{1
+    return map(filter(copy(self.output), 'v:val.event ==# "stdout"'),
+                \ 'v:val.line')
+endfunction
+
+function! s:job_handler.stderr() abort dict " {{{1
+    return map(filter(copy(self.output), 'v:val.event ==# "stderr"'),
+                \ 'v:val.line')
 endfunction
 
 function! s:job_handler.echo_info(job, status, event) abort " {{{1
@@ -338,9 +405,9 @@ endfunction
 
 function! s:compiler.createqflist(job, status, event) abort dict " {{{1
     if get(self, 'qf_autojump', 0)
-        silent cexpr self.both
+        silent cexpr self.both()
     else
-        silent cgetexpr self.both
+        silent cgetexpr self.both()
     endif
 
     if !exists('self.qf_win') | let self.qf_win = {} | endif
