@@ -113,8 +113,8 @@ function! s:mdview_callback(job, status, event) abort dict " {{{2
 endfunction
 
 function! s:build_index_on_error(job, status, event) abort dict " {{{2
-    call extend(self.stderr, self.mdview.stderr, 0)
-    if self.stderr ==# ['', ''] | return | endif
+    call extend(self.output, self.mdview.output, 0)
+    if empty(self.stderr()) | return | endif
 
     let self.scratch = 5
 
@@ -131,7 +131,27 @@ function! s:build_index_on_error(job, status, event) abort dict " {{{2
         call shell#set_scratch_win({'title': l:title})
     endif
 
+    let l:matches = getmatches(s:scratch_win.bufwinid)
+
     call self.load_scratch_buf(a:job, a:status, a:event)
+
+    if empty(l:matches) | return | endif
+
+    let l:match = l:matches[-1]
+    let l:match.pos = []
+    for [l:key, l:val] in items(l:match)
+        if l:key =~# '\vpos\d+'
+            call extend(l:match.pos, l:val)
+        endif
+    endfor
+
+    call matchaddpos(
+                \ l:match.group,
+                \ l:match.pos,
+                \ l:match.priority + 1,
+                \ -1,
+                \ {'window': s:scratch_win.bufwinid},
+                \ )
 endfunction
 
 function! s:build_index_callback(job, status, event) abort dict " {{{2
