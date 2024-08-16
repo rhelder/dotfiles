@@ -113,8 +113,9 @@ function! s:mdview_callback(job, status, event) abort dict " {{{2
 endfunction
 
 function! s:build_index_on_error(job, status, event) abort dict " {{{2
-    call extend(self.output, self.mdview.output, 0)
     if empty(self.stderr()) | return | endif
+
+    call extend(self.output, self.mdview.output, 0)
 
     let self.scratch = 5
 
