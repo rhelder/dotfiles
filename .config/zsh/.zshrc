@@ -205,7 +205,8 @@ alias gswc='git switch -c'
 
 # Abbreviate {{{2
 alias cl='clean_tex_aux_files'
-alias gpd='default_gpg'
+alias dgpg='default_gpg'
+alias dtar='default_tar'
 alias j="jobs"
 alias la='ls -aF'
 alias -f ld='lilydoc'
@@ -222,7 +223,6 @@ alias nvh='nvim_help'
 alias o='open'
 alias si='kitten ssh rhelder@192.168.0.129'
 alias sz="source $XDG_CONFIG_HOME/zsh/.zshrc"
-alias trd='default_tar'
 alias td='texdoc'
 alias ts='trash'
 alias vc="ts $XDG_CACHE_HOME/vimtex/pkgcomplete.json"
