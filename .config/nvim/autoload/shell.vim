@@ -1,16 +1,3 @@
-function! shell#init() abort " {{{1
-    for [l:from_group, l:to_group] in [
-                \ ['JobInfo', 'Question'],
-                \ ['JobWarning', 'WarningMsg'],
-                \ ['JobMsg', 'ModeMsg'],
-                \ ]
-        if hlexists(l:from_group) | continue | endif
-        execute 'highlight default link' l:from_group l:to_group
-    endfor
-endfunction
-
-" }}}1
-
 function! shell#jobstart(cmd, opts = {}) abort " {{{1
     let l:job_handler = deepcopy(s:job_handler)
     call extend(l:job_handler, a:opts)
@@ -253,10 +240,10 @@ function! s:job_handler.highlight_scratch_buf(id, data, event) abort dict " {{{1
     endif
 
     if a:event ==# 'exit' && a:data
-        call matchaddpos('Error', s:scratch_win.stderr_lines,
+        call matchaddpos('JobError', s:scratch_win.stderr_lines,
                     \ 10, -1, {'window': s:scratch_win.bufwinid})
     else
-        call matchaddpos('WarningMsg', s:scratch_win.stderr_lines,
+        call matchaddpos('JobWarning', s:scratch_win.stderr_lines,
                     \ 10, -1, {'window': s:scratch_win.bufwinid})
     endif
 endfunction
