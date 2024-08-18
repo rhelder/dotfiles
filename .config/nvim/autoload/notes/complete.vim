@@ -1,34 +1,3 @@
-function! notes#complete#init_buffer() abort " {{{1
-    setlocal completefunc=notes#complete#completefunc
-
-    augroup ncm2_notes
-        autocmd!
-        autocmd BufEnter * call ncm2#enable_for_buffer()
-        autocmd User Ncm2Plugin call ncm2#register_source({
-                    \ 'name': 'notes',
-                    \ 'priority': 8,
-                    \ 'scope': ['markdown'],
-                    \ 'matcher': {'name': 'prefix', 'key': 'word'},
-                    \ 'sorter': 'none',
-                    \ 'word_pattern': s:ncm_word_pattern,
-                    \ 'complete_pattern': s:ncm_regexes,
-                    \ 'on_complete': ['ncm2#on_complete#omni',
-                    \     'notes#complete#completefunc'],
-                    \ })
-    augroup END
-endfunction
-
-let s:ncm_word_pattern = '\w+[\w\s.-]*'
-let s:ncm_regexes = [
-            \ '^\s*-\s+\w*',
-            \ '^\s*keywords\s*:\s+(\[\s*)?(\\@)?\w*',
-            \ '^\s*keywords\s*:\s+(\[\s*)?(\\@)?(' ..
-            \     s:ncm_word_pattern .. ',\s+)+\w*',
-            \ '@\w*',
-            \ ]
-
-" }}}1
-
 function! notes#complete#omnifunc(findstart, base, completers=[]) abort " {{{1
     if empty(a:completers)
         call extend(a:completers, s:omnifunc_completers)

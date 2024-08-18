@@ -1,12 +1,3 @@
-function! notes#init() abort " {{{1
-    call notes#fzf#init()
-
-    nnoremap <Leader>nn <Cmd>call notes#new_note()<CR>
-    nnoremap <Leader>nj <Cmd>call notes#new_journal()<CR>
-endfunction
-
-" }}}1
-
 function! notes#new_note() abort " {{{1
     lcd ~/Documents/Notes
     let l:name = strftime("%Y%m%d%H%M%S")
@@ -25,38 +16,6 @@ function! notes#new_journal() abort " {{{1
         execute "normal 2o\<Esc>"
     endif
 endfunction
-
-" }}}1
-
-function! notes#init_buffer() abort " {{{1
-    call notes#fzf#init_buffer()
-    call notes#complete#init_buffer()
-    call notes#link#init_buffer()
-
-    nnoremap <buffer> <LocalLeader>nh
-                \ <Cmd>call notes#make_bracketed_list_hyphenated()<CR>
-    nnoremap <buffer> <LocalLeader>qq <Cmd>call <SID>switch_off_modified()<CR>
-
-    augroup notes_init_buffer
-        autocmd BufModifiedSet <buffer>
-                    \ call setbufvar(expand('<afile>'), 'modified', 1)
-        autocmd BufModifiedSet <buffer> let s:modified = 1
-        autocmd BufWinLeave <buffer> call notes#exit_note()
-    augroup END
-
-    let g:mdview_pandoc_args = {
-                \ 'output': function('notes#mdview_output_file'),
-                \ 'additional': ['--defaults=notes'],
-                \ }
-endfunction
-
-function! s:switch_off_modified() abort " {{{2
-    call setbufvar(expand('<afile>'), 'modified', 0)
-    call let s:modified = 0
-endfunction
-" }}}2
-
-" }}}1
 
 function! notes#make_bracketed_list_hyphenated() abort " {{{1
     let l:unnamed_register = @"
@@ -90,7 +49,7 @@ function! notes#exit_note() abort " {{{1
             call mdview#compiler#convert(0, {'sync': 1})
         endif
 
-        if s:modified
+        if get(s:, 'modified', 0)
             call shell#compile(['build-index'], {'sync': 1})
             let s:modified = 0
         endif
@@ -159,6 +118,19 @@ function! s:build_index_callback(job, status, event) abort dict " {{{2
     let s:modified = 0
 endfunction
 " }}}2
+
+function! notes#set_modified(...) " {{{1
+    let s:modified = a:0
+
+    let l:file = expand('<afile>')
+    if empty(l:file)
+        let l:file = expand('%')
+    endif
+
+    if exists('a:1')
+        setbufvar(l:file, 'modified', a:1)
+    endif
+endfunction
 
 function! notes#mdview_output_file() abort dict " {{{1
     " If the input file is an index file, manipulate the filename so that the

@@ -1,18 +1,3 @@
-function! notes#fzf#init() abort " {{{1
-    nnoremap <Leader>ns <Cmd>call notes#fzf#search_notes()<CR>
-    nnoremap <Leader>nb
-                \ <Cmd>call fzf#run(fzf#wrap(notes#fzf#browse_notes(0), 0))<CR>
-    nnoremap <Leader>ni
-                \ <Cmd>call fzf#run(fzf#wrap(notes#fzf#browse_index(0), 0))<CR>
-endfunction
-
-function! notes#fzf#init_buffer() abort " {{{1
-    nnoremap <buffer> <LocalLeader>nl
-                \ <Cmd>call fzf#run(fzf#wrap(notes#fzf#browse_links(0), 0))<CR>
-endfunction
-
-" }}}1
-
 function! notes#fzf#search_notes() abort " {{{1
     lcd $HOME/Documents/Notes
     Rfv [[:digit:]]*.md

@@ -1,23 +1,3 @@
-function! notes#link#init_buffer() " {{{1
-    nnoremap <buffer> <CR>
-                \ <Cmd>call notes#link#follow_link_map(
-                \   'edit', 'markdown', "\<lt>CR>")<CR>
-    nnoremap <buffer> <C-W><C-V>
-                \ <Cmd>call notes#link#follow_link_map(
-                \   'vsplit', 'markdown', "\<lt>C-W>\<lt>C-V>")<CR>
-    nnoremap <buffer> <C-W>v
-                \ <Cmd>call notes#link#follow_link_map(
-                \   'vsplit', 'markdown', "\<lt>C-W>v")<CR>
-    nnoremap <buffer> <C-W><C-O>
-                \ <Cmd>call notes#link#follow_link_map(
-                \   '!open', 'html', "\<lt>C-W>\<lt>C-O>")<CR>
-    nnoremap <buffer> <C-W>o
-                \ <Cmd>call notes#link#follow_link_map(
-                \   '!open', 'html', "\<lt>C-W>o")<CR>
-endfunction
-
-" }}}1
-
 function! notes#link#follow_link_map(action, filetype, lhs) abort " {{{1
     if !notes#link#follow_link(a:action, a:filetype)
         execute 'normal! ' .. a:lhs
