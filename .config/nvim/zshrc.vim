@@ -34,6 +34,8 @@ nnoremap <Leader>efa <Cmd>vs
             \ $XDG_CONFIG_HOME/nvim/autoload/fzf.vim<CR>
 nnoremap <Leader>esa <Cmd>vs
             \ $XDG_CONFIG_HOME/nvim/autoload/shell.vim<CR>
+nnoremap <Leader>esp <Cmd>vs
+            \ $XDG_CONFIG_HOME/nvim/plugin/shell.vim<CR>
 nnoremap <Leader>elc <Cmd>vs
             \ $XDG_CONFIG_HOME/nvim/compiler/lilypond.vim<CR>
 nnoremap <Leader>elf <Cmd>vs
@@ -135,6 +137,7 @@ let nf = "$XDG_CONFIG_HOME/nvim/ftplugin/markdown/notes.vim"
 let np = "$XDG_CONFIG_HOME/nvim/plugin/notes.vim"
 let fa = "$XDG_CONFIG_HOME/nvim/autoload/fzf.vim"
 let sa = "$XDG_CONFIG_HOME/nvim/autoload/shell.vim"
+let sp = "$XDG_CONFIG_HOME/nvim/plugin/shell.vim"
 let lc = "$XDG_CONFIG_HOME/nvim/compiler/lilypond.vim"
 let lf = "$XDG_CONFIG_HOME/nvim/ftplugin/lilypond.vim"
 let lp = "$XDG_CONFIG_HOME/nvim/plugin/lilypond.vim"

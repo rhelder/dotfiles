@@ -114,6 +114,7 @@ alias efa="nvim $XDG_CONFIG_HOME/nvim/autoload/fzf.vim"
 
 # shell.vim (prefix='es') {{{4
 alias esa="nvim $XDG_CONFIG_HOME/nvim/autoload/shell.vim"
+alias esp="nvim $XDG_CONFIG_HOME/nvim/plugin/shell.vim"
 
 # lilypond.vim (prefix='el') {{{4
 alias elc="nvim $XDG_CONFIG_HOME/nvim/compiler/lilypond.vim"
@@ -264,6 +265,7 @@ fa="$XDG_CONFIG_HOME/nvim/autoload/fzf.vim"
 
 # shell.vim {{{4
 sa="$XDG_CONFIG_HOME/nvim/autoload/shell.vim"
+sp="$XDG_CONFIG_HOME/nvim/plugin/shell.vim"
 
 # lilypond.vim {{{4
 lc="$XDG_CONFIG_HOME/nvim/compiler/lilypond.vim"
