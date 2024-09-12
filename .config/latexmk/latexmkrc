@@ -1,5 +1,5 @@
-# Set default engine to `XeLaTeX` and make `silent` mode the default
-$pdf_mode = 5;
+# Set default engine to `LuaLaTeX` and make `silent` mode the default
+$pdf_mode = 4;
 $silent = 1;
 
 # When `nomencl` package is used, invoke `MakeIndex` to create nomenclature
