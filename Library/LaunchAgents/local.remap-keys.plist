@@ -5,7 +5,7 @@
         <key>Label</key>
         <string>local.remap-keys-rhelder</string>
         <key>Program</key>
-        <string>/Users/rhelder/.local/bin/remap-keys-rhelder</string>
+        <string>/Users/rhelder/.local/bin/remap-keys</string>
         <key>RunAtLoad</key>
         <true/>
     </dict>
