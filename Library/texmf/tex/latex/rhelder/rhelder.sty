@@ -1,7 +1,7 @@
 \NeedsTeXFormat{LaTeX2e}[2022/11/01]
-\ProvidesPackage{rhelder}[2023/10/26 Russell Wright Helder's style file]
+\ProvidesPackage{rhelder}[2024/09/11 Russell Wright Helder's style file]
 
-% {{{1 Required packages
+% Required packages {{{1
 
 \RequirePackage{etoolbox}
 \RequirePackage{polyglossia}
@@ -22,90 +22,41 @@
 \RequirePackage{microtype}
 \RequirePackage[chicago]{xellipsis}
 \RequirePackage[shortcuts]{extdash}
+\RequirePackage[
+    hscale=\directlua{
+        tex.print(0.03680 * \f@size + 0.1936)
+    },
+]{geometry}
 
-% {{{2 geometry
+% Options {{{1
 
-% Under usual circumstances (i.e., if the class is one of the standard classes,
-% and the layout is one-sided and in one column, and the paper size is letter),
-% load `geometry` with margins depending on the font size
+% Declare options {{{2
 
-% If one of the standard classes is loaded, set `@standardclass` flag to true
-\newbool{@standardclass}
-\@ifclassloaded{article}{
-    \booltrue{@standardclass}
-}{
-    \@ifclassloaded{report}{
-        \booltrue{@standardclass}
-    }{
-        \@ifclassloaded{book}{
-            \booltrue{@standardclass}
-        }{}
-    }
-}
-
-% Set standard lengths against which to compare the actual paper width and
-% height
-\newlength{\letterheight}
-\setlength{\letterheight}{11in}
-\newlength{\letterwidth}
-\setlength{\letterwidth}{8.5in}
-
-\if@standardclass
-    \ifdim \paperheight=\letterheight
-        \ifdim \paperwidth=\letterwidth
-            \if@twoside
-            \else
-                \if@twocolumn
-                \else
-                    \ifx \f@size \@xiipt
-                        \RequirePackage[hmargin=1.55in]{geometry}
-                    \else
-                        \ifx \f@size \@xipt
-                            \RequirePackage[hmargin=1.78in]{geometry}
-                        \else
-                            \ifx \f@size \@xpt
-                                \RequirePackage[hmargin=2in]{geometry}
-                            \fi
-                        \fi
-                    \fi
-                \fi
-            \fi
-        \fi
-    \fi
-\fi
-
-% }}}2
-
-% {{{1 Options
-
-% {{{2 Declare options
 \newbool{@biblatex}
 \newbool{@nomencl}
 \newbool{@doublespaced}
-\newbool{@defaultauthor}
+\newbool{@author}
 \newbool{@anonymous}
-\newbool{@defaultlangs}
 \newbool{@misguided}
 \newbool{@translit}
 
-\booltrue{@defaultlangs}
-\booltrue{@defaultauthor}
+\booltrue{@author}
 \booltrue{@translit}
 
 \DeclareOption{biblatex}{\booltrue{@biblatex}}
 \DeclareOption{nomencl}{\booltrue{@nomencl}}
 \DeclareOption{doublespaced}{\booltrue{@doublespaced}}
-\DeclareOption{anonymous}{\boolfalse{@defaultauthor}\booltrue{@anonymous}}
-\DeclareOption{customlangs}{\boolfalse{@defaultlangs}}
+\DeclareOption{anonymous}{\boolfalse{@author}\booltrue{@anonymous}}
 \DeclareOption{misguided}{\booltrue{@misguided}}
 \DeclareOption{notranslit}{\boolfalse{@translit}}
 
 \DeclareOption*{\PackageWarning{rhelder}{Unknown ‘\CurrentOption’}}
 
-% {{{2 Execute options
+% Execute options {{{2
+
 \ProcessOptions\relax
 
-% {{{3 biblatex
+% biblatex {{{3
 
 \if@biblatex
     \RequirePackage[
@@ -126,19 +77,13 @@
     % `latin.lbx`
     \DeclareLanguageMapping{latin}{cms-american}
 
-    % Declare group of all bibstrings
-    \input{rhelder_BibstringSet}
-    % Format the group of all bibstrings in accordance with the document's main
-    % language
-    \DeclareBibstringSetFormat{all}{\textmainlang{#1}}
-
     % Patch `\footnotetext` so that the footnote-specific `ibidtracker` resets
     % at the beginning of each footnote
     \NewCommandCopy{\oldfootnotetext}{\footnotetext}
     \RenewDocumentCommand{\footnotetext}{+m}{\oldfootnotetext{\mancite #1}}
 \fi
 
-% {{{3 nomencl
+% nomencl {{{3
 
 \if@nomencl
     \RequirePackage{nomencl}
@@ -162,7 +107,7 @@
     \fi
 \fi
 
-% {{{3 doublespaced
+% doublespaced {{{3
 
 \if@doublespaced
     \RequirePackage{setspace}
@@ -178,19 +123,17 @@
     \fi
 \fi
 
-% {{{3 defaultauthor
-
-\if@defaultauthor
+% author {{{3
+\if@author
     \AtEndOfPackage{
         \author{Russell\ Wright\ Helder}
         \hypersetup{pdfauthor={Russell\ Wright\ Helder}}
     }
 \fi
 
-% {{{3 anonymous
-
+% anonymous {{{3
 \if@anonymous
-    \def\@maketitle{%
+    \RenewDocumentCommand{\@maketitle}{}{%
         \newpage
         \null
         \vskip 2em%
@@ -203,20 +146,9 @@
         \par
         \vskip 1.5em%
     }
-
 \fi
 
-% {{{3 defaultlangs
-
-\if@defaultlangs
-    \AtEndOfPackage{%
-        \setdefaultlanguage[variant=american]{english}%
-        \setotherlanguage[variant=ancient]{greek}%
-        \setotherlanguage{latin}%
-    }
-\fi
-
-% {{{3 misguided
+% misguided {{{3
 
 \if@misguided
     % Include punctuation within quotes
@@ -237,12 +169,19 @@
 \fi
 
 % }}}3
+
 % }}}2
 
-% }}}1
-% {{{1 General
+% General {{{1
+
+\setdefaultlanguage[variant=american]{english}
+\setotherlanguage[variant=ancient]{greek}
+\setotherlanguage{latin}
 
 \setmainfont{Brill}
+
+% Set \greekfont family explicitly to avoid htlatex errors
+\newfontfamily\greekfont{Brill}[Script=Greek]
 
 % At least two lines after paragraph break before page break
 \clubpenalty=10000
@@ -264,7 +203,7 @@
     \urlstyle{same}%
 }
 
-% {{{1 Quotations
+% Quotations {{{1
 
 % Set quoting environment as default block quote environment for `csquotes`
 \SetBlockEnvironment{quoting}
@@ -282,7 +221,7 @@
     {\textquoteleft}{\textquoteright}
 \DeclareQuoteAlias[ancient]{greek}{greek}
 
-% {{{1 Lists
+% Lists {{{1
 
 % Change default bullet points for nested itemized lists
 \setlist[itemize,2]{label=\ding{118}}
@@ -307,7 +246,7 @@
 %      itemsep=2\itemsep,
 % }
 
-% {{{1 Custom commands
+% Custom commands {{{1
 
 % Define copy of `\emph` so that, even if `\emph` is redefined, the following
 % commands italicize their arguments
