@@ -73,7 +73,7 @@ nnoremap <Leader>eta <Cmd>vs
 nnoremap <Leader>etb <Cmd>vs
             \ $HOME/Library/texmf/bibtex/bib/my_library.bib<CR>
 nnoremap <Leader>etc <Cmd>vs
-            \ $HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls<CR>
+            \ $HOME/Library/texmf/tex/latex/rheldercv/rheldercv.cls<CR>
 nnoremap <Leader>etd <Cmd>vs
             \ $HOME/Library/texmf/texdoc/texdoc.cnf<CR>
 nnoremap <Leader>ets <Cmd>vs
@@ -156,7 +156,7 @@ let ep = "$XDG_DATA_HOME/nvim/site/plugin/enumerate.vim"
 let rp = "$XDG_DATA_HOME/nvim/site/plugin/rfv.vim"
 let ta = "$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
 let tb = "$HOME/Library/texmf/bibtex/bib/my_library.bib"
-let tc = "$HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
+let tc = "$HOME/Library/texmf/tex/latex/rheldercv/rheldercv.cls"
 let td = "$HOME/Library/texmf/texdoc/texdoc.cnf"
 let ts = "$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
 let z = "$XDG_CONFIG_HOME/zsh/.zshrc"

@@ -150,7 +150,7 @@ alias erp="nvim $XDG_DATA_HOME/nvim/site/plugin/rfv.vim"
 # LaTeX (prefix='et') {{{3
 alias eta="nvim $HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
 alias etb="nvim $HOME/Library/texmf/bibtex/bib/my_library.bib"
-alias etc="nvim $HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
+alias etc="nvim $HOME/Library/texmf/tex/latex/rheldercv/rheldercv.cls"
 alias etd="nvim $HOME/Library/texmf/texdoc/texdoc.cnf"
 alias ets="nvim $HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
 
@@ -301,7 +301,7 @@ rp="$XDG_DATA_HOME/nvim/site/plugin/rfv.vim"
 # LaTeX {{{3
 ta="$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
 tb="$HOME/Library/texmf/bibtex/bib/my_library.bib"
-tc="$HOME/Library/texmf/tex/latex/rhelder-cvcls/rhelder-cv.cls"
+tc="$HOME/Library/texmf/tex/latex/rheldercv/rheldercv.cls"
 td="$HOME/Library/texmf/texdoc/texdoc.cnf"
 ts="$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
 
