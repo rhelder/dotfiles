@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{rhelder-cv}[2023-11-01 Opinionated class for academic CV]
+\ProvidesClass{rheldercv}[2024-09-11 Opinionated class for academic CV]
 
 % Declare options from `article` class not to be used
 
@@ -22,23 +22,21 @@
 
 \RequirePackage{titlesec}
 \RequirePackage{tabulary}
-\RequirePackage{enumitem}
-\RequirePackage{pifont}
+\RequirePackage{rhelder}
 
 % Redefine `\maketitle` and title fields
 
-\newcommand*{\@name}{}
 \newcommand*{\@jobtitle}{}
 \newcommand*{\@affiliation}{}
 \newcommand*{\@contact}{}
-\NewDocumentCommand{\name}{m}{\renewcommand*{\@name}{#1}}
+\NewDocumentCommand{\name}{m}{\renewcommand*{\@title}{#1}}
 \NewDocumentCommand{\jobtitle}{m}{\renewcommand*{\@jobtitle}{#1}}
 \NewDocumentCommand{\affiliation}{m}{\renewcommand*{\@affiliation}{#1}}
 \NewDocumentCommand{\contact}{m}{\renewcommand*{\@contact}{#1}}
 
-\def\@maketitle{%
+\RenewDocumentCommand{\@maketitle}{}{%
     \begin{center}%
-        {\Large \bfseries \@name \par}%
+        {\Large \bfseries \@title \par}%
         \vspace{1.53ex plus 0.13ex}%
         {\large \@date \par}%
         \vspace{2.3ex plus 0.2ex}%
