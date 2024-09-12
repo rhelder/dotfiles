@@ -43,19 +43,19 @@ endif
 
 augroup nvimrc_options " {{{2
     autocmd!
-    autocmd VimEnter,VimResized * call s:set_number()
+    autocmd VimEnter,VimResized *                       call s:set_number()
+    autocmd FileType text,markdown,gitcommit,help,man   setlocal nonumber
 
     autocmd BufReadPost,BufNewFile $HOME/.local/bin/*
                 \ set filetype=zsh
     autocmd BufReadPost,BufNewFile $XDG_DATA_HOME/zsh/functions/*
                 \ set filetype=zsh
 
-    autocmd FileType markdown                       setlocal formatoptions-=l
-    autocmd FileType text,markdown                  setlocal textwidth=78
-    autocmd FileType gitcommit                      setlocal textwidth=72
-    autocmd FileType text,markdown,gitcommit,help   setlocal nonumber
-    autocmd FileType text,markdown,gitcommit        setlocal nosmartindent
-    autocmd FileType help                           setlocal nolist
+    autocmd FileType markdown                   setlocal formatoptions-=l
+    autocmd FileType text,markdown              setlocal textwidth=78
+    autocmd FileType gitcommit                  setlocal textwidth=72
+    autocmd FileType text,markdown,gitcommit    setlocal nosmartindent
+    autocmd FileType help                       setlocal nolist
 augroup END
 
 function! s:set_number() abort " {{{3
