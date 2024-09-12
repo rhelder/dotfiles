@@ -40,7 +40,6 @@ endfunction
 
 " VimTeX configuration {{{1
 
-let g:vimtex_compiler_latexmk_engines = {'_' : '-xelatex'}
 let g:vimtex_complete_close_braces = 1
 let g:vimtex_view_method = 'skim'
 let g:vimtex_view_skim_reading_bar = 1
@@ -107,17 +106,21 @@ function! s:nvim_regain_focus() abort
 endfunction
 
 " ncm2 configuration {{{2
-call ncm2#enable_for_buffer()
-call ncm2#register_source({
-            \ 'name': 'vimtex',
-            \ 'priority': 8,
-            \ 'scope': ['tex'],
-            \ 'mark': 'tex',
-            \ 'word_pattern': '\w+',
-            \ 'complete_pattern': g:vimtex#re#ncm2,
-            \ 'on_complete': ['ncm2#on_complete#omni',
-            \     'vimtex#complete#omnifunc'],
-            \ })
+augroup ncm2_vimtex
+    autocmd!
+    autocmd BufEnter * call ncm2#enable_for_buffer()
+    autocmd User Ncm2Plugin call ncm2#register_source({
+                \ 'name': 'vimtex',
+                \ 'priority': 8,
+                \ 'scope': ['tex'],
+                \ 'mark': 'tex',
+                \ 'word_pattern': '\w+',
+                \ 'complete_pattern': g:vimtex#re#ncm2,
+                \ 'on_complete': ['ncm2#on_complete#omni',
+                \     'vimtex#complete#omnifunc'],
+                \ })
+augroup END
+
 "}}}2
 
 " }}}1
