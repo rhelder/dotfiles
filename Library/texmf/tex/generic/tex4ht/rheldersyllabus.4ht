@@ -1,3 +1,17 @@
-\AtBeginDocument{%
-    \let\maketitle\o:maketitle:
+\AtBeginDocument{
+    \let\a:mktl:sv\a:mktl
+    \let\b:mktl:sv\b:mktl
+    \let\a:ttl:sv\a:ttl
+    \let\b:ttl:sv\b:ttl
+    \Configure{maketitle}
+        {
+            \a:mktl:sv
+            \Configure{tabular}
+                {\a:tabular:sv}{\b:tabular:sv}
+                {\c:tabular:sv}{\d:tabular:sv}
+                {\e:tabular:sv}{\f:tabular:sv}
+        }
+        {\b:mktl:sv}{\a:ttl:sv}{\b:ttl:sv}
 }
+\Hinput{rheldersyllabus}
+\endinput
