@@ -19,9 +19,6 @@
 \LoadClass{article}
 \RequirePackage{rhelder}
 
-\renewcommand*{\@title}{}{}
-\RenewDocumentCommand{\title}{m}{\renewcommand*{\@title}{#1}}
-
 \newcommand*{\@secnum}{}
 \NewDocumentCommand{\secnum}{m}{\renewcommand*{\@secnum}{#1}}
 
