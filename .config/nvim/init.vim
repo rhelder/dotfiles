@@ -115,10 +115,10 @@ augroup nvimrc_mappings " {{{2
     autocmd FileType vim
                 \ vnoremap <buffer> <LocalLeader>c
                 \   <Cmd>call <SID>comment('"', 'v')<CR>
-    autocmd FileType zsh,conf
+    autocmd FileType zsh,conf,toml
                 \ nnoremap <buffer> <LocalLeader>c
                 \   <Cmd>call <SID>comment('#', 'n')<CR>
-    autocmd FileType zsh,conf
+    autocmd FileType zsh,conf,toml
                 \ vnoremap <buffer> <LocalLeader>c
                 \   <Cmd>call <SID>comment('#', 'v')<CR>
     autocmd FileType gpg,lilypond,tex
