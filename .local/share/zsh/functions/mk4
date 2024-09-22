@@ -1,0 +1,12 @@
+local -i draft
+
+if [[ $1 == '-d' ]]; then
+    local -i draft=1
+    shift
+fi
+
+if (( draft == 0 )); then
+    make4ht -c 'tex4ht.cfg' -ul $*
+else
+    make4ht -c 'tex4ht.cfg' -m 'draft' -ul $*
+fi
