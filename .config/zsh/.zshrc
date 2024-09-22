@@ -57,6 +57,7 @@ autoload alias_init
 alias_init
 
 # Load other user functions
+autoload mk4
 autoload clean_tex_aux_files
 autoload cs
 autoload default_gpg
@@ -83,6 +84,9 @@ fi
 
 # Edit {{{2
 
+# bibtex (prefix='e') {{{3
+alias ebib="nvim $HOME/Library/texmf/bibtex/bib/my_library.bib"
+
 # Git (prefix='eg') {{{3
 alias egc="nvim $XDG_CONFIG_HOME/git/config"
 alias egi="nvim $XDG_CONFIG_HOME/git/ignore"
@@ -94,6 +98,9 @@ alias ek="nvim $XDG_CONFIG_HOME/kitty/kitty.conf"
 
 # latexmk (prefix='e') {{{3
 alias elmk="nvim $XDG_CONFIG_HOME/latexmk/latexmkrc"
+
+# make4ht (prefix='e') {{{3
+alias emk4="nvim $XDG_CONFIG_HOME/make4ht/config.lua"
 
 # Neovim (prefix='e') {{{3
 
@@ -149,10 +156,14 @@ alias erp="nvim $XDG_DATA_HOME/nvim/site/plugin/rfv.vim"
 
 # LaTeX (prefix='et') {{{3
 alias eta="nvim $HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
-alias etb="nvim $HOME/Library/texmf/bibtex/bib/my_library.bib"
 alias etc="nvim $HOME/Library/texmf/tex/latex/rheldercv/rheldercv.cls"
 alias etd="nvim $HOME/Library/texmf/texdoc/texdoc.cnf"
 alias ets="nvim $HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
+alias et4="nvim $HOME/Library/texmf/tex/latex/tex4ht/tex4ht.cfg"
+alias ety="nvim $HOME/Library/texmf/tex/latex/rheldersyllabus/rheldersyllabus.cls"
+
+# tex4ht (prefix='et4') {{{3
+alias et4y="nvim $HOME/Library/texmf/tex/generic/tex4ht/rheldersyllabus.4ht"
 
 # zsh (prefix='e') {{{3
 alias ez="nvim $XDG_CONFIG_HOME/zsh/.zshrc"
@@ -233,6 +244,9 @@ alias vc="ts $XDG_CACHE_HOME/vimtex/pkgcomplete.json"
 
 # Files {{{2
 
+# bibtex {{{3
+bib="$HOME/Library/texmf/bibtex/bib/my_library.bib"
+
 # Git {{{3
 gc="$XDG_CONFIG_HOME/git/config"
 gi="$XDG_CONFIG_HOME/git/ignore"
@@ -244,6 +258,9 @@ k="$XDG_CONFIG_HOME/kitty/kitty.conf"
 
 # latexmk {{{3
 lmk="$XDG_CONFIG_HOME/latexmk/latexmkrc"
+
+# make4ht {{{3
+mk4="$XDG_CONFIG_HOME/make4ht/config.lua"
 
 # Neovim {{{3
 
@@ -300,10 +317,14 @@ rp="$XDG_DATA_HOME/nvim/site/plugin/rfv.vim"
 
 # LaTeX {{{3
 ta="$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
-tb="$HOME/Library/texmf/bibtex/bib/my_library.bib"
 tc="$HOME/Library/texmf/tex/latex/rheldercv/rheldercv.cls"
 td="$HOME/Library/texmf/texdoc/texdoc.cnf"
 ts="$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
+tt="$HOME/Library/texmf/tex/latex/tex4ht/tex4ht.cfg"
+ty="$HOME/Library/texmf/tex/latex/rheldersyllabus/rheldersyllabus.cls"
+
+# tex4ht {{{3
+t4y="$HOME/Library/texmf/tex/generic/tex4ht/rheldersyllabus.4ht"
 
 # zsh {{{3
 z="$XDG_CONFIG_HOME/zsh/.zshrc"

@@ -1,5 +1,7 @@
 " Mappings (corresponding to aliases in '.zshrc')
 
+nnoremap <Leader>ebib <Cmd>vs
+            \ $HOME/Library/texmf/bibtex/bib/my_library.bib<CR>
 nnoremap <Leader>egc <Cmd>vs
             \ $XDG_CONFIG_HOME/git/config<CR>
 nnoremap <Leader>egi <Cmd>vs
@@ -12,6 +14,8 @@ nnoremap <Leader>ek <Cmd>vs
             \ $XDG_CONFIG_HOME/kitty/kitty.conf<CR>
 nnoremap <Leader>elmk <Cmd>vs
             \ $XDG_CONFIG_HOME/latexmk/latexmkrc<CR>
+nnoremap <Leader>emk4 <Cmd>vs
+            \ $XDG_CONFIG_HOME/make4ht/config.lua<CR>
 nnoremap <Leader>ev <Cmd>vs
             \ $XDG_CONFIG_HOME/nvim/init.vim<CR>
 nnoremap <Leader>enz <Cmd>vs
@@ -70,14 +74,18 @@ nnoremap <Leader>erp <Cmd>vs
             \ $XDG_DATA_HOME/nvim/site/plugin/rfv.vim<CR>
 nnoremap <Leader>eta <Cmd>vs
             \ $HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty<CR>
-nnoremap <Leader>etb <Cmd>vs
-            \ $HOME/Library/texmf/bibtex/bib/my_library.bib<CR>
 nnoremap <Leader>etc <Cmd>vs
             \ $HOME/Library/texmf/tex/latex/rheldercv/rheldercv.cls<CR>
 nnoremap <Leader>etd <Cmd>vs
             \ $HOME/Library/texmf/texdoc/texdoc.cnf<CR>
 nnoremap <Leader>ets <Cmd>vs
             \ $HOME/Library/texmf/tex/latex/rhelder/rhelder.sty<CR>
+nnoremap <Leader>et4 <Cmd>vs
+            \ $HOME/Library/texmf/tex/latex/tex4ht/tex4ht.cfg<CR>
+nnoremap <Leader>ety <Cmd>vs
+            \ $HOME/Library/texmf/tex/latex/rheldersyllabus/rheldersyllabus.cls<CR>
+nnoremap <Leader>et4y <Cmd>vs
+            \ $HOME/Library/texmf/tex/generic/tex4ht/rheldersyllabus.4ht<CR>
 nnoremap <Leader>ez <Cmd>vs
             \ $XDG_CONFIG_HOME/zsh/.zshrc<CR>
 nnoremap <Leader>epz <Cmd>vs
@@ -119,12 +127,14 @@ nnoremap <Leader>zf <Cmd>lcd
 
 " Variables (corresponding to shell variables in '.zshrc')
 
+let bib = "$HOME/Library/texmf/bibtex/bib/my_library.bib"
 let gc = "$XDG_CONFIG_HOME/git/config"
 let gi = "$XDG_CONFIG_HOME/git/ignore"
 let gfd = "$XDG_CONFIG_HOME/git/filter-repo/dotfiles"
 let gfv = "$XDG_CONFIG_HOME/git/filter-repo/vimtex_my_complete"
 let k = "$XDG_CONFIG_HOME/kitty/kitty.conf"
 let lmk = "$XDG_CONFIG_HOME/latexmk/latexmkrc"
+let mk4 = "$XDG_CONFIG_HOME/make4ht/config.lua"
 let v = "$XDG_CONFIG_HOME/nvim/init.vim"
 let zv = "$XDG_CONFIG_HOME/nvim/zshrc.vim"
 let nz = "$XDG_CONFIG_HOME/nvim/after/ftplugin/markdown/notes.vim"
@@ -155,10 +165,12 @@ let eo = "$XDG_DATA_HOME/nvim/site/autoload/enumerate/object.vim"
 let ep = "$XDG_DATA_HOME/nvim/site/plugin/enumerate.vim"
 let rp = "$XDG_DATA_HOME/nvim/site/plugin/rfv.vim"
 let ta = "$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
-let tb = "$HOME/Library/texmf/bibtex/bib/my_library.bib"
 let tc = "$HOME/Library/texmf/tex/latex/rheldercv/rheldercv.cls"
 let td = "$HOME/Library/texmf/texdoc/texdoc.cnf"
 let ts = "$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
+let tt = "$HOME/Library/texmf/tex/latex/tex4ht/tex4ht.cfg"
+let ty = "$HOME/Library/texmf/tex/latex/rheldersyllabus/rheldersyllabus.cls"
+let t4y = "$HOME/Library/texmf/tex/generic/tex4ht/rheldersyllabus.4ht"
 let z = "$XDG_CONFIG_HOME/zsh/.zshrc"
 let pr = "$XDG_CONFIG_HOME/zsh/.zprofile"
 let hf = "$HISTFILE"
