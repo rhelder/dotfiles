@@ -3,6 +3,7 @@
     \let\b:mktl:sv\b:mktl
     \let\a:ttl:sv\a:ttl
     \let\b:ttl:sv\b:ttl
+
     \Configure{maketitle}
         {
             \a:mktl:sv
@@ -10,6 +11,13 @@
                 {\a:tabular:sv}{\b:tabular:sv}
                 {\c:tabular:sv}{\d:tabular:sv}
                 {\e:tabular:sv}{\f:tabular:sv}
+            \ConfigureEnv{tabular}
+                {
+                    \before:begintabular:sv
+                    \let\after:end:sv\after:end
+                }
+                {\after:end:sv}
+                {}{}
         }
         {\b:mktl:sv}{\a:ttl:sv}{\b:ttl:sv}
 }
