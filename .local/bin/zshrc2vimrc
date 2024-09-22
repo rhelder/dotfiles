@@ -31,7 +31,7 @@ done < $XDG_CONFIG_HOME/zsh/.zshrc >> $XDG_CONFIG_HOME/nvim/zshrc.vim
 echo '\n" Variables (corresponding to shell variables in ''.zshrc'')\n' \
     >> $XDG_CONFIG_HOME/nvim/zshrc.vim
 while read line; do
-    if [[ ! $line =~ '^[[:lower:]]+=' ]]; then
+    if [[ ! $line =~ '^[[:lower:][:digit:]]+=' ]]; then
         continue
     fi
 
