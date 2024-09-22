@@ -70,6 +70,7 @@ let g:vimtex_indent_lists = [
             \ 'thebibliography',
             \ 'trivlist',
             \ 'outline',
+            \ 'displayquote',
             \ 'education',
             \ 'research',
             \ 'papers',
