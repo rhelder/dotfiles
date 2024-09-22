@@ -22,15 +22,21 @@
 \RequirePackage{microtype}
 \RequirePackage[chicago]{xellipsis}
 \RequirePackage[shortcuts]{extdash}
-\RequirePackage[
-    hscale=\directlua{
-        tex.print(0.03680 * \f@size + 0.1936)
-    },
-]{geometry}
+\if@twocolumn
+    \RequirePackage[hmargin=1.005in]{geometry}
+\else
+    \RequirePackage[
+        hscale=\directlua{
+            tex.print(0.03680 * \f@size + 0.1936)
+        },
+    ]{geometry}
+\fi
 
 % Options {{{1
 
 % Declare options {{{2
+
+\DeclareOption{nosecnum}{\setcounter{secnumdepth}{0}}
 
 \newbool{@biblatex}
 \newbool{@nomencl}
@@ -187,6 +193,8 @@
 \clubpenalty=10000
 % At least two lines before paragraph break after page break
 \widowpenalty=10000
+
+\hyphenation{Prem-ise Prem-ises}
 
 \AtEndOfPackage{%
     \hypersetup{
