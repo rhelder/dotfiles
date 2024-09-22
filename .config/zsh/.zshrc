@@ -155,12 +155,15 @@ alias erp="nvim $XDG_DATA_HOME/nvim/site/plugin/rfv.vim"
 # }}}4
 
 # LaTeX (prefix='et') {{{3
+alias et4="nvim $HOME/Library/texmf/tex/latex/tex4ht/tex4ht.cfg"
 alias eta="nvim $HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
 alias etc="nvim $HOME/Library/texmf/tex/latex/rheldercv/rheldercv.cls"
 alias etd="nvim $HOME/Library/texmf/texdoc/texdoc.cnf"
+alias eth="nvim \
+        $HOME/Library/texmf/tex/latex/rhelderhandout/rhelderhandout.cls"
 alias ets="nvim $HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
-alias et4="nvim $HOME/Library/texmf/tex/latex/tex4ht/tex4ht.cfg"
-alias ety="nvim $HOME/Library/texmf/tex/latex/rheldersyllabus/rheldersyllabus.cls"
+alias ety="nvim \
+        $HOME/Library/texmf/tex/latex/rheldersyllabus/rheldersyllabus.cls"
 
 # tex4ht (prefix='et4') {{{3
 alias et4y="nvim $HOME/Library/texmf/tex/generic/tex4ht/rheldersyllabus.4ht"
@@ -316,11 +319,12 @@ rp="$XDG_DATA_HOME/nvim/site/plugin/rfv.vim"
 # }}}4
 
 # LaTeX {{{3
+t4="$HOME/Library/texmf/tex/latex/tex4ht/tex4ht.cfg"
 ta="$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
 tc="$HOME/Library/texmf/tex/latex/rheldercv/rheldercv.cls"
 td="$HOME/Library/texmf/texdoc/texdoc.cnf"
+th="$HOME/Library/texmf/tex/latex/rhelderhandout/rhelderhandout.cls"
 ts="$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
-tt="$HOME/Library/texmf/tex/latex/tex4ht/tex4ht.cfg"
 ty="$HOME/Library/texmf/tex/latex/rheldersyllabus/rheldersyllabus.cls"
 
 # tex4ht {{{3

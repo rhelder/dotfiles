@@ -72,18 +72,20 @@ nnoremap <Leader>eep <Cmd>vs
             \ $XDG_DATA_HOME/nvim/site/plugin/enumerate.vim<CR>
 nnoremap <Leader>erp <Cmd>vs
             \ $XDG_DATA_HOME/nvim/site/plugin/rfv.vim<CR>
+nnoremap <Leader>et4 <Cmd>vs
+            \ $HOME/Library/texmf/tex/latex/tex4ht/tex4ht.cfg<CR>
 nnoremap <Leader>eta <Cmd>vs
             \ $HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty<CR>
 nnoremap <Leader>etc <Cmd>vs
             \ $HOME/Library/texmf/tex/latex/rheldercv/rheldercv.cls<CR>
 nnoremap <Leader>etd <Cmd>vs
             \ $HOME/Library/texmf/texdoc/texdoc.cnf<CR>
+nnoremap <Leader>eth <Cmd>vs
+            \         $HOME/Library/texmf/tex/latex/rhelderhandout/rhelderhandout.cls<CR>
 nnoremap <Leader>ets <Cmd>vs
             \ $HOME/Library/texmf/tex/latex/rhelder/rhelder.sty<CR>
-nnoremap <Leader>et4 <Cmd>vs
-            \ $HOME/Library/texmf/tex/latex/tex4ht/tex4ht.cfg<CR>
 nnoremap <Leader>ety <Cmd>vs
-            \ $HOME/Library/texmf/tex/latex/rheldersyllabus/rheldersyllabus.cls<CR>
+            \         $HOME/Library/texmf/tex/latex/rheldersyllabus/rheldersyllabus.cls<CR>
 nnoremap <Leader>et4y <Cmd>vs
             \ $HOME/Library/texmf/tex/generic/tex4ht/rheldersyllabus.4ht<CR>
 nnoremap <Leader>ez <Cmd>vs
@@ -164,11 +166,12 @@ let em = "$XDG_DATA_HOME/nvim/site/autoload/enumerate/motion.vim"
 let eo = "$XDG_DATA_HOME/nvim/site/autoload/enumerate/object.vim"
 let ep = "$XDG_DATA_HOME/nvim/site/plugin/enumerate.vim"
 let rp = "$XDG_DATA_HOME/nvim/site/plugin/rfv.vim"
+let t4 = "$HOME/Library/texmf/tex/latex/tex4ht/tex4ht.cfg"
 let ta = "$HOME/Library/texmf/tex/latex/aristotelis/aristotelis.sty"
 let tc = "$HOME/Library/texmf/tex/latex/rheldercv/rheldercv.cls"
 let td = "$HOME/Library/texmf/texdoc/texdoc.cnf"
+let th = "$HOME/Library/texmf/tex/latex/rhelderhandout/rhelderhandout.cls"
 let ts = "$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
-let tt = "$HOME/Library/texmf/tex/latex/tex4ht/tex4ht.cfg"
 let ty = "$HOME/Library/texmf/tex/latex/rheldersyllabus/rheldersyllabus.cls"
 let t4y = "$HOME/Library/texmf/tex/generic/tex4ht/rheldersyllabus.4ht"
 let z = "$XDG_CONFIG_HOME/zsh/.zshrc"
