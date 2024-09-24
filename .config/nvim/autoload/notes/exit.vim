@@ -96,7 +96,7 @@ function! notes#exit#set_modified(...) " {{{1
     endif
 
     if exists('a:1')
-        setbufvar(l:file, 'modified', a:1)
+        call setbufvar(l:file, 'modified', a:1)
     endif
 endfunction
 
