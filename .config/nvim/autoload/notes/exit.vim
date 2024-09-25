@@ -1,3 +1,6 @@
+" [FIXME] when running mdview on exit, account for possibility that scratch
+" buffer is already open (esp. so you can change its title)
+
 function! notes#exit#compile() abort " {{{1
     if !filereadable(expand('%')) | return | endif
 
@@ -57,13 +60,13 @@ function! s:build_index_on_error(job, status, event) abort dict " {{{2
                     \ bufname(s:scratch_win.bufnr) .. ' ' .. l:title[1],
                     \ ]
         call shell#set_scratch_win({'title': l:title})
-    endif
 
-    let l:matches = getmatches(s:scratch_win.bufwinid)
+        let l:matches = getmatches(s:scratch_win.bufwinid)
+    endif
 
     call self.load_scratch_buf(a:job, a:status, a:event)
 
-    if empty(l:matches) | return | endif
+    if !exists('l:matches') | return | endif
 
     let l:match = l:matches[-1]
     let l:match.pos = []
