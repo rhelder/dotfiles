@@ -167,7 +167,7 @@ function! s:keyword_link_handler.get_text_under_cursor() abort dict " {{{2
 endfunction
 
 function! s:keyword_link_handler.in_context() abort " {{{2
-    return notes#link#u#in_keywords()
+    return notes#u#in_keywords()
 endfunction
 " }}}2
 
@@ -212,7 +212,7 @@ function! s:citation_link_handler.get_text_under_cursor() abort dict " {{{2
 endfunction
 
 function! s:citation_link_handler.in_context() abort " {{{2
-    if !notes#link#u#in_keywords()
+    if !notes#u#in_keywords()
         return 1
     else
         return 0
