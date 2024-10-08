@@ -1,5 +1,7 @@
-" [FIXME] when running mdview on exit, account for possibility that scratch
-" buffer is already open (esp. so you can change its title)
+" [FIXME] When scratch buffer closes (e.g. because there are no mdview errors),
+" the next time there's an error, it's likely that the next scratch buffer to
+" be opened will be a different buffer, because it will have a different title.
+" This can lead to 'buffer name already exists' errors
 
 function! notes#exit#compile() abort " {{{1
     if !filereadable(expand('%')) | return | endif
@@ -7,9 +9,14 @@ function! notes#exit#compile() abort " {{{1
     if string(v:exiting) ==# 'v:null'
         if !getbufvar(expand('<afile>'), 'modified', 0) | return | endif
 
+        let l:title = ['[Warning] mdView', '[Error] mdView']
+        if !empty(shell#get_scratch_win())
+            call shell#set_scratch_win({'title': l:title})
+        endif
+
         call mdview#compiler#convert(1, {
                     \ 'scratch_win': {
-                    \   'title': ['[Warning] mdView', '[Error] mdView'],
+                    \   'title': l:title,
                     \ },
                     \ 'bufnr': bufnr(expand('<afile>')),
                     \ 'callback': function('s:mdview_callback'),
