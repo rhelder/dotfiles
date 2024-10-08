@@ -1,7 +1,12 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{rhelderhandout}[2024-09-21 Opinionated class for handouts]
+\ProvidesClass{rhelderhandout}[2024-10-07 Opinionated class for handouts]
 
-% Declare options from `article` class not to be used
+\RequirePackage{etoolbox}
+
+% Options {{{1
+
+\newbool{@class}
+\DeclareOption{class}{\booltrue{@class}}
 
 \DeclareOption{twoside}{\OptionNotUsed}
 \DeclareOption{draft}{\OptionNotUsed}
@@ -11,13 +16,11 @@
 \DeclareOption{openbib}{\OptionNotUsed}
 
 % Pass remaining options to `article` class
-
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
 \ProcessOptions\relax
-
 \LoadClass{article}
-\RequirePackage[nosecnum]{rhelder}
 
+% Title {{{1
 \RenewDocumentCommand{\@maketitle}{}{%
     \begin{center}
         \LARGE
@@ -27,29 +30,47 @@
     \vskip 1.5em%
 }
 
-\RequirePackage{titleps}
-\geometry{vcentering}
+% Page styles {{{1
 
-\newcommand{\@class}{}
-\newcommand{\@copyrightyear}{}
-\NewDocumentCommand{\class}{m}{\renewcommand{\@class}{#1}}
-\NewDocumentCommand{\copyrightyear}{m}{\renewcommand{\@copyrightyear}{#1}}
+\RequirePackage[pagestyles]{titlesec}
+\RequirePackage{rhelder}
 
-\NewDocumentCommand{\sethandoutfoot}{}{
-    \setfoot{\@class{}, UC Berkeley}
-        {\thepage}
-        {\copyright{} \@copyrightyear{} Russell Wright Helder}
-}
-
-\newpagestyle{firsthandoutpage}{
-    \sethandoutfoot
-}
-
+\renewpagestyle{plain}{\sethandoutfoot}
 \newpagestyle{handout}{
     \headrule
     \sethead{\firsttitlemarks\textit{\sectiontitle}}{}{}
     \sethandoutfoot
 }
 
-\pagestyle{handout}
-\apptocmd{\maketitle}{\thispagestyle{firsthandoutpage}}{}{}
+\AtBeginDocument{\pagestyle{handout}}
+\geometry{vcentering}
+
+\if@class
+    \NewDocumentCommand{\sethandoutfoot}{}{
+        \setfoot{\@class{}, UC Berkeley}
+        {\thepage}
+        {\copyright{} \@copyrightyear{} \@rhh@author}
+    }
+    \newcommand{\@class}{}
+    \newcommand{\@copyrightyear}{}
+    \NewDocumentCommand{\class}{m}{\renewcommand{\@class}{#1}}
+    \NewDocumentCommand{\copyrightyear}{m}{\renewcommand{\@copyrightyear}{#1}}
+
+\else
+    \NewDocumentCommand{\sethandoutfoot}{}{
+        \setfoot{\rhh@author}
+        {\thepage}
+        {\rhh@date}
+    }
+\fi
+
+\NewCommandCopy\rhh@author\@author
+\NewCommandCopy\rhh@date\@date
+\expandafter\apptocmd\csname author \endcsname{%
+    \renewcommand*{\rhh@author}{#1}
+}{}{}
+\expandafter\apptocmd\csname date \endcsname{%
+    \renewcommand*{\rhh@date}{#1}
+}{}{}
+
+% }}}1
