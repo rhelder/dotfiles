@@ -1,12 +1,17 @@
-local -i draft
+local -a opts
+while getopts 'dt' flag; do
+    case $flag in
+        (d) opts+=( '-m' 'draft' );;
+        (t) local -i develop=1;;
+    esac
+done
+shift $(( OPTIND - 1 ))
 
-if [[ $1 == '-d' ]]; then
-    local -i draft=1
-    shift
-fi
-
-if (( draft == 0 )); then
-    make4ht -c 'tex4ht.cfg' -ul $*
+local -a opts
+if (( develop == 1 )); then
+    opts+=( '-c' 'develop.cfg' )
 else
-    make4ht -c 'tex4ht.cfg' -m 'draft' -ul $*
+    opts+=( '-c' 'tex4ht.cfg' '-ul' )
 fi
+
+make4ht $opts $*
