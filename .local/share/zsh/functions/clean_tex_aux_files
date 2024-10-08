@@ -3,7 +3,7 @@ setopt local_options
 
 local input_filetypes='tex|bib|dtx|latex'
 local config_filetypes='sty|cls|mk4|cfg|4ht'
-local output_filetypes='pdf|html'
+local output_filetypes='pdf|html|odt'
 local other_filetypes='vim|txt|md'
 local filetypes='('${input_filetypes}'|'${config_filetypes}'|'${output_filetypes}'|'${other_filetypes}')'
 
