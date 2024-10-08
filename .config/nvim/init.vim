@@ -50,6 +50,9 @@ augroup nvimrc_options " {{{2
                 \ set filetype=zsh
     autocmd BufReadPost,BufNewFile $XDG_DATA_HOME/zsh/functions/*
                 \ set filetype=zsh
+    autocmd BufReadPost,BufNewFile $HOME/Library/texmf/tex/generic/tex4ht/*
+                \ set filetype=tex
+    autocmd BufReadPost,BufNewFile *.4ht set filetype=tex
 
     autocmd FileType markdown                   setlocal formatoptions-=l
     autocmd FileType text,markdown              setlocal textwidth=78
