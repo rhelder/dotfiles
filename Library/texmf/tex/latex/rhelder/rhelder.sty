@@ -32,6 +32,7 @@
     ]{geometry}
 \fi
 
+
 % Options {{{1
 
 % Declare options {{{2
@@ -269,6 +270,9 @@
 
 \if@translit
     \NewDocumentCommand{\boulesis}{}{\alialingua{boulēsis}}
+    \NewDocumentCommand{\boulesis}{}{\alialingua{boulēsis}}
+    \NewDocumentCommand{\Bouleseis}{}{\alialingua{Boulēseis}}
+    \NewDocumentCommand{\Bouleseis}{}{\alialingua{Boulēseis}}
     \NewDocumentCommand{\nous}{}{\alialingua{nous}}
     \NewDocumentCommand{\Nous}{}{\alialingua{Nous}}
     \NewDocumentCommand{\phantasiai}{}{\alialingua{phantasiai}}
@@ -276,10 +280,18 @@
     \NewDocumentCommand{\phantasia}{}{\alialingua{phantasia}}
     \NewDocumentCommand{\Phantasia}{}{\alialingua{Phantasia}}
     \NewDocumentCommand{\phantasmata}{}{\alialingua{phantasmata}}
+    \NewDocumentCommand{\Phantasmata}{}{\alialingua{Phantasmata}}
     \NewDocumentCommand{\phantasma}{}{\alialingua{phantasma}}
+    \NewDocumentCommand{\Phantasma}{}{\alialingua{Phantasma}}
+    \NewDocumentCommand{\phronesis}{}{\alialingua{phronēsis}}
+    \NewDocumentCommand{\Phronesis}{}{\alialingua{Phronēsis}}
     \NewDocumentCommand{\thumos}{}{\alialingua{thumos}}
+    \NewDocumentCommand{\Thumos}{}{\alialingua{Thumos}}
 \else
     \NewDocumentCommand{\boulesis}{}{\textgreek{βούλησις}}
+    \NewDocumentCommand{\Boulesis}{}{\textgreek{Βούλησις}}
+    \NewDocumentCommand{\bouleseis}{}{\textgreek{βουλήσεις}}
+    \NewDocumentCommand{\Bouleseis}{}{\textgreek{Βουλήσεις}}
     \NewDocumentCommand{\nous}{}{\textgreek{νοῦς}}
     \NewDocumentCommand{\Nous}{}{\textgreek{Νοῦς}}
     \NewDocumentCommand{\phantasiai}{}{\textgreek{φαντασίαι}}
@@ -287,8 +299,13 @@
     \NewDocumentCommand{\phantasia}{}{\textgreek{φαντασία}}
     \NewDocumentCommand{\Phantasia}{}{\textgreek{Φαντασία}}
     \NewDocumentCommand{\phantasmata}{}{\textgreek{φαντάσματα}}
+    \NewDocumentCommand{\Phantasmata}{}{\textgreek{Φαντάσματα}}
     \NewDocumentCommand{\phantasma}{}{\textgreek{φάντασμα}}
+    \NewDocumentCommand{\Phantasma}{}{\textgreek{Φάντασμα}}
+    \NewDocumentCommand{\phronesis}{}{\textgreek{φρόνησις}}
+    \NewDocumentCommand{\Phronesis}{}{\textgreek{Φρόνησις}}
     \NewDocumentCommand{\thumos}{}{\textgreek{θυμός}}
+    \NewDocumentCommand{\Thumos}{}{\textgreek{Θυμός}}
 \fi
 
 \NewDocumentCommand{\akrates}{}{\textgreek{ἀκρατής}}
@@ -302,5 +319,29 @@
 \NewDocumentCommand{\prohaireseis}{}{\textgreek{προαιρέσεις}}
 \NewDocumentCommand{\Prohairesis}{}{\textgreek{Προαίρεσις}}
 \NewDocumentCommand{\prohairesis}{}{\textgreek{προαίρεσις}}
+
+\NewDocumentCommand{\doxastikon}{s}{%
+    \textgreek{\IfBooleanT{#1}{τὸ }δοξαστικόν}%
+}
+\NewDocumentCommand{\Doxastikon}{s}{%
+    \IfBooleanTF{#1}{%
+        \textgreek{Τὸ δοξαστικόν}%
+    }{%
+        \textgreek{Δοξαστικόν}%
+    }%
+}
+\NewDocumentCommand{\ToDoxastikon}{}{\textgreek{Τὸ Δοξαστικόν}}
+
+\NewDocumentCommand{\logistikon}{s}{%
+    \textgreek{\IfBooleanT{#1}{τὸ }λογιστικόν}%
+}
+\NewDocumentCommand{\Logistikon}{s}{%
+    \IfBooleanTF{#1}{%
+        \textgreek{Τὸ λογιστικόν}%
+    }{%
+        \textgreek{Λογιστικόν}%
+    }%
+}
+\NewDocumentCommand{\ToLogistikon}{}{\textgreek{Τὸ Λογιστικόν}}
 
 % }}}1
