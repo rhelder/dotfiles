@@ -14,7 +14,7 @@
     rightmargin=0in,
 ]{quoting}
 \AtEndOfPackage{\RequirePackage{hyperref}}
-\RequirePackage[inline]{enumitem}
+\RequirePackage{enumitem}
 \RequirePackage{pifont}
 \RequirePackage{array}
 \RequirePackage{booktabs}
@@ -247,6 +247,9 @@
 % Make paragraph spacing within list same as outside of list
 \setlist[1,2,3,4,5]{listparindent=1\parindent, parsep=0pt}
 
+\newlist{enumerate*}{enumerate*}{1}
+\setlist[enumerate*]{label=\Alph*.}
+
 % A potentially useful configuration for description
 % \setlist[description]{%
 %      style=nextline,
@@ -270,8 +273,8 @@
 
 \if@translit
     \NewDocumentCommand{\boulesis}{}{\alialingua{boulēsis}}
-    \NewDocumentCommand{\boulesis}{}{\alialingua{boulēsis}}
-    \NewDocumentCommand{\Bouleseis}{}{\alialingua{Boulēseis}}
+    \NewDocumentCommand{\Boulesis}{}{\alialingua{Boulēsis}}
+    \NewDocumentCommand{\bouleseis}{}{\alialingua{boulēseis}}
     \NewDocumentCommand{\Bouleseis}{}{\alialingua{Boulēseis}}
     \NewDocumentCommand{\nous}{}{\alialingua{nous}}
     \NewDocumentCommand{\Nous}{}{\alialingua{Nous}}
@@ -309,16 +312,33 @@
 \fi
 
 \NewDocumentCommand{\akrates}{}{\textgreek{ἀκρατής}}
+\NewDocumentCommand{\Akrates}{}{\textgreek{Ἀκρατής}}
 \NewDocumentCommand{\epithumia}{}{\textgreek{ἐπιθυμία}}
+\NewDocumentCommand{\Epithumia}{}{\textgreek{Ἐπιθυμία}}
 \NewDocumentCommand{\ergon}{}{\textgreek{ἔργον}}
+\NewDocumentCommand{\Ergon}{}{\textgreek{Ἔργον}}
+\NewDocumentCommand{\deinos}{}{\textgreek{δεινός}}
+\NewDocumentCommand{\Deinos}{}{\textgreek{Δεινός}}
+\NewDocumentCommand{\deinotes}{}{\textgreek{δεινότης}}
+\NewDocumentCommand{\Deinotes}{}{\textgreek{Δεινότης}}
 \NewDocumentCommand{\krisis}{}{\textgreek{κρίσις}}
+\NewDocumentCommand{\Krisis}{}{\textgreek{Κρίσις}}
 \NewDocumentCommand{\logoi}{}{\textgreek{λόγοι}}
+\NewDocumentCommand{\Logoi}{}{\textgreek{Λόγοι}}
 \NewDocumentCommand{\logos}{}{\textgreek{λόγος}}
+\NewDocumentCommand{\Logos}{}{\textgreek{Λόγος}}
 \NewDocumentCommand{\orexis}{}{\textgreek{ὄρεξις}}
+\NewDocumentCommand{\Orexis}{}{\textgreek{Ὄρεξις}}
 \NewDocumentCommand{\pathemata}{}{\textgreek{παθήματα}}
+\NewDocumentCommand{\Pathemata}{}{\textgreek{Παθήματα}}
+\NewDocumentCommand{\phronimos}{}{\textgreek{φρόνιμος}}
+\NewDocumentCommand{\Phronimos}{}{\textgreek{Φρόνιμος}}
+\NewDocumentCommand{\phronime}{}{\textgreek{φρονίμη}}
+\NewDocumentCommand{\Phronime}{}{\textgreek{Φρονίμη}}
 \NewDocumentCommand{\prohaireseis}{}{\textgreek{προαιρέσεις}}
-\NewDocumentCommand{\Prohairesis}{}{\textgreek{Προαίρεσις}}
+\NewDocumentCommand{\Prohaireseis}{}{\textgreek{Προαιρέσεις}}
 \NewDocumentCommand{\prohairesis}{}{\textgreek{προαίρεσις}}
+\NewDocumentCommand{\Prohairesis}{}{\textgreek{Προαίρεσις}}
 
 \NewDocumentCommand{\doxastikon}{s}{%
     \textgreek{\IfBooleanT{#1}{τὸ }δοξαστικόν}%
@@ -331,6 +351,18 @@
     }%
 }
 \NewDocumentCommand{\ToDoxastikon}{}{\textgreek{Τὸ Δοξαστικόν}}
+
+\NewDocumentCommand{\kalon}{s}{%
+    \textgreek{\IfBooleanT{#1}{τὸ }καλόν}%
+}
+\NewDocumentCommand{\Kalon}{s}{%
+    \IfBooleanTF{#1}{%
+        \textgreek{Τὸ καλόν}%
+    }{%
+        \textgreek{Καλόν}%
+    }%
+}
+\NewDocumentCommand{\ToKalon}{}{\textgreek{Τὸ Καλόν}}
 
 \NewDocumentCommand{\logistikon}{s}{%
     \textgreek{\IfBooleanT{#1}{τὸ }λογιστικόν}%
