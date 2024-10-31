@@ -47,14 +47,16 @@
 
 \if@class
     \NewDocumentCommand{\sethandoutfoot}{}{
-        \setfoot{\@class{}, UC Berkeley}
+        \setfoot{\@class{}, \@institution{}}
         {\thepage}
-        {\copyright{} \@copyrightyear{} \@rhh@author}
+        {\copyright{} \@copyrightyear{} \rhh@author}
     }
-    \newcommand{\@class}{}
-    \newcommand{\@copyrightyear}{}
-    \NewDocumentCommand{\class}{m}{\renewcommand{\@class}{#1}}
-    \NewDocumentCommand{\copyrightyear}{m}{\renewcommand{\@copyrightyear}{#1}}
+    \newcommand*{\@class}{Philosophy 25A}
+    \newcommand*{\@institution}{UC Berkeley}
+    \newcommand*{\@copyrightyear}{2024}
+    \NewDocumentCommand{\class}{m}{\renewcommand*{\@class}{#1}}
+    \NewDocumentCommand{\institution}{m}{\renewcommand*{\@institution}{#1}}
+    \NewDocumentCommand{\copyrightyear}{m}{\renewcommand*{\@copyrightyear}{#1}}
 
 \else
     \NewDocumentCommand{\sethandoutfoot}{}{
