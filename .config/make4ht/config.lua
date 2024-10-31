@@ -1,3 +1,10 @@
+if mode == "bib" then
+    Make:htlatex()
+    Make:biber()
+    Make:htlatex()
+    Make:htlatex()
+end
+
 local filter = require "make4ht-filter"
 
 -- this variable will hold contents of the CSS file
