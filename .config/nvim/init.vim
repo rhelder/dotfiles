@@ -13,10 +13,10 @@ set mouse=
 set noruler
 set report=0
 set scrolloff=3
-set shiftwidth=4
+set shiftwidth=2
 set smartcase
 set smartindent
-set softtabstop=4
+set softtabstop=2
 set spelllang=en_us
 set splitbelow
 set splitright
@@ -58,6 +58,8 @@ augroup nvimrc_options " {{{2
     autocmd FileType text,markdown              setlocal textwidth=78
     autocmd FileType gitcommit                  setlocal textwidth=72
     autocmd FileType text,markdown,gitcommit    setlocal nosmartindent
+    autocmd FileType text,markdown,gitcommit    setlocal shiftwidth=4
+    autocmd FileType text,markdown,gitcommit    setlocal shiftwidth=4
     autocmd FileType help                       setlocal nolist
 augroup END
 
@@ -118,6 +120,12 @@ augroup nvimrc_mappings " {{{2
     autocmd FileType vim
                 \ vnoremap <buffer> <LocalLeader>c
                 \   <Cmd>call <SID>comment('"', 'v')<CR>
+    autocmd FileType lua
+                \ nnoremap <buffer> <LocalLeader>c
+                \   <Cmd>call <SID>comment('--', 'n')<CR>
+    autocmd FileType lua
+                \ vnoremap <buffer> <LocalLeader>c
+                \   <Cmd>call <SID>comment('--', 'v')<CR>
     autocmd FileType zsh,conf,toml
                 \ nnoremap <buffer> <LocalLeader>c
                 \   <Cmd>call <SID>comment('#', 'n')<CR>
@@ -213,6 +221,7 @@ endfunction
 " Plugins {{{1
 
 call plug#begin()
+    Plug 'mattn/emmet-vim'
     Plug '/opt/homebrew/opt/fzf'
     Plug '/opt/homebrew/Cellar/lilypond/2.24.3/share/lilypond/2.24.3/vim'
     Plug 'ncm2/ncm2'
