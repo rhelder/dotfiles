@@ -59,7 +59,7 @@ augroup nvimrc_options " {{{2
     autocmd FileType gitcommit                  setlocal textwidth=72
     autocmd FileType text,markdown,gitcommit    setlocal nosmartindent
     autocmd FileType text,markdown,gitcommit    setlocal shiftwidth=4
-    autocmd FileType text,markdown,gitcommit    setlocal shiftwidth=4
+    autocmd FileType text,markdown,gitcommit    setlocal softtabstop=4
     autocmd FileType help                       setlocal nolist
 augroup END
 
