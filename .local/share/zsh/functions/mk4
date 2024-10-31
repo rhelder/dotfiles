@@ -1,6 +1,7 @@
 local -a opts
-while getopts 'dt' flag; do
+while getopts 'bdt' flag; do
     case $flag in
+        (b) opts+=( '-m' 'bib' );;
         (d) opts+=( '-m' 'draft' );;
         (t) local -i develop=1;;
     esac
