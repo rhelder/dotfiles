@@ -1,10 +1,11 @@
 \NeedsTeXFormat{LaTeX2e}[2022/11/01]
-\ProvidesPackage{rhelder}[2024/09/11 Russell Wright Helder's style file]
+\ProvidesPackage{rhelder}[2024/10/19 Russell Wright Helder's style file]
 
 % Required packages {{{1
 
 \RequirePackage{etoolbox}
-\RequirePackage{polyglossia}
+\RequirePackage{fontspec}
+\RequirePackage[shorthands=off, latin, greek.ancient, english.american]{babel}
 \RequirePackage[
     autostyle,
     latin=britishquotes,
@@ -13,31 +14,34 @@
     indentfirst=false,
     rightmargin=0in,
 ]{quoting}
+\PassOptionsToPackage{hyphens}{url}
 \AtEndOfPackage{\RequirePackage{hyperref}}
 \RequirePackage{enumitem}
 \RequirePackage{pifont}
 \RequirePackage{array}
 \RequirePackage{booktabs}
 \RequirePackage{ragged2e}
-\RequirePackage{microtype}
+\RequirePackage[babel]{microtype}
 \RequirePackage[chicago]{xellipsis}
 \RequirePackage[shortcuts]{extdash}
-\if@twocolumn
-    \RequirePackage[hmargin=1.005in]{geometry}
-\else
-    \RequirePackage[
-        hscale=\directlua{
-            tex.print(0.03680 * \f@size + 0.1936)
-        },
-    ]{geometry}
-\fi
-
+\RequirePackage{iftex}
+\RequirePackage{geometry}
 
 % Options {{{1
 
 % Declare options {{{2
 
-\DeclareOption{nosecnum}{\setcounter{secnumdepth}{0}}
+\DeclareOption{biblatex}{\booltrue{@biblatex}}
+\DeclareOption{nomencl}{\booltrue{@nomencl}}
+\DeclareOption{doublespaced}{\booltrue{@doublespaced}}
+\DeclareOption{anonymous}{\boolfalse{@author}\booltrue{@anonymous}}
+\DeclareOption{misguided}{\booltrue{@misguided}}
+\DeclareOption{notranslit}{\boolfalse{@translit}}
+\DeclareOption{nosecnum}{\setcounter{secnumdepth}{-\maxdimen}}
+
+\DeclareOption*{\PackageWarning{rhelder}{Unknown ‘\CurrentOption’}}
+
+% Declare bools {{{3
 
 \newbool{@biblatex}
 \newbool{@nomencl}
@@ -50,14 +54,7 @@
 \booltrue{@author}
 \booltrue{@translit}
 
-\DeclareOption{biblatex}{\booltrue{@biblatex}}
-\DeclareOption{nomencl}{\booltrue{@nomencl}}
-\DeclareOption{doublespaced}{\booltrue{@doublespaced}}
-\DeclareOption{anonymous}{\boolfalse{@author}\booltrue{@anonymous}}
-\DeclareOption{misguided}{\booltrue{@misguided}}
-\DeclareOption{notranslit}{\boolfalse{@translit}}
-
-\DeclareOption*{\PackageWarning{rhelder}{Unknown ‘\CurrentOption’}}
+% }}}3
 
 % Execute options {{{2
 
@@ -181,18 +178,22 @@
 
 % General {{{1
 
-\setdefaultlanguage[variant=american]{english}
-\setotherlanguage[variant=ancient]{greek}
-\setotherlanguage{latin}
+\babeltags{greek = greek} % for backwards compatibility
+\babelprovide[hyphenrules=classiclatin]{latin}
 
 \setmainfont{Brill}
 
-% Set \greekfont family explicitly to avoid htlatex errors
-\newfontfamily\greekfont{Brill}[Script=Greek]
+\if@twocolumn
+    \geometry{hscale=0.7635}
+\else
+    \ifLuaTeX
+        \geometry{hscale=\directlua{tex.print(0.03680 * \f@size + 0.1936)}}
+    \else
+        \geometry{pass}
+    \fi
+\fi
 
-% At least two lines after paragraph break before page break
 \clubpenalty=10000
-% At least two lines before paragraph break after page break
 \widowpenalty=10000
 
 \hyphenation{Prem-ise Prem-ises}
@@ -313,32 +314,38 @@
 
 \NewDocumentCommand{\akrates}{}{\textgreek{ἀκρατής}}
 \NewDocumentCommand{\Akrates}{}{\textgreek{Ἀκρατής}}
+\NewDocumentCommand{\Deinos}{}{\textgreek{Δεινός}}
+\NewDocumentCommand{\deinos}{}{\textgreek{δεινός}}
+\NewDocumentCommand{\Deinotes}{}{\textgreek{Δεινότης}}
+\NewDocumentCommand{\deinotes}{}{\textgreek{δεινότης}}
+\NewDocumentCommand{\enkrates}{}{\textgreek{ἐγκρατής}}
+\NewDocumentCommand{\Enkrates}{}{\textgreek{Ἐγκρατής}}
 \NewDocumentCommand{\epithumia}{}{\textgreek{ἐπιθυμία}}
 \NewDocumentCommand{\Epithumia}{}{\textgreek{Ἐπιθυμία}}
 \NewDocumentCommand{\ergon}{}{\textgreek{ἔργον}}
 \NewDocumentCommand{\Ergon}{}{\textgreek{Ἔργον}}
-\NewDocumentCommand{\deinos}{}{\textgreek{δεινός}}
-\NewDocumentCommand{\Deinos}{}{\textgreek{Δεινός}}
-\NewDocumentCommand{\deinotes}{}{\textgreek{δεινότης}}
-\NewDocumentCommand{\Deinotes}{}{\textgreek{Δεινότης}}
-\NewDocumentCommand{\krisis}{}{\textgreek{κρίσις}}
+\NewDocumentCommand{\Euboulia}{}{\textgreek{Εὐβουλία}}
+\NewDocumentCommand{\euboulia}{}{\textgreek{εὐβουλία}}
 \NewDocumentCommand{\Krisis}{}{\textgreek{Κρίσις}}
-\NewDocumentCommand{\logoi}{}{\textgreek{λόγοι}}
+\NewDocumentCommand{\krisis}{}{\textgreek{κρίσις}}
 \NewDocumentCommand{\Logoi}{}{\textgreek{Λόγοι}}
-\NewDocumentCommand{\logos}{}{\textgreek{λόγος}}
+\NewDocumentCommand{\logoi}{}{\textgreek{λόγοι}}
 \NewDocumentCommand{\Logos}{}{\textgreek{Λόγος}}
+\NewDocumentCommand{\logos}{}{\textgreek{λόγος}}
 \NewDocumentCommand{\orexis}{}{\textgreek{ὄρεξις}}
 \NewDocumentCommand{\Orexis}{}{\textgreek{Ὄρεξις}}
-\NewDocumentCommand{\pathemata}{}{\textgreek{παθήματα}}
 \NewDocumentCommand{\Pathemata}{}{\textgreek{Παθήματα}}
-\NewDocumentCommand{\phronimos}{}{\textgreek{φρόνιμος}}
-\NewDocumentCommand{\Phronimos}{}{\textgreek{Φρόνιμος}}
-\NewDocumentCommand{\phronime}{}{\textgreek{φρονίμη}}
+\NewDocumentCommand{\pathemata}{}{\textgreek{παθήματα}}
 \NewDocumentCommand{\Phronime}{}{\textgreek{Φρονίμη}}
-\NewDocumentCommand{\prohaireseis}{}{\textgreek{προαιρέσεις}}
+\NewDocumentCommand{\phronime}{}{\textgreek{φρονίμη}}
+\NewDocumentCommand{\Phronimoi}{}{\textgreek{Φρόνιμοι}}
+\NewDocumentCommand{\phronimoi}{}{\textgreek{φρόνιμοι}}
+\NewDocumentCommand{\Phronimos}{}{\textgreek{Φρόνιμος}}
+\NewDocumentCommand{\phronimos}{}{\textgreek{φρόνιμος}}
 \NewDocumentCommand{\Prohaireseis}{}{\textgreek{Προαιρέσεις}}
-\NewDocumentCommand{\prohairesis}{}{\textgreek{προαίρεσις}}
+\NewDocumentCommand{\prohaireseis}{}{\textgreek{προαιρέσεις}}
 \NewDocumentCommand{\Prohairesis}{}{\textgreek{Προαίρεσις}}
+\NewDocumentCommand{\prohairesis}{}{\textgreek{προαίρεσις}}
 
 \NewDocumentCommand{\doxastikon}{s}{%
     \textgreek{\IfBooleanT{#1}{τὸ }δοξαστικόν}%
