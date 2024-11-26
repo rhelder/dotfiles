@@ -14,11 +14,6 @@ let g:vimtex_view_method = 'skim'
 let g:vimtex_view_skim_reading_bar = 1
 let g:vimtex_doc_handlers = ['vimtex#doc#handlers#texdoc']
 
-let g:vimtex_complete_bib = {
-      \ 'simple': 1,
-      \ 'custom_patterns': ['sectioncite'],
-      \ }
-
 let g:vimtex_indent_delims = {
       \ 'open' : ['{','['],
       \ 'close' : ['}',']'],
@@ -27,9 +22,16 @@ let g:vimtex_indent_delims = {
       \ }
 
 let g:vimtex_indent_conditionals = {
-      \ 'open': '\v%(\\newif)@<!' ..
-      \   '\\if%(f>|field|name|numequal|thenelse|' ..
-      \   'toggle|bool|blank)@!',
+      \ 'open': '\v\c%(\\newif)@<!' ..
+      \   '\\if%(f>|thenelse>|value|' ..
+      \   'bool|toggle>|(un)?def|cs|ltxcounter>|str|blank|' ..
+      \   'num\a+>|dim\a+>|' ..
+      \   '(end)?date|label|case|sort(ing|alpha)|unique|' ..
+      \   '(current)?(name|field|list)|use|(cross|x)refsource>|' ..
+      \   'singletitle>|nocite>|andothers>|more|.*inits>|' ..
+      \   'keyword>|entry|category>|(first|last|vol)?cite|(op|loc)cit>|' ..
+      \   '.*pages?>|integer>|iscomputable>|field|' ..
+      \   '(nat)?bib|driver>|capital>|citation>|biliography>|footnote>)@!',
       \ 'else': '\\else\>',
       \ 'close': '\\fi\>',
       \ }
