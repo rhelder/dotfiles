@@ -1,0 +1,8 @@
+---
+from: markdown-auto_identifiers
+to: latex
+metadata-files:
+  - latex.yaml
+standalone: true
+template: custom.latex
+...

@@ -1,0 +1,9 @@
+---
+defaults:
+  - latex
+metadata-files:
+  - handout.yaml
+variables:
+  header-includes: '\addbibresource{my_library.bib}'
+cite-method: biblatex
+...

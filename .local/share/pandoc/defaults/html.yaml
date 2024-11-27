@@ -1,0 +1,10 @@
+---
+from: markdown-auto_identifiers
+to: html5
+shift-heading-level-by: 1
+standalone: true
+variables:
+  lang: en
+number-sections: true
+citeproc: true
+bibliography: ${USERDATA}/my_library.yaml

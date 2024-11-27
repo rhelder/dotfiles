@@ -1,0 +1,12 @@
+---
+defaults:
+  - html
+metadata-files:
+  - handout.yaml
+variables:
+  include-after: |
+    <div id="footer">
+      <span style="float:left">Philosophy 25A, UC Berkeley</span>
+      <span style="float:right">&copy; 2024 Russell Wright Helder</span>
+    </div>
+...
