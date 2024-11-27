@@ -1,0 +1,8 @@
+# Function for opening 'kpsewhich' results
+
+if [[ $1 == '-d' ]]; then
+  shift
+  cd ${$(kpsewhich $1):h}
+else
+  nvim $(kpsewhich $*)
+fi
