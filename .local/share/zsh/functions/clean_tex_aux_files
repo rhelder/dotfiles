@@ -1,10 +1,10 @@
 setopt extended_glob
 setopt local_options
 
-local input_filetypes='tex|bib|dtx|latex'
-local config_filetypes='sty|cls|mk4|cfg|4ht'
+local input_filetypes='tex|bib|dtx|latex|yaml'
+local config_filetypes='sty|cls|mk4|cfg|4ht|bbx|cbx|lbx|csl'
 local output_filetypes='pdf|html|odt'
-local other_filetypes='vim|txt|md'
+local other_filetypes='vim|txt|md|docx'
 local filetypes='('${input_filetypes}'|'${config_filetypes}'|'${output_filetypes}'|'${other_filetypes}')'
 
 local -a files=( *.^${~filetypes}(.N) )
