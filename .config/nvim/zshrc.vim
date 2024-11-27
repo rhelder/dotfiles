@@ -112,6 +112,10 @@ nnoremap <Leader>nr <Cmd>lcd
             \ /opt/homebrew/Cellar/neovim/0.10.1/share/nvim/runtime<CR>
 nnoremap <Leader>pd <Cmd>lcd
             \ $XDG_DATA_HOME/pandoc/defaults<CR>
+nnoremap <Leader>pm <Cmd>lcd
+            \ $XDG_DATA_HOME/pandoc/metadata<CR>
+nnoremap <Leader>pc <Cmd>lcd
+            \ $XDG_DATA_HOME/pandoc/styles<CR>
 nnoremap <Leader>pt <Cmd>lcd
             \ $XDG_DATA_HOME/pandoc/templates<CR>
 nnoremap <Leader>uc <Cmd>lcd
@@ -185,8 +189,11 @@ let dn = "$HOME/Documents/Notes"
 let nc = "$XDG_CONFIG_HOME/nvim"
 let nd = "$XDG_DATA_HOME/nvim/site"
 let nr = '/opt/homebrew/Cellar/neovim/0.10.1/share/nvim/runtime'
+let pc = "$XDG_DATA_HOME/pandoc/styles"
 let pd = "$XDG_DATA_HOME/pandoc/defaults"
+let pm = "$XDG_DATA_HOME/pandoc/metadata"
 let pt = "$XDG_DATA_HOME/pandoc/templates"
+let tmf = "$HOME/Library/texmf"
 let uc = "$HOME/Documents/Past/2019-2024_UCBerkeley"
 let vm = "$XDG_CONFIG_HOME/nvim/vimtex_my_complete"
 let vt = "$XDG_DATA_HOME/nvim/plugged/vimtex"
