@@ -62,6 +62,7 @@ autoload clean_tex_aux_files
 autoload cs
 autoload default_gpg
 autoload default_tar
+autoload kpsewhich_nvim
 autoload man_zsh
 autoload nvim_help
 autoload trash
@@ -184,7 +185,10 @@ alias -f nc="cd $XDG_CONFIG_HOME/nvim"
 alias nd="cd $XDG_DATA_HOME/nvim/site"
 alias nr='cd /opt/homebrew/Cellar/neovim/0.10.1/share/nvim/runtime'
 alias pd="cd $XDG_DATA_HOME/pandoc/defaults"
+alias pm="cd $XDG_DATA_HOME/pandoc/metadata"
+alias pc="cd $XDG_DATA_HOME/pandoc/styles"
 alias pt="cd $XDG_DATA_HOME/pandoc/templates"
+alias tmf="cs $HOME/Library/texmf"
 alias uc="cd $HOME/Documents/Past/2019-2024_UCBerkeley"
 alias vm="cd $XDG_CONFIG_HOME/nvim/vimtex_my_complete"
 alias vt="cd $XDG_DATA_HOME/nvim/plugged/vimtex"
@@ -223,6 +227,7 @@ alias cl='clean_tex_aux_files'
 alias dgpg='default_gpg'
 alias dtar='default_tar'
 alias j="jobs"
+alias kv="kpsewhich_nvim"
 alias la='ls -aF'
 alias -f ld='lilydoc'
 alias lua='pandoc lua'
@@ -345,8 +350,11 @@ dn="$HOME/Documents/Notes"
 nc="$XDG_CONFIG_HOME/nvim"
 nd="$XDG_DATA_HOME/nvim/site"
 nr='/opt/homebrew/Cellar/neovim/0.10.1/share/nvim/runtime'
+pc="$XDG_DATA_HOME/pandoc/styles"
 pd="$XDG_DATA_HOME/pandoc/defaults"
+pm="$XDG_DATA_HOME/pandoc/metadata"
 pt="$XDG_DATA_HOME/pandoc/templates"
+tmf="$HOME/Library/texmf"
 uc="$HOME/Documents/Past/2019-2024_UCBerkeley"
 vm="$XDG_CONFIG_HOME/nvim/vimtex_my_complete"
 vt="$XDG_DATA_HOME/nvim/plugged/vimtex"
