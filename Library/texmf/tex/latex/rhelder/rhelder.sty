@@ -1,28 +1,31 @@
-\NeedsTeXFormat{LaTeX2e}[2022/11/01]
-\ProvidesPackage{rhelder}[2024/10/19 Russell Wright Helder's style file]
+\NeedsTeXFormat{LaTeX2e}[2021/11/15]
+\ProvidesPackage{rhelder}[2024/11/28 Russell Wright Helder's style file]
 
 % Required packages {{{1
 
 \RequirePackage{etoolbox}
 \RequirePackage{fontspec}
-\RequirePackage[shorthands=off, latin, greek.ancient, english.american]{babel}
 \RequirePackage[
+  shorthands=off,
+  latin,
+  english.american,
+]{babel}
+\babelprovide[import=grc]{ancientgreek}
+\RequirePackage[
+    strict,
     autostyle,
+    english=british,
     latin=britishquotes,
 ]{csquotes}
-\RequirePackage[
-    indentfirst=false,
-    rightmargin=0in,
-]{quoting}
+\RequirePackage[indentfirst=false]{quoting}
 \PassOptionsToPackage{hyphens}{url}
-\AtEndOfPackage{\RequirePackage{hyperref}}
+\AddToHook{begindocument/before}{\RequirePackage{hyperref}}
 \RequirePackage{enumitem}
 \RequirePackage{pifont}
 \RequirePackage{array}
 \RequirePackage{booktabs}
 \RequirePackage{ragged2e}
 \RequirePackage[babel]{microtype}
-\RequirePackage[chicago]{xellipsis}
 \RequirePackage[shortcuts]{extdash}
 \RequirePackage{iftex}
 \RequirePackage{geometry}
@@ -32,27 +35,24 @@
 % Declare options {{{2
 
 \DeclareOption{biblatex}{\booltrue{@biblatex}}
-\DeclareOption{nomencl}{\booltrue{@nomencl}}
-\DeclareOption{doublespaced}{\booltrue{@doublespaced}}
-\DeclareOption{anonymous}{\boolfalse{@author}\booltrue{@anonymous}}
-\DeclareOption{misguided}{\booltrue{@misguided}}
 \DeclareOption{notranslit}{\boolfalse{@translit}}
-\DeclareOption{nosecnum}{\setcounter{secnumdepth}{-\maxdimen}}
+\DeclareOption{anonymous}{\boolfalse{@author}\booltrue{@anonymous}}
+\DeclareOption{doublespaced}{\booltrue{@doublespaced}}
+\DeclareOption{misguided}{\booltrue{@misguided}}
 
 \DeclareOption*{\PackageWarning{rhelder}{Unknown ‘\CurrentOption’}}
 
 % Declare bools {{{3
 
 \newbool{@biblatex}
-\newbool{@nomencl}
-\newbool{@doublespaced}
+\newbool{@translit}
 \newbool{@author}
 \newbool{@anonymous}
+\newbool{@doublespaced}
 \newbool{@misguided}
-\newbool{@translit}
 
-\booltrue{@author}
 \booltrue{@translit}
+\booltrue{@author}
 
 % }}}3
 
@@ -65,72 +65,43 @@
 \if@biblatex
     \RequirePackage[
         authordate,
+        sbllos,
+        autolang=hyphen,
+        citereset=section,
+        parentracker=false,
+        pagetracker=false,
+        doi=false,
         isbn=false,
         url=false,
-        doi=false,
-        compresspages=true,
         dashed=false,
-        citereset=section,
-        pagetracker=false,
-        cmslos=false,
-        autolang=hyphen,
+        compresspages=true,
+        formatbib=minwo,
     ]{biblatex-chicago}%
     \addbibresource{my_library.bib}
 
-    % Map `cms-american.lbx` onto polyglossia language `latin'; replaces dummy
-    % `latin.lbx`
-    \DeclareLanguageMapping{latin}{cms-american}
+    \DeclareSourcemap{%
+      \maps[datatype=bibtex]{%
+        \map[overwrite]{%
+          \step[fieldsource=entrysubtype, match=classical, final]
+          \step[
+            fieldset=options,
+            fieldvalue={,shorthandfirst=false,shorthandintro=short},
+            append,
+          ]
+        }
+      }
+    }
 
-    % Patch `\footnotetext` so that the footnote-specific `ibidtracker` resets
-    % at the beginning of each footnote
+    % Patch '\footnotetext' so that the footnote-specific 'ibidtracker' resets
+    % reset at the beginning of each footnote
     \NewCommandCopy{\oldfootnotetext}{\footnotetext}
     \RenewDocumentCommand{\footnotetext}{+m}{\oldfootnotetext{\mancite #1}}
 \fi
 
-% nomencl {{{3
-
-\if@nomencl
-    \RequirePackage{nomencl}
-    \makenomenclature
-    \renewcommand{\nomname}{Abbreviations}
-
-    % No inter-sentence spacing in nomenclatures (as in biblatex citations)
-    \NewCommandCopy{\defprintnomenclature}{\printnomenclature}
-    \RenewDocumentCommand{\printnomenclature}{}{%
-        \frenchspacing
-        \defprintnomenclature
-        \nonfrenchspacing
-    }
-
-    \if@biblatex
-        % Ensure uniformity with bibliography spacing
-        \setlength{\nomitemsep}{\bibitemsep}
-        \addtolength{\nomitemsep}{-\parsep} % Remove excess spacing
-    \else
-        \addtolength{\nomitemsep}{-\parsep} % Remove excess spacing
-    \fi
-\fi
-
-% doublespaced {{{3
-
-\if@doublespaced
-    \RequirePackage{setspace}
-    \doublespacing
-
-    \if@biblatex
-        \if@nomencl
-            \setlength{\bibitemsep}{0pt}        % Remove excess spacing
-            \addtolength{\nomitemsep}{-\parsep} % Remove excess spacing
-        \else
-            \setlength{\bibitemsep}{0pt}        % Remove excess spacing
-        \fi
-    \fi
-\fi
-
 % author {{{3
 \if@author
-    \AtEndOfPackage{
-        \author{Russell\ Wright\ Helder}
+    \author{Russell\ Wright\ Helder}
+    \AddToHook{begindocument/before}{%
         \hypersetup{pdfauthor={Russell\ Wright\ Helder}}
     }
 \fi
@@ -152,6 +123,17 @@
     }
 \fi
 
+% doublespaced {{{3
+
+\if@doublespaced
+    \RequirePackage{setspace}
+    \doublespacing
+
+    \if@biblatex
+      \setlength{\bibitemsep}{0pt}        % Remove excess spacing
+    \fi
+\fi
+
 % misguided {{{3
 
 \if@misguided
@@ -160,12 +142,6 @@
     \renewcommand{\mktextquote}[6]{#1#2#4#5#3#6}
 
 \else
-    % Use British quotation conventions when language is american english
-    % Use single quotes outside, double quotes inside
-    \DeclareQuoteStyle[american]{english}
-        {\textquoteleft}{\textquoteright}
-        {\textquotedblleft}{\textquotedblright}
-
     % Place punctuation outside quotes in bibliographies
     \if@biblatex
         \DefineBibliographyExtras{american}{\stdpunctuation}
@@ -198,7 +174,7 @@
 
 \hyphenation{Prem-ise Prem-ises}
 
-\AtEndOfPackage{%
+\AddToHook{begindocument/before}{%
     \hypersetup{
         colorlinks=true,
         linkcolor=black,
@@ -206,30 +182,156 @@
         citecolor=black,
         urlcolor=blue,
         pdfpagemode=UseNone,
-    }%
-    \AtBeginDocument{%
-        \hypersetup{pdftitle={\@title}}
+        pdftitle={\@title},
     }%
     \urlstyle{same}%
 }
 
 % Quotations {{{1
 
-% Set quoting environment as default block quote environment for `csquotes`
+% Block quotations {{{2
 \SetBlockEnvironment{quoting}
+\RenewCommandCopy\quotation\quoting
+\RenewCommandCopy\endquotation\endquoting
+\RenewCommandCopy\quote\quoting
+\RenewCommandCopy\endquote\endquoting
 
-% Replace `quotation` environment (which is used for abstracts) with `quoting`
-% environment
-\renewenvironment{quotation}{\begin{quoting}}{\end{quoting}}
+% Citations {{{2
+\if@biblatex
+  \SetCiteCommand{\autocite}
+  \renewcommand*{\mkcitation}[1]{ #1}
+\fi
 
-% Achieve desired spacing for syllogisms in block quotes
-\renewcommand*{\quotingfont}{\small\setlength{\itemsep}{0pt}}
+% Text quotations {{{2
 
-% Use double quotes when language is ancient Greek
-\DeclareQuoteStyle[ancient]{greek}
+\DeclareQuoteStyle{ancientgreek}
     {\textquotedblleft}{\textquotedblright}
     {\textquoteleft}{\textquoteright}
-\DeclareQuoteAlias[ancient]{greek}{greek}
+
+\renewcommand{\mktextquote}[6]{%
+  #1#2%
+  \if@punct #4\fi
+  #3#6%
+  \if@punct@t #5\fi
+}
+
+% Ellipses {{{2
+
+% Redefine at beginning of document, because French option of Babel redefines
+% at beginning of document as well
+\AtBeginDocument{\RenewCommandCopy\textellipsis\rh@ellipsis}
+
+\renewcommand*{\mktextelp}{\rh@ellipsis}
+\renewcommand*{\mktextelpins}[1]{\rh@ellipsis [#1]} %false, unstarred
+\renewcommand*{\mktextinselp}[1]{[#1] \rh@ellipsis} %true, unstarred
+
+\newcommand*{\rh@ellipsis}{%
+  \@ifnextchar \bgroup {\rh@rmbraces}{}\rh@elp@spaces
+}
+
+\def\rh@elp@spaces{%
+  \ifvmode
+    \leavevmode
+    \def\rh@elp@prespace{}%
+  \else
+    \def\rh@elp@prespace{\penalty 9999\@\space}%
+    \unskip
+  \fi
+  \@ifnextchar .{%
+    \rh@elp@mvperiodbefore
+  }{\@ifnextchar \tpunct {%
+    \rh@elp\@\nobreak\space
+  }{%
+    \rh@elp
+    \@ifnextchar ' {%
+    }{\@ifnextchar " {%
+    }{\@ifnextchar ) {%
+    }{\@ifnextchar \ {%
+    }{\@ifnextchar ~ {%
+    }{\@ifnextchar \/ {%
+    }{\@ifnextchar \footnote {%
+    }{\@ifnextchar \footnotemark {%
+    }{\@ifnextchar \equote {%
+    }{%
+      \@\space
+    }}}}}}}}}%
+  }}%
+}
+
+\def\rh@elp@mvperiodbefore#1{%
+  \@gobble{#1}%
+  .\rh@elp
+  \@ifnextchar \equote {}{\@\space}%
+}
+
+\def\rh@elp{%
+  \rh@elp@prespace .\@\nobreak\space .\@\nobreak\space .%
+}
+
+% Patch 'csquote' commands {{{3
+% To seed with '\equote' and '\tpunct' tokens, and to determine how to handle
+% punctuation in '\mktextquote'
+\patchcmd{\csq@tquote@i}{\begingroup}{%
+  \begingroup
+  \ifblank{#5}{%
+    \ifx#6#8\relax
+      \booltrue{@punct}\boolfalse{@punct@t}%
+    \else
+      \ifblank{#8}{\booltrue{@punct}}{\booltrue{@punct@t}}%
+    \fi
+  }{%
+    \booltrue{@punct@t}%
+    \ifx#6!\relax
+      \booltrue{@punct}%
+    \else\ifx#6?\relax
+      \booltrue{@punct}%
+    \fi\fi
+  }%
+  \if@punct
+    \ifx#6.\relax
+      \def\text@arg{#7.\equote}%
+      \boolfalse{@punct}%
+    \else
+      \def\text@arg{#7\tpunct}%
+    \fi
+  \else
+    \def\text@arg{#7\equote}%
+  \fi
+}{}{}
+
+\patchcmd{\csq@tquote@i}{{#7}}{%
+  {{\text@arg}}%
+}{}{}
+
+\patchcmd{\csq@quote@i}{#3}{#3\equote}{}{}
+\patchcmd{\csq@quote@ii}{#3}{#3\equote}{}{}
+
+\newbool{@punct}
+\newbool{@punct@t}
+
+\newcommand*{\equote}{\e@quote}
+\newcommand*{\e@quote}{\empty}
+\newcommand*{\tpunct}{\noexpand\t@punct}
+\newcommand*{\t@punct}{\empty}
+% }}}3
+% }}}2
+
+% Citations {{{1
+
+\NewDocumentCommand{\cf}{}{%
+  \@ifnextchar \bgroup {\rh@rmbraces}{\rh@cf}%
+}
+\newcommand*{\rh@cf}[1]{cf.\@\space}
+
+\NewDocumentCommand{\eg}{}{%
+  \@ifnextchar \bgroup {\rh@rmbraces}{\rh@eg}%
+}
+\newcommand*{\rh@eg}[1]{e.g.,\@\space}
+
+\NewDocumentCommand{\ie}{}{%
+  \@ifnextchar \bgroup {\rh@rmbraces}{\rh@ie}%
+}
+\newcommand*{\rh@ie}[1]{i.e.,\@\space}
 
 % Lists {{{1
 
@@ -384,3 +486,7 @@
 \NewDocumentCommand{\ToLogistikon}{}{\textgreek{Τὸ Λογιστικόν}}
 
 % }}}1
+
+\def\rh@rmbraces#1#2{%
+  \@firstofone{#1}\csname #1\endcsname
+}
