@@ -1,233 +1,180 @@
 \NeedsTeXFormat{LaTeX2e}[2021/11/15]
 \ProvidesPackage{rhelder}[2024/11/28 Russell Wright Helder's style file]
 
-% Required packages {{{1
-
 \RequirePackage{etoolbox}
+
+\DeclareOption{biblatex}{\booltrue{biblatex}}
+\DeclareOption{doublespaced}{\booltrue{doublespaced}}
+\DeclareOption{misguided}{\booltrue{misguided}}
+\DeclareOption{anonymous}{\boolfalse{author}\booltrue{anonymous}}
+\DeclareOption{notranslit}{\boolfalse{translit}}
+
+\newbool{biblatex}
+\newbool{translit}
+\newbool{author}
+\newbool{anonymous}
+\newbool{doublespaced}
+\newbool{misguided}
+
+\booltrue{translit}
+\booltrue{author}
+
+\ProcessOptions\relax
+
 \RequirePackage{fontspec}
+\RequirePackage{pifont}
 \RequirePackage[
   shorthands=off,
   latin,
   english.american,
 ]{babel}
 \babelprovide[import=grc]{ancientgreek}
-\RequirePackage[
-    strict,
-    autostyle,
-    english=british,
-    latin=britishquotes,
-]{csquotes}
-\RequirePackage[indentfirst=false]{quoting}
-\PassOptionsToPackage{hyphens}{url}
-\AddToHook{begindocument/before}{\RequirePackage{hyperref}}
-\RequirePackage{enumitem}
-\RequirePackage{pifont}
-\RequirePackage{array}
-\RequirePackage{booktabs}
 \RequirePackage{ragged2e}
 \RequirePackage[babel]{microtype}
 \RequirePackage[shortcuts]{extdash}
-\RequirePackage{iftex}
+\RequirePackage[
+  strict,
+  autostyle,
+  english=british,
+  latin=britishquotes,
+]{csquotes}
+\PassOptionsToPackage{hyphens}{url}
+\RequirePackage[indentfirst=false]{quoting}
+\RequirePackage{enumitem}
 \RequirePackage{geometry}
+\RequirePackage{array}
+\RequirePackage{booktabs}
+\RequirePackage{iftex}
+\AddToHook{begindocument/before}{\RequirePackage{hyperref}}
 
-% Options {{{1
+\protected\def\rh@error#1#2{\PackageError{rhelder}{#1}{#2.}}
+\protected\def\rh@warning#1{\PackageWarning{rhelder}{#1}}
+\protected\def\rh@info#1{\PackageInfo{rhelder}{#1}}
 
-% Declare options {{{2
+\ifbool{biblatex}{
+  \RequirePackage[
+    authordate,
+    sbllos,
+    autolang=hyphen,
+    citereset=section,
+    parentracker=false,
+    pagetracker=false,
+    doi=false,
+    isbn=false,
+    url=false,
+    dashed=false,
+    compresspages=true,
+    formatbib=minwo,
+  ]{biblatex-chicago}
+  \addbibresource{my_library.bib}
 
-\DeclareOption{biblatex}{\booltrue{@biblatex}}
-\DeclareOption{notranslit}{\boolfalse{@translit}}
-\DeclareOption{anonymous}{\boolfalse{@author}\booltrue{@anonymous}}
-\DeclareOption{doublespaced}{\booltrue{@doublespaced}}
-\DeclareOption{misguided}{\booltrue{@misguided}}
-
-\DeclareOption*{\PackageWarning{rhelder}{Unknown ‘\CurrentOption’}}
-
-% Declare bools {{{3
-
-\newbool{@biblatex}
-\newbool{@translit}
-\newbool{@author}
-\newbool{@anonymous}
-\newbool{@doublespaced}
-\newbool{@misguided}
-
-\booltrue{@translit}
-\booltrue{@author}
-
-% }}}3
-
-% Execute options {{{2
-
-\ProcessOptions\relax
-
-% biblatex {{{3
-
-\if@biblatex
-    \RequirePackage[
-        authordate,
-        sbllos,
-        autolang=hyphen,
-        citereset=section,
-        parentracker=false,
-        pagetracker=false,
-        doi=false,
-        isbn=false,
-        url=false,
-        dashed=false,
-        compresspages=true,
-        formatbib=minwo,
-    ]{biblatex-chicago}%
-    \addbibresource{my_library.bib}
-
-    \DeclareSourcemap{%
-      \maps[datatype=bibtex]{%
-        \map[overwrite]{%
-          \step[fieldsource=entrysubtype, match=classical, final]
-          \step[
-            fieldset=options,
-            fieldvalue={,shorthandfirst=false,shorthandintro=short},
-            append,
-          ]
-        }
+  \DeclareSourcemap{%
+    \maps[datatype=bibtex]{%
+      \map[overwrite]{%
+        \step[fieldsource=entrysubtype, match=classical, final]
+        \step[
+          fieldset=options,
+          fieldvalue={,shorthandfirst=false,shorthandintro=short},
+          append,
+        ]
       }
     }
+  }
 
-    % Patch '\footnotetext' so that the footnote-specific 'ibidtracker' resets
-    % reset at the beginning of each footnote
-    \NewCommandCopy{\oldfootnotetext}{\footnotetext}
-    \RenewDocumentCommand{\footnotetext}{+m}{\oldfootnotetext{\mancite #1}}
-\fi
+  % Reset footnote-specific 'ibidtracker' at beginning of each footnote
+  \NewCommandCopy\oldfootnotetext\footnotetext
+  \RenewDocumentCommand{\footnotetext}{+m}{\oldfootnotetext{\mancite #1}}
+}{}
 
-% author {{{3
-\if@author
-    \author{Russell\ Wright\ Helder}
-    \AddToHook{begindocument/before}{%
-        \hypersetup{pdfauthor={Russell\ Wright\ Helder}}
-    }
-\fi
+\ifbool{doublespaced}{
+  \RequirePackage{setspace}
+  \doublespacing
+  \ifbool{biblatex{\setlength{\bibitemsep}{0pt}}}{}
+}{}
 
-% anonymous {{{3
-\if@anonymous
-    \RenewDocumentCommand{\@maketitle}{}{%
-        \newpage
-        \null
-        \vskip 2em%
-        \begin{center}%
-            \let \footnote \thanks
-            {\LARGE \@title \par}%
-            \vskip 1.5em%
-            {\large \@date}%
-        \end{center}%
-        \par
-        \vskip 1.5em%
-    }
-\fi
+\ifbool{misguided}{
+  \DeclareAutoPunct{.,}
+  \renewcommand{\mktextquote}[6]{#1#2#4#5#3#6}
+}{\ifbool{biblatex}{
+  \DefineBibliographyExtras{american}{\stdpunctuation}
+}}
 
-% doublespaced {{{3
+\ifbool{author}{
+  \author{Russell Wright Helder}
+  \AddToHook{begindocument/before}{
+    \hypersetup{pdfauthor={Russell Wright Helder}}
+  }
+}{}
 
-\if@doublespaced
-    \RequirePackage{setspace}
-    \doublespacing
-
-    \if@biblatex
-      \setlength{\bibitemsep}{0pt}        % Remove excess spacing
-    \fi
-\fi
-
-% misguided {{{3
-
-\if@misguided
-    % Include punctuation within quotes
-    \DeclareAutoPunct{.,}
-    \renewcommand{\mktextquote}[6]{#1#2#4#5#3#6}
-
-\else
-    % Place punctuation outside quotes in bibliographies
-    \if@biblatex
-        \DefineBibliographyExtras{american}{\stdpunctuation}
-    \fi
-\fi
-
-% }}}3
-
-% }}}2
-
-% General {{{1
-
-\babeltags{greek = greek} % for backwards compatibility
-\babelprovide[hyphenrules=classiclatin]{latin}
+\ifbool{anonymous}{
+  \patchcmd{\@maketitle}{%
+    {\large
+      \lineskip .5em%
+      \begin{tabular}[t]{c}%
+        \@author
+      \end{tabular}\par}%
+    \vskip 1em%
+  }{}{}{}
+}{}
 
 \setmainfont{Brill}
-
-\if@twocolumn
-    \geometry{hscale=0.7635}
-\else
-    \ifLuaTeX
-        \geometry{hscale=\directlua{tex.print(0.03680 * \f@size + 0.1936)}}
-    \else
-        \geometry{pass}
-    \fi
-\fi
+\babelprovide[hyphenrules=classiclatin]{latin}
+\hyphenation{Prem-ise Prem-ises}
 
 \clubpenalty=10000
 \widowpenalty=10000
 
-\hyphenation{Prem-ise Prem-ises}
+\DeclareQuoteStyle{ancientgreek}
+  {\textquotedblleft}{\textquotedblright}
+  {\textquoteleft}{\textquoteright}
 
-\AddToHook{begindocument/before}{%
-    \hypersetup{
-        colorlinks=true,
-        linkcolor=black,
-        filecolor=magenta,
-        citecolor=black,
-        urlcolor=blue,
-        pdfpagemode=UseNone,
-        pdftitle={\@title},
-    }%
-    \urlstyle{same}%
+% {<qopen>}{<text>}{<qclose>}{<punct>}{<tpunct>}{<cite>}
+\renewcommand{\mktextquote}[6]{%
+  \ifboolexpr{
+    test {\notblank{#6}}
+    and
+    ( test {\ifstrequal{#4}{.}} or test {\ifstrequal{#4}{,}} )
+  }%
+  {%
+    #1#2#3#6#4#5%
+  }{%
+    #1#2#4#3#6#5%
+  }%
 }
 
-% Quotations {{{1
-
-% Block quotations {{{2
-\SetBlockEnvironment{quoting}
-\RenewCommandCopy\quotation\quoting
-\RenewCommandCopy\endquotation\endquoting
-\RenewCommandCopy\quote\quoting
-\RenewCommandCopy\endquote\endquoting
-
-% Citations {{{2
-\if@biblatex
+\ifbool{biblatex}{%
   \SetCiteCommand{\autocite}
   \renewcommand*{\mkcitation}[1]{ #1}
-\fi
+}{}
 
-% Text quotations {{{2
-
-\DeclareQuoteStyle{ancientgreek}
-    {\textquotedblleft}{\textquotedblright}
-    {\textquoteleft}{\textquoteright}
-
-\renewcommand{\mktextquote}[6]{%
-  #1#2%
-  \if@punct #4\fi
-  #3#6%
-  \if@punct@t #5\fi
+% 'french' 'babel' option redefines '\textellipsis' at beginning of document
+\AtBeginDocument{%
+  \RenewCommandCopy\textellipsis\rh@ellipsis
+  \RenewDocumentCommand{\dots}{}{%
+    \ifmmode\mathellipsis\else
+    \@ifnextchar \bgroup {%
+      \expandafter\rh@rmbraces\textellipsis%
+    }{%
+      \expandafter\textellipsis
+    }%
+    \fi
+  }
+  \RenewCommandCopy\ldots\dots
 }
-
-% Ellipses {{{2
-
-% Redefine at beginning of document, because French option of Babel redefines
-% at beginning of document as well
-\AtBeginDocument{\RenewCommandCopy\textellipsis\rh@ellipsis}
 
 \renewcommand*{\mktextelp}{\rh@ellipsis}
 \renewcommand*{\mktextelpins}[1]{\rh@ellipsis [#1]} %false, unstarred
 \renewcommand*{\mktextinselp}[1]{[#1] \rh@ellipsis} %true, unstarred
 
-\newcommand*{\rh@ellipsis}{%
-  \@ifnextchar \bgroup {\rh@rmbraces}{}\rh@elp@spaces
+\protected\def\rh@ellipsis{%
+  \@ifnextchar \bgroup{%
+    \rh@rmbraces\rh@elp@spaces
+  }{%
+    \rh@elp@spaces
+  }%
 }
+
+\def\rh@rmbraces#1#2{#1}
 
 \def\rh@elp@spaces{%
   \ifvmode
@@ -239,8 +186,6 @@
   \fi
   \@ifnextchar .{%
     \rh@elp@mvperiodbefore
-  }{\@ifnextchar \tpunct {%
-    \rh@elp\@\nobreak\space
   }{%
     \rh@elp
     \@ifnextchar ' {%
@@ -251,95 +196,111 @@
     }{\@ifnextchar \/ {%
     }{\@ifnextchar \footnote {%
     }{\@ifnextchar \footnotemark {%
-    }{\@ifnextchar \equote {%
+    }{\@ifnextchar \csq@qclose@i {%
+    }{\@ifnextchar \rh@qclose {%
+      \global\booltrue{rh@end@ellipsis}%
     }{%
       \@\space
-    }}}}}}}}}%
-  }}%
+    }}}}}}}}}}%
+  }%
 }
 
 \def\rh@elp@mvperiodbefore#1{%
   \@gobble{#1}%
   .\rh@elp
-  \@ifnextchar \equote {}{\@\space}%
-}
-
-\def\rh@elp{%
-  \rh@elp@prespace .\@\nobreak\space .\@\nobreak\space .%
-}
-
-% Patch 'csquote' commands {{{3
-% To seed with '\equote' and '\tpunct' tokens, and to determine how to handle
-% punctuation in '\mktextquote'
-\patchcmd{\csq@tquote@i}{\begingroup}{%
-  \begingroup
-  \ifblank{#5}{%
-    \ifx#6#8\relax
-      \booltrue{@punct}\boolfalse{@punct@t}%
-    \else
-      \ifblank{#8}{\booltrue{@punct}}{\booltrue{@punct@t}}%
-    \fi
+  \@ifnextchar \csq@qclose@i {%
+  }{\@ifnextchar \rh@qclose {%
   }{%
-    \booltrue{@punct@t}%
-    \ifx#6!\relax
-      \booltrue{@punct}%
-    \else\ifx#6?\relax
-      \booltrue{@punct}%
-    \fi\fi
+  \@\space
+  }}%
+}
+
+\def\rh@elp{\rh@elp@prespace .\@\nobreak\space .\@\nobreak\space .}
+
+\patchcmd{\csq@tquote@i}{\endgroup}{%
+  \rh@csq@check{#5}{#6}{#8}\endgroup
+}{}{}
+
+\def\rh@csq@check#1#2#3{%
+  \ifboolexpr{
+    test {\ifstrequal{#2}{;}} or test {\ifstrequal{#2}{:}}
   }%
-  \if@punct
-    \ifx#6.\relax
-      \def\text@arg{#7.\equote}%
-      \boolfalse{@punct}%
+  {%
+    \rh@warning{%
+      You passed ';' or ':' to '\string\texqtuote'
+      as terminal punctuation.%
+    }%
+  }{}%
+  \ifboolexpr{
+    test {\notblank{#2}} and test {\notblank{#3}}
+  }%
+  {%
+    \rh@warning{%
+      You passed both terminal and trailing punctuation
+      to '\string\textquote'.%
+    }%
+  }{}%
+  \ifbool{rh@end@ellipsis}{%
+    \ifboolexpr{
+      test {\ifstrequal{#3}{.}} and test {\ifblank{#1}}
+    }%
+    {%
+      \rh@warning{%
+        A period is trailing a '\string\textquote'
+        that ends in an ellipsis.%
+      }%
+    }{}%
+    \global\boolfalse{rh@end@ellipsis}%
+  }{}%
+}
+
+\newbool{rh@end@ellipsis}
+
+\patchcmd{\csq@quote@i}{#3}{#3\rh@qclose}{}{}
+\patchcmd{\csq@quote@ii}{#3}{#3\rh@qclose}{}{}
+
+\def\rh@qclose{}
+
+\SetBlockEnvironment{quoting}
+\RenewCommandCopy\quotation\quoting
+\RenewCommandCopy\endquotation\endquoting
+\RenewCommandCopy\quote\quoting
+\RenewCommandCopy\endquote\endquoting
+
+\NewDocumentCommand{\gensg}{m}{#1's}
+\NewDocumentCommand{\genpl}{m}{%
+  \begingroup
+  \def\rh@tempa{}%
+  \rh@genpl@do#1\relax
+  \endgroup
+}
+\NewDocumentCommand{\gensgpl}{m}{\genpl{#1}}
+\NewCommandCopy\genorg\gensgpl
+\NewCommandCopy\genforsake\gensgpl
+
+\def\rh@genpl@do#1{%
+  \appto{\rh@tempa}{#1}%
+  \let\rh@genpl@last #1%
+  \futurelet\rh@genpl@next\rh@genpl@iterate
+}
+
+\def\rh@genpl@iterate{%
+  \ifx\rh@genpl@next\relax\relax
+    \ifx\rh@genpl@last s\relax
+      \rh@tempa '%
     \else
-      \def\text@arg{#7\tpunct}%
+      \rh@tempa 's%
     \fi
-  \else
-    \def\text@arg{#7\equote}%
-  \fi
-}{}{}
-
-\patchcmd{\csq@tquote@i}{{#7}}{%
-  {{\text@arg}}%
-}{}{}
-
-\patchcmd{\csq@quote@i}{#3}{#3\equote}{}{}
-\patchcmd{\csq@quote@ii}{#3}{#3\equote}{}{}
-
-\newbool{@punct}
-\newbool{@punct@t}
-
-\newcommand*{\equote}{\e@quote}
-\newcommand*{\e@quote}{\empty}
-\newcommand*{\tpunct}{\noexpand\t@punct}
-\newcommand*{\t@punct}{\empty}
-% }}}3
-% }}}2
-
-% Citations {{{1
-
-\NewDocumentCommand{\cf}{}{%
-  \@ifnextchar \bgroup {\rh@rmbraces}{\rh@cf}%
+    \def\rh@genpl@do{}%
+  \else\ifx\rh@genpl@next\@sptoken\relax
+    \appto{\rh@tempa}{\space}%
+  \fi\fi
+  \rh@genpl@do
 }
-\newcommand*{\rh@cf}[1]{cf.\@\space}
 
-\NewDocumentCommand{\eg}{}{%
-  \@ifnextchar \bgroup {\rh@rmbraces}{\rh@eg}%
-}
-\newcommand*{\rh@eg}[1]{e.g.,\@\space}
-
-\NewDocumentCommand{\ie}{}{%
-  \@ifnextchar \bgroup {\rh@rmbraces}{\rh@ie}%
-}
-\newcommand*{\rh@ie}[1]{i.e.,\@\space}
-
-% Lists {{{1
-
-% Change default bullet points for nested itemized lists
 \setlist[itemize,2]{label=\ding{118}}
 \setlist[itemize,3]{label=\ding{66}}
 
-% Define `outline` list
 \newlist{outline}{enumerate}{5}
 \setlist[outline,1]{label=\Roman*.}
 \setlist[outline,2]{label=\Alph*.}
@@ -353,140 +314,255 @@
 \newlist{enumerate*}{enumerate*}{1}
 \setlist[enumerate*]{label=\Alph*.}
 
-% A potentially useful configuration for description
-% \setlist[description]{%
-%      style=nextline,
-%      leftmargin=0em,
-%      itemindent=!,
-%      itemsep=2\itemsep,
-% }
+\ifbool{@twocolumn}{
+  \geometry{hscale=0.7635}
+}{\ifbool{LuaTeX}{
+  \geometry{hscale=\directlua{tex.print(0.03680 * \f@size + 0.1936)}}
+}{
+  \geometry{pass}
+}}
 
-% Custom commands {{{1
-
-% Define copy of `\emph` so that, even if `\emph` is redefined, the following
-% commands italicize their arguments
-\NewCommandCopy{\emphit}{\emph}
-
-\NewDocumentCommand{\texttitle}{m}{\emphit{#1}}
-\NewDocumentCommand{\alialingua}{O{}O{latin}m}{%
-    \textlang[#1]{#2}{\emphit{#3}}%
+\AddToHook{begindocument/before}{
+  \hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,
+    citecolor=black,
+    urlcolor=blue,
+    pdfpagemode=UseNone,
+    pdftitle={\@title},
+  }
+  \urlstyle{same}
 }
-\NewCommandCopy{\define}{\emphit}
-\NewCommandCopy{\attn}{\textbf}
 
-\if@translit
-    \NewDocumentCommand{\boulesis}{}{\alialingua{boulēsis}}
-    \NewDocumentCommand{\Boulesis}{}{\alialingua{Boulēsis}}
-    \NewDocumentCommand{\bouleseis}{}{\alialingua{boulēseis}}
-    \NewDocumentCommand{\Bouleseis}{}{\alialingua{Boulēseis}}
-    \NewDocumentCommand{\nous}{}{\alialingua{nous}}
-    \NewDocumentCommand{\Nous}{}{\alialingua{Nous}}
-    \NewDocumentCommand{\phantasiai}{}{\alialingua{phantasiai}}
-    \NewDocumentCommand{\Phantasiai}{}{\alialingua{Phantasiai}}
-    \NewDocumentCommand{\phantasia}{}{\alialingua{phantasia}}
-    \NewDocumentCommand{\Phantasia}{}{\alialingua{Phantasia}}
-    \NewDocumentCommand{\phantasmata}{}{\alialingua{phantasmata}}
-    \NewDocumentCommand{\Phantasmata}{}{\alialingua{Phantasmata}}
-    \NewDocumentCommand{\phantasma}{}{\alialingua{phantasma}}
-    \NewDocumentCommand{\Phantasma}{}{\alialingua{Phantasma}}
-    \NewDocumentCommand{\phronesis}{}{\alialingua{phronēsis}}
-    \NewDocumentCommand{\Phronesis}{}{\alialingua{Phronēsis}}
-    \NewDocumentCommand{\thumos}{}{\alialingua{thumos}}
-    \NewDocumentCommand{\Thumos}{}{\alialingua{Thumos}}
-\else
-    \NewDocumentCommand{\boulesis}{}{\textgreek{βούλησις}}
-    \NewDocumentCommand{\Boulesis}{}{\textgreek{Βούλησις}}
-    \NewDocumentCommand{\bouleseis}{}{\textgreek{βουλήσεις}}
-    \NewDocumentCommand{\Bouleseis}{}{\textgreek{Βουλήσεις}}
-    \NewDocumentCommand{\nous}{}{\textgreek{νοῦς}}
-    \NewDocumentCommand{\Nous}{}{\textgreek{Νοῦς}}
-    \NewDocumentCommand{\phantasiai}{}{\textgreek{φαντασίαι}}
-    \NewDocumentCommand{\Phantasiai}{}{\textgreek{Φαντασίαι}}
-    \NewDocumentCommand{\phantasia}{}{\textgreek{φαντασία}}
-    \NewDocumentCommand{\Phantasia}{}{\textgreek{Φαντασία}}
-    \NewDocumentCommand{\phantasmata}{}{\textgreek{φαντάσματα}}
-    \NewDocumentCommand{\Phantasmata}{}{\textgreek{Φαντάσματα}}
-    \NewDocumentCommand{\phantasma}{}{\textgreek{φάντασμα}}
-    \NewDocumentCommand{\Phantasma}{}{\textgreek{Φάντασμα}}
-    \NewDocumentCommand{\phronesis}{}{\textgreek{φρόνησις}}
-    \NewDocumentCommand{\Phronesis}{}{\textgreek{Φρόνησις}}
-    \NewDocumentCommand{\thumos}{}{\textgreek{θυμός}}
-    \NewDocumentCommand{\Thumos}{}{\textgreek{Θυμός}}
-\fi
+\NewCommandCopy\texttitle\emph
+\NewCommandCopy\alialingua\emph
+\NewCommandCopy\define\emph
+\NewCommandCopy\attn\textbf
 
-\NewDocumentCommand{\akrates}{}{\textgreek{ἀκρατής}}
-\NewDocumentCommand{\Akrates}{}{\textgreek{Ἀκρατής}}
-\NewDocumentCommand{\Deinos}{}{\textgreek{Δεινός}}
-\NewDocumentCommand{\deinos}{}{\textgreek{δεινός}}
-\NewDocumentCommand{\Deinotes}{}{\textgreek{Δεινότης}}
-\NewDocumentCommand{\deinotes}{}{\textgreek{δεινότης}}
-\NewDocumentCommand{\enkrates}{}{\textgreek{ἐγκρατής}}
-\NewDocumentCommand{\Enkrates}{}{\textgreek{Ἐγκρατής}}
-\NewDocumentCommand{\epithumia}{}{\textgreek{ἐπιθυμία}}
-\NewDocumentCommand{\Epithumia}{}{\textgreek{Ἐπιθυμία}}
-\NewDocumentCommand{\ergon}{}{\textgreek{ἔργον}}
-\NewDocumentCommand{\Ergon}{}{\textgreek{Ἔργον}}
-\NewDocumentCommand{\Euboulia}{}{\textgreek{Εὐβουλία}}
-\NewDocumentCommand{\euboulia}{}{\textgreek{εὐβουλία}}
-\NewDocumentCommand{\Krisis}{}{\textgreek{Κρίσις}}
-\NewDocumentCommand{\krisis}{}{\textgreek{κρίσις}}
-\NewDocumentCommand{\Logoi}{}{\textgreek{Λόγοι}}
-\NewDocumentCommand{\logoi}{}{\textgreek{λόγοι}}
-\NewDocumentCommand{\Logos}{}{\textgreek{Λόγος}}
-\NewDocumentCommand{\logos}{}{\textgreek{λόγος}}
-\NewDocumentCommand{\orexis}{}{\textgreek{ὄρεξις}}
-\NewDocumentCommand{\Orexis}{}{\textgreek{Ὄρεξις}}
-\NewDocumentCommand{\Pathemata}{}{\textgreek{Παθήματα}}
-\NewDocumentCommand{\pathemata}{}{\textgreek{παθήματα}}
-\NewDocumentCommand{\Phronime}{}{\textgreek{Φρονίμη}}
-\NewDocumentCommand{\phronime}{}{\textgreek{φρονίμη}}
-\NewDocumentCommand{\Phronimoi}{}{\textgreek{Φρόνιμοι}}
-\NewDocumentCommand{\phronimoi}{}{\textgreek{φρόνιμοι}}
-\NewDocumentCommand{\Phronimos}{}{\textgreek{Φρόνιμος}}
-\NewDocumentCommand{\phronimos}{}{\textgreek{φρόνιμος}}
-\NewDocumentCommand{\Prohaireseis}{}{\textgreek{Προαιρέσεις}}
-\NewDocumentCommand{\prohaireseis}{}{\textgreek{προαιρέσεις}}
-\NewDocumentCommand{\Prohairesis}{}{\textgreek{Προαίρεσις}}
-\NewDocumentCommand{\prohairesis}{}{\textgreek{προαίρεσις}}
+\ifbool{translit}{% TODO add hyphenation patterns
+  \NewDocumentCommand{\boulesis}{}{\alialingua{boulēsis}}
+  \NewDocumentCommand{\Boulesis}{}{\alialingua{Boulēsis}}
+  \NewDocumentCommand{\bouleseis}{}{\alialingua{boulēseis}}
+  \NewDocumentCommand{\Bouleseis}{}{\alialingua{Boulēseis}}
+  \NewDocumentCommand{\nous}{}{\alialingua{nous}}
+  \NewDocumentCommand{\Nous}{}{\alialingua{Nous}}
+  \NewDocumentCommand{\phantasiai}{}{\alialingua{phantasiai}}
+  \NewDocumentCommand{\Phantasiai}{}{\alialingua{Phantasiai}}
+  \NewDocumentCommand{\phantasia}{}{\alialingua{phantasia}}
+  \NewDocumentCommand{\Phantasia}{}{\alialingua{Phantasia}}
+  \NewDocumentCommand{\phantasmata}{}{\alialingua{phantasmata}}
+  \NewDocumentCommand{\Phantasmata}{}{\alialingua{Phantasmata}}
+  \NewDocumentCommand{\phantasma}{}{\alialingua{phantasma}}
+  \NewDocumentCommand{\Phantasma}{}{\alialingua{Phantasma}}
+  \NewDocumentCommand{\phronesis}{}{\alialingua{phronēsis}}
+  \NewDocumentCommand{\Phronesis}{}{\alialingua{Phronēsis}}
+  \NewDocumentCommand{\thumos}{}{\alialingua{thumos}}
+  \NewDocumentCommand{\Thumos}{}{\alialingua{Thumos}}
+}{%
+  \NewDocumentCommand{\boulesis}{}{%
+    \foreignlanguage{ancientgreek}{βούλησις}%
+  }
+  \NewDocumentCommand{\Boulesis}{}{%
+    \foreignlanguage{ancientgreek}{Βούλησις}%
+  }
+  \NewDocumentCommand{\bouleseis}{}{%
+    \foreignlanguage{ancientgreek}{βουλήσεις}%
+  }
+  \NewDocumentCommand{\Bouleseis}{}{%
+    \foreignlanguage{ancientgreek}{Βουλήσεις}%
+  }
+  \NewDocumentCommand{\nous}{}{%
+    \foreignlanguage{ancientgreek}{νοῦς}%
+  }
+  \NewDocumentCommand{\Nous}{}{%
+    \foreignlanguage{ancientgreek}{Νοῦς}%
+  }
+  \NewDocumentCommand{\phantasiai}{}{%
+    \foreignlanguage{ancientgreek}{φαντασίαι}%
+  }
+  \NewDocumentCommand{\Phantasiai}{}{%
+    \foreignlanguage{ancientgreek}{Φαντασίαι}%
+  }
+  \NewDocumentCommand{\phantasia}{}{%
+    \foreignlanguage{ancientgreek}{φαντασία}%
+  }
+  \NewDocumentCommand{\Phantasia}{}{%
+    \foreignlanguage{ancientgreek}{Φαντασία}%
+  }
+  \NewDocumentCommand{\phantasmata}{}{%
+    \foreignlanguage{ancientgreek}{φαντάσματα}%
+  }
+  \NewDocumentCommand{\Phantasmata}{}{%
+    \foreignlanguage{ancientgreek}{Φαντάσματα}%
+  }
+  \NewDocumentCommand{\phantasma}{}{%
+    \foreignlanguage{ancientgreek}{φάντασμα}%
+  }
+  \NewDocumentCommand{\Phantasma}{}{%
+    \foreignlanguage{ancientgreek}{Φάντασμα}%
+  }
+  \NewDocumentCommand{\phronesis}{}{%
+    \foreignlanguage{ancientgreek}{φρόνησις}%
+  }
+  \NewDocumentCommand{\Phronesis}{}{%
+    \foreignlanguage{ancientgreek}{Φρόνησις}%
+  }
+  \NewDocumentCommand{\thumos}{}{%
+    \foreignlanguage{ancientgreek}{θυμός}%
+  }
+  \NewDocumentCommand{\Thumos}{}{%
+    \foreignlanguage{ancientgreek}{Θυμός}%
+  }
+}
+
+\NewDocumentCommand{\akrates}{}{%
+  \foreignlanguage{ancientgreek}{ἀκρατής}%
+}
+\NewDocumentCommand{\Akrates}{}{%
+  \foreignlanguage{ancientgreek}{Ἀκρατής}%
+}
+\NewDocumentCommand{\Deinos}{}{%
+  \foreignlanguage{ancientgreek}{Δεινός}%
+}
+\NewDocumentCommand{\deinos}{}{%
+  \foreignlanguage{ancientgreek}{δεινός}%
+}
+\NewDocumentCommand{\Deinotes}{}{%
+  \foreignlanguage{ancientgreek}{Δεινότης}%
+}
+\NewDocumentCommand{\deinotes}{}{%
+  \foreignlanguage{ancientgreek}{δεινότης}%
+}
+\NewDocumentCommand{\enkrates}{}{%
+  \foreignlanguage{ancientgreek}{ἐγκρατής}%
+}
+\NewDocumentCommand{\Enkrates}{}{%
+  \foreignlanguage{ancientgreek}{Ἐγκρατής}%
+}
+\NewDocumentCommand{\epithumia}{}{%
+  \foreignlanguage{ancientgreek}{ἐπιθυμία}%
+}
+\NewDocumentCommand{\Epithumia}{}{%
+  \foreignlanguage{ancientgreek}{Ἐπιθυμία}%
+}
+\NewDocumentCommand{\ergon}{}{%
+  \foreignlanguage{ancientgreek}{ἔργον}%
+}
+\NewDocumentCommand{\Ergon}{}{%
+  \foreignlanguage{ancientgreek}{Ἔργον}%
+}
+\NewDocumentCommand{\Euboulia}{}{%
+  \foreignlanguage{ancientgreek}{Εὐβουλία}%
+}
+\NewDocumentCommand{\euboulia}{}{%
+  \foreignlanguage{ancientgreek}{εὐβουλία}%
+}
+\NewDocumentCommand{\Krisis}{}{%
+  \foreignlanguage{ancientgreek}{Κρίσις}%
+}
+\NewDocumentCommand{\krisis}{}{%
+  \foreignlanguage{ancientgreek}{κρίσις}%
+}
+\NewDocumentCommand{\Logoi}{}{%
+  \foreignlanguage{ancientgreek}{Λόγοι}%
+}
+\NewDocumentCommand{\logoi}{}{%
+  \foreignlanguage{ancientgreek}{λόγοι}%
+}
+\NewDocumentCommand{\Logos}{}{%
+  \foreignlanguage{ancientgreek}{Λόγος}%
+}
+\NewDocumentCommand{\logos}{}{%
+  \foreignlanguage{ancientgreek}{λόγος}%
+}
+\NewDocumentCommand{\orexis}{}{%
+  \foreignlanguage{ancientgreek}{ὄρεξις}%
+}
+\NewDocumentCommand{\Orexis}{}{%
+  \foreignlanguage{ancientgreek}{Ὄρεξις}%
+}
+\NewDocumentCommand{\Pathemata}{}{%
+  \foreignlanguage{ancientgreek}{Παθήματα}%
+}
+\NewDocumentCommand{\pathemata}{}{%
+  \foreignlanguage{ancientgreek}{παθήματα}%
+}
+\NewDocumentCommand{\Phronime}{}{%
+  \foreignlanguage{ancientgreek}{Φρονίμη}%
+}
+\NewDocumentCommand{\phronime}{}{%
+  \foreignlanguage{ancientgreek}{φρονίμη}%
+}
+\NewDocumentCommand{\Phronimoi}{}{%
+  \foreignlanguage{ancientgreek}{Φρόνιμοι}%
+}
+\NewDocumentCommand{\phronimoi}{}{%
+  \foreignlanguage{ancientgreek}{φρόνιμοι}%
+}
+\NewDocumentCommand{\Phronimos}{}{%
+  \foreignlanguage{ancientgreek}{Φρόνιμος}%
+}
+\NewDocumentCommand{\phronimos}{}{%
+  \foreignlanguage{ancientgreek}{φρόνιμος}%
+}
+\NewDocumentCommand{\Prohaireseis}{}{%
+  \foreignlanguage{ancientgreek}{Προαιρέσεις}%
+}
+\NewDocumentCommand{\prohaireseis}{}{%
+  \foreignlanguage{ancientgreek}{προαιρέσεις}%
+}
+\NewDocumentCommand{\Prohairesis}{}{%
+  \foreignlanguage{ancientgreek}{Προαίρεσις}%
+}
+\NewDocumentCommand{\prohairesis}{}{%
+  \foreignlanguage{ancientgreek}{προαίρεσις}%
+}
 
 \NewDocumentCommand{\doxastikon}{s}{%
-    \textgreek{\IfBooleanT{#1}{τὸ }δοξαστικόν}%
+    \foreignlanguage{ancientgreek}{\IfBooleanT{#1}{τὸ }δοξαστικόν}%
 }
+
 \NewDocumentCommand{\Doxastikon}{s}{%
     \IfBooleanTF{#1}{%
-        \textgreek{Τὸ δοξαστικόν}%
+        \foreignlanguage{ancientgreek}{Τὸ δοξαστικόν}%
     }{%
-        \textgreek{Δοξαστικόν}%
+        \foreignlanguage{ancientgreek}{Δοξαστικόν}%
     }%
 }
-\NewDocumentCommand{\ToDoxastikon}{}{\textgreek{Τὸ Δοξαστικόν}}
+
+\NewDocumentCommand{\ToDoxastikon}{}{%
+  \foreignlanguage{ancientgreek}{Τὸ Δοξαστικόν}%
+}
 
 \NewDocumentCommand{\kalon}{s}{%
-    \textgreek{\IfBooleanT{#1}{τὸ }καλόν}%
+    \foreignlanguage{ancientgreek}{\IfBooleanT{#1}{τὸ }καλόν}%
 }
+
 \NewDocumentCommand{\Kalon}{s}{%
     \IfBooleanTF{#1}{%
-        \textgreek{Τὸ καλόν}%
+        \foreignlanguage{ancientgreek}{Τὸ καλόν}%
     }{%
-        \textgreek{Καλόν}%
+        \foreignlanguage{ancientgreek}{Καλόν}%
     }%
 }
-\NewDocumentCommand{\ToKalon}{}{\textgreek{Τὸ Καλόν}}
+
+\NewDocumentCommand{\ToKalon}{}{%
+  \foreignlanguage{ancientgreek}{Τὸ Καλόν}%
+}
 
 \NewDocumentCommand{\logistikon}{s}{%
-    \textgreek{\IfBooleanT{#1}{τὸ }λογιστικόν}%
+    \foreignlanguage{ancientgreek}{\IfBooleanT{#1}{τὸ }λογιστικόν}%
 }
+
 \NewDocumentCommand{\Logistikon}{s}{%
     \IfBooleanTF{#1}{%
-        \textgreek{Τὸ λογιστικόν}%
+        \foreignlanguage{ancientgreek}{Τὸ λογιστικόν}%
     }{%
-        \textgreek{Λογιστικόν}%
+        \foreignlanguage{ancientgreek}{Λογιστικόν}%
     }%
 }
-\NewDocumentCommand{\ToLogistikon}{}{\textgreek{Τὸ Λογιστικόν}}
 
-% }}}1
-
-\def\rh@rmbraces#1#2{%
-  \@firstofone{#1}\csname #1\endcsname
+\NewDocumentCommand{\ToLogistikon}{}{%
+  \foreignlanguage{ancientgreek}{Τὸ Λογιστικόν}%
 }
