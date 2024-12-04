@@ -142,7 +142,7 @@
   }%
 }
 
-\ifbool{biblatex}{%
+\IfPackageLoadedTF{biblatex-chicago}{%
   \SetCiteCommand{\autocite}
   \renewcommand*{\mkcitation}[1]{ #1}
 }{}
@@ -150,16 +150,28 @@
 % 'french' 'babel' option redefines '\textellipsis' at beginning of document
 \AtBeginDocument{%
   \RenewCommandCopy\textellipsis\rh@ellipsis
-  \RenewDocumentCommand{\dots}{}{%
+  \RenewDocumentCommand{\ldots}{}{%
     \ifmmode\mathellipsis\else
-    \@ifnextchar \bgroup {%
-      \expandafter\rh@rmbraces\textellipsis%
-    }{%
-      \expandafter\textellipsis
-    }%
+      \@ifnextchar \bgroup {%
+        \expandafter\rh@rmbraces\textellipsis
+      }{%
+        \expandafter\textellipsis
+      }%
     \fi
-  }
-  \RenewCommandCopy\ldots\dots
+  }%
+  \IfPackageLoadedTF{amsmath}{%
+    \RenewDocumentCommand{\dots}{}{%
+      \ifmmode \@xp\mdots@\else
+        \@ifnextchar \bgroup {%
+          \expandafter\rh@rmbraces\textellipsis%
+        }{%
+          \expandafter\textellipsis
+        }%
+      \fi
+    }%
+  }{%
+    \RenewCommandCopy\dots\ldots
+  }%
 }
 
 \renewcommand*{\mktextelp}{\rh@ellipsis}
