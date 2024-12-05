@@ -1,0 +1,178 @@
+\input{regression-test}
+\documentclass[12pt, letterpaper]{article}
+\usepackage{fvextra}
+\usepackage{rhelder}
+\geometry{reset, pass}
+\setlist[trivlist]{nosep}
+\usepackage[nopar]{kantlipsum}
+
+\SaveVerb{rh@ellipsis}=\rh@ellipsis=
+\SaveVerb{dots}=\dots=
+
+\makeatletter
+\newcommand*{\rhellipsis}{\textbackslash rh@ellipsis}%
+\AddToHook{begindocument/before}{%
+  \pdfstringdefDisableCommands{%
+    \renewcommand*{\dots}{\textbackslash dots}%
+  }%
+}
+\makeatother
+
+\title{\texorpdfstring{%
+  \UseVerb{rh@ellipsis} Test: \UseVerb{dots} with Punctuation}{%
+  \rhellipsis\ Test: \dots\ with Punctuation%
+}}
+\date{December 3, 2024}
+
+\showoutput
+\begin{document}
+\maketitle
+\START
+
+\section{Without Braces}
+\begin{trivlist}
+  \item Lorem ipsum dolor sit
+    amet \dots. consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots . consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet.\dots consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet. \dots consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots' consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots ' consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots" consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots " consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots/ consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots / consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots? consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots ? consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots; consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots ; consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots: consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots : consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots, consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots , consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots! consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots ! consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots~consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots ~consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots- consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots - consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots) consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots ) consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots\  consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots \  consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots\/ consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots \/ consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots\footnotemark{} consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots \footnotemark{} consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots\footnote{} consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots \footnote{} consectetuer adipiscing elit
+\end{trivlist}
+
+\section{With Braces}
+\begin{trivlist}
+  \item Lorem ipsum dolor sit
+    amet \dots{}. consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{} . consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet.\dots{} consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet. \dots{} consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{}' consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{} ' consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{}" consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{} " consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{}/ consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{} / consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{}? consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{} ? consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{}; consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{} ; consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{}: consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{} : consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{}, consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{} , consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{}! consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{} ! consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{}~consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{} ~consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{}- consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{} - consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{}) consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{} ) consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{}\  consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{} \  consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{}\/ consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{} \/ consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{}\footnotemark{} consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{} \footnotemark{} consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{}\footnote{} consectetuer adipiscing elit
+  \item Lorem ipsum dolor sit
+    amet \dots{} \footnote{} consectetuer adipiscing elit
+\end{trivlist}
+
+\newpage
+\OMIT
+\end{document}
