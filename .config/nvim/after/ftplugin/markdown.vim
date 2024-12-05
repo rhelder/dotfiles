@@ -1,1 +1,1 @@
-let &l:formatlistpat ..= '\|^\s*:\s\+'
+let &l:formatlistpat ..= '\|^\s*:\s\+\|^\s*\a\.\s\+'
