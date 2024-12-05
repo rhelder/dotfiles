@@ -1,25 +1,25 @@
 \NeedsTeXFormat{LaTeX2e}[2021/11/15]
-\ProvidesPackage{rhelder}[2024/11/28 Russell Wright Helder's style file]
+\ProvidesPackage{rhelder}[2024/12/04 Russell Wright Helder's style file]
 
 \RequirePackage{etoolbox}
 
 % Options {{{1
 
-\DeclareOption{biblatex}{\booltrue{biblatex}}
-\DeclareOption{doublespaced}{\booltrue{doublespaced}}
-\DeclareOption{misguided}{\booltrue{misguided}}
-\DeclareOption{anonymous}{\boolfalse{author}\booltrue{anonymous}}
-\DeclareOption{notranslit}{\boolfalse{translit}}
+\DeclareOption{biblatex}{\booltrue{rh@biblatex}}
+\DeclareOption{doublespaced}{\booltrue{rh@doublespaced}}
+\DeclareOption{misguided}{\booltrue{rh@misguided}}
+\DeclareOption{anonymous}{\boolfalse{rh@author}\booltrue{rh@anonymous}}
+\DeclareOption{notranslit}{\boolfalse{rh@translit}}
 
-\newbool{biblatex}
-\newbool{translit}
-\newbool{author}
-\newbool{anonymous}
-\newbool{doublespaced}
-\newbool{misguided}
+\newbool{rh@biblatex}
+\newbool{rh@translit}
+\newbool{rh@author}
+\newbool{rh@anonymous}
+\newbool{rh@doublespaced}
+\newbool{rh@misguided}
 
-\booltrue{translit}
-\booltrue{author}
+\booltrue{rh@translit}
+\booltrue{rh@author}
 
 \ProcessOptions\relax
 
@@ -51,7 +51,7 @@
 \RequirePackage{iftex}
 \AddToHook{begindocument/before}{\RequirePackage{hyperref}}
 
-\ifbool{biblatex}{
+\ifbool{rh@biblatex}{
   \RequirePackage[
     authordate,
     sbllos,
@@ -82,8 +82,8 @@
   }
 
   % Reset footnote-specific 'ibidtracker' at beginning of each footnote
-  \NewCommandCopy\oldfootnotetext\footnotetext
-  \RenewDocumentCommand{\footnotetext}{+m}{\oldfootnotetext{\mancite #1}}
+  \NewCommandCopy\footnotetextCopy\footnotetext % FIXME find better approach
+  \RenewDocumentCommand{\footnotetext}{+m}{\footnotetextCopy{\mancite #1}}
 }{}
 
 % Paragraph layout {{{1
@@ -99,16 +99,16 @@
 
 \ifbool{@twocolumn}{
   \geometry{hscale=0.7635}
-}{\ifbool{LuaTeX}{
+}{\ifbool{LuaTeX}{ % FIXME use l3 instead
   \geometry{hscale=\directlua{tex.print(0.03680 * \f@size + 0.1936)}}
 }{
   \geometry{pass}
 }}
 
-\ifbool{doublespaced}{
+\ifbool{rh@doublespaced}{
   \RequirePackage{setspace}
   \doublespacing
-  \ifbool{biblatex{\setlength{\bibitemsep}{0pt}}}{}
+  \ifbool{rh@biblatex{\setlength{\bibitemsep}{0pt}}}{}
 }{}
 
 % Quotations {{{1
@@ -127,11 +127,11 @@
 \RenewCommandCopy\quote\quoting
 \RenewCommandCopy\endquote\endquoting
 
-\ifbool{misguided}{
+\ifbool{rh@misguided}{
   \DeclareAutoPunct{.,}
   % {<qopen>}{<text>}{<qclose>}{<punct>}{<tpunct>}{<cite>}
   \renewcommand{\mktextquote}[6]{#1#2#4#5#3#6}
-  \ifbool{biblatex}{
+  \ifbool{rh@biblatex}{
     \DefineBibliographyExtras{american}{\uspunctuation}
   }{}
 }{
@@ -148,7 +148,7 @@
       #1#2#4#3#6#5%
     }%
   }
-  \ifbool{biblatex}{
+  \ifbool{rh@biblatex}{
     \DefineBibliographyExtras{american}{\stdpunctuation}
   }{}
 }
@@ -158,18 +158,18 @@
 
 % Ellipses {{{1
 
-\renewcommand*{\mktextelp}{\rh@ellipsis}
-\renewcommand*{\mktextelpins}[1]{\rh@ellipsis [#1]} %false, unstarred
-\renewcommand*{\mktextinselp}[1]{[#1] \rh@ellipsis} %true, unstarred
+\renewcommand*{\mktextelp}{\rh@textellipsis}
+\renewcommand*{\mktextelpins}[1]{\rh@textellipsis [#1]} %false, unstarred
+\renewcommand*{\mktextinselp}[1]{[#1] \rh@textellipsis} %true, unstarred
 
 % Redefine LaTeX '\textellipsis', '\dots', and '\ldots' {{{2
 % 'french' 'babel' option redefines '\textellipsis' at beginning of document
 \AtBeginDocument{%
-  \RenewCommandCopy\textellipsis\rh@ellipsis
+  \RenewCommandCopy\textellipsis\rh@textellipsis
   \RenewDocumentCommand{\ldots}{}{%
     \ifmmode\mathellipsis\else
       \@ifnextchar \bgroup {%
-        \expandafter\rh@rmbraces\textellipsis
+        \expandafter\rh@elp@rmbraces\textellipsis
       }{%
         \expandafter\textellipsis
       }%
@@ -180,7 +180,7 @@
     \RenewDocumentCommand{\dots}{}{%
       \ifmmode \@xp\mdots@\else
         \@ifnextchar \bgroup {%
-          \expandafter\rh@rmbraces\textellipsis%
+          \expandafter\rh@elp@rmbraces\textellipsis%
         }{%
           \expandafter\textellipsis
         }%
@@ -192,15 +192,15 @@
 }
 % }}}2
 
-\protected\def\rh@ellipsis{% {{{2
+\protected\def\rh@textellipsis{% {{{2
   \@ifnextchar \bgroup{%
-    \rh@rmbraces\rh@elp@spaces
+    \rh@elp@rmbraces\rh@elp@spaces
   }{%
     \rh@elp@spaces
   }%
 }
 
-\def\rh@rmbraces#1#2{#1}
+\def\rh@elp@rmbraces#1#2{#1}
 
 \def\rh@elp@spaces{%
   \ifvmode
@@ -223,8 +223,8 @@
     }{\@ifnextchar \footnote {%
     }{\@ifnextchar \footnotemark {%
     }{\@ifnextchar \csq@qclose@i {%
-    }{\@ifnextchar \rh@qclose {%
-      \global\booltrue{rh@end@ellipsis}%
+    }{\@ifnextchar \rh@elp@qclose {%
+      \global\booltrue{rh@elp@end}%
     }{%
       \@\space
     }}}}}}}}}}%
@@ -235,7 +235,7 @@
   \@gobble{#1}%
   .\rh@elp
   \@ifnextchar \csq@qclose@i {%
-  }{\@ifnextchar \rh@qclose {%
+  }{\@ifnextchar \rh@elp@qclose {%
   }{%
   \@\space
   }}%
@@ -243,19 +243,19 @@
 
 \def\rh@elp{\rh@elp@prespace .\@\nobreak\space .\@\nobreak\space .\@}
 
-\patchcmd{\csq@quote@i}{#3}{#3\rh@qclose}{}{}
-\patchcmd{\csq@quote@ii}{#3}{#3\rh@qclose}{}{}
+\patchcmd{\csq@quote@i}{#3}{#3\rh@elp@qclose}{}{}
+\patchcmd{\csq@quote@ii}{#3}{#3\rh@elp@qclose}{}{}
 
-\def\rh@qclose{}
+\def\rh@elp@qclose{}
 
 % Check for mistakes in punctuation {{{3
 \protected\def\rh@warning#1{\PackageWarning{rhelder}{#1}}
 
 \patchcmd{\csq@tquote@i}{\endgroup}{%
-  \rh@csq@check{#5}{#6}{#8}\endgroup
+  \rh@tquote@check{#5}{#6}{#8}\endgroup
 }{}{}
 
-\def\rh@csq@check#1#2#3{%
+\def\rh@tquote@check#1#2#3{%
   \ifboolexpr{
     test {\ifstrequal{#2}{;}} or test {\ifstrequal{#2}{:}}
   }%
@@ -274,7 +274,7 @@
       to '\string\textquote'.%
     }%
   }{}%
-  \ifbool{rh@end@ellipsis}{%
+  \ifbool{rh@elp@end}{%
     \ifboolexpr{
       test {\ifstrequal{#3}{.}} and test {\ifblank{#1}}
     }%
@@ -284,11 +284,11 @@
         that ends in an ellipsis.%
       }%
     }{}%
-    \global\boolfalse{rh@end@ellipsis}%
+    \global\boolfalse{rh@elp@end}%
   }{}%
 }
 
-\newbool{rh@end@ellipsis}
+\newbool{rh@elp@end}
 % }}}3
 % }}}2
 
@@ -318,7 +318,7 @@
     \else
       \rh@tempa 's%
     \fi
-    \def\rh@genpl@do{}%
+    \let\rh@genpl@do\relax
   \else\ifx\rh@genpl@next\@sptoken\relax
     \appto{\rh@tempa}{\space}%
   \fi\fi
@@ -345,14 +345,14 @@
 
 % PDF metadata {{{1
 
-\ifbool{author}{
+\ifbool{rh@author}{
   \author{Russell Wright Helder}
   \AddToHook{begindocument/before}{
     \hypersetup{pdfauthor={Russell Wright Helder}}
   }
 }{}
 
-\ifbool{anonymous}{
+\ifbool{rh@anonymous}{
   \patchcmd{\@maketitle}{%
     {\large
       \lineskip .5em%
@@ -641,7 +641,7 @@
   \foreignlanguage{ancientgreek}{Τὸ Λογιστικόν}%
 }
 
-\ifbool{translit}{% TODO add hyphenation patterns {{{3
+\ifbool{rh@translit}{% TODO add hyphenation patterns {{{3
   \RenewDocumentCommand{\boulesis}{}{\alialingua{boulēsis}}
   \RenewDocumentCommand{\Boulesis}{}{\alialingua{Boulēsis}}
   \RenewDocumentCommand{\bouleseis}{}{\alialingua{boulēseis}}
