@@ -1,10 +1,3 @@
-# Set default engine to `LuaLaTeX` and make `silent` mode the default
 $pdf_mode = 4;
 $silent = 1;
-
-# When `nomencl` package is used, invoke `MakeIndex` to create nomenclature
-# file
-add_cus_dep('nlo','nls',0,'nlo2nls');
-sub nlo2nls {
-    system("makeindex \"$_[0].nlo\" -s nomencl.ist -o \"$_[0].nls\"");
-}
+$bibtex_use = 2;
