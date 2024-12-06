@@ -20,7 +20,7 @@ let g:vimtex_fold_enabled = 1
 
 let g:vimtex_fold_types = {
       \ 'preamble': {'enabled': 0},
-      \ 'markers': {'enabled': 0},
+      \ 'markers': {},
       \ 'sections': {},
       \ 'envs': {'enabled': 0},
       \ }
