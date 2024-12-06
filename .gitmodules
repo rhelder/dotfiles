@@ -13,3 +13,4 @@
 [submodule ".local/share/pandoc/styles"]
 	path = .local/share/pandoc/styles
 	url = https://github.com/citation-style-language/styles.git
+        branch = main
