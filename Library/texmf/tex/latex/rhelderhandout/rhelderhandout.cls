@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{rhelderhandout}[2024-10-07 Opinionated class for handouts]
+\ProvidesClass{rhelderhandout}[2024-12-05 Opinionated class for handouts]
 
 \RequirePackage{etoolbox}
 
@@ -38,7 +38,13 @@
 \renewpagestyle{plain}{\sethandoutfoot}
 \newpagestyle{handout}{
     \headrule
-    \sethead{\firsttitlemarks\textit{\sectiontitle}}{}{}
+    \sethead{%
+      \ifdefempty{\sectiontitle}{%
+        \firsttitlemarks\textit{\rhh@title}%
+      }{%
+        \firsttitlemarks\textit{\sectiontitle}%
+      }%
+    }{}{}
     \sethandoutfoot
 }
 
@@ -66,8 +72,12 @@
     }
 \fi
 
+\NewCommandCopy\rhh@title\@title
 \NewCommandCopy\rhh@author\@author
 \NewCommandCopy\rhh@date\@date
+\expandafter\apptocmd\csname title \endcsname{%
+    \renewcommand*{\rhh@title}{#1}
+}{}{}
 \expandafter\apptocmd\csname author \endcsname{%
     \renewcommand*{\rhh@author}{#1}
 }{}{}
