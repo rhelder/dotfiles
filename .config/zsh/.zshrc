@@ -58,7 +58,6 @@ alias_init
 
 # Load other user functions
 autoload mk4
-autoload clean_tex_aux_files
 autoload cs
 autoload default_gpg
 autoload default_tar
