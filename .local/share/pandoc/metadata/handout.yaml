@@ -8,6 +8,12 @@ rhelder:
   loaded: true
 hyperref: false
 biblatexoptions: notes
+handout: true
+class: Philosophy 25A
+institution: UC Berkeley
+copyrightyear: 2024
+author:
+  - Russell Wright Helder
 csl: "/Users/rhelder/.local/share/pandoc/styles/\
       chicago-fullnote-bibliography-short-title-subsequent.csl"
 suppress-bibliography: true
