@@ -1,0 +1,382 @@
+\input{regression-test}
+\documentclass[12pt, letterpaper]{article}
+\usepackage{fvextra}
+\usepackage{rhelder}
+\geometry{reset, pass}
+\setlist[trivlist]{nosep}
+
+\SaveVerb{csquotes}=csquotes=
+\SaveVerb{textquote}=\textquote=
+\SaveVerb{foreigntextquote}=\foreigntextquote=
+\SaveVerb{enquote}=\enquote=
+\AddToHook{begindocument/before}{%
+  \pdfstringdefDisableCommands{%
+    \renewcommand*{\textquote}{\textbackslash textquote}%
+    \renewcommand*{\foreigntextquote}{\textbackslash foreigntextquote}%
+    \renewcommand*{\enquote}{\textbackslash enquote}%
+  }%
+}
+
+\title{\texorpdfstring{\UseVerb{csquotes} Punctuation Warnings Test}{%
+  csquote Punctuation Warnings Test}%
+}
+\date{December 6, 2024}
+
+\showoutput
+\begin{document}
+\maketitle
+\START
+
+\section{\texorpdfstring{\UseVerb{textquote}}{%
+  \textquote}%
+}
+
+\subsection{Terminal Punctuation Is a Colon or Semicolon}
+\begin{trivlist}
+  \item Aristotle says
+    \textquote[][;]{Lorem ipsum dolor sit amet}
+    however, Plato said it in Greek.
+  \item Aristotle says
+    \textquote[][:]{Lorem ipsum dolor sit amet}
+    it was a really cool line.
+\end{trivlist}
+
+\subsection{There Is Both Terminal and Trailing Punctuation}
+
+\subsubsection{Trailing Punctuation Is a Period}
+\begin{trivlist}
+  \item Aristotle says
+    \textquote[][.]{Lorem ipsum dolor sit amet}.
+    Plato said it in Greek.
+  \item Aristotle says
+    \textquote[][,]{Lorem ipsum dolor sit amet}.
+    but Plato said it in Greek.
+  \item I proclaim that Plato is right when he exclaims
+    \textquote[][!]{Virtue knows no master}.
+    Saying it will make people think I am virtuous.
+  \item Is Aristotle not right to ask
+    \textquote[][?]{%
+      Should we further posit
+      that friendship must not escape notice%
+    }.
+    I think he is.
+\end{trivlist}
+
+\subsubsection{Trailing Punctuation Is a Comma}
+\begin{trivlist}
+  \item Aristotle says
+    \textquote[][.]{Lorem ipsum dolor sit amet},
+    Plato said it in Greek.
+  \item Aristotle says
+    \textquote[][,]{Lorem ipsum dolor sit amet},
+    but Plato said it in Greek.
+  \item I proclaim that Plato is right when he exclaims
+    \textquote[][!]{Virtue knows no master},
+    Saying it will make people think I am virtuous.
+  \item Is Aristotle not right to ask
+    \textquote[][?]{%
+      Should we further posit
+      that friendship must not escape notice%
+    },
+    I think he is.
+\end{trivlist}
+
+\subsubsection{Trailing Punctuation Is a Semicolon}
+\begin{trivlist}
+  \item Aristotle says
+    \textquote[][.]{Lorem ipsum dolor sit amet};
+    Plato said it in Greek.
+  \item Aristotle says
+    \textquote[][,]{Lorem ipsum dolor sit amet};
+    but Plato said it in Greek.
+  \item I proclaim that Plato is right when he exclaims
+    \textquote[][!]{Virtue knows no master};
+    Saying it will make people think I am virtuous.
+  \item Is Aristotle not right to ask
+    \textquote[][?]{%
+      Should we further posit
+      that friendship must not escape notice%
+    };
+    I think he is.
+\end{trivlist}
+
+\subsubsection{Trailing Punctuation Is a Colon}
+\begin{trivlist}
+  \item Aristotle says
+    \textquote[][.]{Lorem ipsum dolor sit amet}:
+    Plato said it in Greek.
+  \item Aristotle says
+    \textquote[][,]{Lorem ipsum dolor sit amet}:
+    but Plato said it in Greek.
+  \item I proclaim that Plato is right when he exclaims
+    \textquote[][!]{Virtue knows no master}:
+    Saying it will make people think I am virtuous.
+  \item Is Aristotle not right to ask
+    \textquote[][?]{%
+      Should we further posit
+      that friendship must not escape notice%
+    }:
+    I think he is.
+\end{trivlist}
+
+\subsubsection{Trailing Punctuation Is an Exclamation Point}
+\begin{trivlist}
+  \item Aristotle says
+    \textquote[][.]{Lorem ipsum dolor sit amet}!
+    Plato said it in Greek.
+  \item Aristotle says
+    \textquote[][,]{Lorem ipsum dolor sit amet}!
+    but Plato said it in Greek.
+  \item I proclaim that Plato is right when he exclaims
+    \textquote[][!]{Virtue knows no master}!
+    Saying it will make people think I am virtuous.
+  \item Is Aristotle not right to ask
+    \textquote[][?]{%
+      Should we further posit
+      that friendship must not escape notice%
+    }!
+    I think he is.
+\end{trivlist}
+
+\subsubsection{Trailing Punctuation Is a Question Mark}
+\begin{trivlist}
+  \item Aristotle says
+    \textquote[][.]{Lorem ipsum dolor sit amet}?
+    Plato said it in Greek.
+  \item Aristotle says
+    \textquote[][,]{Lorem ipsum dolor sit amet}?
+    but Plato said it in Greek.
+  \item I proclaim that Plato is right when he exclaims
+    \textquote[][!]{Virtue knows no master}?
+    Saying it will make people think I am virtuous.
+  \item Is Aristotle not right to ask
+    \textquote[][?]{%
+      Should we further posit
+      that friendship must not escape notice%
+    }?
+    I think he is.
+\end{trivlist}
+
+\subsubsection{Terminal Punctuation Is a Colon or Semicolon}
+\begin{trivlist}
+  \item Aristotle says
+    \textquote[][;]{Lorem ipsum dolor sit amet}.
+    however, Plato said it in Greek.
+  \item Aristotle says
+    \textquote[][:]{Lorem ipsum dolor sit amet}.
+    it was a really cool line.
+  \item Aristotle says
+    \textquote[][;]{Lorem ipsum dolor sit amet},
+    however, Plato said it in Greek.
+  \item Aristotle says
+    \textquote[][:]{Lorem ipsum dolor sit amet},
+    it was a really cool line.
+  \item Aristotle says
+    \textquote[][;]{Lorem ipsum dolor sit amet};
+    however, Plato said it in Greek.
+  \item Aristotle says
+    \textquote[][:]{Lorem ipsum dolor sit amet};
+    it was a really cool line.
+  \item Aristotle says
+    \textquote[][;]{Lorem ipsum dolor sit amet}:
+    however, Plato said it in Greek.
+  \item Aristotle says
+    \textquote[][:]{Lorem ipsum dolor sit amet}:
+    it was a really cool line.
+  \item Aristotle says
+    \textquote[][;]{Lorem ipsum dolor sit amet}?
+    however, Plato said it in Greek.
+  \item Aristotle says
+    \textquote[][:]{Lorem ipsum dolor sit amet}?
+    it was a really cool line.
+  \item Aristotle says
+    \textquote[][;]{Lorem ipsum dolor sit amet}!
+    however, Plato said it in Greek.
+  \item Aristotle says
+    \textquote[][:]{Lorem ipsum dolor sit amet}!
+    it was a really cool line.
+\end{trivlist}
+
+\section{\texorpdfstring{\UseVerb{foreigntextquote}: Ancient Greek}{%
+  \foreigntextquote: Ancient Greek}%
+}
+
+\subsection{Terminal Punctuation Is a Colon or Semicolon}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][;]{Ἀρετὴ δὲ ἀδέσποτον}
+    however, a utilitarian would disagree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][:]{Ἀρετὴ δὲ ἀδέσποτον}
+    that utilitarian over there disagrees.
+\end{trivlist}
+
+\subsection{There Is Both Terminal and Trailing Punctuation}
+
+\subsubsection{Trailing Punctuation Is a Period}
+
+\begin{trivlist}
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][.]{Ἀρετὴ δὲ ἀδέσποτον}.
+    I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][,]{Ἀρετὴ δὲ ἀδέσποτον}.
+    and I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][!]{Ἀρετὴ δὲ ἀδέσποτον}.
+    I sure agree.
+  \item Does Plato really say
+    \foreigntextquote{ancientgreek}[][?]{Ἀρετὴ δὲ ἀδέσποτον}.
+    How moving!
+\end{trivlist}
+
+\subsubsection{Trailing Punctuation Is a Comma}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][.]{Ἀρετὴ δὲ ἀδέσποτον},
+    I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][,]{Ἀρετὴ δὲ ἀδέσποτον},
+    and I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][!]{Ἀρετὴ δὲ ἀδέσποτον},
+    I sure agree.
+  \item Does Plato really say
+    \foreigntextquote{ancientgreek}[][?]{Ἀρετὴ δὲ ἀδέσποτον},
+    How moving!
+\end{trivlist}
+
+\subsubsection{Trailing Punctuation Is a Semicolon}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][.]{Ἀρετὴ δὲ ἀδέσποτον};
+    I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][,]{Ἀρετὴ δὲ ἀδέσποτον};
+    and I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][!]{Ἀρετὴ δὲ ἀδέσποτον};
+    I sure agree.
+  \item Does Plato really say
+    \foreigntextquote{ancientgreek}[][?]{Ἀρετὴ δὲ ἀδέσποτον};
+    How moving!
+\end{trivlist}
+
+\subsubsection{Trailing Punctuation Is a Colon}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][.]{Ἀρετὴ δὲ ἀδέσποτον}:
+    I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][,]{Ἀρετὴ δὲ ἀδέσποτον}:
+    and I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][!]{Ἀρετὴ δὲ ἀδέσποτον}:
+    I sure agree.
+  \item Does Plato really say
+    \foreigntextquote{ancientgreek}[][?]{Ἀρετὴ δὲ ἀδέσποτον}:
+    How moving!
+\end{trivlist}
+
+\subsubsection{Trailing Punctuation Is an Exclamation Point}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][.]{Ἀρετὴ δὲ ἀδέσποτον}!
+    I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][,]{Ἀρετὴ δὲ ἀδέσποτον}!
+    and I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][!]{Ἀρετὴ δὲ ἀδέσποτον}!
+    I sure agree.
+  \item Does Plato really say
+    \foreigntextquote{ancientgreek}[][?]{Ἀρετὴ δὲ ἀδέσποτον}!
+    How moving!
+\end{trivlist}
+
+\subsubsection{Trailing Punctuation Is a Question Mark}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][.]{Ἀρετὴ δὲ ἀδέσποτον}?
+    I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][,]{Ἀρετὴ δὲ ἀδέσποτον}?
+    and I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][!]{Ἀρετὴ δὲ ἀδέσποτον}?
+    I sure agree.
+  \item Does Plato really say
+    \foreigntextquote{ancientgreek}[][?]{Ἀρετὴ δὲ ἀδέσποτον}?
+    How moving!
+\end{trivlist}
+
+\subsubsection{Terminal Punctuation Is a Colon or Semicolon}
+
+\begin{trivlist}
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][;]{Ἀρετὴ δὲ ἀδέσποτον}.
+    however, a utilitarian would disagree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][:]{Ἀρετὴ δὲ ἀδέσποτον}.
+    that utilitarian over there disagrees.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][;]{Ἀρετὴ δὲ ἀδέσποτον},
+    however, a utilitarian would disagree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][:]{Ἀρετὴ δὲ ἀδέσποτον},
+    that utilitarian over there disagrees.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][;]{Ἀρετὴ δὲ ἀδέσποτον};
+    however, a utilitarian would disagree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][:]{Ἀρετὴ δὲ ἀδέσποτον};
+    that utilitarian over there disagrees.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][;]{Ἀρετὴ δὲ ἀδέσποτον}:
+    however, a utilitarian would disagree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][:]{Ἀρετὴ δὲ ἀδέσποτον}:
+    that utilitarian over there disagrees.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][;]{Ἀρετὴ δὲ ἀδέσποτον}!
+    however, a utilitarian would disagree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][:]{Ἀρετὴ δὲ ἀδέσποτον}!
+    that utilitarian over there disagrees.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][;]{Ἀρετὴ δὲ ἀδέσποτον}?
+    however, a utilitarian would disagree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[][:]{Ἀρετὴ δὲ ἀδέσποτον}?
+    that utilitarian over there disagrees.
+\end{trivlist}
+
+\section{Trailing Period After an Ellipsis}
+
+\subsection{\texorpdfstring{\UseVerb{textquote}}{%
+  \textquote}%
+}
+\begin{trivlist}
+  \item Aristotle says
+    \textquote{Lorem ipsum dolor sit amet \textelp{}}.
+    Plato said it in Greek.
+  \item Aristotle says
+    \textquote{Lorem ipsum dolor sit \textelp*{amet}}.
+    Plato said it in Greek.
+\end{trivlist}
+
+\subsection{\texorpdfstring{\UseVerb{foreigntextquote}}{%
+  \foreigntextquote}%
+}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextquote{ancientgreek}{Ἀρετὴ δὲ ἀδέσποτον\textelp{}}.
+    I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}{Ἀρετὴ δὲ \textelp*{ἀδέσποτον}}.
+    I agree.
+\end{trivlist}
+
+\newpage
+\OMIT
+\end{document}

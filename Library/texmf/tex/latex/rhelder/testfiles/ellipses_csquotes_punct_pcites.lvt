@@ -1,0 +1,946 @@
+\input{regression-test}
+\documentclass[12pt, letterpaper]{article}
+\usepackage{fvextra}
+
+\usepackage[authordate, cmslos=false]{biblatex-chicago}
+\addbibresource{my_library.bib}
+
+\usepackage{rhelder}
+\geometry{reset, pass}
+\setlist[trivlist]{nosep}
+
+\SaveVerb{rh@ellipsis}=\rh@ellipsis=
+\SaveVerb{textquote}=\textquote=
+\SaveVerb{textcquote}=\textcquote=
+\SaveVerb{foreigntextquote}=\foreigntextquote=
+\SaveVerb{foreigntextcquote}=\foreigntextcquote=
+\newcommand*{\rhellipsis}{\textbackslash rh@ellipsis}%
+\AddToHook{begindocument/before}{%
+  \pdfstringdefDisableCommands{%
+    \renewcommand*{\textquote}{\textbackslash textquote}%
+    \renewcommand*{\textcquote}{\textbackslash textcquote}%
+    \renewcommand*{\foreigntextquote}{\textbackslash foreigntextquote}%
+    \renewcommand*{\foreigntextcquote}{\textbackslash foreigntextcquote}%
+  }%
+}
+
+\title{%
+  \texorpdfstring{%
+    \UseVerb{rh@ellipsis} at the End of Quotations
+    with Parenthetical Citations%
+  }{%
+    \rhellipsis\ at the End of Quotations
+    with Parenthetical Citations%
+  }%
+}
+\date{December 3, 2024}
+
+\showoutput
+\begin{document}
+\maketitle
+\START
+
+
+\section{Ellipsis Only}
+
+\subsection{\texorpdfstring{\UseVerb{textquote}}{%
+  \textquote}%
+}
+
+\subsubsection{No Punctuation}
+\begin{trivlist}
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}]{%
+      Lorem ipsum dolor sit amet \textelp{}%
+    }
+    and howdy-doo.
+\end{trivlist}
+
+\subsubsection{Only Trailing Punctuation}
+\begin{trivlist}
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}]{%
+      Lorem ipsum dolor sit amet \textelp{}%
+    }.
+    Plato said it in Greek.
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}]{%
+      Lorem ipsum dolor sit amet \textelp{}%
+    },
+    but Plato said it in Greek.
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}]{%
+      Lorem ipsum dolor sit amet \textelp{}%
+    };
+    however, Plato said it in Greek.
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}]{%
+      Lorem ipsum dolor sit amet \textelp{}%
+    }:
+    it was a really cool line.
+  \item I proclaim that Plato is right when he exclaims
+    \textquote[{\autocite[10]{Rep}}]{%
+      Virtue knows no master \textelp{}%
+    }!
+    Saying it will make people think I am virtuous.
+  \item Is Aristotle not right to ask
+    \textquote[{\autocite[8]{EN}}]{%
+      Should we further posit
+      that friendship must not escape notice \textelp{}%
+    }?
+    I think he is.
+\end{trivlist}
+
+\subsubsection{Only Terminal Punctuation}
+\begin{trivlist}
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}][.]{%
+      Lorem ipsum dolor sit amet \textelp{}%
+    }
+    Plato said it in Greek.
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}][,]{%
+      Lorem ipsum dolor sit amet \textelp{}%
+    }
+    but Plato said it in Greek.
+  \item I proclaim that Plato is right when he exclaims
+    \textquote[{\autocite[10]{Rep}}][!]{%
+      Virtue knows no master%
+    }
+    Saying it will make people think I am virtuous.
+  \item Is Aristotle not right to ask
+    \textquote[{\autocite[8]{EN}}][?]{%
+      Should we further posit
+      that friendship must not escape notice \textelp{}%
+    }
+    I think he is.
+\end{trivlist}
+
+\subsection{\texorpdfstring{\UseVerb{textcquote}}{%
+  \textcquote}%
+}
+
+\subsubsection{No Punctuation}
+\begin{trivlist}
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}{%
+      Lorem ipsum dolor sit amet \textelp{}%
+    }
+    and howdy-doo.
+\end{trivlist}
+
+\subsubsection{Only Trailing Punctuation}
+\begin{trivlist}
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}{%
+      Lorem ipsum dolor sit amet \textelp{}%
+    }.
+    Plato said it in Greek.
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}{%
+      Lorem ipsum dolor sit amet \textelp{}%
+    },
+    but Plato said it in Greek.
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}{%
+      Lorem ipsum dolor sit amet \textelp{}%
+    };
+    however, Plato said it in Greek.
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}{%
+      Lorem ipsum dolor sit amet \textelp{}%
+    }:
+    it was a really cool line.
+  \item I proclaim that Plato is right when he exclaims
+    \textcquote[10]{Rep}{%
+      Virtue knows no master \textelp{}%
+    }!
+    Saying it will make people think I am virtuous.
+  \item Is Aristotle not right to ask
+    \textcquote[8]{EN}{%
+      Should we further posit
+      that friendship must not escape notice \textelp{}%
+    }?
+    I think he is.
+\end{trivlist}
+
+\subsubsection{Only Terminal Punctuation}
+\begin{trivlist}
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}[.]{%
+      Lorem ipsum dolor sit amet \textelp{}%
+    }
+    Plato said it in Greek.
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}[,]{%
+      Lorem ipsum dolor sit amet \textelp{}%
+    }
+    but Plato said it in Greek.
+  \item I proclaim that Plato is right when he exclaims
+    \textcquote[10]{Rep}[!]{%
+      Virtue knows no master%
+    }
+    Saying it will make people think I am virtuous.
+  \item Is Aristotle not right to ask
+    \textcquote[8]{EN}[?]{%
+      Should we further posit
+      that friendship must not escape notice \textelp{}%
+    }
+    I think he is.
+\end{trivlist}
+
+\subsection{\texorpdfstring{\UseVerb{foreigntextquote}: Ancient Greek}{%
+  \foreigntextquote: Ancient Greek}%
+}
+
+\subsubsection{No Punctuation}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    }
+    and howdy-doo.
+  \item Plato says
+    \foreigntextquote*{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    }
+    and howdy-doo.
+\end{trivlist}
+
+\subsubsection{Only Trailing Punctuation}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    }.
+    I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    },
+    and I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    };
+    however, a utilitarian would disagree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    }:
+    that utilitarian over there disagrees.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    }!
+    I sure agree.
+  \item Does Plato really say
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    }?
+    How moving!
+\end{trivlist}
+
+\subsubsection{Only Terminal Punctuation}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}][.]{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    }
+    I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}][,]{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    }
+    and I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}][!]{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    }
+    I sure agree.
+  \item Does Plato really say
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}][?]{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    }
+    How moving!
+\end{trivlist}
+
+\subsection{\texorpdfstring{\UseVerb{foreigntextcquote}: Ancient Greek}{%
+  \foreigntextcquote: Ancient Greek}%
+}
+
+\subsubsection{No Punctuation}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    }
+    and howdy-doo.
+  \item Plato says
+    \foreigntextcquote*{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    }
+    and howdy-doo.
+\end{trivlist}
+
+\subsubsection{Only Trailing Punctuation}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    }.
+    I agree.
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    },
+    and I agree.
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    };
+    however, a utilitarian would disagree.
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    }:
+    that utilitarian over there disagrees.
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    }!
+    I sure agree.
+  \item Does Plato really say
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    }?
+    How moving!
+\end{trivlist}
+
+\subsubsection{Only Terminal Punctuation}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}[.]{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    }
+    I agree.
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}[,]{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    }
+    and I agree.
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}[!]{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    }
+    I sure agree.
+  \item Does Plato really say
+    \foreigntextcquote{ancientgreek}[10]{Rep}[?]{%
+      Ἀρετὴ δὲ ἀδέσποτον \textelp{}%
+    }
+    How moving!
+\end{trivlist}
+
+\section{Ellipsis Followed by Insertion}
+
+\subsection{\texorpdfstring{\UseVerb{textquote}}{%
+  \textquote}%
+}
+
+\subsubsection{No Punctuation}
+\begin{trivlist}
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}]{%
+      Lorem ipsum dolor sit \textelp{amet}%
+    }
+    and howdy-doo.
+\end{trivlist}
+
+\subsubsection{Only Trailing Punctuation}
+\begin{trivlist}
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}]{%
+      Lorem ipsum dolor sit \textelp{amet}%
+    }.
+    Plato said it in Greek.
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}]{%
+      Lorem ipsum dolor sit \textelp{amet}%
+    },
+    but Plato said it in Greek.
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}]{%
+      Lorem ipsum dolor sit \textelp{amet}%
+    };
+    however, Plato said it in Greek.
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}]{%
+      Lorem ipsum dolor sit \textelp{amet}%
+    }:
+    it was a really cool line.
+  \item I proclaim that Plato is right when he exclaims
+    \textquote[{\autocite[10]{Rep}}]{%
+      Virtue knows no \textelp{master}%
+    }!
+    Saying it will make people think I am virtuous.
+  \item Is Aristotle not right to ask
+    \textquote[{\autocite[8]{EN}}]{%
+      Should we further posit
+      that friendship must not escape \textelp{notice}%
+    }?
+    I think he is.
+\end{trivlist}
+
+\subsubsection{Only Terminal Punctuation}
+\begin{trivlist}
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}][.]{%
+      Lorem ipsum dolor sit \textelp{amet}%
+    }
+    Plato said it in Greek.
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}][,]{%
+      Lorem ipsum dolor sit \textelp{amet}%
+    }
+    but Plato said it in Greek.
+  \item I proclaim that Plato is right when he exclaims
+    \textquote[{\autocite[10]{Rep}}][!]{%
+      Virtue knows no master%
+    }
+    Saying it will make people think I am virtuous.
+  \item Is Aristotle not right to ask
+    \textquote[{\autocite[8]{EN}}][?]{%
+      Should we further posit
+      that friendship must not escape \textelp{notice}%
+    }
+    I think he is.
+\end{trivlist}
+
+\subsection{\texorpdfstring{\UseVerb{textcquote}}{%
+  \textcquote}%
+}
+
+\subsubsection{No Punctuation}
+\begin{trivlist}
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}{%
+      Lorem ipsum dolor sit \textelp{amet}%
+    }
+    and howdy-doo.
+\end{trivlist}
+
+\subsubsection{Only Trailing Punctuation}
+\begin{trivlist}
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}{%
+      Lorem ipsum dolor sit \textelp{amet}%
+    }.
+    Plato said it in Greek.
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}{%
+      Lorem ipsum dolor sit \textelp{amet}%
+    },
+    but Plato said it in Greek.
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}{%
+      Lorem ipsum dolor sit \textelp{amet}%
+    };
+    however, Plato said it in Greek.
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}{%
+      Lorem ipsum dolor sit \textelp{amet}%
+    }:
+    it was a really cool line.
+  \item I proclaim that Plato is right when he exclaims
+    \textcquote[10]{Rep}{%
+      Virtue knows no \textelp{master}%
+    }!
+    Saying it will make people think I am virtuous.
+  \item Is Aristotle not right to ask
+    \textcquote[8]{EN}{%
+      Should we further posit
+      that friendship must not escape \textelp{notice}%
+    }?
+    I think he is.
+\end{trivlist}
+
+\subsubsection{Only Terminal Punctuation}
+\begin{trivlist}
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}[.]{%
+      Lorem ipsum dolor sit \textelp{amet}%
+    }
+    Plato said it in Greek.
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}[,]{%
+      Lorem ipsum dolor sit \textelp{amet}%
+    }
+    but Plato said it in Greek.
+  \item I proclaim that Plato is right when he exclaims
+    \textcquote[10]{Rep}[!]{%
+      Virtue knows no master%
+    }
+    Saying it will make people think I am virtuous.
+  \item Is Aristotle not right to ask
+    \textcquote[8]{EN}[?]{%
+      Should we further posit
+      that friendship must not escape \textelp{notice}%
+    }
+    I think he is.
+\end{trivlist}
+
+\subsection{\texorpdfstring{\UseVerb{foreigntextquote}: Ancient Greek}{%
+  \foreigntextquote: Ancient Greek}%
+}
+
+\subsubsection{No Punctuation}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    }
+    and howdy-doo.
+  \item Plato says
+    \foreigntextquote*{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    }
+    and howdy-doo.
+\end{trivlist}
+
+\subsubsection{Only Trailing Punctuation}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    }.
+    I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    },
+    and I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    };
+    however, a utilitarian would disagree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    }:
+    that utilitarian over there disagrees.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    }!
+    I sure agree.
+  \item Does Plato really say
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    }?
+    How moving!
+\end{trivlist}
+
+\subsubsection{Only Terminal Punctuation}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}][.]{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    }
+    I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}][,]{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    }
+    and I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}][!]{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    }
+    I sure agree.
+  \item Does Plato really say
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}][?]{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    }
+    How moving!
+\end{trivlist}
+
+\subsection{\texorpdfstring{\UseVerb{foreigntextcquote}: Ancient Greek}{%
+  \foreigntextcquote: Ancient Greek}%
+}
+
+\subsubsection{No Punctuation}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    }
+    and howdy-doo.
+  \item Plato says
+    \foreigntextcquote*{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    }
+    and howdy-doo.
+\end{trivlist}
+
+\subsubsection{Only Trailing Punctuation}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    }.
+    I agree.
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    },
+    and I agree.
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    };
+    however, a utilitarian would disagree.
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    }:
+    that utilitarian over there disagrees.
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    }!
+    I sure agree.
+  \item Does Plato really say
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    }?
+    How moving!
+\end{trivlist}
+
+\subsubsection{Only Terminal Punctuation}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}[.]{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    }
+    I agree.
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}[,]{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    }
+    and I agree.
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}[!]{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    }
+    I sure agree.
+  \item Does Plato really say
+    \foreigntextcquote{ancientgreek}[10]{Rep}[?]{%
+      Ἀρετὴ δὲ \textelp{ἀδέσποτον}%
+    }
+    How moving!
+\end{trivlist}
+
+\section{Ellipsis After Insertion}
+
+\subsection{\texorpdfstring{\UseVerb{textquote}}{%
+  \textquote}%
+}
+
+\subsubsection{No Punctuation}
+\begin{trivlist}
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}]{%
+      Lorem ipsum dolor sit \textelp*{amet}%
+    }
+    and howdy-doo.
+\end{trivlist}
+
+\subsubsection{Only Trailing Punctuation}
+\begin{trivlist}
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}]{%
+      Lorem ipsum dolor sit \textelp*{amet}%
+    }.
+    Plato said it in Greek.
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}]{%
+      Lorem ipsum dolor sit \textelp*{amet}%
+    },
+    but Plato said it in Greek.
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}]{%
+      Lorem ipsum dolor sit \textelp*{amet}%
+    };
+    however, Plato said it in Greek.
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}]{%
+      Lorem ipsum dolor sit \textelp*{amet}%
+    }:
+    it was a really cool line.
+  \item I proclaim that Plato is right when he exclaims
+    \textquote[{\autocite[10]{Rep}}]{%
+      Virtue knows no \textelp*{master}%
+    }!
+    Saying it will make people think I am virtuous.
+  \item Is Aristotle not right to ask
+    \textquote[{\autocite[8]{EN}}]{%
+      Should we further posit
+      that friendship must not escape \textelp*{notice}%
+    }?
+    I think he is.
+\end{trivlist}
+
+\subsubsection{Only Terminal Punctuation}
+\begin{trivlist}
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}][.]{%
+      Lorem ipsum dolor sit \textelp*{amet}%
+    }
+    Plato said it in Greek.
+  \item Aristotle says
+    \textquote[{\autocite[151-186]{fernandez2014ReasoningUnity}}][,]{%
+      Lorem ipsum dolor sit \textelp*{amet}%
+    }
+    but Plato said it in Greek.
+  \item I proclaim that Plato is right when he exclaims
+    \textquote[{\autocite[10]{Rep}}][!]{%
+      Virtue knows no master%
+    }
+    Saying it will make people think I am virtuous.
+  \item Is Aristotle not right to ask
+    \textquote[{\autocite[8]{EN}}][?]{%
+      Should we further posit
+      that friendship must not escape \textelp*{notice}%
+    }
+    I think he is.
+\end{trivlist}
+
+\subsection{\texorpdfstring{\UseVerb{textcquote}}{%
+  \textcquote}%
+}
+
+\subsubsection{No Punctuation}
+\begin{trivlist}
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}{%
+      Lorem ipsum dolor sit \textelp*{amet}%
+    }
+    and howdy-doo.
+\end{trivlist}
+
+\subsubsection{Only Trailing Punctuation}
+\begin{trivlist}
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}{%
+      Lorem ipsum dolor sit \textelp*{amet}%
+    }.
+    Plato said it in Greek.
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}{%
+      Lorem ipsum dolor sit \textelp*{amet}%
+    },
+    but Plato said it in Greek.
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}{%
+      Lorem ipsum dolor sit \textelp*{amet}%
+    };
+    however, Plato said it in Greek.
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}{%
+      Lorem ipsum dolor sit \textelp*{amet}%
+    }:
+    it was a really cool line.
+  \item I proclaim that Plato is right when he exclaims
+    \textcquote[10]{Rep}{%
+      Virtue knows no \textelp*{master}%
+    }!
+    Saying it will make people think I am virtuous.
+  \item Is Aristotle not right to ask
+    \textcquote[8]{EN}{%
+      Should we further posit
+      that friendship must not escape \textelp*{notice}%
+    }?
+    I think he is.
+\end{trivlist}
+
+\subsubsection{Only Terminal Punctuation}
+\begin{trivlist}
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}[.]{%
+      Lorem ipsum dolor sit \textelp*{amet}%
+    }
+    Plato said it in Greek.
+  \item Aristotle says
+    \textcquote[151-186]{fernandez2014ReasoningUnity}[,]{%
+      Lorem ipsum dolor sit \textelp*{amet}%
+    }
+    but Plato said it in Greek.
+  \item I proclaim that Plato is right when he exclaims
+    \textcquote[10]{Rep}[!]{%
+      Virtue knows no master%
+    }
+    Saying it will make people think I am virtuous.
+  \item Is Aristotle not right to ask
+    \textcquote[8]{EN}[?]{%
+      Should we further posit
+      that friendship must not escape \textelp*{notice}%
+    }
+    I think he is.
+\end{trivlist}
+
+\subsection{\texorpdfstring{\UseVerb{foreigntextquote}: Ancient Greek}{%
+  \foreigntextquote: Ancient Greek}%
+}
+
+\subsubsection{No Punctuation}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    }
+    and howdy-doo.
+  \item Plato says
+    \foreigntextquote*{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    }
+    and howdy-doo.
+\end{trivlist}
+
+\subsubsection{Only Trailing Punctuation}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    }.
+    I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    },
+    and I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    };
+    however, a utilitarian would disagree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    }:
+    that utilitarian over there disagrees.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    }!
+    I sure agree.
+  \item Does Plato really say
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}]{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    }?
+    How moving!
+\end{trivlist}
+
+\subsubsection{Only Terminal Punctuation}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}][.]{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    }
+    I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}][,]{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    }
+    and I agree.
+  \item Plato says
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}][!]{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    }
+    I sure agree.
+  \item Does Plato really say
+    \foreigntextquote{ancientgreek}[{\autocite[10]{Rep}}][?]{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    }
+    How moving!
+\end{trivlist}
+
+\subsection{\texorpdfstring{\UseVerb{foreigntextcquote}: Ancient Greek}{%
+  \foreigntextcquote: Ancient Greek}%
+}
+
+\subsubsection{No Punctuation}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    }
+    and howdy-doo.
+  \item Plato says
+    \foreigntextcquote*{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    }
+    and howdy-doo.
+\end{trivlist}
+
+\subsubsection{Only Trailing Punctuation}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    }.
+    I agree.
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    },
+    and I agree.
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    };
+    however, a utilitarian would disagree.
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    }:
+    that utilitarian over there disagrees.
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    }!
+    I sure agree.
+  \item Does Plato really say
+    \foreigntextcquote{ancientgreek}[10]{Rep}{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    }?
+    How moving!
+\end{trivlist}
+
+\subsubsection{Only Terminal Punctuation}
+\begin{trivlist}
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}[.]{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    }
+    I agree.
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}[,]{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    }
+    and I agree.
+  \item Plato says
+    \foreigntextcquote{ancientgreek}[10]{Rep}[!]{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    }
+    I sure agree.
+  \item Does Plato really say
+    \foreigntextcquote{ancientgreek}[10]{Rep}[?]{%
+      Ἀρετὴ δὲ \textelp*{ἀδέσποτον}%
+    }
+    How moving!
+\end{trivlist}
+
+\newpage
+\OMIT
+\end{document}
