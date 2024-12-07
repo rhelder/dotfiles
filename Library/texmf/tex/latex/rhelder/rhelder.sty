@@ -127,7 +127,7 @@
 \RenewCommandCopy\quote\quoting
 \RenewCommandCopy\endquote\endquoting
 
-\ifbool{rh@misguided}{
+\ifbool{rh@misguided}{ % TODO make sure American punctuation is fully supported
   \DeclareAutoPunct{.,}
   % {<qopen>}{<text>}{<qclose>}{<punct>}{<tpunct>}{<cite>}
   \renewcommand{\mktextquote}[6]{#1#2#4#5#3#6}
@@ -147,11 +147,49 @@
     }{%
       #1#2#4#3#6#5%
     }%
+    \rh@tquote@check{#6}{#4}{#5}%
   }
   \ifbool{rh@biblatex}{
     \DefineBibliographyExtras{american}{\stdpunctuation}
   }{}
 }
+
+% Check for mistakes in punctuation TODO: test this {{{2
+\protected\def\rh@warning#1{\PackageWarning{rhelder}{#1}}
+
+\def\rh@tquote@check#1#2#3{%
+  \ifboolexpr{
+    test {\ifstrequal{#2}{;}} or test {\ifstrequal{#2}{:}}
+  }%
+  {%
+    \rh@warning{%
+      You passed ';' or ':' to '\string\texqtuote'
+      as terminal punctuation.%
+    }%
+  }{}%
+  \ifboolexpr{
+    test {\notblank{#2}} and test {\notblank{#3}}
+  }%
+  {%
+    \rh@warning{%
+      You passed both terminal and trailing punctuation
+      to '\string\textquote'.%
+    }%
+  }{}%
+  \ifbool{rh@elp@end}{%
+    \ifboolexpr{
+      test {\ifstrequal{#3}{.}} and test {\ifblank{#1}}
+    }%
+    {%
+      \rh@warning{%
+        A period is trailing a '\string\textquote'
+        that ends in an ellipsis.%
+      }%
+    }{}%
+    \global\boolfalse{rh@elp@end}%
+  }{}%
+}
+% }}}2
 
 \renewcommand*{\mkcitation}[1]{\@\space #1}
 \renewcommand*{\mkccitation}[1]{\@\space #1}
@@ -222,8 +260,8 @@
     }{\@ifnextchar \/ {%
     }{\@ifnextchar \footnote {%
     }{\@ifnextchar \footnotemark {%
-    }{\@ifnextchar \csq@qclose@i {%
     }{\@ifnextchar \rh@elp@qclose {%
+    }{\@ifnextchar \csq@qclose@i {%
       \global\booltrue{rh@elp@end}%
     }{%
       \@\space
@@ -248,48 +286,8 @@
 
 \def\rh@elp@qclose{}
 
-% Check for mistakes in punctuation {{{3
-\protected\def\rh@warning#1{\PackageWarning{rhelder}{#1}}
-
-\patchcmd{\csq@tquote@i}{\endgroup}{%
-  \rh@tquote@check{#5}{#6}{#8}\endgroup
-}{}{}
-
-\def\rh@tquote@check#1#2#3{%
-  \ifboolexpr{
-    test {\ifstrequal{#2}{;}} or test {\ifstrequal{#2}{:}}
-  }%
-  {%
-    \rh@warning{%
-      You passed ';' or ':' to '\string\texqtuote'
-      as terminal punctuation.%
-    }%
-  }{}%
-  \ifboolexpr{
-    test {\notblank{#2}} and test {\notblank{#3}}
-  }%
-  {%
-    \rh@warning{%
-      You passed both terminal and trailing punctuation
-      to '\string\textquote'.%
-    }%
-  }{}%
-  \ifbool{rh@elp@end}{%
-    \ifboolexpr{
-      test {\ifstrequal{#3}{.}} and test {\ifblank{#1}}
-    }%
-    {%
-      \rh@warning{%
-        A period is trailing a '\string\textquote'
-        that ends in an ellipsis.%
-      }%
-    }{}%
-    \global\boolfalse{rh@elp@end}%
-  }{}%
-}
-
 \newbool{rh@elp@end}
-% }}}3
+
 % }}}2
 
 % Possessives {{{1
