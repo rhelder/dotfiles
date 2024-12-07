@@ -39,7 +39,6 @@
 \RequirePackage[
   strict,
   autostyle,
-  english=british,
   latin=britishquotes,
 ]{csquotes}
 \PassOptionsToPackage{hyphens}{url}
@@ -129,32 +128,34 @@
 
 \ifbool{rh@misguided}{ % TODO make sure American punctuation is fully supported
   \DeclareAutoPunct{.,}
-  % {<qopen>}{<text>}{<qclose>}{<punct>}{<tpunct>}{<cite>}
-  \renewcommand{\mktextquote}[6]{#1#2#4#5#3#6}
   \ifbool{rh@biblatex}{
     \DefineBibliographyExtras{american}{\uspunctuation}
   }{}
+  \def\rh@tempa#1#2#3#4#5#6{#1#2#4#5#3#6}
 }{
-  % {<qopen>}{<text>}{<qclose>}{<punct>}{<tpunct>}{<cite>}
-  \renewcommand{\mktextquote}[6]{%
-    \ifboolexpr{
-      test {\notblank{#6}}
-      and
-      ( test {\ifstrequal{#4}{.}} or test {\ifstrequal{#4}{,}} )
-    }%
-    {%
-      #1#2#3#6#4#5%
-    }{%
-      #1#2#4#3#6#5%
-    }%
-    \rh@tquote@check{#6}{#4}{#5}%
-  }
+  \ExecuteQuoteOptions{english=british}
   \ifbool{rh@biblatex}{
     \DefineBibliographyExtras{american}{\stdpunctuation}
   }{}
+  \def\rh@tempa#1#2#3#4#5#6{#1#2#4#3#6#5}
 }
 
-% Check for mistakes in punctuation TODO: test this {{{2
+% {<qopen>}{<text>}{<qclose>}{<punct>}{<tpunct>}{<cite>}
+\renewcommand{\mktextquote}[6]{%
+  \ifboolexpr{
+    test {\notblank{#6}}
+    and
+    ( test {\ifstrequal{#4}{.}} or test {\ifstrequal{#4}{,}} )
+  }%
+  {%
+    #1#2#3#6#4#5%
+  }{%
+    \rh@tempa{#1}{#2}{#3}{#4}{#5}{#6}%
+  }%
+  \rh@tquote@check{#6}{#4}{#5}%
+}
+
+% Check for mistakes in punctuation {{{2
 \protected\def\rh@warning#1{\PackageWarning{rhelder}{#1}}
 
 \def\rh@tquote@check#1#2#3{%
