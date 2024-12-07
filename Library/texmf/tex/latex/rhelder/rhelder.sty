@@ -7,7 +7,6 @@
 
 \DeclareOption{biblatex}{\booltrue{rh@biblatex}}
 \DeclareOption{doublespaced}{\booltrue{rh@doublespaced}}
-\DeclareOption{misguided}{\booltrue{rh@misguided}}
 \DeclareOption{anonymous}{\boolfalse{rh@author}\booltrue{rh@anonymous}}
 \DeclareOption{notranslit}{\boolfalse{rh@translit}}
 
@@ -16,7 +15,6 @@
 \newbool{rh@author}
 \newbool{rh@anonymous}
 \newbool{rh@doublespaced}
-\newbool{rh@misguided}
 
 \booltrue{rh@translit}
 \booltrue{rh@author}
@@ -41,6 +39,7 @@
   autostyle,
   latin=britishquotes,
 ]{csquotes}
+\RequirePackage{cms}
 \PassOptionsToPackage{hyphens}{url}
 \RequirePackage[indentfirst=false]{quoting}
 \RequirePackage{enumitem}
@@ -125,204 +124,6 @@
 \RenewCommandCopy\endquotation\endquoting
 \RenewCommandCopy\quote\quoting
 \RenewCommandCopy\endquote\endquoting
-
-\ifbool{rh@misguided}{ % TODO make sure American punctuation is fully supported
-  \DeclareAutoPunct{.,}
-  \ifbool{rh@biblatex}{
-    \DefineBibliographyExtras{american}{\uspunctuation}
-  }{}
-  \def\rh@tempa#1#2#3#4#5#6{#1#2#4#5#3#6}
-}{
-  \ExecuteQuoteOptions{english=british}
-  \ifbool{rh@biblatex}{
-    \DefineBibliographyExtras{american}{\stdpunctuation}
-  }{}
-  \def\rh@tempa#1#2#3#4#5#6{#1#2#4#3#6#5}
-}
-
-% {<qopen>}{<text>}{<qclose>}{<punct>}{<tpunct>}{<cite>}
-\renewcommand{\mktextquote}[6]{%
-  \ifboolexpr{
-    test {\notblank{#6}}
-    and
-    ( test {\ifstrequal{#4}{.}} or test {\ifstrequal{#4}{,}} )
-  }%
-  {%
-    #1#2#3#6#4#5%
-  }{%
-    \rh@tempa{#1}{#2}{#3}{#4}{#5}{#6}%
-  }%
-  \rh@tquote@check{#6}{#4}{#5}%
-}
-
-% Check for mistakes in punctuation {{{2
-\protected\def\rh@warning#1{\PackageWarning{rhelder}{#1}}
-
-\def\rh@tquote@check#1#2#3{%
-  \ifboolexpr{
-    test {\ifstrequal{#2}{;}} or test {\ifstrequal{#2}{:}}
-  }%
-  {%
-    \rh@warning{%
-      You passed ';' or ':' to '\string\texqtuote'
-      as terminal punctuation.%
-    }%
-  }{}%
-  \ifboolexpr{
-    test {\notblank{#2}} and test {\notblank{#3}}
-  }%
-  {%
-    \rh@warning{%
-      You passed both terminal and trailing punctuation
-      to '\string\textquote'.%
-    }%
-  }{}%
-  \ifbool{rh@elp@end}{%
-    \ifboolexpr{
-      test {\ifstrequal{#3}{.}} and test {\ifblank{#1}}
-    }%
-    {%
-      \rh@warning{%
-        A period is trailing a '\string\textquote'
-        that ends in an ellipsis.%
-      }%
-    }{}%
-    \global\boolfalse{rh@elp@end}%
-  }{}%
-}
-% }}}2
-
-\renewcommand*{\mkcitation}[1]{\@\space #1}
-\renewcommand*{\mkccitation}[1]{\@\space #1}
-
-% Ellipses {{{1
-
-\renewcommand*{\mktextelp}{\rh@textellipsis}
-\renewcommand*{\mktextelpins}[1]{\rh@textellipsis [#1]} %false, unstarred
-\renewcommand*{\mktextinselp}[1]{[#1] \rh@textellipsis} %true, unstarred
-
-% Redefine LaTeX '\textellipsis', '\dots', and '\ldots' {{{2
-% 'french' 'babel' option redefines '\textellipsis' at beginning of document
-\AtBeginDocument{%
-  \RenewCommandCopy\textellipsis\rh@textellipsis
-  \RenewDocumentCommand{\ldots}{}{%
-    \ifmmode\mathellipsis\else
-      \@ifnextchar \bgroup {%
-        \expandafter\rh@elp@rmbraces\textellipsis
-      }{%
-        \expandafter\textellipsis
-      }%
-    \fi
-  }%
-  % 'amsmath' has its own definition of '\dots', but not of '\ldots'
-  \IfPackageLoadedTF{amsmath}{%
-    \RenewDocumentCommand{\dots}{}{%
-      \ifmmode \@xp\mdots@\else
-        \@ifnextchar \bgroup {%
-          \expandafter\rh@elp@rmbraces\textellipsis%
-        }{%
-          \expandafter\textellipsis
-        }%
-      \fi
-    }%
-  }{%
-    \RenewCommandCopy\dots\ldots
-  }%
-}
-% }}}2
-
-\protected\def\rh@textellipsis{% {{{2
-  \@ifnextchar \bgroup{%
-    \rh@elp@rmbraces\rh@elp@spaces
-  }{%
-    \rh@elp@spaces
-  }%
-}
-
-\def\rh@elp@rmbraces#1#2{#1}
-
-\def\rh@elp@spaces{%
-  \ifvmode
-    \leavevmode
-    \def\rh@elp@prespace{}%
-  \else
-    \def\rh@elp@prespace{\penalty 9999\@\space}%
-    \unskip
-  \fi
-  \@ifnextchar .{%
-    \rh@elp@mvperiodbefore
-  }{%
-    \rh@elp
-    \@ifnextchar ' {%
-    }{\@ifnextchar " {%
-    }{\@ifnextchar ) {%
-    }{\@ifnextchar \ {%
-    }{\@ifnextchar ~ {%
-    }{\@ifnextchar \/ {%
-    }{\@ifnextchar \footnote {%
-    }{\@ifnextchar \footnotemark {%
-    }{\@ifnextchar \rh@elp@qclose {%
-    }{\@ifnextchar \csq@qclose@i {%
-      \global\booltrue{rh@elp@end}%
-    }{%
-      \@\space
-    }}}}}}}}}}%
-  }%
-}
-
-\def\rh@elp@mvperiodbefore#1{%
-  \@gobble{#1}%
-  .\rh@elp
-  \@ifnextchar \csq@qclose@i {%
-  }{\@ifnextchar \rh@elp@qclose {%
-  }{%
-  \@\space
-  }}%
-}
-
-\def\rh@elp{\rh@elp@prespace .\@\nobreak\space .\@\nobreak\space .\@}
-
-\patchcmd{\csq@quote@i}{#3}{#3\rh@elp@qclose}{}{}
-\patchcmd{\csq@quote@ii}{#3}{#3\rh@elp@qclose}{}{}
-
-\def\rh@elp@qclose{}
-
-\newbool{rh@elp@end}
-
-% }}}2
-
-% Possessives {{{1
-
-\NewDocumentCommand{\gensg}{m}{#1's}
-\NewDocumentCommand{\genpl}{m}{%
-  \begingroup
-  \def\rh@tempa{}%
-  \rh@genpl@do#1\relax
-  \endgroup
-}
-\NewDocumentCommand{\gensgpl}{m}{\genpl{#1}}
-\NewCommandCopy\genorg\gensgpl
-\NewCommandCopy\genforsake\gensgpl
-
-\def\rh@genpl@do#1{%
-  \appto{\rh@tempa}{#1}%
-  \let\rh@genpl@last #1%
-  \futurelet\rh@genpl@next\rh@genpl@iterate
-}
-
-\def\rh@genpl@iterate{%
-  \ifx\rh@genpl@next\relax\relax
-    \ifx\rh@genpl@last s\relax
-      \rh@tempa '%
-    \else
-      \rh@tempa 's%
-    \fi
-    \let\rh@genpl@do\relax
-  \else\ifx\rh@genpl@next\@sptoken\relax
-    \appto{\rh@tempa}{\space}%
-  \fi\fi
-  \rh@genpl@do
-}
 
 % Lists {{{1
 
