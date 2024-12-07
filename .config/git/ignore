@@ -1,5 +1,6 @@
 .CFUserTextEncoding
 .DS_Store
+/.Xauthority
 /.Trash/
 /.cache/
 /.cups/
@@ -24,6 +25,7 @@
 
 .terminfo/
 
+/.local/bin/xld
 /.local/state/
 /.local/share/kitty-ssh-kitten/
 /.local/share/nvim/.netrwhist
@@ -37,6 +39,7 @@
 /Library/*
 !/Library/texmf/
 /Library/texmf/bibtex/
+/Library/texmf/tex/latex/cms/
 /Library/texmf/tex/latex/rhelder/build
 !/Library/LaunchAgents
 /Library/LaunchAgents/*
