@@ -23,6 +23,7 @@ let g:vimtex_fold_types = {
       \ 'markers': {},
       \ 'sections': {},
       \ 'envs': {'enabled': 0},
+      \ 'cmd_multi': {'enabled': 0},
       \ }
 
 function! g:vimtex_fold_types.markers.text(line, level) abort dict
