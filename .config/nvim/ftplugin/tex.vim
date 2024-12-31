@@ -17,12 +17,14 @@ let g:vimtex_doc_handlers = ['vimtex#doc#handlers#texdoc']
 " Folding {{{2
 
 let g:vimtex_fold_enabled = 1
+let g:vimtex_fold_manual = 1
 
 let g:vimtex_fold_types = {
       \ 'preamble': {'enabled': 0},
       \ 'markers': {},
       \ 'sections': {},
       \ 'envs': {'enabled': 0},
+      \ 'items': {'enabled': 0},
       \ 'cmd_multi': {'enabled': 0},
       \ }
 
