@@ -223,6 +223,7 @@ alias gsw='git switch'
 alias gswc='git switch -c'
 
 # Abbreviate {{{2
+alias cpm="cp -i $XDG_DATA_HOME/pandoc/Makefile ."
 alias dgpg='default_gpg'
 alias dtar='default_tar'
 alias j="jobs"
