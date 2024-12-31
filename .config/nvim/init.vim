@@ -59,8 +59,8 @@ augroup nvimrc_options " {{{2
     autocmd FileType text,markdown              setlocal textwidth=78
     autocmd FileType gitcommit                  setlocal textwidth=72
     autocmd FileType text,markdown,gitcommit    setlocal nosmartindent
-    autocmd FileType text,markdown,gitcommit    setlocal shiftwidth=4
-    autocmd FileType text,markdown,gitcommit    setlocal softtabstop=4
+    autocmd FileType markdown,gitcommit         setlocal shiftwidth=4
+    autocmd FileType markdown,gitcommit         setlocal softtabstop=4
     autocmd FileType help                       setlocal nolist
 augroup END
 
@@ -225,6 +225,7 @@ call plug#begin()
     Plug 'mattn/emmet-vim'
     Plug '/opt/homebrew/opt/fzf'
     Plug '/opt/homebrew/Cellar/lilypond/2.24.3/share/lilypond/2.24.3/vim'
+    Plug 'L3MON4D3/LuaSnip', {'tag': 'v2.*', 'do': 'make install_jsregexp'}
     Plug 'ncm2/ncm2'
     Plug 'roxma/nvim-yarp'
     Plug 'wellle/targets.vim'
@@ -247,5 +248,42 @@ let g:mdview_pandoc_args = {
             \ }
 
 let g:GPGExecutable = 'PINENTRY_USER_DATA="" gpg --trust-model=always'
+
+" LuaSnip configuration
+
+lua require('luasnip.loaders.from_lua').load(
+      \ {paths = '~/.config/nvim/luasnippets'})
+
+lua require('luasnip').setup({
+      \ enable_autosnippets = true,
+      \ store_selection_keys = '<TAB>',
+      \ })
+
+imap <silent><expr> <Tab> luasnip#expand_or_jumpable()
+      \ ? '<Plug>luasnip-expand-or-jump'
+      \ : '<Tab>'
+smap <silent><expr> <Tab> luasnip#jumpable(1)
+      \ ? '<Plug>luasnip-jump-next'
+      \ : '<Tab>'
+
+imap <silent><expr> <S-Tab> luasnip#jumpable(-1)
+      \ ? '<Plug>luasnip-jump-prev'
+      \ : '<S-Tab>'
+smap <silent><expr> <S-Tab> luasnip#jumpable(-1)
+      \ ? '<Plug>luasnip-jump-prev'
+      \ : '<S-Tab>'
+
+imap <silent><expr> <C-J> luasnip#choice_active()
+      \ ? '<Plug>luasnip-next-choice'
+      \ : '<C-J>'
+smap <silent><expr> <C-J> luasnip#choice_active()
+      \ ? '<Plug>luasnip-next-choice'
+      \ : '<C-J>'
+imap <silent><expr> <C-K> luasnip#choice_active()
+      \ ? '<Plug>luasnip-prev-choice'
+      \ : '<C-K>'
+smap <silent><expr> <C-K> luasnip#choice_active()
+      \ ? '<Plug>luasnip-prev-choice'
+      \ : '<C-K>'
 
 " }}}1
