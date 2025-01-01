@@ -9,6 +9,7 @@ setopt no_list_beep
 setopt rc_expand_param
 setopt rc_quotes
 setopt share_history
+setopt vi
 
 # Expand saved history
 HISTSIZE=1200000
@@ -19,6 +20,8 @@ PS1="%F{14}%n@%m (%!) %1~ %# %f"
 
 # Set Neovim as man pager
 export MANPAGER='nvim +Man!'
+
+export TEXEDIT='nvim +%d %s'
 
 # less {{{2
 
