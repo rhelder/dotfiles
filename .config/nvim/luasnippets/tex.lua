@@ -127,6 +127,17 @@ return {
     fmta('\\RenewCommandCopy\\<>\\<>', {i(1), i(2)})
   ),
 
+  s('dd',
+    fmta(
+      [[
+        \begin{document}
+        <>
+        \end{document}
+      ]],
+      {i(0)}
+    )
+  ),
+
   -- Quotations
 
   s({trig = 'tq', snippetType = 'autosnippet'},
