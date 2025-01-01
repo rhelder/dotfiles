@@ -1,8 +1,3 @@
-" [FIXME] When scratch buffer closes (e.g. because there are no mdview errors),
-" the next time there's an error, it's likely that the next scratch buffer to
-" be opened will be a different buffer, because it will have a different title.
-" This can lead to 'buffer name already exists' errors
-
 function! notes#exit#compile() abort " {{{1
     if !filereadable(expand('%')) | return | endif
 
@@ -10,12 +5,12 @@ function! notes#exit#compile() abort " {{{1
         if !getbufvar(expand('<afile>'), 'modified', 0) | return | endif
 
         let l:title = ['[Warning] mdView', '[Error] mdView']
-        if !empty(shell#get_scratch_win())
-            call shell#set_scratch_win({'title': l:title})
+        if !empty(shell#get_scratch_buf())
+            call shell#set_scratch_buf({'title': l:title})
         endif
 
         call mdview#compiler#convert(1, {
-                    \ 'scratch_win': {
+                    \ 'scratch_buf': {
                     \   'title': l:title,
                     \ },
                     \ 'bufnr': bufnr(expand('<afile>')),
@@ -41,6 +36,13 @@ function! s:mdview_callback(job, status, event) abort dict " {{{2
 
     if !s:modified | return | endif
 
+    let l:scratch_buf = shell#get_scratch_buf()
+    if bufwinid(get(l:scratch_buf, 'bufnr', -1)) >=# 0
+      let self.matches = getmatches(bufwinid(l:scratch_buf.bufnr))
+    else
+      let self.matches = []
+    endif
+
     call shell#compile(['build-index'], {
                 \ 'mdview': self,
                 \ 'on_error': function('s:build_index_on_error'),
@@ -57,25 +59,25 @@ function! s:build_index_on_error(job, status, event) abort dict " {{{2
     let self.scratch = 5
 
     let l:title = ['[Warning] build-index', '[Error] build-index']
-    let s:scratch_win = shell#get_scratch_win()
-    if empty(s:scratch_win)
-        let self.scratch_win = self.mdview.scratch_win
-        let self.scratch_win.title = l:title
+    let l:scratch_buf = shell#get_scratch_buf()
+    if empty(l:scratch_buf)
+        let self.scratch_buf = self.mdview.scratch_buf
+        let self.scratch_buf.title = l:title
     else
+      if !empty(self.mdview.stderr())
         let l:title = [
-                    \ bufname(s:scratch_win.bufnr) .. ' ' .. l:title[0],
-                    \ bufname(s:scratch_win.bufnr) .. ' ' .. l:title[1],
+                    \ bufname(l:scratch_buf.bufnr) .. ' ' .. l:title[0],
+                    \ bufname(l:scratch_buf.bufnr) .. ' ' .. l:title[1],
                     \ ]
-        call shell#set_scratch_win({'title': l:title})
-
-        let l:matches = getmatches(s:scratch_win.bufwinid)
+      endif
+      call shell#set_scratch_buf({'title': l:title})
     endif
 
     call self.load_scratch_buf(a:job, a:status, a:event)
 
-    if !exists('l:matches') | return | endif
+    if empty(self.mdview.matches) | return | endif
 
-    let l:match = l:matches[-1]
+    let l:match = self.mdview.matches[-1]
     let l:match.pos = []
     for [l:key, l:val] in items(l:match)
         if l:key =~# '\vpos\d+'
@@ -88,7 +90,7 @@ function! s:build_index_on_error(job, status, event) abort dict " {{{2
                 \ l:match.pos,
                 \ l:match.priority + 1,
                 \ -1,
-                \ {'window': s:scratch_win.bufwinid},
+                \ {'window': bufwinid(l:scratch_buf.bufnr)},
                 \ )
 endfunction
 
