@@ -1,3 +1,5 @@
+setlocal indentkeys+=0=]]
+
 function! GetLuaIndentIntern()
   " Find a non-blank line above the current line.
   let prevlnum = prevnonblank(v:lnum - 1)
@@ -9,7 +11,7 @@ function! GetLuaIndentIntern()
 
   " Add a 'shiftwidth' after lines that start a block:
   " 'function', 'if', 'for', 'while', 'repeat', 'else', 'elseif', '{'
-  " (and also '(')
+  " (and also '(' and '[[')
   let ind = indent(prevlnum)
   let prevline = getline(prevlnum)
   let midx = match(prevline, '^\s*\%(if\>\|for\>\|while\>\|repeat\>\|else\>\|elseif\>\|do\>\|then\>\)')
@@ -20,6 +22,9 @@ function! GetLuaIndentIntern()
     endif
     if midx == -1
       let midx = match(prevline, '([^)]*\%(--\%([^[].*\)\?\)\?$')
+    endif
+    if midx == -1
+      let midx = match(prevline, '\[\[[^)]*\%(--\%([^[].*\)\?\)\?$')
     endif
   endif
 
@@ -32,9 +37,9 @@ function! GetLuaIndentIntern()
   endif
 
   " Subtract a 'shiftwidth' on end, else, elseif, until and '}'
-  " (and also ')')
+  " (and also ')' or ']]')
   " This is the part that requires 'indentkeys'.
-  let midx = match(getline(v:lnum), '^\s*\%(end\>\|else\>\|elseif\>\|until\>\|}\|)\)')
+  let midx = match(getline(v:lnum), '^\s*\%(end\>\|else\>\|elseif\>\|until\>\|}\|)\|]]\)')
   if midx != -1 && synIDattr(synID(v:lnum, midx + 1, 1), "name") != "luaComment"
     let ind = ind - shiftwidth()
   endif
