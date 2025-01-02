@@ -4,6 +4,7 @@
 # login by launch agent:
 # ~/Library/LaunchAgents/local.open-term-fullscreen.plist
 
+launchctl setenv LESSHISTFILE /dev/null
 open -a 'kitty' --args '--start-as=fullscreen'
 sleep 3
 osascript -e 'tell application "Finder" to activate the desktop'
