@@ -58,10 +58,17 @@ return {
   -- Preamble/package commands
 
   s('dc',
-    fmta('\\documentclass[<>]{<>}', {
-      i(1, '12pt, letterpaper'),
-      i(2, 'article'),
-    })
+    {
+      c(1, {
+        sn(nil, fmta('\\documentclass[<>]{<>}', {
+          i(1, '12pt, letterpaper'),
+          i(2, 'article'),
+        })),
+        sn(nil, fmta('\\documentclass{<>}', {
+          i(1, 'minimal'),
+        })),
+      }),
+    }
   ),
 
   s('pk',
