@@ -9,7 +9,9 @@ setopt no_list_beep
 setopt rc_expand_param
 setopt rc_quotes
 setopt share_history
-setopt vi
+
+bindkey -v
+bindkey -M vicmd '\C-o' accept-line-and-down-history
 
 # Expand saved history
 HISTSIZE=1200000
