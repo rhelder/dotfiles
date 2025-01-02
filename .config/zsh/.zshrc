@@ -18,7 +18,6 @@ bindkey -M vicmd '\C-o' accept-line-and-down-history
 
 PS1="%F{14}%n@%m (%!) %1~ %# %f"
 
-export LESSHISTFILE=- # no 'less' history file
 export MANPAGER='nvim +Man!'
 export TEXEDIT='nvim +%d %s'
 
