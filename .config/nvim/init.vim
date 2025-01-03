@@ -3,6 +3,7 @@
 set belloff=
 set cursorline
 set cursorlineopt=line
+set diffopt+=vertical
 set expandtab
 set foldlevelstart=0
 set foldmethod=marker
@@ -21,9 +22,6 @@ set spelllang=en_us
 set splitbelow
 set splitright
 set textwidth=79
-
-" Set background to 'Black' instead of default 'NvimDarkGrey2'
-highlight Normal guibg=Black
 
 " Use undo files
 set undofile
