@@ -54,7 +54,7 @@ local function tcq_with_prenote(_, parent)
   end
 end
 
-return {
+return {}, {
   -- Preamble/package commands
 
   s('dc',
@@ -74,13 +74,13 @@ return {
   s('pk',
     {
       c(1, {
-        sn(nil, fmta('\\usepackage{<>}', {i(1)})),
-        sn(nil, fmta('\\usepackage[<>]{<>}', {i(2), i(1)})),
+        sn(nil, fmta('\\usepackage{<>', {i(1)})),
+        sn(nil, fmta('\\usepackage[<>]{<>', {i(2), i(1)})),
       }),
     }
   ),
 
-  s('qk',
+  s('rk',
     {
       c(1, {
         sn(nil, fmta('\\RequirePackage{<>}', {i(1)})),
@@ -134,7 +134,19 @@ return {
     fmta('\\RenewCommandCopy\\<>\\<>', {i(1), i(2)})
   ),
 
+  s('xa', {
+    t('\\expandafter'),
+  }),
+
+  s('tt',
+    fmta('\\title{<>}', {i(1)})
+  ),
+
   s('dd',
+    fmta('\\date{<>}', {i(1, '\\today')})
+  ),
+
+  s('bb',
     fmta(
       [[
         \begin{document}
@@ -145,9 +157,11 @@ return {
     )
   ),
 
+  s('mk', {t('\\maketitle')}),
+
   -- Quotations
 
-  s({trig = 'tq', snippetType = 'autosnippet'},
+  s('tq',
     {
       c(1, {
         sn(nil, fmta('\\textquote{<>}', {i(1)})),
@@ -156,7 +170,7 @@ return {
     }
   ),
 
-  s({trig = 'tcq', snippetType = 'autosnippet'},
+  s('tcq',
     {
       c(1, {
         sn(nil, {
@@ -190,7 +204,7 @@ return {
     }
   ),
 
-  s({trig = 'tfq', snippetType = 'autosnippet'},
+  s('tfq',
     {
       c(1, {
         sn(nil, fmta('\\textquote{<>}', {i(1)})),
@@ -208,6 +222,18 @@ return {
       ]],
       {i(1)}
     )
+  ),
+
+  -- Other
+
+  s('cc',
+    {
+      c(1, {
+        sn(nil, fmta('\\autocite{<>', {i(1)})),
+        sn(nil, fmta('\\autocite[<>]{<>', {i(2), i(1)})),
+        sn(nil, fmta('\\autocite[<>][<>]{<>', {i(1), i(3), i(2)})),
+      }),
+    }
   ),
 
   s('env',
