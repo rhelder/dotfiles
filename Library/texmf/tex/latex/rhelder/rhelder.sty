@@ -3,23 +3,57 @@
 
 \RequirePackage{etoolbox}
 
+\protected\def\rh@error#1#2{%
+  \PackageError{rhelder}{#1}{#2.}%
+}
+
+\def\rh@error@invalid@val#1{%
+  \rh@error{Option value '##1' invalid.}{%
+    The value you have assigned to '\CurrentOption' is invalid.
+    Valid values include #1%
+  }%
+}
+
 % Options {{{1
 
-\DeclareOption{biblatex}{\booltrue{rh@biblatex}}
-\DeclareOption{doublespaced}{\booltrue{rh@doublespaced}}
-\DeclareOption{anonymous}{\boolfalse{rh@author}\booltrue{rh@anonymous}}
-\DeclareOption{notranslit}{\boolfalse{rh@translit}}
+\DeclareKeys{
+  biblatex.code =
+    \ifstrequal{#1}{authordate}{
+      \def\rh@biblatex@opts{
+        authordate,
+        sbllos,
+        autolang=hyphen,
+        citereset=section,
+        parentracker=false,
+        pagetracker=false,
+        doi=false,
+        isbn=false,
+        url=false,
+        dashed=false,
+        compresspages=true,
+        formatbib=minwo,
+      }
+    }{\ifstrequal{#1}{notes}{
+      \def\rh@biblatex@opts{notes}
+    }{
+      \rh@error@invalid@val{'authordate' or 'notes'}
+    }},
+  doublespaced.if = rh@doublespaced,
+  anonymous.if = rh@anonymous,
+  author.code =
+    \notbool{rh@anonymous}{
+      \author{#1}
+      \AddToHook{package/hyperref/after}{\hypersetup{pdfauthor=#1}}
+    }{},
+  translit.if = rh@translit,
+}
 
-\newbool{rh@biblatex}
-\newbool{rh@translit}
-\newbool{rh@author}
-\newbool{rh@anonymous}
-\newbool{rh@doublespaced}
+\SetKeys{
+  author={Russell Wright Helder},
+  translit=true,
+}
 
-\booltrue{rh@translit}
-\booltrue{rh@author}
-
-\ProcessOptions\relax
+\ProcessKeyOptions
 
 % Load packages {{{1
 
@@ -37,9 +71,10 @@
 \RequirePackage[
   strict,
   autostyle,
+  english=british,
   latin=britishquotes,
 ]{csquotes}
-\RequirePackage{cms}
+\RequirePackage{cmos}
 \PassOptionsToPackage{hyphens}{url}
 \RequirePackage[indentfirst=false]{quoting}
 \RequirePackage{enumitem}
@@ -49,21 +84,8 @@
 \RequirePackage{iftex}
 \AddToHook{begindocument/before}{\RequirePackage{hyperref}}
 
-\ifbool{rh@biblatex}{
-  \RequirePackage[
-    authordate,
-    sbllos,
-    autolang=hyphen,
-    citereset=section,
-    parentracker=false,
-    pagetracker=false,
-    doi=false,
-    isbn=false,
-    url=false,
-    dashed=false,
-    compresspages=true,
-    formatbib=minwo,
-  ]{biblatex-chicago}
+\ifdef{\rh@biblatex@opts}{%
+  \expandafter\RequirePackage\expandafter[\rh@biblatex@opts]{biblatex-chicago}
   \addbibresource{my_library.bib}
 
   \DeclareSourcemap{%
@@ -109,15 +131,24 @@
   \ifbool{rh@biblatex{\setlength{\bibitemsep}{0pt}}}{}
 }{}
 
+\ifbool{rh@anonymous}{
+  \patchcmd{\@maketitle}{%
+    {\large
+      \lineskip .5em%
+      \begin{tabular}[t]{c}%
+        \@author
+      \end{tabular}\par}%
+    \vskip 1em%
+  }{}{}{}
+}{}
+
 % Quotations {{{1
 
 \DeclareQuoteStyle{ancientgreek}
   {\textquotedblleft}{\textquotedblright}
   {\textquoteleft}{\textquoteright}
 
-\IfPackageLoadedTF{biblatex-chicago}{%
-  \SetCiteCommand{\autocite}
-}{}
+\IfPackageLoadedTF{biblatex-chicago}{\SetCiteCommand{\autocite}}{}
 
 \SetBlockEnvironment{quoting}
 \RenewCommandCopy\quotation\quoting
@@ -145,25 +176,7 @@
 
 % PDF metadata {{{1
 
-\ifbool{rh@author}{
-  \author{Russell Wright Helder}
-  \AddToHook{begindocument/before}{
-    \hypersetup{pdfauthor={Russell Wright Helder}}
-  }
-}{}
-
-\ifbool{rh@anonymous}{
-  \patchcmd{\@maketitle}{%
-    {\large
-      \lineskip .5em%
-      \begin{tabular}[t]{c}%
-        \@author
-      \end{tabular}\par}%
-    \vskip 1em%
-  }{}{}{}
-}{}
-
-\AddToHook{begindocument/before}{
+\AddToHook{package/hyperref/after}{
   \hypersetup{
     colorlinks=true,
     linkcolor=black,
