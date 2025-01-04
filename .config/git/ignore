@@ -40,7 +40,7 @@
 /Library/*
 !/Library/texmf/
 /Library/texmf/bibtex/
-/Library/texmf/tex/latex/cms/
+/Library/texmf/tex/latex/cmos/
 /Library/texmf/tex/latex/rhelder/build
 !/Library/LaunchAgents
 /Library/LaunchAgents/*
