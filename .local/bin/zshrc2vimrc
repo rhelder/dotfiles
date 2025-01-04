@@ -14,7 +14,7 @@ while read line; do
         continue
     fi
 
-    if [[ ! $line =~ '=(''|")?(cd |nvim )' ]]; then
+    if [[ ! $line =~ '=(''|")?(cs |nvim )' ]]; then
         continue
     fi
 
@@ -23,7 +23,7 @@ while read line; do
     rhs=${line#*=}
     rhs=${${rhs#(\'|\")}%(\'|\")}
     map="nnoremap <Leader>$lhs <Cmd>$rhs<CR>"
-    map=${map/'<Cmd>cd'/'<Cmd>lcd\n            \'}
+    map=${map/'<Cmd>cs'/'<Cmd>lcd\n            \'}
     map=${map/'<Cmd>nvim'/'<Cmd>vs\n            \'}
     echo $map
 done < $XDG_CONFIG_HOME/zsh/.zshrc >> $XDG_CONFIG_HOME/nvim/zshrc.vim
