@@ -153,8 +153,7 @@ alias gds='git diff --staged'
 alias gl='git log --pretty=short'
 alias glg='git log --graph'
 alias gll='git log'
-alias gpl='git pull'
-alias gpsh='git push'
+alias gp='git pull'
 alias gr='git reset'
 alias -f gs='git status'
 alias gsh='git show'
@@ -163,6 +162,7 @@ alias gst='git stash'
 alias gstp='git stash pop'
 alias gsw='git switch'
 alias gswc='git switch -c'
+alias gu='git push'
 # }}}2
 
 # Shell variables {{{1
