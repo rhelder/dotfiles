@@ -15,6 +15,7 @@ HISTSIZE=1200000
 
 bindkey -v
 bindkey -M vicmd '\C-o' accept-line-and-down-history
+bindkey -M viins '\C-o' accept-line-and-down-history
 
 PS1="%F{14}%n@%m (%!) %1~ %# %f"
 
@@ -123,7 +124,7 @@ alias j="jobs"
 alias kv="kpsewhich_nvim"
 alias la='ls -aF'
 alias -f ld='lilydoc'
-alias lua='texlua'
+alias lua='pandoc lua'
 alias m='man'
 alias mz='man_zsh'
 alias nb='browse-notes'
