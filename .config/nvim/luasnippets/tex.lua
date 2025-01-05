@@ -83,14 +83,14 @@ return {}, {
   s('rk',
     {
       c(1, {
-        sn(nil, fmta('\\RequirePackage{<>}', {i(1)})),
-        sn(nil, fmta('\\RequirePackage[<>]{<>}', {i(2), i(1)})),
+        sn(nil, fmta('\\RequirePackage{<>', {i(1)})),
+        sn(nil, fmta('\\RequirePackage[<>]{<>', {i(2), i(1)})),
       }),
     }
   ),
 
   s('ptp',
-    fmta('\\PassOptionsToPackage{<>}{<>}', {
+    fmta('\\PassOptionsToPackage{<>}{<>', {
       i(2, '<options>'),
       i(1, '<package>'),
     })
