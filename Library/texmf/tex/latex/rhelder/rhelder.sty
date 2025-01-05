@@ -1,43 +1,12 @@
 \NeedsTeXFormat{LaTeX2e}[2021/11/15]
-\ProvidesPackage{rhelder}[2024/12/04 Russell Wright Helder's style file]
+\ProvidesPackage{rhelder}[Russell Wright Helder's style file]
 
 \RequirePackage{etoolbox}
 
-\protected\def\rh@error#1#2{%
-  \PackageError{rhelder}{#1}{#2.}%
-}
-
-\def\rh@error@invalid@val#1{%
-  \rh@error{Option value '##1' invalid.}{%
-    The value you have assigned to '\CurrentOption' is invalid.
-    Valid values include #1%
-  }%
-}
-
 % Options {{{1
 
-\DeclareKeys{
-  biblatex.code =
-    \ifstrequal{#1}{authordate}{
-      \def\rh@biblatex@opts{
-        authordate,
-        sbllos,
-        autolang=hyphen,
-        citereset=section,
-        parentracker=false,
-        pagetracker=false,
-        doi=false,
-        isbn=false,
-        url=false,
-        dashed=false,
-        compresspages=true,
-        formatbib=minwo,
-      }
-    }{\ifstrequal{#1}{notes}{
-      \def\rh@biblatex@opts{notes}
-    }{
-      \rh@error@invalid@val{'authordate' or 'notes'}
-    }},
+\DeclareKeys[rhelder]{
+  biblatex.code = \SetKeys[rh@biblatex]{#1},
   doublespaced.if = rh@doublespaced,
   anonymous.if = rh@anonymous,
   author.code =
@@ -48,7 +17,37 @@
   translit.if = rh@translit,
 }
 
-\SetKeys{
+\DeclareKeys[rh@biblatex]{
+  authordate.code = \def\rh@biblatex@style{authordate},
+  notes.code = \def\rh@biblatex@style{notes},
+}
+
+\DeclareUnknownKeyHandler[rh@biblatex]{
+  \eappto\rh@biblatex@opts{\ifblank{#2}{#1}{#1=#2},}
+}
+
+\def\rh@biblatex@notes{
+  \epreto\rh@biblatex@opts{
+    autolang=hyphen,
+    citereset=section,
+    pagetracker=false,
+    doi=false,
+    isbn=false,
+    url=false,
+    dashed=false,
+    compresspages=true,
+    formatbib=minwo,
+  }
+  \expandafter\RequirePackage\expandafter[\rh@biblatex@style]{biblatex-chicago}
+  \expandafter\ExecuteBibliographyOptions\expandafter{\rh@biblatex@opts}
+}
+
+\def\rh@biblatex@authordate{
+  \epreto\rh@biblatex@opts{cmslos=false,}
+  \rh@biblatex@notes
+}
+
+\SetKeys[rhelder]{
   author={Russell Wright Helder},
   translit=true,
 }
@@ -57,16 +56,18 @@
 
 % Load packages {{{1
 
-\RequirePackage{fontspec}
-\RequirePackage{pifont}
+\AddToHook{begindocument/before}{\RequirePackage{hyperref}}
+
 \RequirePackage[
   shorthands=off,
   latin,
   english.american,
 ]{babel}
 \babelprovide[import=grc]{ancientgreek}
+
 \RequirePackage{ragged2e}
 \RequirePackage[babel]{microtype}
+\ifbool{rh@doublespaced}{\RequirePackage{setspace}}{}
 \RequirePackage[shortcuts]{extdash}
 \RequirePackage[
   strict,
@@ -74,107 +75,28 @@
   english=british,
   latin=britishquotes,
 ]{csquotes}
-\RequirePackage{cmos}
 \PassOptionsToPackage{hyphens}{url}
+\RequirePackage{cmos}
+
 \RequirePackage[indentfirst=false]{quoting}
 \RequirePackage{enumitem}
+
 \RequirePackage{geometry}
+
 \RequirePackage{array}
 \RequirePackage{booktabs}
+
+\RequirePackage{pifont}
+
+\csuse{rh@biblatex@\rh@biblatex@style}
+\undef\rh@biblatex@authordate
+\undef\rh@biblatex@notes
+\undef\rh@biblatex@commonopts
+\undef\rh@biblatex@opts
+
 \RequirePackage{iftex}
-\AddToHook{begindocument/before}{\RequirePackage{hyperref}}
 
-\ifdef{\rh@biblatex@opts}{%
-  \expandafter\RequirePackage\expandafter[\rh@biblatex@opts]{biblatex-chicago}
-  \addbibresource{my_library.bib}
-
-  \DeclareSourcemap{%
-    \maps[datatype=bibtex]{%
-      \map[overwrite]{%
-        \step[fieldsource=entrysubtype, match=classical, final]
-        \step[
-          fieldset=options,
-          fieldvalue={,shorthandfirst=false,shorthandintro=short},
-          append,
-        ]
-      }
-    }
-  }
-
-  % Reset footnote-specific 'ibidtracker' at beginning of each footnote
-  \NewCommandCopy\footnotetextCopy\footnotetext % FIXME find better approach
-  \RenewDocumentCommand{\footnotetext}{+m}{\footnotetextCopy{\mancite #1}}
-}{}
-
-% Paragraph layout {{{1
-
-\clubpenalty=10000
-\widowpenalty=10000
-\babelprovide[hyphenrules=classiclatin]{latin}
-\hyphenation{Prem-ise Prem-ises}
-
-% Document layout {{{1
-
-\setmainfont{Brill}
-
-\ifbool{@twocolumn}{
-  \geometry{hscale=0.7635}
-}{\ifbool{LuaTeX}{ % FIXME use l3 instead
-  \geometry{hscale=\directlua{tex.print(0.03680 * \f@size + 0.1936)}}
-}{
-  \geometry{pass}
-}}
-
-\ifbool{rh@doublespaced}{
-  \RequirePackage{setspace}
-  \doublespacing
-  \ifbool{rh@biblatex{\setlength{\bibitemsep}{0pt}}}{}
-}{}
-
-\ifbool{rh@anonymous}{
-  \patchcmd{\@maketitle}{%
-    {\large
-      \lineskip .5em%
-      \begin{tabular}[t]{c}%
-        \@author
-      \end{tabular}\par}%
-    \vskip 1em%
-  }{}{}{}
-}{}
-
-% Quotations {{{1
-
-\DeclareQuoteStyle{ancientgreek}
-  {\textquotedblleft}{\textquotedblright}
-  {\textquoteleft}{\textquoteright}
-
-\IfPackageLoadedTF{biblatex-chicago}{\SetCiteCommand{\autocite}}{}
-
-\SetBlockEnvironment{quoting}
-\RenewCommandCopy\quotation\quoting
-\RenewCommandCopy\endquotation\endquoting
-\RenewCommandCopy\quote\quoting
-\RenewCommandCopy\endquote\endquoting
-
-% Lists {{{1
-
-\setlist[itemize,2]{label=\ding{118}}
-\setlist[itemize,3]{label=\ding{66}}
-
-\newlist{outline}{enumerate}{5}
-\setlist[outline,1]{label=\Roman*.}
-\setlist[outline,2]{label=\Alph*.}
-\setlist[outline,3]{label=\arabic*.}
-\setlist[outline,4]{label=\alph*.}
-\setlist[outline,5]{label=\roman*.}
-
-% Make paragraph spacing within list same as outside of list
-\setlist[1,2,3,4,5]{listparindent=1\parindent, parsep=0pt}
-
-\newlist{enumerate*}{enumerate*}{1}
-\setlist[enumerate*]{label=\Alph*.}
-
-% PDF metadata {{{1
+% Configure packages {{{1
 
 \AddToHook{package/hyperref/after}{
   \hypersetup{
@@ -189,8 +111,84 @@
   \urlstyle{same}
 }
 
-% Macros denoting logical structure {{{1
+\babelfont{rm}{Brill}
+\babelprovide[hyphenrules=classiclatin]{latin}
 
+\ifbool{rh@doublespaced}{
+  \doublespacing
+  \IfPackageLoadedTF{biblatex-chicago}{\setlength{\bibitemsep}{0pt}}{}
+}{}
+
+\DeclareQuoteStyle{ancientgreek}
+  {\textquotedblleft}{\textquotedblright}
+  {\textquoteleft}{\textquoteright}
+\IfPackageLoadedTF{biblatex-chicago}{\SetCiteCommand{\autocite}}{}
+
+\SetBlockEnvironment{quoting}
+\RenewCommandCopy\quotation\quoting
+\RenewCommandCopy\endquotation\endquoting
+\RenewCommandCopy\quote\quoting
+\RenewCommandCopy\endquote\endquoting
+
+\setlist[itemize,2]{label=\ding{118}}
+\setlist[itemize,3]{label=\ding{66}}
+\newlist{outline}{enumerate}{5}
+\setlist[outline,1]{label=\Roman*.}
+\setlist[outline,2]{label=\Alph*.}
+\setlist[outline,3]{label=\arabic*.}
+\setlist[outline,4]{label=\alph*.}
+\setlist[outline,5]{label=\roman*.}
+% Define inline 'enumerate'
+\newlist{enumerate*}{enumerate*}{1}
+\setlist[enumerate*]{label=\Alph*.}
+% Make paragraph spacing within list same as outside of list
+\setlist[1,2,3,4,5]{listparindent=1\parindent, parsep=0pt}
+
+\ifbool{@twocolumn}{
+  \geometry{hscale=0.7635}
+}{\ifbool{LuaTeX}{ % FIXME use l3 instead
+  \geometry{hscale=\directlua{tex.print(0.03680 * \f@size + 0.1936)}}
+}{
+  \geometry{pass}
+}}
+
+\IfPackageLoadedTF{biblatex-chicago}{%
+  \addbibresource{my_library.bib}
+  \DeclareSourcemap{%
+    \maps[datatype=bibtex]{%
+      \map[overwrite]{%
+        \step[fieldsource=entrysubtype, match=classical, final]
+        \step[
+          fieldset=options,
+          fieldvalue={,shorthandfirst=false,shorthandintro=short},
+          append,
+        ]
+      }
+    }
+  }
+  % Reset footnote-specific 'ibidtracker' at beginning of each footnote
+  \NewCommandCopy\footnotetextCopy\footnotetext % FIXME find better approach
+  \RenewDocumentCommand{\footnotetext}{+m}{\footnotetextCopy{\mancite #1}}
+}{}
+
+% Package configuration and macros {{{1
+
+\clubpenalty=10000
+\widowpenalty=10000
+\hyphenation{Prem-ise Prem-ises}
+
+\ifbool{rh@anonymous}{
+  \patchcmd{\@maketitle}{%
+    {\large
+      \lineskip .5em%
+      \begin{tabular}[t]{c}%
+        \@author
+      \end{tabular}\par}%
+    \vskip 1em%
+  }{}{}{}
+}{}
+
+% Macros denoting logical structure
 \NewCommandCopy\texttitle\emph
 \NewCommandCopy\alialingua\emph
 \NewCommandCopy\define\emph
