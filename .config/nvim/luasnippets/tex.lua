@@ -134,9 +134,9 @@ return {}, {
     fmta('\\RenewCommandCopy\\<>\\<>', {i(1), i(2)})
   ),
 
-  s('xa', {
-    t('\\expandafter'),
-  }),
+  s({trig = 'xx', wordTrig = false},
+    {t('\\expandafter')}
+  ),
 
   s('tt',
     fmta('\\title{<>}', {i(1)})
