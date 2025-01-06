@@ -12,6 +12,7 @@
   class.if = rhh@class,
   titlesec.code = \PassOptionsToPackage{#1}{titlesec},
   rhelder.code = \PassOptionsToPackage{#1}{rhelder},
+  biblatex.code = \PassOptionsToPackage{biblatex={#1}}{rhelder},
   twoside.code = \OptionNotUsed,
   twoside.code = \OptionNotUsed,
   draft.code = \OptionNotUsed,
