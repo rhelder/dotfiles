@@ -9,3 +9,4 @@ html-q-tags: true
 number-sections: true
 citeproc: true
 bibliography: ${USERDATA}/my_library.yaml
+...
