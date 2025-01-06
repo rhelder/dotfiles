@@ -21,6 +21,7 @@
   authordate.code = \def\rh@biblatex@style{authordate},
   notes.code = \def\rh@biblatex@style{notes},
 }
+\let\rh@biblatex@style\empty
 
 \DeclareUnknownKeyHandler[rh@biblatex]{
   \eappto\rh@biblatex@opts{\ifblank{#2}{#1}{#1=#2},}
