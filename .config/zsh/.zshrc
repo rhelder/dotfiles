@@ -1,5 +1,6 @@
-# Options and settings {{{1
+# General {{{1
 
+# Options
 setopt EXTENDED_GLOB
 setopt IGNORE_EOF
 setopt MENU_COMPLETE
@@ -13,28 +14,46 @@ SAVEHIST=1000000
 # by SHARE_HISTORY
 HISTSIZE=1200000
 
-bindkey -v
-bindkey -M vicmd '\C-o' accept-line-and-down-history
-bindkey -M viins '\C-o' accept-line-and-down-history
-
+# Prompt
 PS1="%F{14}%n@%m (%!) %1~ %# %f"
 
+# Use Neovim as pager
 export MANPAGER='nvim +Man!'
 export TEXEDIT='nvim +%d %s'
 
-# Set up fzf shell integration
-source <(fzf --zsh)
+# Key bindings
+bindkey -v
+bindkey -M vicmd '\C-o' accept-line-and-down-history
+bindkey -M viins '\C-o' accept-line-and-down-history
+bindkey -M vicmd 'K' run-help
+if unalias run-help 2>/dev/null; then # Install run-help (only once)
+  autoload -U run-help
+  autoload -U run-help-git
+  export HELPDIR='/usr/share/zsh/5.9/help'
+fi
 
-# Use 'fd' instead of 'find'
-export FZF_DEFAULT_COMMAND='fd --hidden --type f --strip-cwd-prefix'
-export FZF_CTRL_T_COMMAND='fd --hidden --strip-cwd-prefix'
+# Completion {{{1
 
-# Options for 'rfv' script
-export RFV_DEFAULT_BIND='--bind=enter:become(nvim {1} +{2})'
-export -T RFV_DEFAULT_ADDITIONAL_OPTIONS rfv_default_additional_options '@'
-rfv_default_additional_options=( --bind='ctrl-o:become(md-open {1})' )
+if autoload -U compinit 2>/dev/null; then # Run compinit only once
+  compinit
+  zmodload zsh/complist
+fi
 
-export GPG_TTY="$(tty)" # Required by 'gpg-agent'
+zstyle ':completion:*:messages' format %d
+zstyle ':completion:*:warnings' format 'No matches: %d'
+zstyle ':completion:*:descriptions' format %B%d%b
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' auto-description 'specify: %d'
+zstyle ':completion*:default' menu 'select=0'
+
+bindkey -M menuselect '\C-e' undo
+bindkey -M menuselect '\C-o' accept-and-menu-complete
+# Use 'TAB' to accept the current match, and then expand or complete again
+# (this makes it easier to quickly complete e.g. file paths)
+bindkey -M menuselect '\C-i' .expand-or-complete
+# Use '^N', not 'TAB', to move to the next match
+bindkey -M menuselect '\C-n' menu-complete
+bindkey -M menuselect '\C-p' reverse-menu-complete
 
 # User functions {{{1
 
@@ -52,20 +71,6 @@ autoload kpsewhich_nvim
 autoload man_zsh
 autoload nvim_help
 autoload trash
-
-# Install run-help {{{1
-if unalias run-help 2>/dev/null; then
-    autoload -U run-help
-    autoload -U run-help-git
-    export HELPDIR='/usr/share/zsh/5.9/help'
-fi
-
-# Initialize completion {{{1
-if autoload -U compinit 2>/dev/null; then
-    compinit
-    zmodload zsh/complist
-    zstyle ':completion*:default' menu 'select=0'
-fi
 
 # Aliases {{{1
 
@@ -215,5 +220,21 @@ xd="$XDG_DATA_HOME"
 zh="$XDG_CONFIG_HOME/zsh"
 zf="$XDG_DATA_HOME/zsh/functions"
 # }}}2
+
+# Command-line tools {{{1
+
+# Set up fzf shell integration
+source <(fzf --zsh)
+
+# Use 'fd' instead of 'find'
+export FZF_DEFAULT_COMMAND='fd --hidden --type f --strip-cwd-prefix'
+export FZF_CTRL_T_COMMAND='fd --hidden --strip-cwd-prefix'
+
+# Options for 'rfv' script
+export RFV_DEFAULT_BIND='--bind=enter:become(nvim {1} +{2})'
+export -T RFV_DEFAULT_ADDITIONAL_OPTIONS rfv_default_additional_options '@'
+rfv_default_additional_options=( --bind='ctrl-o:become(md-open {1})' )
+
+export GPG_TTY="$(tty)" # Required by 'gpg-agent'
 
 # }}}1
