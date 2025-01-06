@@ -176,24 +176,6 @@ endfunction
 " }}}3
 " }}}2
 
-" Terminal {{{1
-
-nnoremap <Leader>t <Cmd>vsplit<CR><Cmd>terminal<CR>
-
-augroup nvimrc_terminal
-  autocmd!
-  autocmd TermEnter * tnoremap <buffer> <C-W><C-W> <C-\><C-N><C-W><C-W>
-  autocmd TermEnter * tnoremap <buffer> <C-W>w <C-\><C-N><C-W>w
-  autocmd TermEnter * tnoremap <buffer> <C-W>j <C-\><C-N><C-W>j
-  autocmd TermEnter * tnoremap <buffer> <C-W>k <C-\><C-N><C-W>k
-  autocmd TermEnter * tnoremap <buffer> <C-W>h <C-\><C-N><C-W>h
-  autocmd TermEnter * tnoremap <buffer> <C-W>l <C-\><C-N><C-W>l
-  autocmd TermEnter * tnoremap <buffer> <C-W>c <C-\><C-N>
-
-  autocmd TermOpen * startinsert
-  autocmd TermOpen * set nonumber
-augroup END
-
 " Spell {{{1
 
 nnoremap <Leader>sl :setlocal spelllang=
