@@ -230,7 +230,7 @@ set completeopt=noinsert,menuone,noselect
 runtime macros/sandwich/keymap/surround.vim
 
 let g:mdview_pandoc_args = {
-      \ 'additional': ['--defaults=github'],
+      \ 'additional': ['--defaults=notes'],
       \ }
 
 let g:GPGExecutable = 'PINENTRY_USER_DATA="" gpg --trust-model=always'
