@@ -143,7 +143,7 @@ augroup nvimrc_mappings " {{{2
     autocmd CmdwinEnter * nnoremap <buffer> <C-F> <C-C>
 augroup END
 
-function! s:comment(character, mode) abort " {{{3
+function! s:comment(character, mode) abort " {{{2
     let l:range = []
     call add(l:range, line('.'))
     if a:mode ==# 'v'
@@ -170,8 +170,9 @@ function! s:comment(character, mode) abort " {{{3
 
     if a:mode ==# 'v' | execute "normal! \<Esc>" | endif
 endfunction
-" }}}3
 " }}}2
+
+cnoremap <expr> <Tab> wildmenumode() ? "\<C-Y>\<C-Z>" : "\<C-Z>"
 
 " Terminal {{{1
 
@@ -220,18 +221,18 @@ endfunction
 " Plugins {{{1
 
 call plug#begin()
-    Plug 'mattn/emmet-vim'
-    Plug '/opt/homebrew/opt/fzf'
-    Plug '/opt/homebrew/Cellar/lilypond/2.24.3/share/lilypond/2.24.3/vim'
-    Plug 'L3MON4D3/LuaSnip', {'tag': 'v2.*', 'do': 'make install_jsregexp'}
-    Plug 'ncm2/ncm2'
-    Plug 'roxma/nvim-yarp'
-    Plug 'wellle/targets.vim'
-    Plug 'jamessan/vim-gnupg'
-    Plug 'fladson/vim-kitty'
-    Plug 'junegunn/vim-plug'
-    Plug 'machakann/vim-sandwich'
-    Plug 'lervag/vimtex'
+  Plug 'mattn/emmet-vim', {'for': ['html', 'xml']}
+  Plug '/opt/homebrew/opt/fzf'
+  Plug '/opt/homebrew/Cellar/lilypond/2.24.3/share/lilypond/2.24.3/vim'
+  Plug 'L3MON4D3/LuaSnip', {'tag': 'v2.*', 'do': 'make install_jsregexp'}
+  Plug 'ncm2/ncm2'
+  Plug 'roxma/nvim-yarp'
+  Plug 'wellle/targets.vim'
+  Plug 'jamessan/vim-gnupg'
+  Plug 'fladson/vim-kitty'
+  Plug 'junegunn/vim-plug'
+  Plug 'machakann/vim-sandwich'
+  Plug 'lervag/vimtex'
 call plug#end()
 
 " Set options required for ncm2
@@ -254,7 +255,7 @@ lua require('luasnip.loaders.from_lua').load(
 
 lua require('luasnip').setup({
       \ enable_autosnippets = true,
-      \ store_selection_keys = '<TAB>',
+      \ store_selection_keys = '<Tab>',
       \ })
 
 imap <silent><expr> <Tab> luasnip#expand_or_jumpable()
