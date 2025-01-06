@@ -3,7 +3,4 @@ documentclass: article
 fontsize: 12pt
 papersize: letter
 csquotes: true
-rhelder:
-  use: true
-chicago: true
 ...
