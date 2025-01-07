@@ -1,8 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}[2021/11/15]
 \ProvidesClass{rhelderhandout}[Opinionated class for handouts]
 
-\RequirePackage{etoolbox}
-
 \protected\def\rhh@error{\ClassError{rhelderhandout}}
 \protected\def\rhh@warning{\ClassWarning{rhelderhandout}}
 
@@ -47,6 +45,7 @@
 
 % Page styles {{{1
 
+\RequirePackage{rhelder}
 \RequirePackage[pagestyles]{titlesec}
 \renewpagestyle{plain}{\rhh@setfoot}
 
@@ -70,16 +69,14 @@
     \setfoot
       {\rhh@class, \rhh@institution}
       {\thepage}
-      {\copyright{} \rhh@copyrightyear{} \rhh@author}
+      {\copyright\ \rhh@date\ \rhh@author}
   }
 
   \NewDocumentCommand{\class}{m}{\def\rhh@class{#1}}
   \NewDocumentCommand{\institution}{m}{\def\rhh@institution{#1}}
-  \NewDocumentCommand{\copyrightyear}{m}{\def\rhh@copyrightyear{#1}}
 
-  \def\rhh@class{Philosophy 25A}
-  \def\rhh@institution{UC Berkeley}
-  \def\rhh@copyrightyear{2024}
+  \def\rhh@class{\rhh@error{No \noexpand\class given}{\@ehc}}
+  \def\rhh@institution{\rhh@error{No \noexpand\institution given}{\@ehc}}
 
 }{
   \def\rhh@setfoot{
@@ -91,8 +88,6 @@
 }
 
 \AtBeginDocument{\pagestyle{handout}}
-
-\RequirePackage{rhelder}
 \geometry{vcentering}
 
 % }}}1
