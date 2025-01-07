@@ -4,5 +4,6 @@ to: latex.lua
 metadata-files:
   - latex.yaml
 standalone: true
+number-sections: true
 template: custom.latex
 ...
