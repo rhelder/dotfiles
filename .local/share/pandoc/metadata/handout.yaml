@@ -1,9 +1,11 @@
 ---
+author: Russell Wright Helder
 classoption:
   - twocolumn
   - class
 biblio-style: notes
-rhhandout: true
+rhhandout:
+  class: true
 csl: chicago-fullnote-bibliography-short-title-subsequent.csl
 suppress-bibliography: true
 ...
