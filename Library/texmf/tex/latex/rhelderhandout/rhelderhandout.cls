@@ -1,9 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}[2021/11/15]
 \ProvidesClass{rhelderhandout}[Opinionated class for handouts]
 
-\protected\def\rhh@error{\ClassError{rhelderhandout}}
-\protected\def\rhh@warning{\ClassWarning{rhelderhandout}}
-
 % Build on 'article' document class {{{1
 
 \DeclareKeys{
@@ -12,8 +9,8 @@
   rhelder.code = \PassOptionsToPackage{#1}{rhelder},
   biblatex.code = \PassOptionsToPackage{biblatex={#1}}{rhelder},
   twoside.code = \OptionNotUsed,
-  twoside.code = \OptionNotUsed,
   draft.code = \OptionNotUsed,
+  openright.code = \OptionNotUsed,
   titlepage.code = \OptionNotUsed,
   leqno.code = \OptionNotUsed,
   fleqn.code = \OptionNotUsed,
@@ -22,17 +19,26 @@
 
 \DeclareUnknownKeyHandler{\PassOptionsToClass{#1}{article}}
 
+\protected\def\rhh@error#1#2{\ClassError{rhelderhandout}{#1}{#2}}
+\protected\def\rhh@warning#1#2{\ClassWarning{rhelderhandout}{#1}{#2}}
+
 \ProcessKeyOptions
 \LoadClass{article}
 
-% Modify 'article' title handling
+% Load packages {{{1
+
+\RequirePackage[pagestyles]{titlesec}
+\RequirePackage{rhelder}
+
+% Title {{{1
+
 \def\@maketitle{%
   \begin{center}
     \LARGE
     \rhh@title
   \end{center}
   \par
-  \vskip 1.5em%
+  \vskip 1.5em
 }
 
 \RenewDocumentCommand{\title}{m}{\def\@title{#1}\def\rhh@title{#1}}
@@ -45,20 +51,12 @@
 
 % Page styles {{{1
 
-\RequirePackage{rhelder}
-\RequirePackage[pagestyles]{titlesec}
 \renewpagestyle{plain}{\rhh@setfoot}
 
 \newpagestyle{handout}{
   \headrule
   \sethead
-    {%
-      \ifdefempty{\sectiontitle}{%
-        \firsttitlemarks\texttitle{\rhh@title}%
-      }{%
-        \firsttitlemarks\texttitle{\sectiontitle}%
-      }%
-    }
+    {\firsttitlemarks\emph{\sectiontitle}}
     {}
     {}
   \rhh@setfoot
