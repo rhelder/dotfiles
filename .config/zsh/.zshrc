@@ -25,6 +25,10 @@ export TEXEDIT='nvim +%d %s'
 bindkey -v
 bindkey -M vicmd '\C-o' accept-line-and-down-history
 bindkey -M viins '\C-o' accept-line-and-down-history
+bindkey -M viins '\C-u' kill-whole-line
+bindkey -M viins '\C-y' yank
+bindkey -M viins '\C-xu' undo
+bindkey -M viins '\C-x\C-u' undo
 bindkey -M vicmd 'K' run-help
 if unalias run-help 2>/dev/null; then # Install run-help (only once)
   autoload -U run-help
