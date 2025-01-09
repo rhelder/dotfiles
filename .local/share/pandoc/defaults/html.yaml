@@ -6,7 +6,6 @@ standalone: true
 variables:
   lang: en
 html-q-tags: true
-number-sections: true
 citeproc: true
 bibliography: ${USERDATA}/my_library.yaml
 ...
