@@ -1,0 +1,205 @@
+#!/bin/zsh
+
+# Generate a makefile suitable for the desired Pandoc workflow.
+
+# Process options {{{1
+
+# Initialize arrays {{{2
+
+latex_deps=(
+  '$(input)'
+  '$(latex_defaults)'
+  '${USERDATA}/custom/latex.lua'
+  '${USERDATA}/metadata/latex.yaml'
+  '${USERDATA}/templates/custom.latex'
+  '${TEXMFHOME}/tex/latex/rhelder/rhelder.sty'
+)
+
+html_deps=(
+  '$(input)'
+  '$(html_defaults)'
+  '${USERDATA}/metadata/html.yaml'
+  '${USERDATA}/templates/default.html5'
+  '${USERDATA}/templates/styles.html'
+)
+
+declare -a latex_opts
+declare -a html_opts
+declare -a project_metadata
+declare -a file_metadata
+
+# Add to arrays {{{2
+while getopts 'shm:c' flag; do
+  case $flag in
+    (s)
+      latex_deps+='${TEXMFHOME}/tex/latex/rheldersyllabus/rheldersyllabus.cls'
+    ;;
+    (h)
+      latex_deps+='${TEXMFHOME}/tex/latex/rhelderhandout/rhelderhandout.cls'
+    ;;
+    (m)   project_metadata+=$OPTARG;;
+    (+m)  file_metadata+=$OPTARG;;
+    (c)
+      latex_opts+='--biblatex'
+      latex_deps+='${TEXMFHOME}/bibtex/bib/my_library.bib'
+      html_opts+='--citeproc'
+      html_deps+=(
+        '${USERDATA}/templates/styles.citations.html'
+        '${USERDATA}/csl/chicago-author-date-shorttitles.csl'
+        '${USERDATA}/my_library.yaml'
+      )
+    ;;
+    (+c)
+      latex_opts+='--biblatex'
+      latex_deps+='${TEXMFHOME}/bibtex/bib/my_library.bib'
+      html_opts+='--citeproc'
+      html_deps+=(
+        '${USERDATA}/templates/styles.citations.html'
+        '${USERDATA}/csl/chicago-fullnote-bibliography-short-title-subsequent.csl'
+        '${USERDATA}/my_library.yaml'
+      )
+    ;;
+  esac
+done
+shift $(( OPTIND - 1 ))
+
+# Determine what the output files will be {{{2
+# (Depending on whether or not '+m' was passed)
+
+declare -A latex_output
+declare -A html_output
+
+if [[ ! -n $file_metadata ]]; then
+  latex_output[latex_output]='$(input:.md=.tex)'
+else
+  for file in $file_metadata; do
+    id=${file%.yaml}
+    latex_output[latex_output_$id]='$(input:.md=_'$id'.tex)'
+  done
+fi
+
+if [[ ! -n $file_metadata ]]; then
+  html_output[html_output]='$(input:.md=.html)'
+else
+  for file in $file_metadata; do
+    id=${file%.yaml}
+    html_output[html_output_$id]='$(input:.md=_'$id'.html)'
+  done
+fi
+# }}}2
+
+# Assemble the text {{{1
+
+# Define utility functions {{{2
+
+function set_or_append_keys {
+  local sep=' := '
+  for key in ${(Pko)1}; do
+    makefile+=${1}${sep}'$('${key}')'
+    sep=' += '
+  done
+}
+
+function set_or_append_vals {
+  local sep=' := '
+  for val in ${(P)1}; do
+    makefile+=${1}${sep}${val}
+    sep=' += '
+  done
+}
+# }}}2
+
+makefile=(
+  'USERDATA := ${XDG_DATA_HOME}/pandoc'
+  'TEXMFHOME := $(shell kpsewhich -var-value TEXMFHOME)'
+  ''
+  'input := $(wildcard *.md)'
+  ''
+  'latex_defaults := ${USERDATA}/defaults/latex.yaml'
+  'html_defaults := ${USERDATA}/defaults/html.yaml'
+  ''
+)
+
+# Define variables for all LaTeX output filenames
+for varname in ${(ko)latex_output}; do
+  makefile+=$varname' := '$latex_output[$varname]
+done
+
+# Set 'latex_output' equal to all those output filenames
+if [[ -n $file_metadata ]]; then
+  set_or_append_keys latex_output
+
+  makefile+=''
+fi
+
+# Define variables for all HTML output filenames
+for varname in ${(ko)html_output}; do
+  makefile+=$varname' := '$html_output[$varname]
+done
+
+# Set 'html_output' equal to all those output filenames
+if [[ -n $file_metadata ]]; then
+  set_or_append_keys html_output
+fi
+
+makefile+=''
+
+set_or_append_vals latex_deps
+
+makefile+=''
+
+set_or_append_vals html_deps
+
+makefile+=''
+
+if [[ ! -n $project_metadata && ! -n $file_metadata ]]; then
+  makefile+='project_metadata := $(wildcard *.yaml)'
+else
+  set_or_append_vals project_metadata
+fi
+
+makefile+=(
+  'ifneq ($(project_metadata),)'
+  'latex_deps += $(project_metadata)'
+  'html_deps += $(project_metadata)'
+  'endif'
+  ''
+  'all: $(latex_output) $(html_output)'
+  ''
+)
+
+for varname in ${(ko)latex_output}; do
+  makefile+=(
+    '$('$varname'): $(latex_deps)'
+    '	pandoc --defaults=$(latex_defaults) \'
+  )
+  for opt in $latex_opts; do
+    makefile+='		'$opt' \'
+  done
+  makefile+='		--output=$('$varname') \'
+  if [[ -n $file_metadata ]]; then
+    makefile+='		'${varname#latex_output_}'.yaml \'
+  fi
+  makefile+='		$(project_metadata) $(input)'
+done
+
+makefile+=''
+
+for varname in ${(ko)html_output}; do
+  makefile+=(
+    '$('$varname'): $(html_deps)'
+    '	pandoc --defaults=$(html_defaults) \'
+  )
+  for opt in $html_opts; do
+    makefile+='		'$opt' \'
+  done
+  if [[ -n $file_metadata ]]; then
+    makefile+='		'${varname#html_output_}'.yaml \'
+  fi
+  makefile+='		--output=$('$varname') \'
+  makefile+='		$(project_metadata) $(input)'
+done
+
+print -l "${(@)makefile}"
+
+# }}}1
