@@ -28,7 +28,8 @@
 % Load packages {{{1
 
 \RequirePackage[pagestyles]{titlesec}
-\RequirePackage{rhelder}
+\RequirePackage{etoolbox}
+\AtEndOfClass{\RequirePackage{rhelder}}
 
 % Title {{{1
 
@@ -86,6 +87,6 @@
 }
 
 \AtBeginDocument{\pagestyle{handout}}
-\geometry{vcentering}
+\AtEndOfClass{\geometry{vcentering}}
 
 % }}}1

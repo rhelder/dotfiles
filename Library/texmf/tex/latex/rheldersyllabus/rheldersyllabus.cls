@@ -4,7 +4,9 @@
 % Build on 'article' document class {{{1
 
 \DeclareKeys{
+  titlesec.code = \PassOptionsToPackage{#1}{titlesec},
   rhelder.code = \PassOptionsToPackage{#1}{rhelder},
+  biblatex.code = \PassOptionsToPackage{biblatex={#1}}{rhelder},
   twoside.code = \OptionNotUsed,
   draft.code = \OptionNotUsed,
   openright.code = \OptionNotUsed,
@@ -24,9 +26,9 @@
 
 % Load Packages {{{1
 
-\usepackage{parskip}
+\RequirePackage{parskip}
 \RequirePackage[pagestyles]{titlesec}
-\RequirePackage{rhelder}
+\AtEndOfClass{\RequirePackage{rhelder}}
 
 % Title {{{1
 
@@ -92,4 +94,4 @@
 }
 
 \AtBeginDocument{\pagestyle{syllabus}}
-\geometry{vcentering}
+\AtEndOfClass{\geometry{vcentering}}
