@@ -59,7 +59,7 @@ nnoremap <Leader>nds <Cmd>lcd
 nnoremap <Leader>ndz <Cmd>lcd
             \ $XDG_DATA_HOME/nvim/site/after<CR>
 nnoremap <Leader>nr <Cmd>lcd
-            \ /opt/homebrew/Cellar/neovim/0.10.1/share/nvim/runtime<CR>
+            \ /opt/homebrew/Cellar/neovim/*/share/nvim/runtime<CR>
 nnoremap <Leader>pc <Cmd>lcd
             \ $XDG_DATA_HOME/pandoc/custom<CR>
 nnoremap <Leader>pd <Cmd>lcd
