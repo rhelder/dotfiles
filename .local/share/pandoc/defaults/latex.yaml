@@ -1,6 +1,8 @@
 ---
 from: markdown-auto_identifiers
 to: latex.lua
+defaults:
+  - all.yaml
 metadata-files:
   - latex.yaml
 standalone: true
