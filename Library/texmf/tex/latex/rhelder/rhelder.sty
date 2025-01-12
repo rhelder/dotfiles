@@ -145,14 +145,6 @@
 % Make paragraph spacing within list same as outside of list
 \setlist{listparindent=\parindent, parsep=\parskip}
 
-\ifbool{@twocolumn}{
-  \geometry{hscale=0.7635}
-}{\ifbool{LuaTeX}{ % FIXME use l3 instead
-  \geometry{hscale=\directlua{tex.print(0.03680 * \f@size + 0.1936)}}
-}{
-  \geometry{pass}
-}}
-
 \IfPackageLoadedTF{biblatex-chicago}{%
   \addbibresource{my_library.bib}
   \DeclareSourcemap{%
@@ -171,6 +163,86 @@
   \NewCommandCopy\footnotetextCopy\footnotetext % FIXME find better approach
   \RenewDocumentCommand{\footnotetext}{+m}{\footnotetextCopy{\mancite #1}}
 }{}
+
+% Page layout {{{1
+
+\newlength\rh@upperletters
+\newlength\rh@lowerletters
+\newlength\rh@spaces
+\newlength\rh@others@nondigit
+\newlength\rh@others@digit
+\newlength\rh@allprintablechars
+\newlength\rh@linelength
+\newlength\rh@maxtextwidth
+\newlength\rh@maxtextwidth@twocol
+\newlength\rh@maxtextheight
+\newcounter{rh@maxlines}
+\newlength\rh@textheight
+
+\NewDocumentCommand{\settextwidth}{O{0}}{%
+  % Determine an average length of a line of 66 characters
+  \settowidth\rh@upperletters{%
+    ABCDEFGHIJKLMNOPQRSTUVWXYZ%
+  }% 26 characters
+  \settowidth\rh@lowerletters{%
+    abcdefghijklmnopqrstuvwxyz%
+  }% 26 characters
+  \settowidth\rh@spaces{%
+    \spacefactor\sfcode`. \space
+    \spacefactor\sfcode`a \space
+  }% 2 characters
+  \settowidth\rh@others@nondigit{%
+    .,:;!?()'"-%
+  }% 11 characters
+  \settowidth\rh@others@digit{%
+    0123456789%
+  }% 10 characters
+  \setlength\rh@allprintablechars{\rh@upperletters}
+  \addtolength\rh@allprintablechars{40\rh@lowerletters}
+  \addtolength{\rh@allprintablechars}{100\rh@spaces}
+  \addtolength{\rh@allprintablechars}{2\rh@others@digit}
+  \setlength\rh@linelength{\dimeval{\rh@allprintablechars / 1286 * (69 + #1)}}
+
+  \setlength\rh@maxtextwidth{\dimeval{\paperwidth - 2in}}
+  \setlength\rh@maxtextwidth@twocol{2\rh@linelength}
+  \addtolength\rh@maxtextwidth@twocol{\columnsep}
+  \addtolength\rh@maxtextwidth@twocol{\columnseprule}
+
+  % Don't exceed max textwidth (see documentation for 'classes')
+  \ifbool{@twocolumn}{
+    \ifdimgreater{\rh@maxtextwidth@twocol}{\rh@maxtextwidth}{
+      \geometry{textwidth=\rh@maxtextwidth}
+    }{
+      \geometry{textwidth=\rh@maxtextwidth@twocol}
+    }
+  }{
+    \ifdimgreater{\rh@linelength}{\rh@maxtextwidth}{
+      \geometry{textwidth=\rh@maxtextwidth}
+    }{
+      \geometry{textwidth=\rh@linelength}
+    }
+  }
+}
+
+\NewDocumentCommand{\settextheight}{O{0}}{
+  \setlength\rh@maxtextheight{\paperheight}
+  \addtolength\rh@maxtextheight{-2in}
+  \addtolength\rh@maxtextheight{-\headheight}
+  \addtolength\rh@maxtextheight{-\headsep}
+  \addtolength\rh@maxtextheight{-\footskip}
+
+  \divide\rh@maxtextheight by \baselineskip
+  \setcounter{rh@maxlines}{\rh@maxtextheight}
+  \addtocounter{rh@maxlines}{-1}
+
+  \setlength\rh@textheight{\value{rh@maxlines}\baselineskip}
+  \addtolength\rh@textheight{\topskip}
+  \addtolength\rh@textheight{#1\baselineskip}
+  \geometry{textheight=\rh@textheight}
+}
+
+\settextwidth
+\settextheight
 
 % Package configuration and macros {{{1
 
