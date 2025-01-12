@@ -94,4 +94,4 @@
 }
 
 \AtBeginDocument{\pagestyle{syllabus}}
-\AtEndOfClass{\geometry{vcentering}}
+\AtEndOfClass{\geometry{includeheadfoot}}

@@ -87,6 +87,6 @@
 }
 
 \AtBeginDocument{\pagestyle{handout}}
-\AtEndOfClass{\geometry{vcentering}}
+\AtEndOfClass{\geometry{includeheadfoot}}
 
 % }}}1
