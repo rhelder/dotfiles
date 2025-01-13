@@ -183,25 +183,26 @@
   % Determine an average length of a line of 66 characters
   \settowidth\rh@upperletters{%
     ABCDEFGHIJKLMNOPQRSTUVWXYZ%
-  }% 26 characters
+  }
   \settowidth\rh@lowerletters{%
     abcdefghijklmnopqrstuvwxyz%
-  }% 26 characters
+  }
   \settowidth\rh@spaces{%
     \spacefactor\sfcode`. \space
     \spacefactor\sfcode`a \space
-  }% 2 characters
+  }
   \settowidth\rh@others@nondigit{%
     .,:;!?()'"-%
-  }% 11 characters
+  }
   \settowidth\rh@others@digit{%
     0123456789%
-  }% 10 characters
+  }
   \setlength\rh@allprintablechars{\rh@upperletters}
-  \addtolength\rh@allprintablechars{40\rh@lowerletters}
-  \addtolength{\rh@allprintablechars}{100\rh@spaces}
-  \addtolength{\rh@allprintablechars}{2\rh@others@digit}
-  \setlength\rh@linelength{\dimeval{\rh@allprintablechars / 1286 * (69 + #1)}}
+  \addtolength\rh@allprintablechars{60\rh@lowerletters}
+  \addtolength\rh@allprintablechars{100\rh@spaces}
+  \addtolength\rh@allprintablechars{5\rh@others@nondigit}
+  \addtolength\rh@allprintablechars{\rh@others@digit}
+  \setlength\rh@linelength{\dimeval{\rh@allprintablechars / 1851 * (69 + #1)}}
 
   \setlength\rh@maxtextwidth{\dimeval{\paperwidth - 2in}}
   \setlength\rh@maxtextwidth@twocol{2\rh@linelength}
