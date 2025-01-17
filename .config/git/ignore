@@ -8,7 +8,6 @@
 /.ssh
 /.xdvirc
 /Desktop/
-/Development/
 /Documents/
 /Downloads/
 /Movies/
@@ -36,6 +35,9 @@
 /.local/share/pandoc/default.csl
 /.local/share/pandoc/my_library.yaml
 /.local/share/zotero/
+
+/Development/*
+!/Development/rhelder
 
 /Library/*
 !/Library/texmf/
