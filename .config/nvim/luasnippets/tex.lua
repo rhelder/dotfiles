@@ -1,3 +1,11 @@
+local get_visual = function(args, parent)
+  if (#parent.snippet.env.LS_SELECT_RAW > 0) then
+    return sn(nil, i(1, parent.snippet.env.LS_SELECT_RAW))
+  else -- If LS_SELECT_RAW is empty, return a blank insert node
+    return sn(nil, i(1))
+  end
+end
+
 local function tcq_with_postnote(_, parent)
   if parent.snippet.stored.punct.nodes[1]['static_text'][1] == '<punct>' then
     return sn(nil, {
@@ -54,7 +62,19 @@ local function tcq_with_prenote(_, parent)
   end
 end
 
-return {}, {
+return { -- not autosnippets
+  s('env',
+    fmta(
+      [[
+        \begin{<>}
+          <>
+        \end{<>}
+      ]],
+      {i(1), i(2), rep(1)}
+    )
+  ),
+
+}, { -- autosnippets
   -- Preamble/package commands
 
   s('dc',
@@ -71,7 +91,7 @@ return {}, {
     }
   ),
 
-  s('pk',
+  s({trig = '^([^%w_\\]?)pk', regTrig = true, wordTrig = false},
     {
       c(1, {
         sn(nil, fmta('\\usepackage{<>', {i(1)})),
@@ -138,7 +158,7 @@ return {}, {
     {t('\\expandafter')}
   ),
 
-  s('tt',
+  s('tl',
     fmta('\\title{<>}', {i(1)})
   ),
 
@@ -236,14 +256,30 @@ return {}, {
     }
   ),
 
-  s('env',
+  s('mc',
     fmta(
       [[
-        \begin{<>}
-          <>
-        \end{<>}
+        %    \begin{macrocode}
+        <>
+        %    \end{macrocode}
       ]],
-      {i(1), i(2), rep(1)}
+      {d(1, get_visual)}
     )
+  ),
+
+  s('tt',
+    fmta('\\texttt{<>}', {d(1, get_visual)})
+  ),
+
+  s('ss',
+    fmta('\\section{<>}', {i(1)})
+  ),
+
+  s('sbs',
+    fmta('\\subsection{<>}', {i(1)})
+  ),
+
+  s('sbbs',
+    fmta('\\subsubsection{<>}', {i(1)})
   ),
 }
