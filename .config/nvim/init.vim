@@ -17,6 +17,7 @@ set scrolloff=3
 set shiftwidth=2
 set smartcase
 set smartindent
+set nosmarttab
 set softtabstop=2
 set spelllang=en_us
 set splitbelow
@@ -237,13 +238,15 @@ let g:GPGExecutable = 'PINENTRY_USER_DATA="" gpg --trust-model=always'
 
 " LuaSnip configuration {{{2
 
-lua require('luasnip.loaders.from_lua').load(
-      \ {paths = '~/.config/nvim/luasnippets'})
-
 lua require('luasnip').setup({
       \ enable_autosnippets = true,
       \ store_selection_keys = '<Tab>',
       \ })
+
+lua require('luasnip.loaders.from_lua').load(
+      \ {paths = '~/.config/nvim/luasnippets'})
+
+" LuaSnip mappings {{{3
 
 imap <silent><expr> <Tab> luasnip#expand_or_jumpable()
       \ ? '<Plug>luasnip-expand-or-jump'
@@ -271,6 +274,34 @@ imap <silent><expr> <C-K> luasnip#choice_active()
 smap <silent><expr> <C-K> luasnip#choice_active()
       \ ? '<Plug>luasnip-prev-choice'
       \ : '<C-K>'
+
+" }}}3
+
+" After having left the snippet, don't jump back when pressing <Tab>
+" (Still doesn't work if you haven't jumped all the way through a snippet in
+" which another snippet is nested, but still a big improvement. Code is from
+" @augustocdias, LuaSnip issue #258)
+augroup nvimrc_luasnip
+  autocmd!
+  autocmd ModeChanged * call s:leave_luasnippet()
+  " Fix EOF syntax highlighting
+  autocmd FileType vim lua vim.treesitter.start()
+augroup END
+
+function! s:leave_luasnippet() abort
+lua << EOF
+  local ls = require('luasnip')
+  if (
+      (vim.v.event.old_mode == 's' and vim.v.event.new_mode == 'n')
+      or vim.v.event.old_mode == 'i'
+    )
+    and ls.session.current_nodes[vim.api.nvim_get_current_buf()]
+    and not ls.session.jump_active
+  then
+    ls.unlink_current()
+  end
+EOF
+endfunction
 " }}}2
 
 " }}}1
