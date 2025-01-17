@@ -1,4 +1,4 @@
-@default_files = ("*.tex", "*.lvt");
+@default_files = ("*.tex", "*.lvt", "*.dtx");
 $pdf_mode = 4;
 $bibtex_use = 2;
 $silent = 1;
