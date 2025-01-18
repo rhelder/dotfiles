@@ -1,0 +1,23 @@
+% Copyright (C) 2025 Russell Wright Helder
+
+\input docstrip
+\keepsilent
+
+\let\MetaPrefix\perCent
+\edef\rh@preamble{%
+  \expandafter\@gobbletwo\ds@heading
+  \ReferenceLines
+  \perCent^^J%
+  \perCent\space Copyright (C) 2025 Russell Wright Helder^^J%
+  \perCent^^J%
+  \perCent\space This work consists of the files
+    rhelder.dtx, rhelder.ins,^^J%
+  \perCent\space and the derived files rhelder.sty and rhelder.pdf.^^J%
+}
+
+\generate{
+  \usepreamble\rh@preamble
+  \nopostamble
+  \file{rhelder.sty}{\from{rhelder.dtx}{package}}
+}
+\endbatchfile
