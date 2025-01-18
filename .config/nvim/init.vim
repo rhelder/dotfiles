@@ -281,7 +281,8 @@ smap <silent><expr> <C-K> luasnip#choice_active()
 " After having left the snippet, don't jump back when pressing <Tab>
 " (Still doesn't work if you haven't jumped all the way through a snippet in
 " which another snippet is nested, but still a big improvement. Code is from
-" @augustocdias, LuaSnip issue #258)
+" @augustocdias, LuaSnip issue #258), except for requirement that, when we
+" leave insert mode, we're not changing into an insert-completion mode.
 augroup nvimrc_luasnip
   autocmd!
   autocmd ModeChanged * call s:leave_luasnippet()
