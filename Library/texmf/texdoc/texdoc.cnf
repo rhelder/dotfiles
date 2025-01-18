@@ -1,8 +1,8 @@
-# Personal configuration file for `texdoc`
+# Personal configuration file for 'texdoc'
 
-# Append `tex` to the list of allowed extensions (note: empty string at end)
-ext_list = pdf, html, htm, txt, dat, md, ps, dvi, tex,  
+# Include 'tex' and 'dtx' files (Note: empty string at end)
+ext_list = pdf, html, htm, txt, dat, md, ps, dvi, tex, dtx,  
 
-# Set Neovim as the default pager for text files (and for `tex` files)
+# Set Neovim as default editor
 viewer_txt = nvim %s
 viewer_tex = nvim %s
