@@ -241,6 +241,7 @@ let g:GPGExecutable = 'PINENTRY_USER_DATA="" gpg --trust-model=always'
 lua require('luasnip').setup({
       \ enable_autosnippets = true,
       \ store_selection_keys = '<Tab>',
+      \ update_events = {'TextChanged', 'TextChangedI'},
       \ })
 
 lua require('luasnip.loaders.from_lua').load(
@@ -293,7 +294,11 @@ lua << EOF
   local ls = require('luasnip')
   if (
       (vim.v.event.old_mode == 's' and vim.v.event.new_mode == 'n')
-      or vim.v.event.old_mode == 'i'
+      or (
+        vim.v.event.old_mode == 'i'
+        and not
+        (vim.v.event.new_mode == 'ix' or vim.v.event.new_mode == 'ic')
+      )
     )
     and ls.session.current_nodes[vim.api.nvim_get_current_buf()]
     and not ls.session.jump_active
