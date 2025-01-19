@@ -10,3 +10,7 @@
 	path = .local/share/pandoc/templates
 	url = https://github.com/rhelder/pandoc-templates.git
         branch = main
+[submodule ".local/share/pandoc/csl"]
+	path = .local/share/pandoc/csl
+	url = https://github.com/rhelder/styles.git
+	branch = main
