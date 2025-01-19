@@ -10,7 +10,3 @@
 	path = .local/share/pandoc/templates
 	url = https://github.com/rhelder/pandoc-templates.git
         branch = main
-[submodule ".local/share/pandoc/styles"]
-	path = .local/share/pandoc/csl
-	url = https://github.com/citation-style-language/styles.git
-        branch = main
