@@ -7,7 +7,7 @@ set diffopt+=vertical
 set expandtab
 set foldlevelstart=0
 set foldmethod=marker
-set guicursor=
+set guicursor=a:block
 set ignorecase
 set list
 set mouse=
