@@ -74,7 +74,6 @@ autoload default_tar
 autoload kpsewhich_nvim
 autoload man_zsh
 autoload nvim_help
-autoload trash
 
 # Aliases {{{1
 
@@ -91,8 +90,12 @@ alias ez="nvim $XDG_CONFIG_HOME/zsh/.zshrc"
 # Navigate {{{2
 alias b="cs $HOME/.local/bin"
 alias -f dc="cs $HOME/Documents"
-alias dg="cs $HOME/Documents/Git"
+alias dg="cs $HOME/Documents/Drafts"
 alias dn="cs $HOME/Documents/Notes"
+alias dp="cs $HOME/Documents/Personal"
+alias ds="cs $HOME/Development/rhelder"
+alias dt="cs $HOME/Development/Tests"
+alias dv="cs $HOME/Development"
 alias gh="cs $XDG_CONFIG_HOME/git"
 alias nca="cs $XDG_CONFIG_HOME/nvim/autoload"
 alias ncc="cs $XDG_CONFIG_HOME/nvim/compiler"
@@ -122,8 +125,8 @@ alias tl="cs $HOME/Library/texmf/tex/latex"
 alias vt="cs $XDG_DATA_HOME/nvim/plugged/vimtex"
 alias xc="cs $XDG_CONFIG_HOME"
 alias xd="cs $XDG_DATA_HOME"
-alias zh="cs $XDG_CONFIG_HOME/zsh"
 alias zf="cs $XDG_DATA_HOME/zsh/functions"
+alias zh="cs $XDG_CONFIG_HOME/zsh"
 
 # Abbreviate {{{2
 alias cpm="cp -i $XDG_DATA_HOME/pandoc/Makefile ."
@@ -184,7 +187,7 @@ lmk="$XDG_CONFIG_HOME/latexmk/latexmkrc"
 v="$XDG_CONFIG_HOME/nvim/init.vim"
 zv="$XDG_CONFIG_HOME/nvim/zshrc.vim"
 tf="$XDG_CONFIG_HOME/nvim/ftplugin/tex.vim"
-s="$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
+s="$HOME/Development/rhelder/rhelder.dtx"
 z="$XDG_CONFIG_HOME/zsh/.zshrc"
 
 # Directories {{{2
@@ -192,6 +195,10 @@ b="$HOME/.local/bin"
 dc="$HOME/Documents"
 dg="$HOME/Documents/Git"
 dn="$HOME/Documents/Notes"
+dn="$HOME/Documents/Notes"
+dp="$HOME/Documents/Personal"
+dt="$HOME/Development/Tests"
+dv="$HOME/Development"
 gh="$XDG_CONFIG_HOME/git"
 nca="$XDG_CONFIG_HOME/nvim/autoload"
 ncc="$XDG_CONFIG_HOME/nvim/compiler"
@@ -221,8 +228,8 @@ tl="$HOME/Library/texmf/tex/latex"
 vt="$XDG_DATA_HOME/nvim/plugged/vimtex"
 xc="$XDG_CONFIG_HOME"
 xd="$XDG_DATA_HOME"
-zh="$XDG_CONFIG_HOME/zsh"
 zf="$XDG_DATA_HOME/zsh/functions"
+zh="$XDG_CONFIG_HOME/zsh"
 # }}}2
 
 # Command-line tools {{{1

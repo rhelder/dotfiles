@@ -21,9 +21,17 @@ nnoremap <Leader>b <Cmd>lcd
 nnoremap <Leader>dc <Cmd>lcd
             \ $HOME/Documents<CR>
 nnoremap <Leader>dg <Cmd>lcd
-            \ $HOME/Documents/Git<CR>
+            \ $HOME/Documents/Drafts<CR>
 nnoremap <Leader>dn <Cmd>lcd
             \ $HOME/Documents/Notes<CR>
+nnoremap <Leader>dp <Cmd>lcd
+            \ $HOME/Documents/Personal<CR>
+nnoremap <Leader>ds <Cmd>lcd
+            \ $HOME/Development/rhelder<CR>
+nnoremap <Leader>dt <Cmd>lcd
+            \ $HOME/Development/Tests<CR>
+nnoremap <Leader>dv <Cmd>lcd
+            \ $HOME/Development<CR>
 nnoremap <Leader>gh <Cmd>lcd
             \ $XDG_CONFIG_HOME/git<CR>
 nnoremap <Leader>nca <Cmd>lcd
@@ -82,10 +90,10 @@ nnoremap <Leader>xc <Cmd>lcd
             \ $XDG_CONFIG_HOME<CR>
 nnoremap <Leader>xd <Cmd>lcd
             \ $XDG_DATA_HOME<CR>
-nnoremap <Leader>zh <Cmd>lcd
-            \ $XDG_CONFIG_HOME/zsh<CR>
 nnoremap <Leader>zf <Cmd>lcd
             \ $XDG_DATA_HOME/zsh/functions<CR>
+nnoremap <Leader>zh <Cmd>lcd
+            \ $XDG_CONFIG_HOME/zsh<CR>
 
 " Variables (corresponding to shell variables in '.zshrc')
 
@@ -96,12 +104,16 @@ let lmk = "$XDG_CONFIG_HOME/latexmk/latexmkrc"
 let v = "$XDG_CONFIG_HOME/nvim/init.vim"
 let zv = "$XDG_CONFIG_HOME/nvim/zshrc.vim"
 let tf = "$XDG_CONFIG_HOME/nvim/ftplugin/tex.vim"
-let s = "$HOME/Library/texmf/tex/latex/rhelder/rhelder.sty"
+let s = "$HOME/Development/rhelder/rhelder.dtx"
 let z = "$XDG_CONFIG_HOME/zsh/.zshrc"
 let b = "$HOME/.local/bin"
 let dc = "$HOME/Documents"
 let dg = "$HOME/Documents/Git"
 let dn = "$HOME/Documents/Notes"
+let dn = "$HOME/Documents/Notes"
+let dp = "$HOME/Documents/Personal"
+let dt = "$HOME/Development/Tests"
+let dv = "$HOME/Development"
 let gh = "$XDG_CONFIG_HOME/git"
 let nca = "$XDG_CONFIG_HOME/nvim/autoload"
 let ncc = "$XDG_CONFIG_HOME/nvim/compiler"
@@ -131,5 +143,5 @@ let tl = "$HOME/Library/texmf/tex/latex"
 let vt = "$XDG_DATA_HOME/nvim/plugged/vimtex"
 let xc = "$XDG_CONFIG_HOME"
 let xd = "$XDG_DATA_HOME"
-let zh = "$XDG_CONFIG_HOME/zsh"
 let zf = "$XDG_DATA_HOME/zsh/functions"
+let zh = "$XDG_CONFIG_HOME/zsh"
