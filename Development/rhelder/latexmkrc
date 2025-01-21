@@ -1,1 +1,4 @@
-$makeindex = 'makeindex -s gind.ist %O -o %D %S'
+$makeindex = 'makeindex -s gind.ist %O -o %D %S';
+push @default_files, '*.ins';
+push @generated_exts, 'hd';
+$clean_full_ext = 'sty';
