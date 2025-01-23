@@ -9,7 +9,7 @@ nnoremap <Leader>ek <Cmd>vs
 nnoremap <Leader>elmk <Cmd>vs
             \ $XDG_CONFIG_HOME/latexmk/latexmkrc<CR>
 nnoremap <Leader>es <Cmd>vs
-            \ $HOME/Library/texmf/tex/latex/rhelder/rhelder.sty<CR>
+            \ $HOME/Development/rhelder/rhelder.dtx<CR>
 nnoremap <Leader>etf <Cmd>vs
             \ $XDG_CONFIG_HOME/nvim/ftplugin/tex.vim<CR>
 nnoremap <Leader>ev <Cmd>vs
