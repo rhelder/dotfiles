@@ -16,7 +16,6 @@ set report=0
 set scrolloff=3
 set shiftwidth=2
 set smartcase
-set smartindent
 set nosmarttab
 set softtabstop=2
 set spelllang=en_us
@@ -57,7 +56,7 @@ augroup nvimrc_options " {{{2
   autocmd FileType markdown setlocal formatoptions-=l
   autocmd FileType text,markdown setlocal textwidth=78
   autocmd FileType gitcommit setlocal textwidth=72
-  autocmd FileType text,markdown,gitcommit setlocal nosmartindent
+  autocmd FileType text,markdown,gitcommit setlocal formatoptions+=n
   autocmd FileType markdown,gitcommit setlocal shiftwidth=4
   autocmd FileType markdown,gitcommit setlocal softtabstop=4
   autocmd FileType help setlocal nolist
@@ -242,6 +241,9 @@ lua require('luasnip').setup({
       \ enable_autosnippets = true,
       \ store_selection_keys = '<Tab>',
       \ update_events = {'TextChanged', 'TextChangedI'},
+      \ snip_env = {
+      \   get_visual = require('rhelder.luasnip').get_visual,
+      \   },
       \ })
 
 lua require('luasnip.loaders.from_lua').load(
