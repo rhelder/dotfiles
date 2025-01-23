@@ -56,6 +56,7 @@ function! VimtexIndent(lnum) abort " {{{1
     return indent(a:lnum)
   endif
 
+  " Remove comments before subsequent checks
   let l:line = s:clean_line(getline(a:lnum))
 
   " Align on ampersands
