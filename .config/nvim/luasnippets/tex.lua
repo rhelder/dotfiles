@@ -61,7 +61,7 @@ return { -- not autosnippets
       <>
       \end{<>
     ]],
-    {i(1), i(2), rep(1)}
+    {i(1), d(2, get_visual), rep(1)}
   ))
 }, { -- autosnippets
   -- Preamble/package commands
