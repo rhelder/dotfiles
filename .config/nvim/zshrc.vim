@@ -85,7 +85,7 @@ nnoremap <Leader>th <Cmd>lcd
 nnoremap <Leader>tl <Cmd>lcd
             \ $HOME/Library/texmf/tex/latex<CR>
 nnoremap <Leader>vt <Cmd>lcd
-            \ $XDG_DATA_HOME/nvim/plugged/vimtex<CR>
+            \ $XDG_DATA_HOME/nvim/vimtex<CR>
 nnoremap <Leader>xc <Cmd>lcd
             \ $XDG_CONFIG_HOME<CR>
 nnoremap <Leader>xd <Cmd>lcd
@@ -140,7 +140,7 @@ let pt = "$XDG_DATA_HOME/pandoc/templates"
 let py = "$XDG_DATA_HOME/pandoc/styles"
 let th = "$HOME/Library/texmf"
 let tl = "$HOME/Library/texmf/tex/latex"
-let vt = "$XDG_DATA_HOME/nvim/plugged/vimtex"
+let vt = "$XDG_DATA_HOME/nvim/vimtex"
 let xc = "$XDG_CONFIG_HOME"
 let xd = "$XDG_DATA_HOME"
 let zf = "$XDG_DATA_HOME/zsh/functions"
