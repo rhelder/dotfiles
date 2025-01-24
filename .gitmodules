@@ -14,3 +14,6 @@
 	path = .local/share/pandoc/csl
 	url = https://github.com/rhelder/styles.git
 	branch = main
+[submodule ".local/share/nvim/vimtex"]
+	path = .local/share/nvim/vimtex
+	url = https://github.com/rhelder/vimtex.git

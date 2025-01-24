@@ -219,7 +219,7 @@ call plug#begin()
   Plug 'fladson/vim-kitty'
   Plug 'junegunn/vim-plug'
   Plug 'machakann/vim-sandwich'
-  Plug 'lervag/vimtex'
+  Plug '~/.local/share/nvim/vimtex'
 call plug#end()
 
 " Set options required for ncm2
