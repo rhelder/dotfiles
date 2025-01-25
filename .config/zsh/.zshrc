@@ -193,7 +193,7 @@ z="$XDG_CONFIG_HOME/zsh/.zshrc"
 # Directories {{{2
 b="$HOME/.local/bin"
 dc="$HOME/Documents"
-dg="$HOME/Documents/Git"
+dg="$HOME/Documents/Drafts"
 dn="$HOME/Documents/Notes"
 dn="$HOME/Documents/Notes"
 dp="$HOME/Documents/Personal"
