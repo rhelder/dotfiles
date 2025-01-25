@@ -38,13 +38,14 @@
 
 /Development/*
 !/Development/rhelder
+/Development/rhelder/build/
 
 /Library/*
 !/Library/texmf/
 /Library/texmf/bibtex/
 /Library/texmf/tex/latex/biblatex-chicago
 /Library/texmf/tex/latex/cmos/
-/Library/texmf/tex/latex/rhelder/build
+/Library/texmf/tex/latex/rhelder
 !/Library/LaunchAgents
 /Library/LaunchAgents/*
 !/Library/LaunchAgents/local*
