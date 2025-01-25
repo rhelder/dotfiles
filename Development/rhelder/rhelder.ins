@@ -3,9 +3,10 @@
 \input docstrip
 \keepsilent
 
+\def\rh@gobbletwo#1#2{}
 \let\MetaPrefix\perCent
 \edef\rh@preamble{%
-  \expandafter\@gobbletwo\ds@heading
+  \expandafter\rh@gobbletwo\ds@heading
   \ReferenceLines
   \perCent^^J%
   \perCent\space Copyright (C) 2025 Russell Wright Helder^^J%
