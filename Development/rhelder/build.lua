@@ -1,0 +1,2 @@
+module = 'rhelder'
+typesetexe = 'lualatex'
