@@ -9,6 +9,7 @@
 latex_deps=(
   '$(input)'
   '$(latex_defaults)'
+  '${USERDATA}/defaults/all.yaml'
   '${USERDATA}/custom/latex.lua'
   '${USERDATA}/metadata/latex.yaml'
   '${USERDATA}/templates/custom.latex'
@@ -18,6 +19,7 @@ latex_deps=(
 html_deps=(
   '$(input)'
   '$(html_defaults)'
+  '${USERDATA}/defaults/all.yaml'
   '${USERDATA}/metadata/html.yaml'
   '${USERDATA}/templates/default.html5'
   '${USERDATA}/templates/styles.html'
@@ -27,9 +29,10 @@ declare -a latex_opts
 declare -a html_opts
 declare -a project_metadata
 declare -a file_metadata
+declare -a project_defaults
 
 # Add to arrays {{{2
-while getopts 'shm:c' flag; do
+while getopts 'shcm:d:' flag; do
   case $flag in
     (s)
       latex_deps+='${TEXMFHOME}/tex/latex/rheldersyllabus/rheldersyllabus.cls'
@@ -37,8 +40,6 @@ while getopts 'shm:c' flag; do
     (h)
       latex_deps+='${TEXMFHOME}/tex/latex/rhelderhandout/rhelderhandout.cls'
     ;;
-    (m)   project_metadata+=$OPTARG;;
-    (+m)  file_metadata+=$OPTARG;;
     (c)
       latex_opts+='--biblatex'
       latex_deps+='${TEXMFHOME}/bibtex/bib/my_library.bib'
@@ -59,6 +60,9 @@ while getopts 'shm:c' flag; do
         '${USERDATA}/my_library.yaml'
       )
     ;;
+    (m)   project_metadata+=$OPTARG;;
+    (+m)  file_metadata+=$OPTARG;;
+    (d)   project_defaults+=$OPTARG;;
   esac
 done
 shift $(( OPTIND - 1 ))
@@ -125,8 +129,9 @@ for varname in ${(ko)latex_output}; do
   makefile+=$varname' := '$latex_output[$varname]
 done
 
-# Set 'latex_output' equal to all those output filenames
-if [[ -n $file_metadata ]]; then
+# If there is more than one output filename, set 'latex_output' equal to all of
+# them
+if (( $#latex_output > 1 )); then
   set_or_append_keys latex_output
 
   makefile+=''
@@ -137,8 +142,9 @@ for varname in ${(ko)html_output}; do
   makefile+=$varname' := '$html_output[$varname]
 done
 
-# Set 'html_output' equal to all those output filenames
-if [[ -n $file_metadata ]]; then
+# If there is more than one output filename, set 'html_output' equal to all of
+# them
+if (( $#html_output > 1 )); then
   set_or_append_keys html_output
 fi
 
@@ -152,52 +158,67 @@ set_or_append_vals html_deps
 
 makefile+=''
 
-if [[ ! -n $project_metadata && ! -n $file_metadata ]]; then
-  makefile+='project_metadata := $(wildcard *.yaml)'
-else
-  set_or_append_vals project_metadata
+set_or_append_vals project_metadata
+
+if [[ -n $project_metadata ]]; then
+  makefile+=(
+    'latex_deps += $(project_metadata)'
+    'html_deps += $(project_metadata)'
+    ''
+  )
+fi
+
+set_or_append_vals project_defaults
+
+if [[ -n $project_defaults ]]; then
+  makefile+=(
+    'latex_deps += $(project_defaults)'
+    'html_deps += $(project_defaults)'
+    ''
+  )
 fi
 
 makefile+=(
-  'ifneq ($(project_metadata),)'
-  'latex_deps += $(project_metadata)'
-  'html_deps += $(project_metadata)'
-  'endif'
-  ''
   'all: $(latex_output) $(html_output)'
   ''
 )
 
-for varname in ${(ko)latex_output}; do
-  makefile+=(
-    '$('$varname'): $(latex_deps)'
-    '	pandoc --defaults=$(latex_defaults) \'
-  )
+for ((i=1; i <= $#latex_output; ++i)); do
+  if [[ -n ${(o)file_metadata[i]} ]]; then
+    thisfile_metadata=' '${(o)file_metadata[i]}
+  fi
+
+  makefile+='$('${${(ko)latex_output}[i]}'): $(latex_deps)'$thisfile_metadata
+  makefile+='	pandoc --defaults=$(latex_defaults) \'
   for opt in $latex_opts; do
     makefile+='		'$opt' \'
   done
-  makefile+='		--output=$('$varname') \'
-  if [[ -n $file_metadata ]]; then
-    makefile+='		'${varname#latex_output_}'.yaml \'
+  makefile+='		--output=$('${${(ko)latex_output}[i]}') \'
+  if [[ -n $project_defaults ]]; then
+    makefile+='		--defaults='$project_defaults' \'
   fi
-  makefile+='		$(project_metadata) $(input)'
+  makefile+='		$(project_metadata)'$thisfile_metadata' \'
+  makefile+='		$(input)'
 done
 
 makefile+=''
 
-for varname in ${(ko)html_output}; do
-  makefile+=(
-    '$('$varname'): $(html_deps)'
-    '	pandoc --defaults=$(html_defaults) \'
-  )
+for ((i=1; i <= $#html_output; ++i)); do
+  if [[ -n ${(o)file_metadata[i]} ]]; then
+    thisfile_metadata=' '${(o)file_metadata[i]}
+  fi
+
+  makefile+='$('${${(ko)html_output}[i]}'): $(html_deps)'$thisfile_metadata
+  makefile+='	pandoc --defaults=$(html_defaults) \'
   for opt in $html_opts; do
     makefile+='		'$opt' \'
   done
-  if [[ -n $file_metadata ]]; then
-    makefile+='		'${varname#html_output_}'.yaml \'
+  makefile+='		--output=$('${${(ko)html_output}[i]}') \'
+  if [[ -n $project_defaults ]]; then
+    makefile+='		--defaults='$project_defaults' \'
   fi
-  makefile+='		--output=$('$varname') \'
-  makefile+='		$(project_metadata) $(input)'
+  makefile+='		$(project_metadata)'$thisfile_metadata' \'
+  makefile+='		$(input)'
 done
 
 print -l "${(@)makefile}"
