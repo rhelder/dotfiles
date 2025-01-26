@@ -185,15 +185,15 @@
 % \begin{description}
 %   \item[\opt{biblatex}] String.
 %     Passes its value to \pkg{biblatex-chicago}.
-%   \item[\opt{doublespaced}] Boolean (default \boolean{true}).
+%   \item[\opt{doublespaced}] Boolean (default \boolean{false}).
 %     Loads \pkg{setspace} and calls \cs{doublespacing}.
-%   \item[\opt{anonymous}] Boolean (default \boolean{true}).
-%     Excludes the name of the author
-%     from both the title and the PDF metadata.
 %   \item[\opt{author}] String (default \str{Russell Wright Helder}).
 %     Sets the name of the author
 %     to be used in both the title and the PDF metadata.
-%     Mutually exclusive with \opt{anonymous}.
+%   \item[\opt{anonymous}] Boolean (default \boolean{false}).
+%     Excludes the name of the author
+%     from both the title and the PDF metadata.
+%     Mutually exclusive with \opt{author}.
 %   \item[\opt{translit}] Boolean (default \boolean{true}).
 %     Determines whether or not to transliterate certain ancient Greek words
 %     that are commonly transliterated in the secondary literature.
@@ -202,12 +202,12 @@
 \DeclareKeys[rhelder]{
   biblatex.code = \SetKeys[rh@biblatex]{#1},
   doublespaced.if = rh@doublespaced,
-  anonymous.if = rh@anonymous,
   author.code =
     \notbool{rh@anonymous}{
       \author{#1}
       \AddToHook{package/hyperref/after}{\hypersetup{pdfauthor=#1}}
     }{},
+  anonymous.if = rh@anonymous,
   translit.if = rh@translit,
 }
 %    \end{macrocode}
@@ -230,10 +230,10 @@
 %    \begin{macrocode}
 \let\rh@biblatex@style\empty
 %    \end{macrocode}
+% \end{macro}
 %    \begin{noprintcode}
 
 %    \end{noprintcode}
-% \end{macro}
 %
 % \begin{macro}{\rh@biblatex@opts}
 %    Store all the remaining values in a temporary macro
@@ -243,19 +243,20 @@
   \eappto\rh@biblatex@opts{\ifblank{#2}{#1}{#1=#2},}
 }
 %    \end{macrocode}
+% \end{macro}
 %    \begin{noprintcode}
 
 %    \end{noprintcode}
-% \end{macro}
 %
 % \begin{macro}{\rh@biblatex@notes,\rh@biblatex@authordate}
-%    Define temporary macros that prepend default options,
-%    depending on the style,
-%    to the options specified by the user
-%    (because the default options are prepended,
-%    the defaults can be overridden by the user);
-%    load \pkg{biblatex-chicago};
+%    Define temporary macros
+%    that prepend default options to the options specified by the user,
+%    load \pkg{biblatex-chicago},
 %    and execute all the options.
+%    Which of these macros will be executed (if any)
+%    will depend on the definition of \cs{rh@biblatex@style}.
+%    Note that, because the default options are prepended,
+%    the defaults can be overridden by the user.
 %    \begin{macrocode}
 \def\rh@biblatex@notes{
   \epreto\rh@biblatex@opts{
@@ -271,7 +272,8 @@
   }
   \expandafter
   \RequirePackage\expandafter[\rh@biblatex@style]{biblatex-chicago}
-  \expandafter\ExecuteBibliographyOptions\expandafter{\rh@biblatex@opts}
+  \expandafter
+  \ExecuteBibliographyOptions\expandafter{\rh@biblatex@opts}
 }
 
 \def\rh@biblatex@authordate{
@@ -279,19 +281,7 @@
   \rh@biblatex@notes
 }
 %    \end{macrocode}
-%    \begin{noprintcode}
-
-%    \end{noprintcode}
 % \end{macro}
-%
-% \subsection{Set Defaults}
-%
-%    \begin{macrocode}
-\SetKeys[rhelder]{
-  author={Russell Wright Helder},
-  translit=true,
-}
-%    \end{macrocode}
 %    \begin{noprintcode}
 
 %    \end{noprintcode}
@@ -304,6 +294,17 @@
 %    \begin{macrocode}
 \RequirePackage{etoolbox}
 \ProcessKeyOptions
+%    \end{macrocode}
+%    \begin{noprintcode}
+
+%    \end{noprintcode}
+%
+%    Set default options.
+%    \begin{macrocode}
+\SetKeys[rhelder]{
+  author={Russell Wright Helder},
+  translit=true,
+}
 %    \end{macrocode}
 %    \begin{noprintcode}
 
@@ -454,11 +455,14 @@
 %
 % \subsection{\pkg{enumitem}}
 %
-% \begin{environment}{outline}
-%    Define a default outline list style.
 %    \begin{macrocode}
 \setlist[itemize,2]{label=\ding{118}}
 \setlist[itemize,3]{label=\ding{66}}
+%    \end{macrocode}
+%
+% \begin{environment}{outline}
+%    Define a default outline style.
+%    \begin{macrocode}
 \newlist{outline}{enumerate}{5}
 \setlist[outline,1]{label=\Roman*.}
 \setlist[outline,2]{label=\Alph*.}
@@ -468,11 +472,13 @@
 %    \end{macrocode}
 % \end{environment}
 %
+% \begin{environment}{enumerate*}
 %    Define an inline \pkg{enumerate} list style.
 %    \begin{macrocode}
 \newlist{enumerate*}{enumerate*}{1}
 \setlist[enumerate*]{label=\Alph*.}
 %    \end{macrocode}
+% \end{environment}
 %
 %    Make paragraph spacing within a list the same as outside of a list.
 %    \begin{macrocode}
@@ -520,42 +526,6 @@
 %    \end{noprintcode}
 %
 % \section{Page Layout}
-%
-% \begin{macro}{
-%    \rh@upperletters,
-%    \rh@lowerletters,
-%    \rh@spaces,
-%    \rh@others@nondigit,
-%    \rh@others@digit,
-%    \rh@allprintablechars,
-%    \rh@linelength,
-%    \rh@maxtextwidth,
-%    \rh@maxtextwidth@twocol,
-%    \rh@maxtextheight,
-%    rh@maxlines,
-%    \rh@textheight,
-% }
-%    Define lengths and counters
-%    \begin{macrocode}
-\newlength\rh@upperletters
-\newlength\rh@lowerletters
-\newlength\rh@spaces
-\newlength\rh@others@nondigit
-\newlength\rh@others@digit
-\newlength\rh@allprintablechars
-\newlength\rh@linelength
-\newlength\rh@maxtextwidth
-\newlength\rh@maxtextwidth@twocol
-\newlength\rh@maxtextheight
-\newcounter{rh@maxlines}
-\newlength\rh@textheight
-%    \end{macrocode}
-%    \begin{noprintcode}
-
-%    \end{noprintcode}
-% \end{macro}
-%
-% \subsection{Set \cs{textwidth}}
 %
 % \begin{macro}{\settextwidth}
 %    Get the average width of a character in the current font
@@ -666,7 +636,8 @@
 %    \end{noprintcode}
 %
 %    Don't exceed the maximum \cs{textwidth}
-%    (cf.\ the documentation for |classes|).
+%    (cf.\ the documentation for the \LaTeX{}
+%    standard classes)
 %    \begin{macrocode}
   \ifbool{@twocolumn}{
     \ifdimgreater{\rh@maxtextwidth@twocol}{\rh@maxtextwidth}{
@@ -687,8 +658,6 @@
 
 %    \end{noprintcode}
 % \end{macro}
-%
-% \subsection{Set \cs{textheight}}
 %
 % \begin{macro}{\settextheight}
 %    Following a similar procedure as |classes|,
@@ -717,8 +686,41 @@
 %    \end{noprintcode}
 % \end{macro}
 %
-% \subsection{Initialize \cs{textwidth} and \cs{textheight}}
+% \begin{macro}[noprint]{
+%    \rh@upperletters,
+%    \rh@lowerletters,
+%    \rh@spaces,
+%    \rh@others@nondigit,
+%    \rh@others@digit,
+%    \rh@allprintablechars,
+%    \rh@linelength,
+%    \rh@maxtextwidth,
+%    \rh@maxtextwidth@twocol,
+%    \rh@maxtextheight,
+%    rh@maxlines,
+%    \rh@textheight,
+% }
+%    Define lengths and counters
+%    \begin{macrocode}
+\newlength\rh@upperletters
+\newlength\rh@lowerletters
+\newlength\rh@spaces
+\newlength\rh@others@nondigit
+\newlength\rh@others@digit
+\newlength\rh@allprintablechars
+\newlength\rh@linelength
+\newlength\rh@maxtextwidth
+\newlength\rh@maxtextwidth@twocol
+\newlength\rh@maxtextheight
+\newcounter{rh@maxlines}
+\newlength\rh@textheight
+%    \end{macrocode}
+%    \begin{noprintcode}
+
+%    \end{noprintcode}
+% \end{macro}
 %
+%    Set text width and text height.
 %    \begin{macrocode}
 \settextwidth
 \settextheight
@@ -759,12 +761,18 @@
 % \section{Macros}
 %
 % \subsection{Logical Structure}
+%
+%
+% \begin{macro}{\texttitle,\alialingua,\define,\attn}
+%    Define types of circumstances
+%    under which formatting should be applied.
 %    \begin{macrocode}
 \NewCommandCopy\texttitle\emph
 \NewCommandCopy\alialingua\emph
 \NewCommandCopy\define\emph
 \NewCommandCopy\attn\textbf
 %    \end{macrocode}
+% \end{macro}
 %    \begin{noprintcode}
 
 %    \end{noprintcode}
