@@ -43,9 +43,11 @@
 /Library/*
 !/Library/texmf/
 /Library/texmf/bibtex/
+/Library/texmf/doc/
 /Library/texmf/tex/latex/biblatex-chicago
-/Library/texmf/tex/latex/cmos/
-/Library/texmf/tex/latex/rhelder
+/Library/texmf/tex/latex/cmos/cmos.sty
+/Library/texmf/tex/latex/rhelder/rhelder.sty
+/Library/texmf/source/
 !/Library/LaunchAgents
 /Library/LaunchAgents/*
 !/Library/LaunchAgents/local*
