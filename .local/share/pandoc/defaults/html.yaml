@@ -8,5 +8,5 @@ metadata-file:
   - html.yaml
 standalone: true
 html-q-tags: true
-bibliography: ${USERDATA}/my_library.yaml
+bibliography: ${USERDATA}/my_library.json
 ...
