@@ -1,29 +1,26 @@
-if exists('b:did_ftplugin') | finish | endif
-let b:did_ftplugin = 1
+if exists('b:did_ftplugin_markdown') | finish | endif
+let b:did_ftplugin_markdown = 1
 
-setlocal completefunc=notes#complete#completefunc
+let g:pandoc#formatting#mode = 'h'
+let g:pandoc#formatting#textwidth = 78
+let g:pandoc#syntax#conceal#use = 0
+let g:pandoc#biblio#sources = 'g'
+let g:pandoc#biblio#bibs = ['/Users/rhelder/.local/share/pandoc/my_library.json']
 
-augroup ncm2_notes
-    autocmd!
-    autocmd BufEnter * call ncm2#enable_for_buffer()
-    autocmd User Ncm2Plugin call ncm2#register_source({
-                \ 'name': 'notes',
-                \ 'priority': 8,
-                \ 'scope': ['markdown'],
-                \ 'matcher': {'name': 'prefix', 'key': 'word'},
-                \ 'sorter': 'none',
-                \ 'word_pattern': s:ncm_word_pattern,
-                \ 'complete_pattern': s:ncm_regexes,
-                \ 'on_complete': ['ncm2#on_complete#omni',
-                \     'notes#complete#completefunc'],
-                \ })
+augroup ncm2_markdown
+  autocmd!
+  autocmd BufEnter * call ncm2#enable_for_buffer()
+  autocmd User Ncm2Plugin call ncm2#register_source({
+        \ 'name': 'pandoc',
+        \ 'priority': 8,
+        \ 'scope': ['pandoc'],
+        \ 'matcher': {'name': 'prefix', 'key': 'word'},
+        \ 'sorter': 'none',
+        \ 'word_pattern': '\w+',
+        \ 'complete_pattern': ['(?<!\\)@'],
+        \ 'complete_length': -1,
+        \ 'on_complete': ['ncm2#on_complete#omni',
+        \     'pandoc#completion#Complete'],
+        \ })
 augroup END
-
-let s:ncm_word_pattern = '\w+[\w\s.-]*'
-let s:ncm_regexes = [
-            \ '^\s*-\s+\w*',
-            \ '^\s*keywords\s*:\s+(\[\s*)?(\\@)?\w*',
-            \ '^\s*keywords\s*:\s+(\[\s*)?(\\@)?(' ..
-            \     s:ncm_word_pattern .. ',\s+)+\w*',
-            \ '@\w*',
-            \ ]
+        " \ 'complete_pattern': ['(\\)@<!\@'],

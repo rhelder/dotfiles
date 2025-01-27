@@ -217,6 +217,8 @@ call plug#begin()
   Plug 'wellle/targets.vim'
   Plug 'jamessan/vim-gnupg'
   Plug 'fladson/vim-kitty'
+  Plug 'vim-pandoc/vim-pandoc'
+  Plug 'vim-pandoc/vim-pandoc-syntax'
   Plug 'junegunn/vim-plug'
   Plug 'machakann/vim-sandwich'
   Plug '~/.local/share/nvim/vimtex'
