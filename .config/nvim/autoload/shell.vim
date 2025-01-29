@@ -11,38 +11,40 @@ endfunction
 
 " }}}1
 
+function! s:job_handler.start() abort dict " {{{1
+  let self.job_id = jobstart(self.cmd, self)
+  if get(self, 'sync', 0)
+    call jobwait([self.job_id])
+  endif
+  return self
+endfunction
+
+" }}}1
+
 function! s:on_output(job, data, event) abort dict " {{{1
   if !has_key(self, 'output')
     let self.output = [{'line': '', 'event': ''}]
   endif
 
-  " If 'a:data' is EOF, we're done
+  " If 'a:data' has one empty element, it is EOF
   if a:data ==# [''] | return | endif
 
-  " The first and last elements of 'a:data' might not be complete lines. The
-  " first element of 'a:data' might be a continuation of the last element of
-  " 'a:data' from the last time the function was called. If not, the last
-  " element of 'a:data' from the last time the function was called was a "''"
-  " (i.e., a newline). Either way, concatenate the first element of 'a:data'
-  " with the last.
+  " The first element of 'a:data' always completes a previous line. Concatenate
+  " with last element of previous output.
   let self.output[-1].line ..= a:data[0]
   let self.output[-1].event = a:event
 
-  " Any elements of a:data that are not first or last are complete lines or
-  " newlines.
+  " Elements of 'a:data' between the first and last are complete lines
   if len(a:data) > 2
     for l:line in a:data[1:-2]
       call add(self.output, {'line': l:line, 'event': a:event})
     endfor
   endif
 
-  " If 'a:data' has only one element, it either is a continuation of the
-  " 'a:data' passed to the function when it was last called, or will be
-  " continued by the 'a:data' passed to the function when it is next called,
-  " or both. But if there are two elements, the first element completes a
-  " line, and the second element starts a new line. Therefore, don't print
-  " any messages unless 'a:data' has at least two elements, or else we will
-  " print incomplete lines.
+  " If 'a:data', has two elements, the second element starts a new line
+  " (therefore, a line ends when and only when 'a:data' has two or more
+  " elements; so don't display any output unless 'a:data' has more than one
+  " element)
 
   if get(self, 'scratch', 0) && len(a:data) > 1
     call self.load_scratch_buf(a:job, a:data, a:event)
@@ -52,10 +54,9 @@ function! s:on_output(job, data, event) abort dict " {{{1
     call self.echo_output(a:job, a:data, a:event)
   endif
 
-  " Unless 'a:data' is EOF the next time the function is called, the last
-  " element of 'a:data' will be concatenated with the first element of
-  " 'a:data' the next time the function is called, and the event will be
-  " determined then.
+  " The last element of 'a:data' will be continued by the first element of
+  " 'a:data' the next time 's:on_output' is called. The value of 'event' will
+  " be determined then.
   if len(a:data) > 1
     call add(self.output, {'line': a:data[-1], 'event': ''})
   endif
@@ -89,6 +90,8 @@ function! s:job_handler.on_exit(job, status, event) abort dict " {{{1
     call call(self.callback, [a:job, a:status, a:event])
   endif
 endfunction
+
+" }}}1
 
 function! s:job_handler.load_scratch_buf(id, data, event) abort dict " {{{1
   if !exists('self.scratch_buf') | let self.scratch_buf = {} | endif
@@ -317,14 +320,6 @@ function! s:job_handler.echo_info(job, status, event) abort " {{{1
   echohl JobMsg
   echon !a:status ? 'Completed' : 'Failed'
   echohl None
-endfunction
-
-function! s:job_handler.start() abort dict " {{{1
-  let self.job_id = jobstart(self.cmd, self)
-  if get(self, 'sync', 0)
-    call jobwait([self.job_id])
-  endif
-  return self
 endfunction
 
 " }}}1
