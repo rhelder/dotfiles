@@ -1,7 +1,9 @@
 " Todo:
 " * Rename to job_controller
-" * Implement hook for callback (maybe after EOF?)
-" * Implement info function for on_exit
+" * Rename to jobs instead of shell
+" * Figure out where to call quickfix callback (and in general how to best
+"   handle 'on exit')
+" * Test notify and quickfix
 
 function! shell#jobstart(cmd, opts = {}) abort " {{{1
   let l:job_handler = deepcopy(s:job_handler)
@@ -12,10 +14,6 @@ function! shell#jobstart(cmd, opts = {}) abort " {{{1
   call extend(l:job_handler, a:opts)
   let l:job_handler.cmd = a:cmd
   return l:job_handler.start()
-endfunction
-
-function! shell#job_handler(opts = {}) abort " {{{1
-  return extend(deepcopy(s:job_handler), a:opts)
 endfunction
 
 " }}}1
@@ -61,29 +59,17 @@ function! s:job_handler.on_output(job, data, event) abort dict " {{{1
 endfunction
 
 function! s:job_handler.on_exit(job, status, event) abort dict " {{{1
-  if !exists('s:scratch_buf') || bufwinid(s:scratch_buf.bufnr) <# 0
-    return
-  endif
+  call s:job_handler.scratch_buf_fin(a:job, a:status, a:event)
+  call s:job_handler.notify(a:job, a:status, a:event)
+endfunction
 
-  if empty(self.output)
-    return win_execute(bufwinid(s:scratch_buf.bufnr), 'close')
-  endif
-
-  if a:status && type(s:scratch_buf.title) ==# v:t_list
-    call win_execute(bufwinid(s:scratch_buf.bufnr),
-          \ 'file! ' .. s:scratch_buf.title[1])
-  endif
-
-  let l:stderr_lines = map(self.output,
-        \ 'v:val.event ==# "stderr" ? v:key : 0')
-  let l:stderr_lines = filter(l:stderr_lines, 'v:val >=# 0')
-  if a:status
-    call matchaddpos('JobError', l:stderr_lines,
-          \ 10, -1, {'window': bufwinid(s:scratch_buf.bufnr)})
-  else
-    call matchaddpos('JobWarning', l:stderr_lines,
-          \ 10, -1, {'window': bufwinid(s:scratch_buf.bufnr)})
-  endif
+function! s:job_handler.notify(job, status, event) abort dict " {{{1
+  redraw
+  execute 'echohl' !a:status ? 'JobInfo' : 'JobWarning'
+  echo self.info .. ': '
+  echohl JobMsg
+  echon !a:status ? 'Completed' : 'Failed'
+  echohl None
 endfunction
 
 " }}}1
@@ -102,6 +88,14 @@ function! shell#output_to_scratch(id, data, event) abort dict " {{{1
 
   call self.scratch_buf_init()
   return setbufline(s:scratch_buf.bufnr, 1, l:output)
+endfunction
+
+function! shell#get_scratch_buf() abort " {{{1
+  return get(s:, 'scratch_buf', {})
+endfunction
+
+function! shell#set_scratch_buf(opts) abort " {{{1
+  return extend(s:scratch_buf, a:opts)
 endfunction
 
 function! s:job_handler.scratch_buf_init() abort dict " {{{1
@@ -156,170 +150,49 @@ function! s:job_handler.scratch_buf_init() abort dict " {{{1
   call cursor(l:cursor_pos)
 endfunction
 
-" }}}1
-
-function! s:job_handler.echo_output(id, data, event) abort dict " {{{1
-  if !has_key(self, 'cmdheight')
-    let self.cmdheight = &cmdheight
-  endif
-
-  if a:event ==# 'exit'
-    if &cmdheight !=# 1 | set cmdheight-=1 | endif
-
-    let l:msg = copy(self.msg)
-    if l:msg ># 3
-      let l:msg -= 3
-    endif
-
-    if l:msg ==# 3
-      let l:output = self.both()
-    elseif l:msg ==# 2
-      let l:output = self.stderr()
-    elseif l:msg ==# 1
-      let l:output = self.stdout()
-    endif
-    if empty(l:output) | return | endif
-
-    mode
-    echo join(l:output, "\n") .. "\n"
-
-    let &cmdheight = self.cmdheight
+function! s:job_handler.scratch_buf_fin(job, status, event) abort dict " {{{1
+  if !exists('s:scratch_buf') || bufwinid(s:scratch_buf.bufnr) <# 0
     return
   endif
 
-  if (self.msg ==# 2 && a:event ==# 'stdout') ||
-        \ (self.msg ==# 1 && a:event ==# 'stderr') ||
-        \ (self.msg ># 3)
-    return
+  if empty(self.output)
+    return win_execute(bufwinid(s:scratch_buf.bufnr), 'close')
   endif
 
-  if self.msg ==# 3
-    let l:output = self.both()
-    if empty(l:output) | return | endif
-    let &cmdheight = len(l:output)
-    echo join(l:output, "\n")
+  if a:status && type(s:scratch_buf.title) ==# v:t_list
+    call win_execute(bufwinid(s:scratch_buf.bufnr),
+          \ 'file! ' .. s:scratch_buf.title[1])
+  endif
+
+  let l:stderr_lines = map(self.output,
+        \ 'v:val.event ==# "stderr" ? v:key : 0')
+  let l:stderr_lines = filter(l:stderr_lines, 'v:val >=# 0')
+  if a:status
+    call matchaddpos('JobError', l:stderr_lines,
+          \ 10, -1, {'window': bufwinid(s:scratch_buf.bufnr)})
   else
-    let l:output = self[a:event]()
-    if empty(l:output) | return | endif
-    let &cmdheight = len(l:output)
-    echo join(l:output, "\n")
+    call matchaddpos('JobWarning', l:stderr_lines,
+          \ 10, -1, {'window': bufwinid(s:scratch_buf.bufnr)})
   endif
-  redraw
-endfunction
-
-function! s:job_handler.both() abort dict " {{{1
-  return map(filter(copy(self.output), '!empty(v:val.event)'),
-        \ 'v:val.line')
-endfunction
-
-function! s:job_handler.stdout() abort dict " {{{1
-  return map(filter(copy(self.output), 'v:val.event ==# "stdout"'),
-        \ 'v:val.line')
-endfunction
-
-function! s:job_handler.stderr() abort dict " {{{1
-  return map(filter(copy(self.output), 'v:val.event ==# "stderr"'),
-        \ 'v:val.line')
-endfunction
-
-function! s:job_handler.echo_info(job, status, event) abort " {{{1
-  redraw
-  execute 'echohl' !a:status ? 'JobInfo' : 'JobWarning'
-  echo self.info .. ': '
-  echohl JobMsg
-  echon !a:status ? 'Completed' : 'Failed'
-  echohl None
 endfunction
 
 " }}}1
 
-function! shell#get_scratch_buf() abort " {{{1
-  return get(s:, 'scratch_buf', {})
-endfunction
+function! shell#output_to_quickfix(job, status, event) abort dict " {{{1
+  silent cgetexpr map(self.output, 'v:val.line')
+  call setqflist(filter(getqflist(), 'v:val.valid !=# 0'))
+  if empty(getqflist()) | return | endif
 
-function! shell#set_scratch_buf(opts) abort " {{{1
-  return extend(s:scratch_buf, a:opts)
-endfunction
-
-" }}}1
-
-function! shell#compile(cmd, opts = {}) abort " {{{1
-  let l:compiler = deepcopy(s:compiler)
-  call extend(l:compiler, a:opts)
-  let l:compiler.cmd = a:cmd
-  return l:compiler.start()
-endfunction
-
-function! shell#compiler(opts = {}) abort " {{{1
-  return extend(deepcopy(s:compiler), a:opts)
-endfunction
-
-" }}}1
-
-let s:compiler = deepcopy(s:job_handler)
-
-function! s:compiler.on_exit(job, status, event) abort dict " {{{1
-  if get(self, 'scratch', 0)
-    call self.load_scratch_buf(a:job, a:status, a:event)
+  if !exists('self.qflist') | let self.qflist = {} | endif
+  if !empty(get(self.qflist, 'title', ''))
+    call setqflist([], 'a', {'title': self.qflist.title})
   endif
 
-  if get(self, 'msg', 0)
-    call self.echo_output(a:job, a:status, a:event)
-  endif
-
-  call self.on_error(a:job, a:status, a:event)
-
-  if !empty(get(self, 'info', ''))
-    call self.echo_info(a:job, a:status, a:event)
-  endif
-
-  if has_key(self, 'callback')
-    call call(self.callback, [a:job, a:status, a:event])
-  endif
-endfunction
-
-function! s:compiler.on_error(job, status, event) abort dict " {{{1
-  if !empty(&l:errorformat)
-    call self.createqflist(a:job, a:status, a:event)
-  else
-    let self.scratch = 5
-    if !exists('self.scratch_buf') | let self.scratch_buf = {} | endif
-    let self.scratch_buf.title = get(self.scratch_buf, 'title', [
-          \ '[Warning] __' .. join(self.cmd) .. '__',
-          \ '[Error] __' .. join(self.cmd) .. '__',
-          \ ])
-    call self.load_scratch_buf(a:job, a:status, a:event)
-  endif
-endfunction
-
-function! s:compiler.createqflist(job, status, event) abort dict " {{{1
-  if get(self, 'qf_autojump', 0)
-    silent cexpr self.both()
-  else
-    silent cgetexpr self.both()
-  endif
-
-  if !exists('self.qf_win') | let self.qf_win = {} | endif
-  if get(self.qf_win, 'active', 1)
-    call setqflist(filter(getqflist(), 'v:val.valid !=# 0'))
-    if empty(getqflist()) | return | endif
-
-    if !empty(get(self.qf_win, 'title', ''))
-      call setqflist([], 'a', {'title': self.qf_win.title})
-    endif
-
-    if get(self.qf_win, 'active', 1) ==# 1
-      let l:cursor_pos = getpos('.')[1:2]
-      let l:winid = bufwinid(bufnr('%'))
-    endif
-
-    execute 'cwindow ' .. get(self.qf_win, 'height', '')
-
-    if get(self.qf_win, 'active', 1) ==# 1
-      call win_gotoid(l:winid)
-      call cursor(l:cursor_pos)
-    endif
-  endif
+  let l:cursor_pos = getpos('.')[1:2]
+  let l:winid = bufwinid(bufnr('%'))
+  cwindow
+  call win_gotoid(l:winid)
+  call cursor(l:cursor_pos)
 endfunction
 
 " }}}1
