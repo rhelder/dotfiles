@@ -1,0 +1,3 @@
+syn clear pandocListItem
+syn match pandocListItem /^\s*(\?\(\d\+\|\l\|\#\|@\)[.)]\s\+.*$/ nextgroup=pandocListItem,pandocLaTeXMathBlock,pandocLaTeXInlineMath,pandocEscapedDollar,pandocDelimitedCodeBlock,pandocListItemContinuation contains=@Spell,pandocEmphasis,pandocStrong,pandocNoFormatted,pandocStrikeout,pandocSubscript,pandocSuperscript,pandocStrongEmphasis,pandocStrongEmphasis,pandocPCite,pandocICite,pandocCiteKey,pandocReferenceLabel,pandocLaTeXCommand,pandocLaTeXMathBlock,pandocLaTeXInlineMath,pandocEscapedDollar,pandocAutomaticLink,pandocFootnoteDef,pandocFootnoteBlock,pandocFootnoteID,pandocAmpersandEscape skipempty display
+let g:vim_pandoc_syntax_exists = 1
