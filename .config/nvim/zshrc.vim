@@ -1,99 +1,52 @@
 " Mappings (corresponding to aliases in '.zshrc')
 
-nnoremap <Leader>ebib <Cmd>vs
-            \ $HOME/Library/texmf/bibtex/bib/my_library.bib<CR>
-nnoremap <Leader>egi <Cmd>vs
-            \ $XDG_CONFIG_HOME/git/ignore<CR>
-nnoremap <Leader>ek <Cmd>vs
-            \ $XDG_CONFIG_HOME/kitty/kitty.conf<CR>
-nnoremap <Leader>elmk <Cmd>vs
-            \ $XDG_CONFIG_HOME/latexmk/latexmkrc<CR>
-nnoremap <Leader>es <Cmd>vs
-            \ $HOME/Development/rhelder/rhelder.dtx<CR>
-nnoremap <Leader>etf <Cmd>vs
-            \ $XDG_CONFIG_HOME/nvim/ftplugin/tex.vim<CR>
-nnoremap <Leader>ev <Cmd>vs
-            \ $XDG_CONFIG_HOME/nvim/init.vim<CR>
-nnoremap <Leader>ez <Cmd>vs
-            \ $XDG_CONFIG_HOME/zsh/.zshrc<CR>
-nnoremap <Leader>b <Cmd>lcd
-            \ $HOME/.local/bin<CR>
-nnoremap <Leader>dc <Cmd>lcd
-            \ $HOME/Documents<CR>
-nnoremap <Leader>dg <Cmd>lcd
-            \ $HOME/Documents/Drafts<CR>
-nnoremap <Leader>dn <Cmd>lcd
-            \ $HOME/Documents/Notes<CR>
-nnoremap <Leader>dp <Cmd>lcd
-            \ $HOME/Documents/Personal<CR>
-nnoremap <Leader>ds <Cmd>lcd
-            \ $HOME/Development/rhelder<CR>
-nnoremap <Leader>dt <Cmd>lcd
-            \ $HOME/Development/Tests<CR>
-nnoremap <Leader>dv <Cmd>lcd
-            \ $HOME/Development<CR>
-nnoremap <Leader>gh <Cmd>lcd
-            \ $XDG_CONFIG_HOME/git<CR>
-nnoremap <Leader>nca <Cmd>lcd
-            \ $XDG_CONFIG_HOME/nvim/autoload<CR>
-nnoremap <Leader>ncc <Cmd>lcd
-            \ $XDG_CONFIG_HOME/nvim/compiler<CR>
-nnoremap <Leader>ncf <Cmd>lcd
-            \ $XDG_CONFIG_HOME/nvim/ftplugin<CR>
-nnoremap <Leader>nch <Cmd>lcd
-            \ $XDG_CONFIG_HOME/nvim<CR>
-nnoremap <Leader>nci <Cmd>lcd
-            \ $XDG_CONFIG_HOME/nvim/indent<CR>
-nnoremap <Leader>ncp <Cmd>lcd
-            \ $XDG_CONFIG_HOME/nvim/plugin<CR>
-nnoremap <Leader>ncs <Cmd>lcd
-            \ $XDG_CONFIG_HOME/nvim/spell<CR>
-nnoremap <Leader>ncz <Cmd>lcd
-            \ $XDG_CONFIG_HOME/nvim/after<CR>
-nnoremap <Leader>nda <Cmd>lcd
-            \ $XDG_DATA_HOME/nvim/site/autoload<CR>
-nnoremap <Leader>ndc <Cmd>lcd
-            \ $XDG_DATA_HOME/nvim/site/compiler<CR>
-nnoremap <Leader>ndf <Cmd>lcd
-            \ $XDG_DATA_HOME/nvim/site/ftplugin<CR>
-nnoremap <Leader>ndh <Cmd>lcd
-            \ $XDG_DATA_HOME/nvim/site<CR>
-nnoremap <Leader>ndi <Cmd>lcd
-            \ $XDG_DATA_HOME/nvim/site/indent<CR>
-nnoremap <Leader>ndp <Cmd>lcd
-            \ $XDG_DATA_HOME/nvim/site/plugin<CR>
-nnoremap <Leader>nds <Cmd>lcd
-            \ $XDG_DATA_HOME/nvim/site/spell<CR>
-nnoremap <Leader>ndz <Cmd>lcd
-            \ $XDG_DATA_HOME/nvim/site/after<CR>
-nnoremap <Leader>nr <Cmd>lcd
-            \ /opt/homebrew/Cellar/neovim/*/share/nvim/runtime<CR>
-nnoremap <Leader>pc <Cmd>lcd
-            \ $XDG_DATA_HOME/pandoc/custom<CR>
-nnoremap <Leader>pd <Cmd>lcd
-            \ $XDG_DATA_HOME/pandoc/defaults<CR>
-nnoremap <Leader>ph <Cmd>lcd
-            \ $XDG_DATA_HOME/pandoc<CR>
-nnoremap <Leader>pm <Cmd>lcd
-            \ $XDG_DATA_HOME/pandoc/metadata<CR>
-nnoremap <Leader>pt <Cmd>lcd
-            \ $XDG_DATA_HOME/pandoc/templates<CR>
-nnoremap <Leader>py <Cmd>lcd
-            \ $XDG_DATA_HOME/pandoc/styles<CR>
-nnoremap <Leader>th <Cmd>lcd
-            \ $HOME/Library/texmf<CR>
-nnoremap <Leader>tl <Cmd>lcd
-            \ $HOME/Library/texmf/tex/latex<CR>
-nnoremap <Leader>vt <Cmd>lcd
-            \ $XDG_DATA_HOME/nvim/vimtex<CR>
-nnoremap <Leader>xc <Cmd>lcd
-            \ $XDG_CONFIG_HOME<CR>
-nnoremap <Leader>xd <Cmd>lcd
-            \ $XDG_DATA_HOME<CR>
-nnoremap <Leader>zf <Cmd>lcd
-            \ $XDG_DATA_HOME/zsh/functions<CR>
-nnoremap <Leader>zh <Cmd>lcd
-            \ $XDG_CONFIG_HOME/zsh<CR>
+nnoremap <Leader>ebib <Cmd>vs $HOME/Library/texmf/bibtex/bib/my_library.bib<CR>
+nnoremap <Leader>egi <Cmd>vs $XDG_CONFIG_HOME/git/ignore<CR>
+nnoremap <Leader>ek <Cmd>vs $XDG_CONFIG_HOME/kitty/kitty.conf<CR>
+nnoremap <Leader>elmk <Cmd>vs $XDG_CONFIG_HOME/latexmk/latexmkrc<CR>
+nnoremap <Leader>es <Cmd>vs $HOME/Development/rhelder/rhelder.dtx<CR>
+nnoremap <Leader>etf <Cmd>vs $XDG_CONFIG_HOME/nvim/ftplugin/tex.vim<CR>
+nnoremap <Leader>ev <Cmd>vs $XDG_CONFIG_HOME/nvim/init.vim<CR>
+nnoremap <Leader>ez <Cmd>vs $XDG_CONFIG_HOME/zsh/.zshrc<CR>
+nnoremap <Leader>b <Cmd>lcd $HOME/.local/bin<CR>
+nnoremap <Leader>dc <Cmd>lcd $HOME/Documents<CR>
+nnoremap <Leader>dg <Cmd>lcd $HOME/Documents/Drafts<CR>
+nnoremap <Leader>dn <Cmd>lcd $HOME/Documents/Notes<CR>
+nnoremap <Leader>dp <Cmd>lcd $HOME/Documents/Personal<CR>
+nnoremap <Leader>ds <Cmd>lcd $HOME/Development/rhelder<CR>
+nnoremap <Leader>dt <Cmd>lcd $HOME/Development/Tests<CR>
+nnoremap <Leader>dv <Cmd>lcd $HOME/Development<CR>
+nnoremap <Leader>gh <Cmd>lcd $XDG_CONFIG_HOME/git<CR>
+nnoremap <Leader>nca <Cmd>lcd $XDG_CONFIG_HOME/nvim/autoload<CR>
+nnoremap <Leader>ncc <Cmd>lcd $XDG_CONFIG_HOME/nvim/compiler<CR>
+nnoremap <Leader>ncf <Cmd>lcd $XDG_CONFIG_HOME/nvim/ftplugin<CR>
+nnoremap <Leader>nch <Cmd>lcd $XDG_CONFIG_HOME/nvim<CR>
+nnoremap <Leader>nci <Cmd>lcd $XDG_CONFIG_HOME/nvim/indent<CR>
+nnoremap <Leader>ncp <Cmd>lcd $XDG_CONFIG_HOME/nvim/plugin<CR>
+nnoremap <Leader>ncs <Cmd>lcd $XDG_CONFIG_HOME/nvim/spell<CR>
+nnoremap <Leader>ncz <Cmd>lcd $XDG_CONFIG_HOME/nvim/after<CR>
+nnoremap <Leader>nda <Cmd>lcd $XDG_DATA_HOME/nvim/site/autoload<CR>
+nnoremap <Leader>ndc <Cmd>lcd $XDG_DATA_HOME/nvim/site/compiler<CR>
+nnoremap <Leader>ndf <Cmd>lcd $XDG_DATA_HOME/nvim/site/ftplugin<CR>
+nnoremap <Leader>ndh <Cmd>lcd $XDG_DATA_HOME/nvim/site<CR>
+nnoremap <Leader>ndi <Cmd>lcd $XDG_DATA_HOME/nvim/site/indent<CR>
+nnoremap <Leader>ndp <Cmd>lcd $XDG_DATA_HOME/nvim/site/plugin<CR>
+nnoremap <Leader>nds <Cmd>lcd $XDG_DATA_HOME/nvim/site/spell<CR>
+nnoremap <Leader>ndz <Cmd>lcd $XDG_DATA_HOME/nvim/site/after<CR>
+nnoremap <Leader>nr <Cmd>lcd /opt/homebrew/Cellar/neovim/*/share/nvim/runtime<CR>
+nnoremap <Leader>pc <Cmd>lcd $XDG_DATA_HOME/pandoc/custom<CR>
+nnoremap <Leader>pd <Cmd>lcd $XDG_DATA_HOME/pandoc/defaults<CR>
+nnoremap <Leader>ph <Cmd>lcd $XDG_DATA_HOME/pandoc<CR>
+nnoremap <Leader>pm <Cmd>lcd $XDG_DATA_HOME/pandoc/metadata<CR>
+nnoremap <Leader>pt <Cmd>lcd $XDG_DATA_HOME/pandoc/templates<CR>
+nnoremap <Leader>py <Cmd>lcd $XDG_DATA_HOME/pandoc/styles<CR>
+nnoremap <Leader>th <Cmd>lcd $HOME/Library/texmf<CR>
+nnoremap <Leader>tl <Cmd>lcd $HOME/Library/texmf/tex/latex<CR>
+nnoremap <Leader>vt <Cmd>lcd $XDG_DATA_HOME/nvim/vimtex<CR>
+nnoremap <Leader>xc <Cmd>lcd $XDG_CONFIG_HOME<CR>
+nnoremap <Leader>xd <Cmd>lcd $XDG_DATA_HOME<CR>
+nnoremap <Leader>zf <Cmd>lcd $XDG_DATA_HOME/zsh/functions<CR>
+nnoremap <Leader>zh <Cmd>lcd $XDG_CONFIG_HOME/zsh<CR>
 
 " Variables (corresponding to shell variables in '.zshrc')
 
@@ -132,7 +85,7 @@ let ndi = "$XDG_DATA_HOME/nvim/site/indent"
 let ndp = "$XDG_DATA_HOME/nvim/site/plugin"
 let nds = "$XDG_DATA_HOME/nvim/site/spell"
 let ndz = "$XDG_DATA_HOME/nvim/site/after"
-let nr = '/opt/homebrew/Cellar/neovim/0.10.1/share/nvim/runtime'
+let nr = '/opt/homebrew/Cellar/neovim/*/share/nvim/runtime'
 let pc = "$XDG_DATA_HOME/pandoc/custom"
 let pd = "$XDG_DATA_HOME/pandoc/defaults"
 let ph = "$XDG_DATA_HOME/pandoc"
