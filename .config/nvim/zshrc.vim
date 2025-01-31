@@ -29,10 +29,8 @@ nnoremap <Leader>nda <Cmd>lcd $XDG_DATA_HOME/nvim/site/autoload<CR>
 nnoremap <Leader>ndc <Cmd>lcd $XDG_DATA_HOME/nvim/site/compiler<CR>
 nnoremap <Leader>ndf <Cmd>lcd $XDG_DATA_HOME/nvim/site/ftplugin<CR>
 nnoremap <Leader>ndh <Cmd>lcd $XDG_DATA_HOME/nvim/site<CR>
-nnoremap <Leader>ndi <Cmd>lcd $XDG_DATA_HOME/nvim/site/indent<CR>
 nnoremap <Leader>ndp <Cmd>lcd $XDG_DATA_HOME/nvim/site/plugin<CR>
-nnoremap <Leader>nds <Cmd>lcd $XDG_DATA_HOME/nvim/site/spell<CR>
-nnoremap <Leader>ndz <Cmd>lcd $XDG_DATA_HOME/nvim/site/after<CR>
+nnoremap <Leader>np <Cmd>lcd $XDG_DATA_HOME/nvim/plugged<CR>
 nnoremap <Leader>nr <Cmd>lcd /opt/homebrew/Cellar/neovim/*/share/nvim/runtime<CR>
 nnoremap <Leader>pc <Cmd>lcd $XDG_DATA_HOME/pandoc/custom<CR>
 nnoremap <Leader>pd <Cmd>lcd $XDG_DATA_HOME/pandoc/defaults<CR>
@@ -81,10 +79,8 @@ let nda = "$XDG_DATA_HOME/nvim/site/autoload"
 let ndc = "$XDG_DATA_HOME/nvim/site/compiler"
 let ndf = "$XDG_DATA_HOME/nvim/site/ftplugin"
 let ndh = "$XDG_DATA_HOME/nvim/site"
-let ndi = "$XDG_DATA_HOME/nvim/site/indent"
 let ndp = "$XDG_DATA_HOME/nvim/site/plugin"
-let nds = "$XDG_DATA_HOME/nvim/site/spell"
-let ndz = "$XDG_DATA_HOME/nvim/site/after"
+let np = "$XDG_DATA_HOME/nvim/plugged"
 let nr = '/opt/homebrew/Cellar/neovim/*/share/nvim/runtime'
 let pc = "$XDG_DATA_HOME/pandoc/custom"
 let pd = "$XDG_DATA_HOME/pandoc/defaults"
