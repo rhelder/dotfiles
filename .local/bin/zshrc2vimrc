@@ -9,6 +9,7 @@ setopt extended_glob
 
 declare -a maps
 declare -a vars
+blacklist=( 'HIST' 'PS1' 'rfv' )
 
 while read line; do
     if [[
@@ -30,6 +31,10 @@ while read line; do
         vars+="let $name = $value"
     fi
 done < $XDG_CONFIG_HOME/zsh/.zshrc
+
+for pattern in $blacklist; do
+    vars=( ${vars:#*${~pattern}*} )
+done
 
 echo '" Mappings (corresponding to aliases in ''.zshrc'')\n' \
     > $XDG_CONFIG_HOME/nvim/zshrc.vim
