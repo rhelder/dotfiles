@@ -107,8 +107,10 @@ nnoremap <expr> <Leader>w
       \   ? "<Cmd>setlocal colorcolumn=+1<CR>"
       \   : "<Cmd>setlocal colorcolumn=<CR>"
 " Edit
-nnoremap -  ddkP | " Move line up
-nnoremap _  ddp | " Move line down
+nmap <Leader>c gcc
+vmap <Leader>c gc
+nnoremap - ddkP | " Move line up
+nnoremap _ ddp | " Move line down
 vnoremap <silent> <Leader>si :sort i<CR>
 " Use '<Tab>' to accept the current match and continue completing (not to cycle
 " through further possible options)
@@ -118,64 +120,11 @@ cnoremap <expr> <Tab> wildmenumode()
 
 augroup nvimrc_mappings " {{{2
   autocmd!
-  autocmd FileType vim
-        \ nnoremap <buffer> <LocalLeader>c
-        \   <Cmd>call <SID>comment('"', 'n')<CR>
-  autocmd FileType vim
-        \ vnoremap <buffer> <LocalLeader>c
-        \   <Cmd>call <SID>comment('"', 'v')<CR>
-  autocmd FileType lua
-        \ nnoremap <buffer> <LocalLeader>c
-        \   <Cmd>call <SID>comment('--', 'n')<CR>
-  autocmd FileType lua
-        \ vnoremap <buffer> <LocalLeader>c
-        \   <Cmd>call <SID>comment('--', 'v')<CR>
-  autocmd FileType zsh,make,conf,toml
-        \ nnoremap <buffer> <LocalLeader>c
-        \   <Cmd>call <SID>comment('#', 'n')<CR>
-  autocmd FileType zsh,make,conf,toml
-        \ vnoremap <buffer> <LocalLeader>c
-        \   <Cmd>call <SID>comment('#', 'v')<CR>
-  autocmd FileType gpg,lilypond,tex
-        \ nnoremap <buffer> <LocalLeader>c
-        \   <Cmd>call <SID>comment('%', 'n')<CR>
-  autocmd FileType gpg,lilypond,tex
-        \ vnoremap <buffer> <LocalLeader>c
-        \   <Cmd>call <SID>comment('%', 'v')<CR>
-
   " Make it easier to exit the command line window (from @lervag's vimrc)
   autocmd CmdwinEnter * nnoremap <buffer> q     <C-C><C-C>
   autocmd CmdwinEnter * nnoremap <buffer> <C-F> <C-C>
 augroup END
 
-function! s:comment(character, mode) abort " {{{3
-  let l:range = []
-  call add(l:range, line('.'))
-  if a:mode ==# 'v'
-    call add(l:range, line('v'))
-    call sort(l:range, 'n')
-    let l:range = range(l:range[0], l:range[1])
-  endif
-
-  for l:lnum in l:range
-    let l:line = getline(l:lnum)
-    let l:pattern = '\v^(\s*)\' .. a:character
-    if match(l:line, l:pattern) ==# -1
-      if !empty(line)
-        call setline(l:lnum, substitute(l:line, '\v^(\s*)(\S|$)',
-              \ '\1' .. a:character .. ' \2', ''))
-      else
-        call setline(l:lnum, a:character)
-      endif
-    else
-      call setline(l:lnum, substitute(l:line, l:pattern .. '\s*',
-            \ '\1', ''))
-    endif
-  endfor
-
-  if a:mode ==# 'v' | execute "normal! \<Esc>" | endif
-endfunction
-" }}}3
 " }}}2
 
 " Spell {{{1
