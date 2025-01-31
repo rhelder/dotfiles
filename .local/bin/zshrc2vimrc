@@ -7,35 +7,34 @@
 setopt rc_quotes
 setopt extended_glob
 
+declare -a maps
+declare -a vars
+
+while read line; do
+    if [[
+      $line[1,5] = 'alias'
+      && $line =~ '=(''|")?(cs |nvim )'
+    ]]; then
+        lhs=${line%%=*}
+        lhs=${lhs#alias }
+        lhs=${lhs#-f }
+        rhs=${line#*=}
+        rhs=${${rhs#(\'|\")}%(\'|\")}
+        map="nnoremap <Leader>$lhs <Cmd>$rhs<CR>"
+        map=${map/'<Cmd>cs'/'<Cmd>lcd'}
+        map=${map/'<Cmd>nvim'/'<Cmd>vs'}
+        maps+=$map
+    elif [[ $line =~ '^[[:alnum:]_]+=' ]]; then
+        name=${line%%=*}
+        value=${line#*=}
+        vars+="let $name = $value"
+    fi
+done < $XDG_CONFIG_HOME/zsh/.zshrc
+
 echo '" Mappings (corresponding to aliases in ''.zshrc'')\n' \
     > $XDG_CONFIG_HOME/nvim/zshrc.vim
-while read line; do
-    if [[ $line[1,5] != 'alias' ]]; then
-        continue
-    fi
-
-    if [[ ! $line =~ '=(''|")?(cs |nvim )' ]]; then
-        continue
-    fi
-
-    lhs=${line%%=*}
-    lhs=${lhs##*[[:space:]]}
-    rhs=${line#*=}
-    rhs=${${rhs#(\'|\")}%(\'|\")}
-    map="nnoremap <Leader>$lhs <Cmd>$rhs<CR>"
-    map=${map/'<Cmd>cs'/'<Cmd>lcd\n            \'}
-    map=${map/'<Cmd>nvim'/'<Cmd>vs\n            \'}
-    echo $map
-done < $XDG_CONFIG_HOME/zsh/.zshrc >> $XDG_CONFIG_HOME/nvim/zshrc.vim
+print -l $maps >> $XDG_CONFIG_HOME/nvim/zshrc.vim
 
 echo '\n" Variables (corresponding to shell variables in ''.zshrc'')\n' \
     >> $XDG_CONFIG_HOME/nvim/zshrc.vim
-while read line; do
-    if [[ ! $line =~ '^[[:lower:][:digit:]]+=' ]]; then
-        continue
-    fi
-
-    name=${line%%=*}
-    value=${line#*=}
-    echo 'let' $name '=' $value
-done < $XDG_CONFIG_HOME/zsh/.zshrc >> $XDG_CONFIG_HOME/nvim/zshrc.vim
+print -l $vars >> $XDG_CONFIG_HOME/nvim/zshrc.vim
