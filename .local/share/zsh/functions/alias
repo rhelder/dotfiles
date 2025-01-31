@@ -5,6 +5,7 @@
 # thrown for every alias already defined in '.zshrc'.
 
 local -a flags
+local flag
 while getopts 'fgmsrL' flag; do
     case $flag in
         (f)     local -i force=1;;

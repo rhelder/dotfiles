@@ -11,6 +11,7 @@
 #   loaded the next time the function is called just by re-sourcing '.zshrc'.
 
 local -a flags
+local flag
 while getopts 'fRTUXdkmrtWz' flag; do
     case $flag in
         (f)     local -i force=1;;
