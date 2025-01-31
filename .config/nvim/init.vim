@@ -45,7 +45,9 @@ augroup nvimrc_options " {{{2
   autocmd FileType text,markdown,gitcommit,help,man setlocal nonumber
 
   autocmd BufReadPost,BufNewFile $HOME/.local/bin/*
-        \ set filetype=zsh
+        \ execute empty(expand('%:e'))
+        \   ? 'set filetype=zsh'
+        \   : ''
   autocmd BufReadPost,BufNewFile $XDG_DATA_HOME/zsh/functions/*
         \ set filetype=zsh
   autocmd BufReadPost,BufNewFile $HOME/Library/texmf/tex/generic/tex4ht/*
