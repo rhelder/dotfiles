@@ -3,6 +3,7 @@ let b:did_ftplugin_markdown = 1
 
 let g:pandoc#formatting#mode = 'h'
 let g:pandoc#formatting#textwidth = 78
+let g:pandoc#folding#fdc = 0
 let g:pandoc#syntax#conceal#use = 0
 let g:pandoc#biblio#sources = 'g'
 let g:pandoc#biblio#bibs = ['/Users/rhelder/.local/share/pandoc/my_library.json']
