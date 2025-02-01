@@ -1,15 +1,15 @@
 " Todo:
 " * Rename to job_controller
 " * Rename to jobs instead of shell
-" * Figure out where to call quickfix callback (and in general how to best
-"   handle 'on exit')
-" * Test notify and quickfix
+" * Test quickfix
 
 function! shell#jobstart(cmd, opts = {}) abort " {{{1
   let l:job_handler = deepcopy(s:job_handler)
   call extend(l:job_handler, {
         \ 'on_stdout': l:job_handler.on_output,
         \ 'on_stderr': l:job_handler.on_output,
+        \ 'on_exit': function('shell#notify_on_exit'),
+        \ 'name': 'Job',
         \ })
   call extend(l:job_handler, a:opts)
   let l:job_handler.cmd = a:cmd
@@ -58,15 +58,12 @@ function! s:job_handler.on_output(job, data, event) abort dict " {{{1
   return l:output
 endfunction
 
-function! s:job_handler.on_exit(job, status, event) abort dict " {{{1
-  call s:job_handler.scratch_buf_fin(a:job, a:status, a:event)
-  call s:job_handler.notify(a:job, a:status, a:event)
-endfunction
+" }}}1
 
-function! s:job_handler.notify(job, status, event) abort dict " {{{1
+function! shell#notify_on_exit(job, status, event) abort dict " {{{1
   redraw
   execute 'echohl' !a:status ? 'JobInfo' : 'JobWarning'
-  echo self.info .. ': '
+  echo self.name .. ': '
   echohl JobMsg
   echon !a:status ? 'Completed' : 'Failed'
   echohl None
@@ -74,7 +71,7 @@ endfunction
 
 " }}}1
 
-function! shell#output_to_scratch(id, data, event) abort dict " {{{1
+function! shell#scratch_on_output(id, data, event) abort dict " {{{1
   let l:output = self.on_output(a:id, a:data, a:event)
   if empty(l:output) | return | endif
 
@@ -90,15 +87,7 @@ function! shell#output_to_scratch(id, data, event) abort dict " {{{1
   return setbufline(s:scratch_buf.bufnr, 1, l:output)
 endfunction
 
-function! shell#get_scratch_buf() abort " {{{1
-  return get(s:, 'scratch_buf', {})
-endfunction
-
-function! shell#set_scratch_buf(opts) abort " {{{1
-  return extend(s:scratch_buf, a:opts)
-endfunction
-
-function! s:job_handler.scratch_buf_init() abort dict " {{{1
+function! s:job_handler.scratch_buf_init() abort dict " {{{2
   call extend(s:scratch_buf, self.scratch_buf)
   let s:scratch_buf.job_id = self.job_id
   if empty(get(s:scratch_buf, 'title', ''))
@@ -149,8 +138,9 @@ function! s:job_handler.scratch_buf_init() abort dict " {{{1
   call win_gotoid(l:cursor_win)
   call cursor(l:cursor_pos)
 endfunction
+" }}}2
 
-function! s:job_handler.scratch_buf_fin(job, status, event) abort dict " {{{1
+function! shell#scratch_on_exit(job, status, event) abort dict " {{{1
   if !exists('s:scratch_buf') || bufwinid(s:scratch_buf.bufnr) <# 0
     return
   endif
@@ -174,6 +164,14 @@ function! s:job_handler.scratch_buf_fin(job, status, event) abort dict " {{{1
     call matchaddpos('JobWarning', l:stderr_lines,
           \ 10, -1, {'window': bufwinid(s:scratch_buf.bufnr)})
   endif
+endfunction
+
+function! shell#get_scratch_buf() abort " {{{1
+  return get(s:, 'scratch_buf', {})
+endfunction
+
+function! shell#set_scratch_buf(opts) abort " {{{1
+  return extend(s:scratch_buf, a:opts)
 endfunction
 
 " }}}1
