@@ -1,7 +1,8 @@
 " Todo:
 " * Rename to job_controller
 " * Rename to jobs instead of shell
-" * Test quickfix
+" * Allow for multiple scratch buffers
+" * Notify user on job start
 
 function! shell#jobstart(cmd, opts = {}) abort " {{{1
   let l:job_handler = deepcopy(s:job_handler)
@@ -90,12 +91,7 @@ endfunction
 function! s:job_handler.scratch_buf_init() abort dict " {{{2
   call extend(s:scratch_buf, self.scratch_buf)
   let s:scratch_buf.job_id = self.job_id
-  if empty(get(s:scratch_buf, 'title', ''))
-    let s:scratch_buf.title =
-          \ '[Output] ' .. type(self.cmd) ==# v:t_list
-          \   ? join(self.cmd)
-          \   : self.cmd
-  endif
+  let l:title = '[Output] ' .. s:title(get(s:scratch_buf, 'title', ''))
 
   " 'title' can be a list. The first element will be the title of the bufer if
   " the exit status is 0, and the second element will be the title if the exit
@@ -177,20 +173,36 @@ endfunction
 " }}}1
 
 function! shell#output_to_quickfix(job, status, event) abort dict " {{{1
-  silent cgetexpr map(self.output, 'v:val.line')
-  call setqflist(filter(getqflist(), 'v:val.valid !=# 0'))
-  if empty(getqflist()) | return | endif
-
+  " Only create new qf list if the current list is not associated with this job
   if !exists('self.qflist') | let self.qflist = {} | endif
-  if !empty(get(self.qflist, 'title', ''))
-    call setqflist([], 'a', {'title': self.qflist.title})
+  let l:title = s:title(get(self.qflist, 'title', ''))
+  if getqflist({'title': 0}).title !~# l:title
+    call setqflist([])
+  else
+    call setqflist([], 'r')
   endif
+
+  silent caddexpr map(self.output, 'v:val.line')
+  call setqflist(filter(getqflist(), 'v:val.valid !=# 0'), 'r')
+  call setqflist([], 'a', {'title': l:title})
 
   let l:cursor_pos = getpos('.')[1:2]
   let l:winid = bufwinid(bufnr('%'))
-  cwindow
+  botright cwindow
   call win_gotoid(l:winid)
   call cursor(l:cursor_pos)
+endfunction
+
+" }}}1
+
+function! s:title(title) abort " {{{1
+  if empty(a:title)
+    return type(self.cmd) ==# v:t_list
+          \ ? join(self.cmd)
+          \ : self.cmd
+  else
+    return a:title
+  endif
 endfunction
 
 " }}}1
