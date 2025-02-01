@@ -221,6 +221,12 @@ for ((i=1; i <= $#html_output; ++i)); do
   makefile+='		$(input)'
 done
 
+makefile+=(
+  ''
+  'clean:'
+  '	trash *html *tex'
+)
+
 print -l "${(@)makefile}"
 
 # }}}1
