@@ -1,7 +1,6 @@
 " Todo:
 " * Rename to job_controller
 " * Rename to jobs instead of shell
-" * Allow for multiple scratch buffers
 " * Notify user on job start
 
 function! shell#jobstart(cmd, opts = {}) abort " {{{1
@@ -73,62 +72,59 @@ endfunction
 " }}}1
 
 function! shell#scratch_on_output(id, data, event) abort dict " {{{1
-  let l:output = self.on_output(a:id, a:data, a:event)
-  if empty(l:output) | return | endif
+  if !has_key(self, 'scratch_buf') | let self.scratch_buf = {} | endif
 
-  if !exists('s:scratch_buf')
-    let s:scratch_buf = {}
+  let l:output = self.on_output(a:id, a:data, a:event)
+
+  if a:data ==# ['']
+    if map(filter(copy(self.output), 'v:val.event ==# ' .. string(a:event)),
+          \ 'v:val.line') ==# ['']
+      let self.scratch_buf.empty = 1
+    else
+      let self.scratch_buf.empty = 0
+    endif
   endif
 
-  if get(s:scratch_buf, 'job_id', 0) ==# self.job_id
-    return appendbufline(s:scratch_buf.bufnr, '$', l:output)
+  if empty(l:output) | return | endif
+
+  if has_key(self.scratch_buf, 'bufnr')
+    return appendbufline(self.scratch_buf.bufnr, '$', l:output)
   endif
 
   call self.scratch_buf_init()
-  return setbufline(s:scratch_buf.bufnr, 1, l:output)
+  return setbufline(self.scratch_buf.bufnr, 1, l:output)
 endfunction
 
 function! s:job_handler.scratch_buf_init() abort dict " {{{2
-  call extend(s:scratch_buf, self.scratch_buf)
-  let s:scratch_buf.job_id = self.job_id
-  let l:title = '[Output] ' .. s:title(get(s:scratch_buf, 'title', ''))
-
-  " 'title' can be a list. The first element will be the title of the bufer if
-  " the exit status is 0, and the second element will be the title if the exit
-  " status is 1. For now, use the first element.
-  let l:title = type(s:scratch_buf.title) ==# v:t_list
-        \ ? s:scratch_buf.title[0]
-        \ : s:scratch_buf.title
+  let self.scratch_buf.title =
+        \ '[Job Output] ' .. self.title(get(self.scratch_buf, 'title', ''))
+  let self.scratch_buf.bufwinheight = get(self.scratch_buf, 'bufwinheight', 10)
 
   let l:cursor_pos = getpos('.')[1:2]
-  let l:cursor_win = bufwinid(bufnr('%'))
+  let l:cursor_win = win_getid()
 
-  if !has_key(s:scratch_buf, 'bufnr') " Create new scratch buffer
-    execute get(s:scratch_buf, 'bufwinheight', 10) .. 'split' l:title
+  if !bufexists(self.scratch_buf.title) " Create new scratch buffer
+    execute self.scratch_buf.bufwinheight .. 'split' self.scratch_buf.title
     setlocal filetype=joboutput
     setlocal buftype=nofile
     setlocal bufhidden=hide
     setlocal noswapfile
     setlocal fillchars=eob:\ 
     setlocal nonumber
-
-    let s:scratch_buf.bufnr = bufnr('%')
+    let self.scratch_buf.bufnr = bufnr(self.scratch_buf.title)
 
   else " Reuse existing scratch buffer
-    if bufwinid(s:scratch_buf.bufnr) <# 0
-      execute get(s:scratch_buf, 'bufwinheight', 10)
-            \ .. 'split' bufname(s:scratch_buf.bufnr)
+    let self.scratch_buf.bufnr = bufnr(self.scratch_buf.title)
+    if bufwinid(self.scratch_buf.bufnr) <# 0
+      execute self.scratch_buf.bufwinheight .. 'split' self.scratch_buf.title
     endif
 
-    if bufname(s:scratch_buf.bufnr) !=# l:title
-      call win_execute(bufwinid(s:scratch_buf.bufnr), [
-            \ 'resize ' .. get(s:scratch_buf, 'bufwinheight', 10),
-            \ 'file! ' .. l:title,
-            \ ])
-    endif
+    call win_execute(bufwinid(self.scratch_buf.bufnr), [
+          \ 'resize ' .. self.scratch_buf.bufwinheight,
+          \ ])
 
-    silent call deletebufline(s:scratch_buf.bufnr, 1, '$')
-    call clearmatches(bufwinid(s:scratch_buf.bufnr))
+    silent call deletebufline(self.scratch_buf.bufnr, 1, '$')
+    call clearmatches(bufwinid(self.scratch_buf.bufnr))
   endif
 
   call win_gotoid(l:cursor_win)
@@ -137,52 +133,38 @@ endfunction
 " }}}2
 
 function! shell#scratch_on_exit(job, status, event) abort dict " {{{1
-  if !exists('s:scratch_buf') || bufwinid(s:scratch_buf.bufnr) <# 0
+  if self.scratch_buf.empty
+    let l:title =
+          \ '[Job Output] ' .. self.title(get(self.scratch_buf, 'title', ''))
+    let l:bufnr = bufnr(l:title)
+    " 'win_execute()' throws no error if no window, so no need to check
+    call win_execute(bufwinid(l:bufnr), 'close')
     return
   endif
 
-  if empty(self.output)
-    return win_execute(bufwinid(s:scratch_buf.bufnr), 'close')
-  endif
-
-  if a:status && type(s:scratch_buf.title) ==# v:t_list
-    call win_execute(bufwinid(s:scratch_buf.bufnr),
-          \ 'file! ' .. s:scratch_buf.title[1])
-  endif
-
-  let l:stderr_lines = map(self.output,
+  let l:stderr_lines = map(copy(self.output),
         \ 'v:val.event ==# "stderr" ? v:key : 0')
   let l:stderr_lines = filter(l:stderr_lines, 'v:val >=# 0')
   if a:status
     call matchaddpos('JobError', l:stderr_lines,
-          \ 10, -1, {'window': bufwinid(s:scratch_buf.bufnr)})
+          \ 10, -1, {'window': bufwinid(self.scratch_buf.bufnr)})
   else
     call matchaddpos('JobWarning', l:stderr_lines,
-          \ 10, -1, {'window': bufwinid(s:scratch_buf.bufnr)})
+          \ 10, -1, {'window': bufwinid(self.scratch_buf.bufnr)})
   endif
 endfunction
-
-function! shell#get_scratch_buf() abort " {{{1
-  return get(s:, 'scratch_buf', {})
-endfunction
-
-function! shell#set_scratch_buf(opts) abort " {{{1
-  return extend(s:scratch_buf, a:opts)
-endfunction
-
-" }}}1
 
 function! shell#output_to_quickfix(job, status, event) abort dict " {{{1
   " Only create new qf list if the current list is not associated with this job
   if !exists('self.qflist') | let self.qflist = {} | endif
-  let l:title = s:title(get(self.qflist, 'title', ''))
-  if getqflist({'title': 0}).title !~# l:title
+  let l:title = self.title(get(self.qflist, 'title', ''))
+  if getqflist({'title': 0}).title !=# l:title
     call setqflist([])
   else
     call setqflist([], 'r')
   endif
 
-  silent caddexpr map(self.output, 'v:val.line')
+  silent caddexpr map(copy(self.output), 'v:val.line')
   call setqflist(filter(getqflist(), 'v:val.valid !=# 0'), 'r')
   call setqflist([], 'a', {'title': l:title})
 
@@ -195,7 +177,7 @@ endfunction
 
 " }}}1
 
-function! s:title(title) abort " {{{1
+function! s:job_handler.title(title) abort dict " {{{1
   if empty(a:title)
     return type(self.cmd) ==# v:t_list
           \ ? join(self.cmd)
