@@ -1,5 +1,12 @@
 # General {{{1
 
+# Prompt (powerlevel10k)
+if [[ -r "$XDG_CACHE_HOME/.cache/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "$XDG_CACHE_HOME/.cache/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
+source $ZDOTDIR/.p10k.zsh
+
 # Options
 setopt EXTENDED_GLOB
 setopt IGNORE_EOF
@@ -13,9 +20,6 @@ SAVEHIST=1000000
 # Load all history into memory, including the 20% more than $SAVEHIST allowed
 # by SHARE_HISTORY
 HISTSIZE=1200000
-
-# Prompt
-PS1="%F{14}%n@%m (%!) %1~ %# %f"
 
 # Use Neovim as pager
 export MANPAGER='nvim +Man!'
@@ -38,7 +42,9 @@ fi
 
 # Completion {{{1
 
-if autoload -U compinit 2>/dev/null; then # Run compinit only once
+# Only load and run 'compinit' once
+if [[ ! -n $(whence compinit) ]]; then
+  autoload -U compinit
   compinit
   zmodload zsh/complist
 fi
@@ -60,12 +66,6 @@ bindkey -M menuselect '\C-n' menu-complete
 bindkey -M menuselect '\C-p' reverse-menu-complete
 
 # User functions {{{1
-
-autoload autoload_init
-autoload_init
-
-autoload alias_init
-alias_init
 
 autoload mk4
 autoload cs
@@ -89,7 +89,7 @@ alias ez="nvim $XDG_CONFIG_HOME/zsh/.zshrc"
 
 # Navigate {{{2
 alias b="cs $HOME/.local/bin"
-alias -f dc="cs $HOME/Documents"
+alias dc="cs $HOME/Documents"
 alias dg="cs $HOME/Documents/Drafts"
 alias dn="cs $HOME/Documents/Notes"
 alias dp="cs $HOME/Documents/Personal"
@@ -109,7 +109,7 @@ alias nda="cs $XDG_DATA_HOME/nvim/site/autoload"
 alias ndc="cs $XDG_DATA_HOME/nvim/site/compiler"
 alias ndf="cs $XDG_DATA_HOME/nvim/site/ftplugin"
 alias ndh="cs $XDG_DATA_HOME/nvim/site"
-alias -f ndp="cs $XDG_DATA_HOME/nvim/site/plugin"
+alias ndp="cs $XDG_DATA_HOME/nvim/site/plugin"
 alias np="cs $XDG_DATA_HOME/nvim/plugged"
 alias nr='cs /opt/homebrew/Cellar/neovim/*/share/nvim/runtime'
 alias pc="cs $XDG_DATA_HOME/pandoc/custom"
@@ -133,7 +133,7 @@ alias dtar='default_tar'
 alias j="jobs"
 alias kv="kpsewhich_nvim"
 alias la='ls -aF'
-alias -f ld='lilydoc'
+alias ld='lilydoc'
 alias lua='pandoc lua'
 alias m='man'
 alias mz='man_zsh'
@@ -151,7 +151,7 @@ alias td='texdoc'
 alias ts='trash'
 
 # Git {{{2
-alias -f git='hub'
+alias git='hub'
 alias ga='git add'
 alias gb='git branch'
 alias gbD='git branch -D'
@@ -165,7 +165,7 @@ alias glg='git log --graph'
 alias gll='git log'
 alias gp='git pull'
 alias gr='git reset'
-alias -f gs='git status'
+alias gs='git status'
 alias gsh='git show'
 alias gsmu='git submodule update --remote --merge'
 alias gst='git stash'
