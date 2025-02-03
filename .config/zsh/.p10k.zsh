@@ -560,7 +560,7 @@
 }
 
 # Tell `p10k configure` which file it should overwrite.
-typeset -g POWERLEVEL9K_CONFIG_FILE="$ZDOTDIR/.pk10k.zsh.new"
+typeset -g POWERLEVEL9K_CONFIG_FILE="$ZDOTDIR/.p10k.zsh.new"
 
 (( ${#p10k_config_opts} )) && setopt ${p10k_config_opts[@]}
 'builtin' 'unset' 'p10k_config_opts'
