@@ -17,3 +17,6 @@
 [submodule ".local/share/nvim/vimtex"]
 	path = .local/share/nvim/vimtex
 	url = https://github.com/rhelder/vimtex.git
+[submodule ".local/share/powerlevel10k"]
+	path = .local/share/powerlevel10k
+	url = https://github.com/rhelder/powerlevel10k.git
