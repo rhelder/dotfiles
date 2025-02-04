@@ -4,7 +4,7 @@
 if [[ -r "$XDG_CACHE_HOME/.cache/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "$XDG_CACHE_HOME/.cache/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
-source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
+source $XDG_DATA_HOME/powerlevel10k/powerlevel10k.zsh-theme
 source $ZDOTDIR/.p10k.zsh
 
 # Options
@@ -45,16 +45,18 @@ fi
 # Only load and run 'compinit' once
 if [[ ! -n $(whence compinit) ]]; then
   autoload -U compinit
-  compinit
+  [[ ! -d $XDG_CACHE_HOME/.zcompcache ]] && mkdir $XDG_CACHE_HOME/.zcompcache
+  compinit -d $XDG_CACHE_HOME/.zcompcache/.zcompdump
   zmodload zsh/complist
 fi
 
+zstyle ':completion:*' cache-path $XDG_CACHE_HOME/.zcompcache
 zstyle ':completion:*:messages' format %d
 zstyle ':completion:*:warnings' format 'No matches: %d'
 zstyle ':completion:*:descriptions' format %B%d%b
 zstyle ':completion:*' group-name ''
 zstyle ':completion:*' auto-description 'specify: %d'
-zstyle ':completion*:default' menu 'select=0'
+zstyle ':completion:*:default' menu 'select=0'
 
 bindkey -M menuselect '\C-e' undo
 bindkey -M menuselect '\C-o' accept-and-menu-complete
