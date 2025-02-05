@@ -8,5 +8,8 @@
 [credential "https://dev.azure.com"]
 	useHttpPath = true
 [core]
-     ignoreCase = false
-     editor = nvim
+	editor = nvim
+[push]
+	recurseSubmodules = check
+[submodule]
+	recurse = true
