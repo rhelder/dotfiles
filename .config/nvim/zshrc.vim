@@ -1,13 +1,5 @@
 " Mappings (corresponding to aliases in '.zshrc')
 
-nnoremap <Leader>ebib <Cmd>vs $HOME/Library/texmf/bibtex/bib/my_library.bib<CR>
-nnoremap <Leader>egi <Cmd>vs $XDG_CONFIG_HOME/git/ignore<CR>
-nnoremap <Leader>ek <Cmd>vs $XDG_CONFIG_HOME/kitty/kitty.conf<CR>
-nnoremap <Leader>elmk <Cmd>vs $XDG_CONFIG_HOME/latexmk/latexmkrc<CR>
-nnoremap <Leader>es <Cmd>vs $HOME/Development/rhelder/rhelder.dtx<CR>
-nnoremap <Leader>etf <Cmd>vs $XDG_CONFIG_HOME/nvim/ftplugin/tex.vim<CR>
-nnoremap <Leader>ev <Cmd>vs $XDG_CONFIG_HOME/nvim/init.vim<CR>
-nnoremap <Leader>ez <Cmd>vs $XDG_CONFIG_HOME/zsh/.zshrc<CR>
 nnoremap <Leader>b <Cmd>lcd $HOME/.local/bin<CR>
 nnoremap <Leader>dc <Cmd>lcd $HOME/Documents<CR>
 nnoremap <Leader>dg <Cmd>lcd $HOME/Documents/Drafts<CR>
@@ -37,7 +29,7 @@ nnoremap <Leader>pd <Cmd>lcd $XDG_DATA_HOME/pandoc/defaults<CR>
 nnoremap <Leader>ph <Cmd>lcd $XDG_DATA_HOME/pandoc<CR>
 nnoremap <Leader>pm <Cmd>lcd $XDG_DATA_HOME/pandoc/metadata<CR>
 nnoremap <Leader>pt <Cmd>lcd $XDG_DATA_HOME/pandoc/templates<CR>
-nnoremap <Leader>py <Cmd>lcd $XDG_DATA_HOME/pandoc/styles<CR>
+nnoremap <Leader>py <Cmd>lcd $XDG_DATA_HOME/pandoc/csl<CR>
 nnoremap <Leader>th <Cmd>lcd $HOME/Library/texmf<CR>
 nnoremap <Leader>tl <Cmd>lcd $HOME/Library/texmf/tex/latex<CR>
 nnoremap <Leader>vt <Cmd>lcd $XDG_DATA_HOME/nvim/vimtex<CR>
@@ -87,7 +79,7 @@ let pd = "$XDG_DATA_HOME/pandoc/defaults"
 let ph = "$XDG_DATA_HOME/pandoc"
 let pm = "$XDG_DATA_HOME/pandoc/metadata"
 let pt = "$XDG_DATA_HOME/pandoc/templates"
-let py = "$XDG_DATA_HOME/pandoc/styles"
+let py = "$XDG_DATA_HOME/pandoc/csl"
 let th = "$HOME/Library/texmf"
 let tl = "$HOME/Library/texmf/tex/latex"
 let vt = "$XDG_DATA_HOME/nvim/vimtex"
