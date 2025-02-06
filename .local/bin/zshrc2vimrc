@@ -15,15 +15,15 @@ blacklist=( 'HIST' 'PS1' 'rfv' )
 while read line; do
   if [[
     $line[1,5] = 'alias'
-    && $line =~ '=(''|")?(cs |nvim )'
+    && $line =~ '=(''|")?(cs |cd | nvim )'
   ]]; then
   lhs=${line%%=*}
   lhs=${lhs#alias }
-  lhs=${lhs#-f }
   rhs=${line#*=}
   rhs=${${rhs#(\'|\")}%(\'|\")}
   map="nnoremap <Leader>$lhs <Cmd>$rhs<CR>"
   map=${map/'<Cmd>cs'/'<Cmd>lcd'}
+  map=${map/'<Cmd>cd'/'<Cmd>lcd'}
   map=${map/'<Cmd>nvim'/'<Cmd>vs'}
   maps+=$map
 elif [[ $line =~ '^[[:alnum:]_]+=' ]]; then
