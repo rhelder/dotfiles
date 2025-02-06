@@ -1,0 +1,15 @@
+#!/bin/zsh
+
+# Merge in upstream changes in specified forks
+
+forks=(
+  .local/share/pandoc/templates
+  .local/share/pandoc/csl
+  .local/share/nvim/vimtex
+  .local/share/powerlevel10k
+)
+
+for fork in $forks; do
+  cd $HOME/$fork
+  git pull upstream HEAD
+done
