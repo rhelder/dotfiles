@@ -10,19 +10,28 @@ setlocal errorformat+=In\ file\ included\ from\ %f:%l:,
 setlocal errorformat+=\^I\^Ifrom\ %f:%l%m
 silent CompilerSet errorformat
 
-function! s:open_output(job, status, event) abort dict
-    if a:event !=# 'exit' | return | endif
-    if a:status | return | endif
+function! s:on_exit(job, status, event) abort dict
+  call self.quickfix_on_exit(a:job, a:status, a:event)
+  call self.notify_on_exit(a:job, a:status, a:event)
+  if a:status | return | endif
 
-    call shell#jobstart(['open', '-a', 'Skim', expand('%<') .. '.pdf'], {})
+  call shell#jobstart([
+        \ 'open',
+        \ '-a',
+        \ 'Skim',
+        \ expand('%<') .. '.pdf'
+        \ ], {
+        \ 'on_start': '',
+        \ 'on_exit': '',
+        \ })
 endfunction
 
-command! -buffer LilypondCompile
-            \ call shell#compile([
-            \   'lilypond',
-            \   '--output=' .. expand('%<'),
-            \   expand('%'),
-            \ ], {
-            \   'qf_win': {'title': 'LilyPond'},
-            \   'callback': function('s:open_output'),
-            \ })
+command! -buffer LilypondCompile call shell#jobstart([
+      \ 'lilypond',
+      \ '--output=' .. expand('%<'),
+      \ expand('%'),
+      \ ], {
+      \ 'name': 'LilyPond',
+      \ 'qflist': {'title': 'LilyPond'},
+      \ 'on_exit': function('s:on_exit'),
+      \ })
