@@ -1,12 +1,12 @@
 " Todo:
 " * Rename to job_controller
 " * Rename to jobs instead of shell
-" * Notify user on job start
 
 function! shell#jobstart(cmd, opts = {}) abort " {{{1
   let l:job_handler = deepcopy(s:job_handler)
   call extend(l:job_handler, {
         \ 'name': 'Job',
+        \ 'on_start': l:job_handler.notify_on_start,
         \ 'on_exit': l:job_handler.notify_on_exit,
         \ 'on_stdout': l:job_handler.on_output,
         \ 'on_stderr': l:job_handler.on_output,
@@ -30,11 +30,24 @@ let s:job_handler = {}
 function! s:job_handler.start() abort dict " {{{1
   let self.job_id = jobstart(self.cmd, self)
 
+  if !empty(get(self, 'on_start', ''))
+    call self.on_start(self.job_id, [], 'start')
+  endif
+
   if get(self, 'sync', 0)
     call jobwait([self.job_id])
   endif
 
   return self
+endfunction
+
+function! s:job_handler.notify_on_start(job, data, event) abort dict " {{{1
+  redraw
+  echohl JobInfo
+  echo self.name .. ': '
+  echohl JobMsg
+  echon 'Started'
+  echohl None
 endfunction
 
 function! s:job_handler.notify_on_exit(job, status, event) abort dict " {{{1
