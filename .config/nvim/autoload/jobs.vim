@@ -1,23 +1,19 @@
-" Todo:
-" * Rename to job_controller
-" * Rename to jobs instead of shell
-
-function! shell#jobstart(cmd, opts = {}) abort " {{{1
-  let l:job_handler = deepcopy(s:job_handler)
-  call extend(l:job_handler, {
+function! jobs#jobstart(cmd, opts = {}) abort " {{{1
+  let l:job_controller = deepcopy(s:job_controller)
+  call extend(l:job_controller, {
         \ 'name': 'Job',
-        \ 'on_start': l:job_handler.notify_on_start,
-        \ 'on_exit': l:job_handler.notify_on_exit,
-        \ 'on_stdout': l:job_handler.on_output,
-        \ 'on_stderr': l:job_handler.on_output,
+        \ 'on_start': l:job_controller.notify_on_start,
+        \ 'on_exit': l:job_controller.notify_on_exit,
+        \ 'on_stdout': l:job_controller.on_output,
+        \ 'on_stderr': l:job_controller.on_output,
         \ })
-  call extend(l:job_handler, a:opts)
-  let l:job_handler.cmd = a:cmd
-  let l:job_handler.scratch_buf.cmd = a:cmd
-  return l:job_handler.start()
+  call extend(l:job_controller, a:opts)
+  let l:job_controller.cmd = a:cmd
+  let l:job_controller.scratch_buf.cmd = a:cmd
+  return l:job_controller.start()
 endfunction
 
-function! shell#call_callbacks(funcnames, job, data, event) abort dict " {{{1
+function! jobs#call_callbacks(funcnames, job, data, event) abort dict " {{{1
   for l:funcname in a:funcnames
     call self[l:funcname](a:job, a:data, a:event)
   endfor
@@ -25,9 +21,9 @@ endfunction
 
 " }}}1
 
-let s:job_handler = {}
+let s:job_controller = {}
 
-function! s:job_handler.start() abort dict " {{{1
+function! s:job_controller.start() abort dict " {{{1
   let self.job_id = jobstart(self.cmd, self)
 
   if !empty(get(self, 'on_start', ''))
@@ -41,7 +37,7 @@ function! s:job_handler.start() abort dict " {{{1
   return self
 endfunction
 
-function! s:job_handler.notify_on_start(job, data, event) abort dict " {{{1
+function! s:job_controller.notify_on_start(job, data, event) abort dict " {{{1
   redraw
   echohl JobInfo
   echo self.name .. ': '
@@ -50,7 +46,7 @@ function! s:job_handler.notify_on_start(job, data, event) abort dict " {{{1
   echohl None
 endfunction
 
-function! s:job_handler.notify_on_exit(job, status, event) abort dict " {{{1
+function! s:job_controller.notify_on_exit(job, status, event) abort dict " {{{1
   redraw
   execute 'echohl' !a:status ? 'JobInfo' : 'JobWarning'
   echo self.name .. ': '
@@ -59,7 +55,7 @@ function! s:job_handler.notify_on_exit(job, status, event) abort dict " {{{1
   echohl None
 endfunction
 
-function! s:job_handler.on_output(job, data, event) abort dict " {{{1
+function! s:job_controller.on_output(job, data, event) abort dict " {{{1
   if !has_key(self, 'output')
     let self.output = [{'line': '', 'event': ''}]
   endif
@@ -91,7 +87,7 @@ endfunction
 
 " }}}1
 
-function! s:job_handler.scratch_on_output(id, data, event) abort dict " {{{1
+function! s:job_controller.scratch_on_output(id, data, event) abort dict " {{{1
   let l:output = self.on_output(a:id, a:data, a:event)
 
   if a:data ==# ['']
@@ -113,7 +109,7 @@ function! s:job_handler.scratch_on_output(id, data, event) abort dict " {{{1
   return setbufline(self.scratch_buf.bufnr, 1, l:output)
 endfunction
 
-function! s:job_handler.scratch_on_exit(job, status, event) abort dict " {{{1
+function! s:job_controller.scratch_on_exit(job, status, event) abort dict " {{{1
   if self.scratch_buf.empty
     let l:title = '[Job Output] '
           \ .. s:get_title(get(self.scratch_buf, 'title', ''), self.cmd)
@@ -137,9 +133,9 @@ endfunction
 
 " }}}1
 
-let s:job_handler.scratch_buf = {}
+let s:job_controller.scratch_buf = {}
 
-function! s:job_handler.scratch_buf.init(cmd) abort dict " {{{1
+function! s:job_controller.scratch_buf.init(cmd) abort dict " {{{1
   let self.title = '[Job Output] '
         \ .. s:get_title(get(self, 'title', ''), a:cmd)
   let self.bufwinheight = get(self, 'bufwinheight', 10)
@@ -177,7 +173,7 @@ endfunction
 
 " }}}1
 
-function! s:job_handler.quickfix_on_exit(job, status, event) abort dict " {{{1
+function! s:job_controller.quickfix_on_exit(job, status, event) abort dict " {{{1
   " Only create new qf list if the current list is not associated with this job
   if !exists('self.qflist') | let self.qflist = {} | endif
   let l:title = s:get_title(get(self.qflist, 'title', ''), self.cmd)
