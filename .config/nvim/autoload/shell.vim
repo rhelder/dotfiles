@@ -6,14 +6,21 @@
 function! shell#jobstart(cmd, opts = {}) abort " {{{1
   let l:job_handler = deepcopy(s:job_handler)
   call extend(l:job_handler, {
+        \ 'name': 'Job',
+        \ 'on_exit': l:job_handler.notify_on_exit,
         \ 'on_stdout': l:job_handler.on_output,
         \ 'on_stderr': l:job_handler.on_output,
-        \ 'on_exit': function('shell#notify_on_exit'),
-        \ 'name': 'Job',
         \ })
   call extend(l:job_handler, a:opts)
   let l:job_handler.cmd = a:cmd
+  let l:job_handler.scratch_buf.cmd = a:cmd
   return l:job_handler.start()
+endfunction
+
+function! shell#call_callbacks(funcnames, job, data, event) abort dict " {{{1
+  for l:funcname in a:funcnames
+    call self[l:funcname](a:job, a:data, a:event)
+  endfor
 endfunction
 
 " }}}1
@@ -22,10 +29,21 @@ let s:job_handler = {}
 
 function! s:job_handler.start() abort dict " {{{1
   let self.job_id = jobstart(self.cmd, self)
+
   if get(self, 'sync', 0)
     call jobwait([self.job_id])
   endif
+
   return self
+endfunction
+
+function! s:job_handler.notify_on_exit(job, status, event) abort dict " {{{1
+  redraw
+  execute 'echohl' !a:status ? 'JobInfo' : 'JobWarning'
+  echo self.name .. ': '
+  echohl JobMsg
+  echon !a:status ? 'Completed' : 'Failed'
+  echohl None
 endfunction
 
 function! s:job_handler.on_output(job, data, event) abort dict " {{{1
@@ -60,20 +78,7 @@ endfunction
 
 " }}}1
 
-function! shell#notify_on_exit(job, status, event) abort dict " {{{1
-  redraw
-  execute 'echohl' !a:status ? 'JobInfo' : 'JobWarning'
-  echo self.name .. ': '
-  echohl JobMsg
-  echon !a:status ? 'Completed' : 'Failed'
-  echohl None
-endfunction
-
-" }}}1
-
-function! shell#scratch_on_output(id, data, event) abort dict " {{{1
-  if !has_key(self, 'scratch_buf') | let self.scratch_buf = {} | endif
-
+function! s:job_handler.scratch_on_output(id, data, event) abort dict " {{{1
   let l:output = self.on_output(a:id, a:data, a:event)
 
   if a:data ==# ['']
@@ -91,51 +96,14 @@ function! shell#scratch_on_output(id, data, event) abort dict " {{{1
     return appendbufline(self.scratch_buf.bufnr, '$', l:output)
   endif
 
-  call self.scratch_buf_init()
+  call self.scratch_buf.init(self.cmd)
   return setbufline(self.scratch_buf.bufnr, 1, l:output)
 endfunction
 
-function! s:job_handler.scratch_buf_init() abort dict " {{{2
-  let self.scratch_buf.title =
-        \ '[Job Output] ' .. self.title(get(self.scratch_buf, 'title', ''))
-  let self.scratch_buf.bufwinheight = get(self.scratch_buf, 'bufwinheight', 10)
-
-  let l:cursor_pos = getpos('.')[1:2]
-  let l:cursor_win = win_getid()
-
-  if !bufexists(self.scratch_buf.title) " Create new scratch buffer
-    execute self.scratch_buf.bufwinheight .. 'split' self.scratch_buf.title
-    setlocal filetype=joboutput
-    setlocal buftype=nofile
-    setlocal bufhidden=hide
-    setlocal noswapfile
-    setlocal fillchars=eob:\ 
-    setlocal nonumber
-    let self.scratch_buf.bufnr = bufnr(self.scratch_buf.title)
-
-  else " Reuse existing scratch buffer
-    let self.scratch_buf.bufnr = bufnr(self.scratch_buf.title)
-    if bufwinid(self.scratch_buf.bufnr) <# 0
-      execute self.scratch_buf.bufwinheight .. 'split' self.scratch_buf.title
-    endif
-
-    call win_execute(bufwinid(self.scratch_buf.bufnr), [
-          \ 'resize ' .. self.scratch_buf.bufwinheight,
-          \ ])
-
-    silent call deletebufline(self.scratch_buf.bufnr, 1, '$')
-    call clearmatches(bufwinid(self.scratch_buf.bufnr))
-  endif
-
-  call win_gotoid(l:cursor_win)
-  call cursor(l:cursor_pos)
-endfunction
-" }}}2
-
-function! shell#scratch_on_exit(job, status, event) abort dict " {{{1
+function! s:job_handler.scratch_on_exit(job, status, event) abort dict " {{{1
   if self.scratch_buf.empty
-    let l:title =
-          \ '[Job Output] ' .. self.title(get(self.scratch_buf, 'title', ''))
+    let l:title = '[Job Output] '
+          \ .. s:get_title(get(self.scratch_buf, 'title', ''), self.cmd)
     let l:bufnr = bufnr(l:title)
     " 'win_execute()' throws no error if no window, so no need to check
     call win_execute(bufwinid(l:bufnr), 'close')
@@ -154,10 +122,52 @@ function! shell#scratch_on_exit(job, status, event) abort dict " {{{1
   endif
 endfunction
 
-function! shell#output_to_quickfix(job, status, event) abort dict " {{{1
+" }}}1
+
+let s:job_handler.scratch_buf = {}
+
+function! s:job_handler.scratch_buf.init(cmd) abort dict " {{{1
+  let self.title = '[Job Output] '
+        \ .. s:get_title(get(self, 'title', ''), a:cmd)
+  let self.bufwinheight = get(self, 'bufwinheight', 10)
+
+  let l:cursor_pos = getpos('.')[1:2]
+  let l:cursor_win = win_getid()
+
+  if !bufexists(self.title) " Create new scratch buffer
+    execute self.bufwinheight .. 'split' self.title
+    setlocal filetype=joboutput
+    setlocal buftype=nofile
+    setlocal bufhidden=hide
+    setlocal noswapfile
+    setlocal fillchars=eob:\ 
+    setlocal nonumber
+    let self.bufnr = bufnr(self.title)
+
+  else " Reuse existing scratch buffer
+    let self.bufnr = bufnr(self.title)
+    if bufwinid(self.bufnr) <# 0
+      execute self.bufwinheight .. 'split' self.title
+    endif
+
+    call win_execute(bufwinid(self.bufnr), [
+          \ 'resize ' .. self.bufwinheight,
+          \ ])
+
+    silent call deletebufline(self.bufnr, 1, '$')
+    call clearmatches(bufwinid(self.bufnr))
+  endif
+
+  call win_gotoid(l:cursor_win)
+  call cursor(l:cursor_pos)
+endfunction
+
+" }}}1
+
+function! s:job_handler.quickfix_on_exit(job, status, event) abort dict " {{{1
   " Only create new qf list if the current list is not associated with this job
   if !exists('self.qflist') | let self.qflist = {} | endif
-  let l:title = self.title(get(self.qflist, 'title', ''))
+  let l:title = s:get_title(get(self.qflist, 'title', ''), self.cmd)
   if getqflist({'title': 0}).title !=# l:title
     call setqflist([])
   else
@@ -177,11 +187,11 @@ endfunction
 
 " }}}1
 
-function! s:job_handler.title(title) abort dict " {{{1
+function! s:get_title(title, cmd) abort " {{{1
   if empty(a:title)
-    return type(self.cmd) ==# v:t_list
-          \ ? join(self.cmd)
-          \ : self.cmd
+    return type(a:cmd) ==# v:t_list
+          \ ? join(a:cmd)
+          \ : a:cmd
   else
     return a:title
   endif
