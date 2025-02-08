@@ -181,10 +181,6 @@ set completeopt=noinsert,menuone,noselect
 " Use vim-surround key mappings for vim-sandwich
 runtime macros/sandwich/keymap/surround.vim
 
-let g:mdview_pandoc_args = {
-      \ 'additional': ['--defaults=notes'],
-      \ }
-
 let g:GPGExecutable = 'PINENTRY_USER_DATA="" gpg --trust-model=always'
 
 " LuaSnip configuration {{{2
