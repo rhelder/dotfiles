@@ -1,5 +1,5 @@
-if exists('g:loaded_shell') | finish | endif
-let g:loaded_shell = 1
+if exists('g:loaded_jobs') | finish | endif
+let g:loaded_jobs = 1
 
 highlight default link JobInfo Question
 highlight default link JobWarning WarningMsg
