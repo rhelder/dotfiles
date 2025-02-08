@@ -21,7 +21,7 @@
   # Place icons before content on left, after content on right
   typeset -g POWERLEVEL9K_ICON_BEFORE_CONTENT=
 
-  # Use two lines
+  # 'Sparse' prompt
   typeset -g POWERLEVEL9K_PROMPT_ADD_NEWLINE=true
   # No frame between first and second line
   typeset -g POWERLEVEL9K_MULTILINE_FIRST_PROMPT_PREFIX=
@@ -392,7 +392,7 @@
   # }}}2
   # }}}1
 
-  typeset -g POWERLEVEL9K_TRANSIENT_PROMPT=always
+  typeset -g POWERLEVEL9K_TRANSIENT_PROMPT=off
   typeset -g POWERLEVEL9K_INSTANT_PROMPT=verbose
 
   # Hot reload allows you to change POWERLEVEL9K options after Powerlevel10k
