@@ -34,9 +34,6 @@ let s:ncm_regexes = [
 
 " Mappings {{{1
 
-" Exit " {{{2
-nnoremap <buffer> <LocalLeader>qq <Cmd>call notes#exit#set_modified(0, 0)<CR>
-
 " fzf {{{2
 nnoremap <buffer> <LocalLeader>nl
             \ <Cmd>call fzf#run(fzf#wrap(notes#fzf#browse_links(0), 0))<CR>
@@ -64,16 +61,7 @@ nnoremap <buffer> <LocalLeader>nh
 " }}}2
 
 augroup notes_exit " {{{1
-    autocmd BufModifiedSet <buffer>
-                \ call setbufvar(expand('<afile>'), 'modified', 1)
-    autocmd BufModifiedSet <buffer> call notes#exit#set_modified(1)
     autocmd BufWinLeave <buffer> call notes#exit#compile()
 augroup END
-
-" mdView {{{1
-let g:mdview_pandoc_args = {
-            \ 'output': function('notes#mdview#output_file'),
-            \ 'additional': ['--defaults=notes'],
-            \ }
 
 " }}}1
