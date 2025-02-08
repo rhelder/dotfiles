@@ -1,15 +1,17 @@
 function! jobs#jobstart(cmd, opts = {}) abort " {{{1
   let l:job_controller = deepcopy(s:job_controller)
+
   call extend(l:job_controller, {
+        \ 'cmd': a:cmd,
         \ 'name': 'Job',
-        \ 'on_start': l:job_controller.notify_on_start,
-        \ 'on_exit': l:job_controller.notify_on_exit,
-        \ 'on_stdout': l:job_controller.on_output,
-        \ 'on_stderr': l:job_controller.on_output,
+        \ 'on_start': get(l:job_controller, 'notify_on_start'),
+        \ 'on_exit': get(l:job_controller, 'notify_on_exit'),
+        \ 'on_stdout': get(l:job_controller, 'on_output'),
+        \ 'on_stderr': get(l:job_controller, 'on_output'),
         \ })
   call extend(l:job_controller, a:opts)
-  let l:job_controller.cmd = a:cmd
-  let l:job_controller.scratch_buf.cmd = a:cmd
+  call extend(get(l:job_controller, 'scratch_buf', {}), s:scratch_buf)
+
   return l:job_controller.start()
 endfunction
 
@@ -133,9 +135,9 @@ endfunction
 
 " }}}1
 
-let s:job_controller.scratch_buf = {}
+let s:scratch_buf = {}
 
-function! s:job_controller.scratch_buf.init(cmd) abort dict " {{{1
+function! s:scratch_buf.init(cmd) abort dict " {{{1
   let self.title = '[Job Output] '
         \ .. s:get_title(get(self, 'title', ''), a:cmd)
   let self.bufwinheight = get(self, 'bufwinheight', 10)
@@ -145,13 +147,15 @@ function! s:job_controller.scratch_buf.init(cmd) abort dict " {{{1
 
   if !bufexists(self.title) " Create new scratch buffer
     execute self.bufwinheight .. 'split' self.title
+    let self.bufnr = bufnr(self.title)
+
     setlocal filetype=joboutput
     setlocal buftype=nofile
     setlocal bufhidden=hide
     setlocal noswapfile
+    setlocal winfixheight
     setlocal fillchars=eob:\ 
     setlocal nonumber
-    let self.bufnr = bufnr(self.title)
 
   else " Reuse existing scratch buffer
     let self.bufnr = bufnr(self.title)
