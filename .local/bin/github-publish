@@ -41,6 +41,6 @@ git push --force origin main
 
 echo 'Cleaning up...'
 cd ..
-sudo rm -r rhelder
+rm -rf rhelder
 
 echo 'Done.'
