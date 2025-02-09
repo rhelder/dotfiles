@@ -1,5 +1,13 @@
 " Mappings (corresponding to aliases in '.zshrc')
 
+nnoremap <Leader>ebib <Cmd>vs $HOME/Library/texmf/bibtex/bib/my_library.bib<CR>
+nnoremap <Leader>egi <Cmd>vs $XDG_CONFIG_HOME/git/ignore<CR>
+nnoremap <Leader>ek <Cmd>vs $XDG_CONFIG_HOME/kitty/kitty.conf<CR>
+nnoremap <Leader>elmk <Cmd>vs $XDG_CONFIG_HOME/latexmk/latexmkrc<CR>
+nnoremap <Leader>es <Cmd>vs $HOME/Development/rhelder/rhelder.dtx<CR>
+nnoremap <Leader>etf <Cmd>vs $XDG_CONFIG_HOME/nvim/ftplugin/tex.vim<CR>
+nnoremap <Leader>ev <Cmd>vs $XDG_CONFIG_HOME/nvim/init.vim<CR>
+nnoremap <Leader>ez <Cmd>vs $XDG_CONFIG_HOME/zsh/.zshrc<CR>
 nnoremap <Leader>b <Cmd>lcd $HOME/.local/bin<CR>
 nnoremap <Leader>dc <Cmd>lcd $HOME/Documents<CR>
 nnoremap <Leader>dg <Cmd>lcd $HOME/Documents/Drafts<CR>

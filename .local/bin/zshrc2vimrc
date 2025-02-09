@@ -15,7 +15,7 @@ blacklist=( 'HIST' 'PS1' 'rfv' )
 while read line; do
   if [[
     $line[1,5] = 'alias'
-    && $line =~ '=(''|")?(cs |cd | nvim )'
+    && $line =~ '=(''|")?(cs |cd |nvim )'
   ]]; then
   lhs=${line%%=*}
   lhs=${lhs#alias }
