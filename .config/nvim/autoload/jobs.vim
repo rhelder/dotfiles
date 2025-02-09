@@ -121,14 +121,15 @@ function! s:job_controller.scratch_on_exit(job, status, event) abort dict " {{{1
     return
   endif
 
-  let l:stderr_lines = map(copy(self.output),
-        \ 'v:val.event ==# "stderr" ? v:key : 0')
-  let l:stderr_lines = filter(l:stderr_lines, 'v:val >=# 0')
+  let l:stderr_lnums = map(copy(self.output),
+        \ 'v:val.event ==# "stderr" ? v:key + 1 : 0')
+  let l:stderr_lnums = filter(l:stderr_lnums, 'v:val ># 0')
+
   if a:status
-    call matchaddpos('JobError', l:stderr_lines,
+    call matchaddpos('JobError', l:stderr_lnums,
           \ 10, -1, {'window': bufwinid(self.scratch_buf.bufnr)})
   else
-    call matchaddpos('JobWarning', l:stderr_lines,
+    call matchaddpos('JobWarning', l:stderr_lnums,
           \ 10, -1, {'window': bufwinid(self.scratch_buf.bufnr)})
   endif
 endfunction
