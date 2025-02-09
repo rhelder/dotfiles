@@ -158,6 +158,9 @@ endfunction
 
 " Plugins {{{1
 
+let g:pandoc#filetypes#pandoc_markdown = 0
+let g:pandoc#filetypes#handled = []
+
 call plug#begin()
   Plug 'mattn/emmet-vim', {'for': ['html', 'xml']}
   Plug '/opt/homebrew/opt/fzf'

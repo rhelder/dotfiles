@@ -1,20 +1,20 @@
-if exists('b:did_ftplugin_markdown') | finish | endif
-let b:did_ftplugin_markdown = 1
+if exists('b:did_ftplugin') | finish | endif
 
-let g:pandoc#formatting#mode = 'h'
-let g:pandoc#formatting#textwidth = 78
+let g:pandoc#modules#enabled = ['folding']
 let g:pandoc#folding#fdc = 0
+let g:pandoc#folding#fastfolds = 1
 let g:pandoc#syntax#conceal#use = 0
-let g:pandoc#biblio#sources = 'g'
-let g:pandoc#biblio#bibs = ['/Users/rhelder/.local/share/pandoc/my_library.json']
+source $XDG_DATA_HOME/nvim/plugged/vim-pandoc/ftplugin/pandoc.vim
+
+let b:did_ftplugin = 1
 
 augroup ncm2_markdown
   autocmd!
   autocmd BufEnter * call ncm2#enable_for_buffer()
   autocmd User Ncm2Plugin call ncm2#register_source({
-        \ 'name': 'pandoc',
+        \ 'name': 'markdown',
         \ 'priority': 8,
-        \ 'scope': ['pandoc'],
+        \ 'scope': ['markdown'],
         \ 'matcher': {'name': 'prefix', 'key': 'word'},
         \ 'sorter': 'none',
         \ 'word_pattern': '\w+',
@@ -24,4 +24,3 @@ augroup ncm2_markdown
         \     'pandoc#completion#Complete'],
         \ })
 augroup END
-        " \ 'complete_pattern': ['(\\)@<!\@'],
