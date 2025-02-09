@@ -8,6 +8,10 @@ source $XDG_DATA_HOME/nvim/plugged/vim-pandoc/ftplugin/pandoc.vim
 
 let b:did_ftplugin = 1
 
+command! -buffer -bang -nargs=?
+      \ -complete=customlist,pandoc#command#PandocComplete
+      \ Pandoc call markdown#pandoc('<args>', '<bang>')
+
 augroup ncm2_markdown
   autocmd!
   autocmd BufEnter * call ncm2#enable_for_buffer()
