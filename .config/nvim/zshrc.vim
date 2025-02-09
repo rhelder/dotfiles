@@ -4,6 +4,8 @@ nnoremap <Leader>ebib <Cmd>vs $HOME/Library/texmf/bibtex/bib/my_library.bib<CR>
 nnoremap <Leader>egi <Cmd>vs $XDG_CONFIG_HOME/git/ignore<CR>
 nnoremap <Leader>ek <Cmd>vs $XDG_CONFIG_HOME/kitty/kitty.conf<CR>
 nnoremap <Leader>elmk <Cmd>vs $XDG_CONFIG_HOME/latexmk/latexmkrc<CR>
+nnoremap <Leader>emf <Cmd>vs $XDG_CONFIG_HOME/nvim/ftplugin/markdown.vim<CR>
+nnoremap <Leader>ep <Cmd>vs $XDG_CONFIG_HOME/zsh/.p10k.zsh<CR>
 nnoremap <Leader>es <Cmd>vs $HOME/Development/rhelder/rhelder.dtx<CR>
 nnoremap <Leader>etf <Cmd>vs $XDG_CONFIG_HOME/nvim/ftplugin/tex.vim<CR>
 nnoremap <Leader>ev <Cmd>vs $XDG_CONFIG_HOME/nvim/init.vim<CR>
@@ -32,6 +34,8 @@ nnoremap <Leader>ndh <Cmd>lcd $XDG_DATA_HOME/nvim/site<CR>
 nnoremap <Leader>ndp <Cmd>lcd $XDG_DATA_HOME/nvim/site/plugin<CR>
 nnoremap <Leader>np <Cmd>lcd $XDG_DATA_HOME/nvim/plugged<CR>
 nnoremap <Leader>nr <Cmd>lcd /opt/homebrew/Cellar/neovim/*/share/nvim/runtime<CR>
+nnoremap <Leader>p1 <Cmd>lcd $XDG_DATA_HOME/powerlevel10k<CR>
+nnoremap <Leader>p2 <Cmd>lcd $HOME/Documents/2<CR>
 nnoremap <Leader>pc <Cmd>lcd $XDG_DATA_HOME/pandoc/custom<CR>
 nnoremap <Leader>pd <Cmd>lcd $XDG_DATA_HOME/pandoc/defaults<CR>
 nnoremap <Leader>ph <Cmd>lcd $XDG_DATA_HOME/pandoc<CR>
@@ -52,11 +56,13 @@ let bib = "$HOME/Library/texmf/bibtex/bib/my_library.bib"
 let gi = "$XDG_CONFIG_HOME/git/ignore"
 let k = "$XDG_CONFIG_HOME/kitty/kitty.conf"
 let lmk = "$XDG_CONFIG_HOME/latexmk/latexmkrc"
-let v = "$XDG_CONFIG_HOME/nvim/init.vim"
-let zv = "$XDG_CONFIG_HOME/nvim/zshrc.vim"
-let tf = "$XDG_CONFIG_HOME/nvim/ftplugin/tex.vim"
+let mf = "$XDG_CONFIG_HOME/nvim/ftplugin/markdown.vim"
+let p = "$XDG_CONFIG_HOME/zsh/.p10k.zsh"
 let s = "$HOME/Development/rhelder/rhelder.dtx"
+let tf = "$XDG_CONFIG_HOME/nvim/ftplugin/tex.vim"
+let v = "$XDG_CONFIG_HOME/nvim/init.vim"
 let z = "$XDG_CONFIG_HOME/zsh/.zshrc"
+let zv = "$XDG_CONFIG_HOME/nvim/zshrc.vim"
 let b = "$HOME/.local/bin"
 let dc = "$HOME/Documents"
 let dg = "$HOME/Documents/Drafts"
@@ -82,6 +88,8 @@ let ndh = "$XDG_DATA_HOME/nvim/site"
 let ndp = "$XDG_DATA_HOME/nvim/site/plugin"
 let np = "$XDG_DATA_HOME/nvim/plugged"
 let nr = '/opt/homebrew/Cellar/neovim/*/share/nvim/runtime'
+let p1 = "$XDG_DATA_HOME/powerlevel10k"
+let p2 = "$HOME/Documents/2"
 let pc = "$XDG_DATA_HOME/pandoc/custom"
 let pd = "$XDG_DATA_HOME/pandoc/defaults"
 let ph = "$XDG_DATA_HOME/pandoc"

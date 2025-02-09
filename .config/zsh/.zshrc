@@ -80,16 +80,20 @@ autoload nvim_help
 # Aliases {{{1
 
 # Edit {{{2
+
 alias ebib="nvim $HOME/Library/texmf/bibtex/bib/my_library.bib"
 alias egi="nvim $XDG_CONFIG_HOME/git/ignore"
 alias ek="nvim $XDG_CONFIG_HOME/kitty/kitty.conf"
 alias elmk="nvim $XDG_CONFIG_HOME/latexmk/latexmkrc"
+alias emf="nvim $XDG_CONFIG_HOME/nvim/ftplugin/markdown.vim"
+alias ep="nvim $XDG_CONFIG_HOME/zsh/.p10k.zsh"
 alias es="nvim $HOME/Development/rhelder/rhelder.dtx"
 alias etf="nvim $XDG_CONFIG_HOME/nvim/ftplugin/tex.vim"
 alias ev="nvim $XDG_CONFIG_HOME/nvim/init.vim"
 alias ez="nvim $XDG_CONFIG_HOME/zsh/.zshrc"
 
 # Navigate {{{2
+
 alias b="cs $HOME/.local/bin"
 alias dc="cs $HOME/Documents"
 alias dg="cs $HOME/Documents/Drafts"
@@ -114,6 +118,8 @@ alias ndh="cs $XDG_DATA_HOME/nvim/site"
 alias ndp="cs $XDG_DATA_HOME/nvim/site/plugin"
 alias np="cs $XDG_DATA_HOME/nvim/plugged"
 alias nr='cs /opt/homebrew/Cellar/neovim/*/share/nvim/runtime'
+alias p1="cs $XDG_DATA_HOME/powerlevel10k"
+alias p2="cs $HOME/Documents/2"
 alias pc="cs $XDG_DATA_HOME/pandoc/custom"
 alias pd="cs $XDG_DATA_HOME/pandoc/defaults"
 alias ph="cs $XDG_DATA_HOME/pandoc"
@@ -129,6 +135,7 @@ alias zf="cs $XDG_DATA_HOME/zsh/functions"
 alias zh="cs $XDG_CONFIG_HOME/zsh"
 
 # Abbreviate {{{2
+
 alias cpm="cp -i $XDG_DATA_HOME/pandoc/Makefile ."
 alias dgpg='default_gpg'
 alias dtar='default_tar'
@@ -148,12 +155,15 @@ alias nv='nvim'
 alias nvh='nvim_help'
 alias o='open'
 alias si='kitten ssh rhelder@192.168.0.129'
+alias sp="source $XDG_CONFIG_HOME/zsh/.p10k.zsh"
 alias sz="source $XDG_CONFIG_HOME/zsh/.zshrc"
 alias td='texdoc'
 alias ts='trash'
 
 # Git {{{2
+
 alias git='hub'
+
 alias ga='git add'
 alias gb='git branch'
 alias gbD='git branch -D'
@@ -175,22 +185,27 @@ alias gstp='git stash pop'
 alias gsw='git switch'
 alias gswc='git switch -c'
 alias gu='git push'
+
 # }}}2
 
 # Shell variables {{{1
 
 # Files {{{2
+
 bib="$HOME/Library/texmf/bibtex/bib/my_library.bib"
 gi="$XDG_CONFIG_HOME/git/ignore"
 k="$XDG_CONFIG_HOME/kitty/kitty.conf"
 lmk="$XDG_CONFIG_HOME/latexmk/latexmkrc"
-v="$XDG_CONFIG_HOME/nvim/init.vim"
-zv="$XDG_CONFIG_HOME/nvim/zshrc.vim"
-tf="$XDG_CONFIG_HOME/nvim/ftplugin/tex.vim"
+mf="$XDG_CONFIG_HOME/nvim/ftplugin/markdown.vim"
+p="$XDG_CONFIG_HOME/zsh/.p10k.zsh"
 s="$HOME/Development/rhelder/rhelder.dtx"
+tf="$XDG_CONFIG_HOME/nvim/ftplugin/tex.vim"
+v="$XDG_CONFIG_HOME/nvim/init.vim"
 z="$XDG_CONFIG_HOME/zsh/.zshrc"
+zv="$XDG_CONFIG_HOME/nvim/zshrc.vim"
 
 # Directories {{{2
+
 b="$HOME/.local/bin"
 dc="$HOME/Documents"
 dg="$HOME/Documents/Drafts"
@@ -216,6 +231,8 @@ ndh="$XDG_DATA_HOME/nvim/site"
 ndp="$XDG_DATA_HOME/nvim/site/plugin"
 np="$XDG_DATA_HOME/nvim/plugged"
 nr='/opt/homebrew/Cellar/neovim/*/share/nvim/runtime'
+p1="$XDG_DATA_HOME/powerlevel10k"
+p2="$HOME/Documents/2"
 pc="$XDG_DATA_HOME/pandoc/custom"
 pd="$XDG_DATA_HOME/pandoc/defaults"
 ph="$XDG_DATA_HOME/pandoc"
@@ -229,6 +246,7 @@ xc="$XDG_CONFIG_HOME"
 xd="$XDG_DATA_HOME"
 zf="$XDG_DATA_HOME/zsh/functions"
 zh="$XDG_CONFIG_HOME/zsh"
+
 # }}}2
 
 # Command-line tools {{{1
