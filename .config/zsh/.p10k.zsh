@@ -21,20 +21,6 @@
   # Place icons before content on left, after content on right
   typeset -g POWERLEVEL9K_ICON_BEFORE_CONTENT=
 
-  # 'Sparse' prompt
-  typeset -g POWERLEVEL9K_PROMPT_ADD_NEWLINE=true
-  # No frame between first and second line
-  typeset -g POWERLEVEL9K_MULTILINE_FIRST_PROMPT_PREFIX=
-  typeset -g POWERLEVEL9K_MULTILINE_NEWLINE_PROMPT_PREFIX=
-  typeset -g POWERLEVEL9K_MULTILINE_LAST_PROMPT_PREFIX=
-  typeset -g POWERLEVEL9K_MULTILINE_FIRST_PROMPT_SUFFIX=
-  typeset -g POWERLEVEL9K_MULTILINE_NEWLINE_PROMPT_SUFFIX=
-  typeset -g POWERLEVEL9K_MULTILINE_LAST_PROMPT_SUFFIX=
-  # No filler between left and right prompt
-  typeset -g POWERLEVEL9K_MULTILINE_FIRST_PROMPT_GAP_CHAR=' '
-  typeset -g POWERLEVEL9K_MULTILINE_FIRST_PROMPT_GAP_BACKGROUND=
-  typeset -g POWERLEVEL9K_MULTILINE_NEWLINE_PROMPT_GAP_BACKGROUND=
-
   typeset -g POWERLEVEL9K_BACKGROUND=0
   # Angled segment separators
   typeset -g POWERLEVEL9K_LEFT_SUBSEGMENT_SEPARATOR='%8F\uE0B1'
@@ -46,8 +32,43 @@
   typeset -g POWERLEVEL9K_LEFT_PROMPT_FIRST_SEGMENT_START_SYMBOL=''
   typeset -g POWERLEVEL9K_RIGHT_PROMPT_LAST_SEGMENT_END_SYMBOL=''
 
-  # No left prompt head if the line has no segments
-  typeset -g POWERLEVEL9K_EMPTY_LINE_LEFT_PROMPT_LAST_SEGMENT_END_SYMBOL=
+  # Ruler before prompt
+  typeset -g POWERLEVEL9K_SHOW_RULER=false
+  typeset -g POWERLEVEL9K_RULER_CHAR='─'
+  typeset -g POWERLEVEL9K_RULER_FOREGROUND=0
+  typeset -g POWERLEVEL9K_RULER_BACKGROUND=#080808
+  # 'Sparse' prompt: blank line before prompt
+  typeset -g POWERLEVEL9K_PROMPT_ADD_NEWLINE=true
+  # Frame between first and second line of prompt
+  typeset -g POWERLEVEL9K_MULTILINE_FIRST_PROMPT_PREFIX='%0F╭─'
+  typeset -g POWERLEVEL9K_MULTILINE_NEWLINE_PROMPT_PREFIX='%0F├─'
+  typeset -g POWERLEVEL9K_MULTILINE_LAST_PROMPT_PREFIX='%0F╰─'
+  typeset -g POWERLEVEL9K_MULTILINE_FIRST_PROMPT_SUFFIX='%0F─╮'
+  typeset -g POWERLEVEL9K_MULTILINE_NEWLINE_PROMPT_SUFFIX='%0F─┤'
+  typeset -g POWERLEVEL9K_MULTILINE_LAST_PROMPT_SUFFIX='%0F─╯'
+
+  # Filler between left and right prompt
+  typeset -g POWERLEVEL9K_MULTILINE_FIRST_PROMPT_GAP_CHAR='─'
+  typeset -g POWERLEVEL9K_MULTILINE_FIRST_PROMPT_GAP_FOREGROUND=0
+  typeset -g POWERLEVEL9K_MULTILINE_FIRST_PROMPT_GAP_BACKGROUND=#080808
+  # Start filler from the edge of the screen if there are no left segments on
+  # the first line
+  typeset -g POWERLEVEL9K_EMPTY_LINE_LEFT_PROMPT_FIRST_SEGMENT_END_SYMBOL='%{%}'
+  # End filler on the edge of the screen if there are no right segments on the
+  # first line
+  typeset -g POWERLEVEL9K_EMPTY_LINE_RIGHT_PROMPT_FIRST_SEGMENT_START_SYMBOL='%{%}'
+
+  typeset -g POWERLEVEL9K_TRANSIENT_PROMPT=off
+
+  function p10k-on-post-prompt {
+    p10k display '1|empty_line'=hide 'ruler'=show '*/right_frame'=hide
+  }
+
+  function p10k-on-pre-prompt {
+    p10k display '1|empty_line'=show 'ruler'=hide '*/right_frame'=show
+  }
+
+  typeset -g POWERLEVEL9K_INSTANT_PROMPT=verbose
 
   # Segments {{{1
 
@@ -76,8 +97,8 @@
   # prompt_char {{{2
   # Transparent background
   typeset -g POWERLEVEL9K_PROMPT_CHAR_BACKGROUND=
-  typeset -g POWERLEVEL9K_PROMPT_CHAR_OK_{VIINS,VICMD,VIVIS,VIOWR}_FOREGROUND=10
-  typeset -g POWERLEVEL9K_PROMPT_CHAR_ERROR_{VIINS,VICMD,VIVIS,VIOWR}_FOREGROUND=9
+  typeset -g POWERLEVEL9K_PROMPT_CHAR_OK_{VIINS,VICMD,VIVIS,VIOWR}_FOREGROUND=2
+  typeset -g POWERLEVEL9K_PROMPT_CHAR_ERROR_{VIINS,VICMD,VIVIS,VIOWR}_FOREGROUND=1
   typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIINS_CONTENT_EXPANSION='❯'
   typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VICMD_CONTENT_EXPANSION='❮'
   typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIVIS_CONTENT_EXPANSION='V'
@@ -90,7 +111,7 @@
   typeset -g POWERLEVEL9K_PROMPT_CHAR_LEFT_{LEFT,RIGHT}_WHITESPACE=
 
   # dir {{{2
-  typeset -g POWERLEVEL9K_DIR_FOREGROUND=6
+  typeset -g POWERLEVEL9K_DIR_FOREGROUND=4
   # If directory is too long, shorten some of its segments to the shortest
   # possible unique prefix. The shortened directory can be tab-completed to the
   # original.
@@ -101,7 +122,7 @@
   typeset -g POWERLEVEL9K_DIR_SHORTENED_FOREGROUND=4
   # Color of the anchor directory segments. Anchor segments are never
   # shortened. The first segment is always an anchor.
-  typeset -g POWERLEVEL9K_DIR_ANCHOR_FOREGROUND=14
+  typeset -g POWERLEVEL9K_DIR_ANCHOR_FOREGROUND=4
   # Display anchor directory segments in bold.
   typeset -g POWERLEVEL9K_DIR_ANCHOR_BOLD=true
   # Don't shorten directories that contain any of these files. They are
@@ -157,18 +178,18 @@
 
     if (( $1 )); then
       # Git status is up to date
-      local meta='%7F'
-      local clean='%10F'
-      local modified='%11F'
-      local untracked='%14F'
-      local conflicted='%9F'
+      local meta='%f'
+      local clean='%2F'
+      local modified='%3F'
+      local untracked='%4F'
+      local conflicted='%1F'
     else
       # Git status is being computed
-      local meta='%8F'
-      local clean='%8F'
-      local modified='%8F'
-      local untracked='%8F'
-      local conflicted='%8F'
+      local meta='%f'
+      local clean='%f'
+      local modified='%f'
+      local untracked='%f'
+      local conflicted='%f'
     fi
 
     local res
@@ -294,17 +315,17 @@
   typeset -g POWERLEVEL9K_VCS_{STAGED,UNSTAGED,UNTRACKED,CONFLICTED,COMMITS_AHEAD,COMMITS_BEHIND}_MAX_NUM=-1
 
   # Icon color
-  typeset -g POWERLEVEL9K_VCS_VISUAL_IDENTIFIER_COLOR=10
-  typeset -g POWERLEVEL9K_VCS_LOADING_VISUAL_IDENTIFIER_COLOR=8
+  typeset -g POWERLEVEL9K_VCS_VISUAL_IDENTIFIER_COLOR=2
+  typeset -g POWERLEVEL9K_VCS_LOADING_VISUAL_IDENTIFIER_COLOR=
 
   # Show status of repositories of these types
   typeset -g POWERLEVEL9K_VCS_BACKENDS=(git)
 
   # These settings are used for repositories other than Git or when gitstatusd
   # fails and Powerlevel10k has to fall back to using vcs_info.
-  typeset -g POWERLEVEL9K_VCS_CLEAN_FOREGROUND=10
-  typeset -g POWERLEVEL9K_VCS_UNTRACKED_FOREGROUND=10
-  typeset -g POWERLEVEL9K_VCS_MODIFIED_FOREGROUND=11
+  typeset -g POWERLEVEL9K_VCS_CLEAN_FOREGROUND=2
+  typeset -g POWERLEVEL9K_VCS_UNTRACKED_FOREGROUND=2
+  typeset -g POWERLEVEL9K_VCS_MODIFIED_FOREGROUND=3
 
   # exit_code {{{2
 
@@ -345,7 +366,7 @@
   # Show this many fractional digits. Zero means round to seconds.
   typeset -g POWERLEVEL9K_COMMAND_EXECUTION_TIME_PRECISION=0
 
-  typeset -g POWERLEVEL9K_COMMAND_EXECUTION_TIME_FOREGROUND=7
+  typeset -g POWERLEVEL9K_COMMAND_EXECUTION_TIME_FOREGROUND=3
   typeset -g POWERLEVEL9K_COMMAND_EXECUTION_TIME_FORMAT='d h m s'
 
   # background_jobs {{{2
@@ -353,7 +374,7 @@
   # Show the number of background jobs
   typeset -g POWERLEVEL9K_BACKGROUND_JOBS_VERBOSE=true
   # Background jobs color.
-  typeset -g POWERLEVEL9K_BACKGROUND_JOBS_FOREGROUND=6
+  typeset -g POWERLEVEL9K_BACKGROUND_JOBS_FOREGROUND=1
 
   # vi_mode {{{2
 
@@ -364,16 +385,17 @@
   typeset -g POWERLEVEL9K_VI_OVERWRITE_MODE_STRING=OVERTYPE
   typeset -g POWERLEVEL9K_VI_MODE_OVERWRITE_FOREGROUND=3
   typeset -g POWERLEVEL9K_VI_INSERT_MODE_STRING=
-  typeset -g POWERLEVEL9K_VI_MODE_INSERT_FOREGROUND=6
+  typeset -g POWERLEVEL9K_VI_MODE_INSERT_FOREGROUND=8
 
   # context {{{2
 
-  typeset -g POWERLEVEL9K_CONTEXT_ROOT_FOREGROUND=11
-  typeset -g POWERLEVEL9K_CONTEXT_ROOT_TEMPLATE='%B%n@%m'
-  typeset -g POWERLEVEL9K_CONTEXT_{REMOTE,REMOTE_SUDO}_FOREGROUND=11
-  typeset -g POWERLEVEL9K_CONTEXT_{REMOTE,REMOTE_SUDO}_TEMPLATE='%n@%m'
+  typeset -g POWERLEVEL9K_CONTEXT_ROOT_FOREGROUND=1
+  typeset -g POWERLEVEL9K_CONTEXT_{REMOTE,REMOTE_SUDO}_FOREGROUND=7
   # Default context (no privileges, no SSH)
-  typeset -g POWERLEVEL9K_CONTEXT_FOREGROUND=11
+  typeset -g POWERLEVEL9K_CONTEXT_FOREGROUND=7
+
+  typeset -g POWERLEVEL9K_CONTEXT_ROOT_TEMPLATE='%B%n@%m'
+  typeset -g POWERLEVEL9K_CONTEXT_{REMOTE,REMOTE_SUDO}_TEMPLATE='%n@%m'
   typeset -g POWERLEVEL9K_CONTEXT_TEMPLATE='%n@%m'
 
   # Don't show context unless running with privileges or in SSH
@@ -391,9 +413,6 @@
 
   # }}}2
   # }}}1
-
-  typeset -g POWERLEVEL9K_TRANSIENT_PROMPT=off
-  typeset -g POWERLEVEL9K_INSTANT_PROMPT=verbose
 
   # Hot reload allows you to change POWERLEVEL9K options after Powerlevel10k
   # has been initialized. Hot reload can slow down prompt by 1-2 milliseconds,
