@@ -42,7 +42,7 @@ endif
 augroup nvimrc_options " {{{2
   autocmd!
   autocmd VimEnter,VimResized * call s:set_number()
-  autocmd FileType text,markdown,gitcommit,help,man setlocal nonumber
+  autocmd FileType text,gitcommit,help,man setlocal nonumber
 
   autocmd BufReadPost,BufNewFile $HOME/.local/bin/*
         \ execute empty(expand('%:e'))
@@ -55,12 +55,11 @@ augroup nvimrc_options " {{{2
   autocmd BufReadPost,BufNewFile *.4ht set filetype=tex
   autocmd BufReadPost,BufNewFile *.lvt set filetype=tex
 
-  autocmd FileType markdown setlocal formatoptions-=l
-  autocmd FileType text,markdown setlocal textwidth=78
+  autocmd FileType text setlocal textwidth=78
   autocmd FileType gitcommit setlocal textwidth=72
-  autocmd FileType text,markdown,gitcommit setlocal formatoptions+=n
-  autocmd FileType markdown,gitcommit setlocal shiftwidth=4
-  autocmd FileType markdown,gitcommit setlocal softtabstop=4
+  autocmd FileType text,gitcommit setlocal formatoptions+=n
+  autocmd FileType gitcommit setlocal shiftwidth=4
+  autocmd FileType gitcommit setlocal softtabstop=4
   autocmd FileType help setlocal nolist
 augroup END
 
@@ -158,9 +157,6 @@ endfunction
 
 " Plugins {{{1
 
-let g:pandoc#filetypes#pandoc_markdown = 0
-let g:pandoc#filetypes#handled = []
-
 call plug#begin()
   Plug 'mattn/emmet-vim', {'for': ['html', 'xml']}
   Plug '/opt/homebrew/opt/fzf'
@@ -171,7 +167,6 @@ call plug#begin()
   Plug 'wellle/targets.vim'
   Plug 'jamessan/vim-gnupg'
   Plug 'fladson/vim-kitty'
-  Plug 'vim-pandoc/vim-pandoc'
   Plug 'junegunn/vim-plug'
   Plug 'machakann/vim-sandwich'
   Plug '~/.local/share/nvim/vimtex'

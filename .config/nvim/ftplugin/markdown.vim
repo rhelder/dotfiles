@@ -1,22 +1,18 @@
 if exists('b:did_ftplugin') | finish | endif
-
-let g:pandoc#modules#enabled = ['folding', 'keyboard', 'toc']
-let g:pandoc#folding#fdc = 0
-let g:pandoc#folding#fastfolds = 1
-let g:pandoc#keyboard#use_default_mappings = 0
-let g:pandoc#syntax#conceal#use = 0
-source $XDG_DATA_HOME/nvim/plugged/vim-pandoc/ftplugin/pandoc.vim
-
+let g:markdown_recommended_style = 0
+let g:markdown_folding = 1
+source $VIMRUNTIME/ftplugin/markdown.vim
 let b:did_ftplugin = 1
 
-command! -buffer -bang -nargs=?
-      \ -complete=customlist,pandoc#command#PandocComplete
-      \ Pandoc call markdown#pandoc('<args>', '<bang>')
+setlocal nonumber
+setlocal omnifunc=markdown#omnifunc
+setlocal formatoptions-=l
+setlocal textwidth=78
+setlocal softtabstop=4
+setlocal shiftwidth=4
 
-nmap <buffer> ]] <Plug>(pandoc-keyboard-ff-header)
-nmap <buffer> [[ <Plug>(pandoc-keyboard-rw-header)
-nmap <buffer> ][ <Plug>(pandoc-keyboard-ff-sect-end)
-nmap <buffer> [] <Plug>(pandoc-keyboard-rw-sect-end)
+command! -buffer -bang -nargs=?
+      \ Pandoc call markdown#pandoc('<args>', '<bang>')
 
 augroup ncm2_markdown
   autocmd!
@@ -31,6 +27,6 @@ augroup ncm2_markdown
         \ 'complete_pattern': ['(?<!\\)@'],
         \ 'complete_length': -1,
         \ 'on_complete': ['ncm2#on_complete#omni',
-        \     'pandoc#completion#Complete'],
+        \     'markdown#omnifunc'],
         \ })
 augroup END

@@ -11,9 +11,9 @@ augroup ncm2_markdown
   autocmd!
   autocmd BufEnter * call ncm2#enable_for_buffer()
   autocmd User Ncm2Plugin call ncm2#register_source({
-        \ 'name': 'pandoc',
+        \ 'name': 'markdown',
         \ 'priority': 8,
-        \ 'scope': ['pandoc'],
+        \ 'scope': ['markdown'],
         \ 'matcher': {'name': 'prefix', 'key': 'word'},
         \ 'sorter': 'none',
         \ 'word_pattern': s:ncm_word_pattern,
