@@ -32,7 +32,7 @@
 /.local/share/nvim/site/autoload/plug.vim
 /.local/share/nvim/site/doc/tags
 /.local/share/pandoc/default.csl
-/.local/share/pandoc/my_library.json
+/.local/share/pandoc/my_library.yaml
 /.local/share/zotero/
 
 /Development/*

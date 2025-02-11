@@ -47,7 +47,7 @@ while getopts 'shcm:d:' flag; do
       html_deps+=(
         '${USERDATA}/templates/styles.citations.html'
         '${USERDATA}/csl/chicago-author-date-shorttitles.csl'
-        '${USERDATA}/my_library.json'
+        '${USERDATA}/my_library.yaml'
       )
     ;;
     (+c)
@@ -57,7 +57,7 @@ while getopts 'shcm:d:' flag; do
       html_deps+=(
         '${USERDATA}/templates/styles.citations.html'
         '${USERDATA}/csl/chicago-fullnote-bibliography-short-title-subsequent.csl'
-        '${USERDATA}/my_library.json'
+        '${USERDATA}/my_library.yaml'
       )
     ;;
     (m)   project_metadata+=$OPTARG;;
