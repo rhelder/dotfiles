@@ -39,11 +39,7 @@ endfunction
 
 " }}}1
 
-function! markdown#omnifunc(findstart, base, completers=[]) abort " {{{1
-  if empty(a:completers)
-    call extend(a:completers, s:omnifunc_completers)
-  endif
-
+function! markdown#omnifunc(findstart, base) abort " {{{1
   if a:findstart
     if exists('s:completer') | unlet s:completer | endif
 
@@ -52,60 +48,51 @@ function! markdown#omnifunc(findstart, base, completers=[]) abort " {{{1
     " Set l:line equal to the portion of the line behind the cursor
     let l:line = getline('.')[:l:start-1]
 
-    for completer in a:completers
-      if completer.in_context()
-        if has_key(completer, 'find_start')
-          let s:completer = completer
-          return s:completer.find_start()
-        endif
+    for l:completer in s:completers
+      if !completer.in_context(l:line) | continue | endif
 
-        for pattern in completer.patterns
-          if l:line =~# pattern.detect
-            let s:completer = completer
-            while l:start > 0
-              if l:line[:l:start-1] =~# pattern.terminate
-                return l:start
-              else
-                let l:start -=1
-              endif
-            endwhile
-          endif
-        endfor
-      endif
+      let s:completer = l:completer
+      return l:completer.find_start(l:start, l:line)
     endfor
     return -3
+
   elseif !exists('s:completer')
-    " Ordinarily, if s:completer is not defined, completion is cancelled,
-    " the function is not called again with findstart=0, and so
-    " s:completer.complete is not called; so there's no error that
-    " s:completer is undefined. But a wrapper function (such as when you're
-    " using an autocomplete plugin) might call the function with
-    " findstart=0 regardless. To avoid an error, return an empty list if
-    " s:completer is undefined.
     return []
-  else
-    return s:completer.complete(a:base)
   endif
+
+  return s:completer.complete(a:base)
 endfunction
 
 " Citation completer {{{1
 
-let s:completer_citations = {
-      \ 'patterns': [
-      \     {'detect': '\v(^|\[|\s)\@[0-9A-Za-z._-]*$',
-      \         'terminate': '\v(^|\[|\s)\@$'},
-      \ ],
-      \ }
+let s:completer_citations = {}
 
-function! s:completer_citations.in_context() abort dict " {{{2
-  let l:pos = col('.') - 1
-  let l:line = getline('.')[:l:pos-1]
-  for pattern in self.patterns
-    if l:pos > 0 && l:line[:l:pos-1] =~# pattern.detect
-      return 1
-    endif
-  endfor
+function! s:completer_citations.in_context(line) abort dict " {{{2
+  if s:in_yaml_block()
+    return 0
+  endif
+
+  if a:line =~# '\v(^|\[|\s)\@%(\w%([:.#$%&-+?<>~/]?\w)*)*$'
+    let self.start_pattern = '\v%(^|\s|\[|-)\@$'
+    return 1
+  elseif a:line =~# '\v(^|\[|\s)\@\{.*'
+    let self.start_pattern = '\v%(^|\s|\[|-)\@\{$'
+    return 1
+  endif
+
   return 0
+endfunction
+
+function! s:completer_citations.find_start(start, line) abort dict " {{{2
+  let l:start = a:start
+  while l:start > 0
+    if a:line[:l:start-1] =~# self.start_pattern
+      return l:start
+    else
+      let l:start -=1
+    endif
+  endwhile
+  return -2
 endfunction
 
 function! s:completer_citations.complete(base) abort dict " {{{2
@@ -128,11 +115,11 @@ endfunction
 
 let s:completer_default = {}
 
-function! s:completer_default.in_context() abort
+function! s:completer_default.in_context(line) abort
   return 1
 endfunction
 
-function! s:completer_default.find_start() abort
+function! s:completer_default.find_start(start, line) abort
   return function(b:default_omnifunc)(1, '')
 endfunction
 
@@ -140,9 +127,28 @@ function! s:completer_default.complete(base) abort
   return function(b:default_omnifunc)(0, a:base)
 endfunction
 
-let s:omnifunc_completers = [
+" }}}1
+
+let s:completers = [
       \ s:completer_citations,
       \ s:completer_default,
       \ ]
 
-" }}}1
+function! s:in_yaml_block() abort " {{{1
+  let l:start = search('\v^---\s*$', 'bnW')
+  if !l:start | return 0 | endif
+
+  let l:end = search('\v^(---|\.\.\.)\s*$', 'nW')
+  if !l:end | return 0 | endif
+
+  if getline(l:start + 1) =~# '\v^\s*$' ||
+        \ (l:start != 1 && getline(l:start - 1) !~# '\v^\s*$')
+    return 0
+  endif
+
+  if line('.') > l:start && line('.') < l:end
+    return 1
+  else
+    return 0
+  endif
+endfunction
