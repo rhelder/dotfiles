@@ -5,6 +5,8 @@ let g:markdown_folding = 1
 
 source $VIMRUNTIME/ftplugin/markdown.vim
 
+let &l:formatlistpat ..= '\|^\s*:\s\+\|^\s*\a\.\s\+'
+
 let b:default_omnifunc = &omnifunc
 let b:undo_ftplugin ..= '| unlet b:default_omnifunc'
 
