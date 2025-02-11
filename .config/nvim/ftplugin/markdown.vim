@@ -1,7 +1,13 @@
 if exists('b:did_ftplugin') | finish | endif
+
 let g:markdown_recommended_style = 0
 let g:markdown_folding = 1
+
 source $VIMRUNTIME/ftplugin/markdown.vim
+
+let b:default_omnifunc = &omnifunc
+let b:undo_ftplugin ..= '| unlet b:default_omnifunc'
+
 let b:did_ftplugin = 1
 
 setlocal nonumber
@@ -21,12 +27,11 @@ augroup ncm2_markdown
         \ 'name': 'markdown',
         \ 'priority': 8,
         \ 'scope': ['markdown'],
+        \ 'on_complete': ['ncm2#on_complete#omni', 'markdown#omnifunc'],
+        \ 'word_pattern': '\w+',
+        \ 'complete_length': -1,
+        \ 'complete_pattern': ['(^|\[|\s)@\{?'],
         \ 'matcher': {'name': 'prefix', 'key': 'word'},
         \ 'sorter': 'none',
-        \ 'word_pattern': '\w+',
-        \ 'complete_pattern': ['(?<!\\)@'],
-        \ 'complete_length': -1,
-        \ 'on_complete': ['ncm2#on_complete#omni',
-        \     'markdown#omnifunc'],
         \ })
 augroup END
