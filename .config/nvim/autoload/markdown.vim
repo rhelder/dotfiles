@@ -96,19 +96,12 @@ function! s:completer_citations.find_start(start, line) abort dict " {{{2
 endfunction
 
 function! s:completer_citations.complete(base) abort dict " {{{2
-  let l:biblatex_file_path =
-        \ $HOME .. '/Library/texmf/bibtex/bib/my_library.bib'
-  let l:biblatex_file = readfile(l:biblatex_file_path)
-  call filter(l:biblatex_file, 'v:val[0] ==# "@"')
-  let l:biblatex_keys = map(l:biblatex_file, function('s:biblatex_trim'))
-  call filter(l:biblatex_keys, 'v:val =~# "^" .. a:base')
-  return l:biblatex_keys
+  let l:file = readfile($XDG_DATA_HOME .. '/pandoc/my_library.yaml')
+  let l:lines = filter(l:file, 'v:val =~# "^- id"')
+  let l:keys = map(l:lines, 'substitute(v:val, "- id: ", "", "")')
+  let l:candidates = filter(l:keys, 'v:val =~# "^" .. a:base')
+  return l:candidates
 endfunction
-
-function! s:biblatex_trim(index, val) abort " {{{3
-  return substitute(a:val, '\v^\@.+\{(.+),$', '\1', '')
-endfunction
-" }}}3
 " }}}2
 
 " Default completer {{{1
