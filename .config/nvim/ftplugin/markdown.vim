@@ -13,7 +13,6 @@ let b:undo_ftplugin ..= '| unlet b:default_omnifunc'
 let b:did_ftplugin = 1
 
 setlocal nonumber
-setlocal omnifunc=markdown#omnifunc
 setlocal formatoptions-=l
 setlocal textwidth=78
 setlocal softtabstop=4
@@ -21,6 +20,12 @@ setlocal shiftwidth=4
 
 command! -buffer -bang -nargs=?
       \ Pandoc call markdown#pandoc('<args>', '<bang>')
+
+nmap <buffer> mm <Plug>(pandoc-compile)
+nmap <buffer> <script> <Plug>(pandoc-compile) <SID>(pandoc-compile)
+nnoremap <buffer> <SID>(pandoc-compile) <Cmd>Pandoc! -dhtml<CR>
+
+setlocal omnifunc=markdown#omnifunc
 
 augroup ncm2_markdown
   autocmd!
