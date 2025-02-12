@@ -157,6 +157,7 @@ function! s:scratch_buf.init(cmd) abort dict " {{{1
     setlocal winfixheight
     setlocal fillchars=eob:\ 
     setlocal nonumber
+    setlocal nolist
 
   else " Reuse existing scratch buffer
     let self.bufnr = bufnr(self.title)
