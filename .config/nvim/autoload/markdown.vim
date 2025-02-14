@@ -16,7 +16,7 @@ function! markdown#pandoc(args, bang) abort " {{{1
   call jobs#jobstart(l:cmd, {
         \ 'name': 'Pandoc',
         \ 'on_stderr':
-        \   function('jobs#call_callbacks', [['scratch_on_output']]),
+        \   function('jobs#call', ['scratch_on_output']),
         \ 'on_exit': function('s:on_exit', [empty(a:bang)
         \   ? ''
         \   : l:output_file]),
