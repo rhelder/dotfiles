@@ -41,9 +41,7 @@ endif
 
 augroup nvimrc_options " {{{2
   autocmd!
-  autocmd VimEnter,VimResized * call s:set_number()
-  autocmd FileType text,gitcommit,help,man setlocal nonumber
-
+  autocmd Filetype,VimResized * call s:set_number()
   autocmd BufReadPost,BufNewFile $HOME/.local/bin/*
         \ execute empty(expand('%:e'))
         \   ? 'set filetype=zsh'
@@ -64,14 +62,16 @@ augroup nvimrc_options " {{{2
 augroup END
 
 function! s:set_number() abort " {{{3
+  if &filetype =~# '\v(text|markdown|gitcommit|help|man|qf)'
+    return
+  endif
+
   " 82 = default kitty window width + padding
   if &columns <# (82 + len(line('$')))
     set nonumber
   else
     set number
   endif
-
-  doautocmd nvimrc_options FileType
 endfunction
 " }}}3
 " }}}2
