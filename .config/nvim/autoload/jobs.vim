@@ -6,8 +6,6 @@ function! jobs#jobstart(cmd, opts = {}) abort " {{{1
         \ 'name': 'Job',
         \ 'on_start': get(l:job_controller, 'notify_on_start'),
         \ 'on_exit': get(l:job_controller, 'notify_on_exit'),
-        \ 'on_stdout': get(l:job_controller, 'on_output'),
-        \ 'on_stderr': get(l:job_controller, 'on_output'),
         \ })
   call extend(l:job_controller, a:opts)
   call extend(get(l:job_controller, 'scratch_buf', {}), s:scratch_buf)
