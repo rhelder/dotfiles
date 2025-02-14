@@ -5,4 +5,4 @@ compiler lilypond
 
 nmap <buffer> <LocalLeader>ll <Plug>(lilypond-compile)
 nmap <buffer> <script> <Plug>(lilypond-compile) <SID>(lilypond-compile)
-nnoremap <buffer> <SID>(lilypond-compile) <Cmd>LilypondCompile<CR>
+nnoremap <buffer> <SID>(lilypond-compile) <Cmd>Lilypond<CR>

@@ -10,28 +10,31 @@ setlocal errorformat+=In\ file\ included\ from\ %f:%l:,
 setlocal errorformat+=\^I\^Ifrom\ %f:%l%m
 silent CompilerSet errorformat
 
+command! -buffer Lilypond call jobs#jobstart([
+      \   'lilypond',
+      \   '--output=' .. expand('%<'),
+      \   expand('%'),
+      \ ], {
+      \   'name': 'LilyPond',
+      \   'qflist': {'title': 'LilyPond'},
+      \   'on_stdout': function('jobs#call', ['on_output']),
+      \   'on_stderr': function('jobs#call', ['on_output']),
+      \   'on_exit': function('s:on_exit'),
+      \ })
+
 function! s:on_exit(job, status, event) abort dict
   call self.quickfix_on_exit(a:job, a:status, a:event)
   call self.notify_on_exit(a:job, a:status, a:event)
   if a:status | return | endif
 
-  call shell#jobstart([
-        \ 'open',
-        \ '-a',
-        \ 'Skim',
-        \ expand('%<') .. '.pdf'
+  call jobs#jobstart([
+        \   'open',
+        \   '-a',
+        \   'Skim',
+        \   expand('%<') .. '.pdf'
         \ ], {
-        \ 'on_start': '',
-        \ 'on_exit': '',
+        \   'on_start': '',
+        \   'on_exit': '',
         \ })
 endfunction
 
-command! -buffer LilypondCompile call shell#jobstart([
-      \ 'lilypond',
-      \ '--output=' .. expand('%<'),
-      \ expand('%'),
-      \ ], {
-      \ 'name': 'LilyPond',
-      \ 'qflist': {'title': 'LilyPond'},
-      \ 'on_exit': function('s:on_exit'),
-      \ })
