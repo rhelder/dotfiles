@@ -23,7 +23,7 @@ command! -buffer -bang -nargs=?
 
 nmap <buffer> mm <Plug>(pandoc-compile)
 nmap <buffer> <script> <Plug>(pandoc-compile) <SID>(pandoc-compile)
-nnoremap <buffer> <SID>(pandoc-compile) <Cmd>Pandoc! -dhtml<CR>
+nnoremap <buffer> <SID>(pandoc-compile) <Cmd>Pandoc! --defaults=html<CR>
 
 setlocal omnifunc=markdown#omnifunc
 
