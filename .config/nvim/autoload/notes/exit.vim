@@ -25,13 +25,13 @@ function! notes#exit#compile() abort " {{{1
 
   if string(v:exiting) ==# 'v:null'
     call jobs#jobstart(l:pandoc_cmd,
-          \ extend(l:opts, {
+          \ extend(copy(l:opts), {
           \ 'name': 'Pandoc',
           \ 'scratch_buf': {'title': 'Pandoc'},
           \ }))
 
     call jobs#jobstart(['build-index'],
-          \ extend(l:opts, {
+          \ extend(copy(l:opts), {
           \ 'name': 'build-index',
           \ 'scratch_buf': {'title': 'build-index'},
           \ }))
