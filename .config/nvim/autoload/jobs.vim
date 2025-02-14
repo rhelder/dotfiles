@@ -13,7 +13,12 @@ function! jobs#jobstart(cmd, opts = {}) abort " {{{1
   return l:job_controller.start()
 endfunction
 
-function! jobs#call_callbacks(funcnames, job, data, event) abort dict " {{{1
+function! jobs#call(funcnames, job, data, event) abort dict " {{{1
+  if type(a:funcnames) ==# v:t_string
+    call self[a:funcnames](a:job, a:data, a:event)
+    return
+  endif
+
   for l:funcname in a:funcnames
     call self[l:funcname](a:job, a:data, a:event)
   endfor
