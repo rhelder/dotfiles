@@ -193,15 +193,46 @@ function! s:job_controller.quickfix_on_exit(job, status, event) abort dict " {{{
   endif
 
   silent caddexpr map(copy(self.output), 'v:val.line')
-  call setqflist(filter(getqflist(), 'v:val.valid !=# 0'), 'r')
-  call setqflist([], 'a', {'title': l:title})
+
+  if get(self.qflist, 'all', 1)
+    " Because 's:qftext()' returns the text of non-valid entries, that means
+    " that the default format will be used to display any entries with 'text'
+    " equal to an empty string. Remove entries with an empty 'text'.
+    call setqflist(filter(getqflist(), '!empty(v:val.text)'), 'r')
+  else
+    call setqflist(filter(getqflist(), 'v:val.valid'), 'r')
+  endif
+
+  call setqflist([], 'a', {
+        \ 'title': l:title,
+        \ 'quickfixtextfunc': function('s:qftext'),
+        \ })
 
   let l:cursor_pos = getpos('.')[1:2]
   let l:winid = bufwinid(bufnr('%'))
+
   botright cwindow
+  setlocal nolist
+
   call win_gotoid(l:winid)
   call cursor(l:cursor_pos)
 endfunction
+
+function! s:qftext(info) abort " {{{2
+  let l:items = getqflist({'id': a:info.id, 'items': 0}).items
+  let l:list = []
+
+  for l:item in l:items
+    if l:item.valid
+      call add(l:list, '')
+    else
+      call add(l:list, l:item.text)
+    endif
+  endfor
+
+  return l:list
+endfunction
+" }}}2
 
 " }}}1
 
