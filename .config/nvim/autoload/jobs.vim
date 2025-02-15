@@ -158,7 +158,6 @@ function! s:scratch_buf.init(cmd) abort dict " {{{1
     setlocal bufhidden=hide
     setlocal noswapfile
     setlocal winfixheight
-    setlocal fillchars=eob:\ 
     setlocal nonumber
     setlocal nolist
 
@@ -192,7 +191,10 @@ function! s:job_controller.quickfix_on_exit(job, status, event) abort dict " {{{
     call setqflist([], 'r')
   endif
 
-  silent caddexpr map(copy(self.output), 'v:val.line')
+  silent caddexpr map(
+        \ filter(copy(self.output), 'v:val.event ==# "stderr"'),
+        \ 'v:val.line'
+        \ )
 
   if get(self.qflist, 'all', 1)
     " Because 's:qftext()' returns the text of non-valid entries, that means
