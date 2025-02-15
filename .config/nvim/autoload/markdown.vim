@@ -1,4 +1,34 @@
 function! markdown#pandoc(args, bang) abort " {{{1
+  if !getbufvar(bufnr('%'), 'markdown_pandoc_is_running', 0)
+    call markdown#pandoc_ss(a:args, a:bang)
+
+    augroup markdown_pandoc
+      autocmd!
+      execute 'autocmd BufWritePost <buffer> call markdown#pandoc_ss('
+            \ .. string(a:args) .. ', '
+            \ .. string(a:bang)
+            \ .. ')'
+    augroup END
+
+    let b:markdown_pandoc_is_running = 1
+
+  else
+    augroup markdown_pandoc
+      autocmd!
+    augroup END
+
+    let b:markdown_pandoc_is_running = 0
+
+    redraw
+    echohl JobInfo
+    echo 'Pandoc: '
+    echohl JobMsg
+    echon 'Stopped'
+    echohl None
+  endif
+endfunction
+
+function! markdown#pandoc_ss(args, bang) abort " {{{1
   let l:cmd = ['pandoc']
 
   let l:args = split(a:args)
@@ -29,7 +59,7 @@ function! s:on_exit(output_file, job, status, event) abort dict " {{{2
   call self.notify_on_exit(a:job, a:status, a:event)
 
   if !empty(a:output_file)
-    call jobs#jobstart(['open', a:output_file], {
+    call jobs#jobstart(['open', '-g', a:output_file], {
           \ 'on_start': '',
           \ 'on_exit': '',
           \ })
