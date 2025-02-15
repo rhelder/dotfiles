@@ -1,64 +1,75 @@
 " Options {{{1
 
+" Editing
+set expandtab
+set nosmarttab
+set shiftwidth=2
+set softtabstop=2
+set textwidth=79
+
+" Search
+set ignorecase
+set smartcase
+
+" UI
 set belloff=
+set mouse=
+
+" Display
 set cursorline
 set cursorlineopt=line
-set diffopt+=vertical
-set expandtab
-set foldlevelstart=0
-set foldmethod=marker
 set guicursor=a:block
-set ignorecase
 set list
-set mouse=
 set noruler
 set report=0
 set scrolloff=3
-set shiftwidth=2
-set smartcase
-set nosmarttab
-set softtabstop=2
-set spelllang=en_us
+
+" Windows
+set diffopt+=vertical
 set splitbelow
 set splitright
-set textwidth=79
 
-" Use undo files
+" Folding
+set foldlevelstart=0
+set foldmethod=marker
+
+" Spell
+set spelllang=en_us
+
+" Undo and swap file
 set undofile
 set undodir=$HOME/.cache/vim/undo
 if !isdirectory(&undodir)
   call mkdir(&undodir, 'p')
 endif
-
 " Do not skip swapfile prompt (':help default-autocmds')
 autocmd! nvim_swapfile
 
-" If 'init.vim' is re-sourced after startup, global settings may override local
-" filetype-specific settings. Restore local settings.
+" Filetype-specific options {{{2
+
+" If 'init.vim' is re-sourced, re-set filetype-specific options
 if !empty(&filetype) " i.e., only after startup
   doautocmd nvimrc_options FileType
 endif
 
-augroup nvimrc_options " {{{2
+augroup nvimrc_ftdetect
   autocmd!
-  autocmd Filetype,VimResized * call s:set_number()
   autocmd BufReadPost,BufNewFile $HOME/.local/bin/*
         \ execute empty(expand('%:e'))
         \   ? 'set filetype=zsh'
         \   : ''
   autocmd BufReadPost,BufNewFile $XDG_DATA_HOME/zsh/functions/*
         \ set filetype=zsh
+  autocmd BufReadPost,BufNewFile *.lvt set filetype=tex
+  autocmd BufReadPost,BufNewFile *.4ht set filetype=tex
   autocmd BufReadPost,BufNewFile $HOME/Library/texmf/tex/generic/tex4ht/*
         \ set filetype=tex
-  autocmd BufReadPost,BufNewFile *.4ht set filetype=tex
-  autocmd BufReadPost,BufNewFile *.lvt set filetype=tex
+augroup END
 
-  autocmd FileType text setlocal textwidth=78
+augroup nvimrc_options
+  autocmd Filetype,VimResized * call s:set_number()
   autocmd FileType gitcommit setlocal textwidth=72
-  autocmd FileType text,gitcommit setlocal formatoptions+=n
-  autocmd FileType gitcommit setlocal shiftwidth=4
-  autocmd FileType gitcommit setlocal softtabstop=4
-  autocmd FileType help setlocal nolist
+  autocmd FileType * setlocal formatoptions+=n
 augroup END
 
 function! s:set_number() abort " {{{3
@@ -68,9 +79,9 @@ function! s:set_number() abort " {{{3
 
   " 82 = default kitty window width + padding
   if &columns <# (82 + len(line('$')))
-    set nonumber
+    setlocal nonumber
   else
-    set number
+    setlocal number
   endif
 endfunction
 " }}}3
@@ -91,12 +102,17 @@ augroup nvimrc_zshrc
   autocmd BufWinLeave $XDG_CONFIG_HOME/zsh/.zshrc !zshrc2vimrc
 augroup END
 
-" Source
-nnoremap <Leader>sf <Cmd>source %<CR>
-nnoremap <Leader>sv <Cmd>source $MYVIMRC<CR>
+" Edit
+nmap <Leader>c gcc
+vmap <Leader>c gc
+nnoremap - ddkP | " Move line up
+nnoremap _ ddp | " Move line down
+vnoremap <silent> <Leader>si :sort i<CR>
+
 " Help
 nnoremap \          <Cmd>vert help<CR>:help 
 nnoremap <Leader>h  :help 
+
 " Display
 nnoremap <expr> <Esc> v:hlsearch
       \ ? "<Cmd>noh<CR>"
@@ -105,26 +121,23 @@ nnoremap <expr> <Leader>w
       \ &colorcolumn ==# ''
       \   ? "<Cmd>setlocal colorcolumn=+1<CR>"
       \   : "<Cmd>setlocal colorcolumn=<CR>"
-" Edit
-nmap <Leader>c gcc
-vmap <Leader>c gc
-nnoremap - ddkP | " Move line up
-nnoremap _ ddp | " Move line down
-vnoremap <silent> <Leader>si :sort i<CR>
+
+" Source
+nnoremap <Leader>sf <Cmd>source %<CR>
+nnoremap <Leader>sv <Cmd>source $MYVIMRC<CR>
+
 " Use '<Tab>' to accept the current match and continue completing (not to cycle
 " through further possible options)
 cnoremap <expr> <Tab> wildmenumode()
       \ ? "\<C-Y>\<C-Z>"
       \ : "\<C-Z>"
 
-augroup nvimrc_mappings " {{{2
+augroup nvimrc_mappings
   autocmd!
   " Make it easier to exit the command line window (from @lervag's vimrc)
   autocmd CmdwinEnter * nnoremap <buffer> q     <C-C><C-C>
   autocmd CmdwinEnter * nnoremap <buffer> <C-F> <C-C>
 augroup END
-
-" }}}2
 
 " Spell {{{1
 
@@ -144,11 +157,8 @@ augroup END
 
 function! s:make_spell_files() abort " {{{2
   for file in glob('$XDG_CONFIG_HOME/nvim/spell/*.add', 0, 1)
-    if (filereadable(expand(file)) &&
-          \ !filereadable(expand(file) .. '.spl'))
-          \ ||
-          \ (getftime(expand(file)) >=
-          \ getftime(expand(file) .. '.spl'))
+    if (filereadable(expand(file)) && !filereadable(expand(file) .. '.spl'))
+          \ || (getftime(expand(file)) >=# getftime(expand(file) .. '.spl'))
       execute 'mkspell! ' .. file
     endif
   endfor
@@ -178,84 +188,5 @@ set completeopt=noinsert,menuone,noselect
 
 " Use vim-surround key mappings for vim-sandwich
 runtime macros/sandwich/keymap/surround.vim
-
-let g:GPGExecutable = 'PINENTRY_USER_DATA="" gpg --trust-model=always'
-
-" LuaSnip configuration {{{2
-
-lua require('luasnip').setup({
-      \ enable_autosnippets = true,
-      \ store_selection_keys = '<Tab>',
-      \ update_events = {'TextChanged', 'TextChangedI'},
-      \ snip_env = {
-      \   get_visual = require('rhelder.luasnip').get_visual,
-      \   },
-      \ })
-
-lua require('luasnip.loaders.from_lua').load(
-      \ {paths = '~/.config/nvim/luasnippets'})
-
-" LuaSnip mappings {{{3
-
-imap <silent><expr> <Tab> luasnip#expand_or_jumpable()
-      \ ? '<Plug>luasnip-expand-or-jump'
-      \ : '<Tab>'
-smap <silent><expr> <Tab> luasnip#jumpable(1)
-      \ ? '<Plug>luasnip-jump-next'
-      \ : '<Tab>'
-
-imap <silent><expr> <S-Tab> luasnip#jumpable(-1)
-      \ ? '<Plug>luasnip-jump-prev'
-      \ : '<S-Tab>'
-smap <silent><expr> <S-Tab> luasnip#jumpable(-1)
-      \ ? '<Plug>luasnip-jump-prev'
-      \ : '<S-Tab>'
-
-imap <silent><expr> <C-J> luasnip#choice_active()
-      \ ? '<Plug>luasnip-next-choice'
-      \ : '<C-J>'
-smap <silent><expr> <C-J> luasnip#choice_active()
-      \ ? '<Plug>luasnip-next-choice'
-      \ : '<C-J>'
-imap <silent><expr> <C-K> luasnip#choice_active()
-      \ ? '<Plug>luasnip-prev-choice'
-      \ : '<C-K>'
-smap <silent><expr> <C-K> luasnip#choice_active()
-      \ ? '<Plug>luasnip-prev-choice'
-      \ : '<C-K>'
-
-" }}}3
-
-" After having left the snippet, don't jump back when pressing <Tab>
-" (Still doesn't work if you haven't jumped all the way through a snippet in
-" which another snippet is nested, but still a big improvement. Code is from
-" @augustocdias, LuaSnip issue #258), except for requirement that, when we
-" leave insert mode, we're not changing into an insert-completion mode.
-augroup nvimrc_luasnip
-  autocmd!
-  autocmd ModeChanged * call s:leave_luasnippet()
-  " Fix EOF syntax highlighting
-  autocmd FileType vim lua vim.treesitter.start()
-augroup END
-
-function! s:leave_luasnippet() abort
-lua << EOF
-  local ls = require('luasnip')
-  if (
-      (vim.v.event.old_mode == 's' and vim.v.event.new_mode == 'n')
-      or (
-        vim.v.event.old_mode == 'i'
-        and not
-        (vim.v.event.new_mode == 'ix' or vim.v.event.new_mode == 'ic')
-      )
-    )
-    and ls.session.current_nodes[vim.api.nvim_get_current_buf()]
-    and not ls.session.jump_active
-  then
-    ls.unlink_current()
-  end
-EOF
-endfunction
-" }}}2
 
 " }}}1
