@@ -1,6 +1,3 @@
-" [TODO]
-" * Write Applescript to open Skim without refocusing
-
 if exists('current_compiler') | finish | endif
 let current_compiler = 'lilypond'
 
@@ -29,7 +26,7 @@ function! s:on_exit(job, status, event) abort dict
 
   call jobs#jobstart([
         \   'open',
-        \   '-a',
+        \   '-ga',
         \   'Skim',
         \   expand('%<') .. '.pdf'
         \ ], {
