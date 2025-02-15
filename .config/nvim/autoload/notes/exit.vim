@@ -16,11 +16,9 @@ function! notes#exit#compile() abort " {{{1
         \ ]
 
   let l:opts = {
-        \ 'on_stderr':
-        \   function('jobs#call_callbacks', [['scratch_on_output']]),
+        \ 'on_stderr': function('jobs#call', ['scratch_on_output']),
         \ 'on_exit':
-        \   function('jobs#call_callbacks',
-        \     [['scratch_on_exit', 'notify_on_exit']]),
+        \   function('jobs#call', [['scratch_on_exit', 'notify_on_exit']]),
         \ }
 
   if string(v:exiting) ==# 'v:null'
